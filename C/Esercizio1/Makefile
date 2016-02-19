@@ -1,19 +1,21 @@
 # CFLAGS=-g -O0
-CFLAGS=-Os
+CFLAGS=-g -O0 -I../include
 
-all: tests measure_times
+all: bin/tests bin/measure_times
 
 clean:
-	$(RM) tests *.o
+	$(RM) bin/*
+	$(RM) build/*
 
-tests: tests.c quick_sort.h quick_sort.o
-	$(CC) $(CFLAGS) -o tests tests.c quick_sort.o
+bin/tests: src/tests.c src/quick_sort.h build/quick_sort.o build/merge_sort.o
+	$(CC) $(CFLAGS) -o bin/tests src/tests.c build/quick_sort.o build/merge_sort.o
 
-quick_sort.o: quick_sort.h quick_sort.c
-	$(CC) $(CFLAGS) -c quick_sort.c
+build/quick_sort.o: src/quick_sort.h src/quick_sort.c
+	$(CC) $(CFLAGS) -c src/quick_sort.c -o build/quick_sort.o
 
-dataset.o: dataset.c dataset.h
-	$(CC) $(CFLAGS) -c dataset.c
 
-measure_times: measure_times.c quick_sort.h quick_sort.o dataset.h dataset.o
-	$(CC) $(CFLAGS) -o measure_times measure_times.c quick_sort.o dataset.o
+build/merge_sort.o: src/merge_sort.h src/merge_sort.c
+	$(CC) $(CFLAGS) -c src/merge_sort.c -o build/merge_sort.o
+
+bin/measure_times: src/measure_times.c src/quick_sort.h ../include/dataset.h build/quick_sort.o  ../lib/dataset.o build/merge_sort.o
+	$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c build/quick_sort.o ../lib/dataset.o build/merge_sort.o

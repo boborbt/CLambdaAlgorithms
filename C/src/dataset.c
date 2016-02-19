@@ -77,6 +77,10 @@ Dataset* Dataset_load(const char* filename) {
   size_t buf_len = 2048;
 
   FILE* file = fopen(filename, "r");
+  if(!file) {
+    perror(NULL);
+    exit(1);
+  }
   while(!feof(file)) {
     if( getline(&buf, &buf_len, file) == -1 ) {
       break;

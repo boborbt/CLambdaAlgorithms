@@ -1,0 +1,4 @@
+*.dSym
+*.o
+measure_times
+tests
