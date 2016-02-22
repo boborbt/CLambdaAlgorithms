@@ -5,6 +5,7 @@
 #include <string.h>
 #include "quick_sort.h"
 #include "merge_sort.h"
+#include "heap_sort.h"
 #include "dataset.h"
 
 
@@ -86,6 +87,7 @@ void print_usage() {
   printf(" opts: -q use quick_sort algorithm\n");
   printf("       -Q use system qsort algorithm\n");
   printf("       -m use merge_sort algorithm\n");
+  printf("       -h use heap_sort algorithm\n");
   printf("       -h print this message\n");
 }
 
@@ -103,7 +105,7 @@ void check_arguments(int argc, const char** argv) {
     exit(1);
   }
 
-  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','m','h','Q'}, 4)) {
+  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','m','h','Q', 'H'}, 5)) {
     printf("Option %s not recognized\n", argv[1]);
     print_usage();
     exit(1);
@@ -133,6 +135,9 @@ int main(int argc, char const *argv[]) {
       break;
     case 'm':
       test_algorithm(dataset, merge_sort);
+      break;
+    case 'H':
+      test_algorithm(dataset, heap_sort);
       break;
     case 'Q':
       test_qsort(dataset);
