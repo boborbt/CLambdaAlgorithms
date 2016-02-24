@@ -1,9 +1,9 @@
 
 CFLAGS=-I./include -O0 -g
 
-.PHONY: Esercizio1 lib clean
+.PHONY: Esercizio1 Esercizio2 lib clean
 
-all: lib Esercizio1
+all: lib Esercizio1 Esercizio2
 
 clean:
 	$(MAKE) -C Esercizio1 clean
@@ -16,3 +16,6 @@ lib/dataset.o: src/dataset.c include/dataset.h
 
 Esercizio1:
 	$(MAKE) -C Esercizio1
+
+Esercizio2:
+	$(MAKE) -C Esercizio2

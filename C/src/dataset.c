@@ -42,6 +42,18 @@ int Dataset_compare_field3(const void* e1, const void* e2) {
   return 0;
 }
 
+char* Record_get_field1(Record* record) {
+  return record->field1;
+}
+
+int Record_get_field2(Record* record) {
+  return record->field2;
+}
+
+double Record_get_field3(Record* record) {
+  return record->field3;
+}
+
 Record* parse_record(const char* str) {
   Record* record = (Record*) malloc(sizeof(Record));
   assert(record);
