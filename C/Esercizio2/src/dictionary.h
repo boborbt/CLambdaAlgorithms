@@ -5,6 +5,9 @@
 
 typedef struct _Dictionary* Dictionary;
 
+/*
+ * Constructor and destructor
+ */
 Dictionary Dictionary_new(KeyInfo keyInfo);
 void Dictionary_free(Dictionary dictionary);
 
@@ -18,22 +21,42 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value);
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1.
 int Dictionary_get(Dictionary dictionary, void* key, void** result);
+
+// Delete key from the given dictionary. Do nothing if key does not belong
+// to the dictionary.
 void Dictionary_delete(Dictionary dictionary, void* key);
+
+// Returns the number of distinct keys stores in the dictionary.
 unsigned int Dictionary_size(Dictionary dictionary);
+
+// Returns an evaluation of the efficiency of the dictionary. Its actual
+// value is implementation specific, but it should be lower for dictionaries
+// working in optimal settings, and higher for degenerate situations.
 double Dictionary_efficiency_score();
 
-// Iterators
+// -------------------------------------
+// Iterator interface to the dictionary
+// -------------------------------------
+
 typedef struct _DictionaryIterator* DictionaryIterator;
 typedef struct _Elem {
   void* key;
   void* value;
 }* Elem;
 
-void DictionaryIterator_next(DictionaryIterator it);
+// constructor and destructor
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary);
 void DictionaryIterator_free(DictionaryIterator it);
-int DictionaryIterator_end(DictionaryIterator it);
-Elem DictionaryIterator_get(DictionaryIterator it);
+
+// Move the iterator to the next element. Do nothing if it is already past the
+// end of the container.
 void DictionaryIterator_next(DictionaryIterator it);
+
+// Returns 1 if the iterator is past the end of the container (i.e., if
+// DictionaryIterator_get would return a sensible result), 0 otherwise.
+int DictionaryIterator_end(DictionaryIterator it);
+
+// Returns the element currently pointed by the iterator
+Elem DictionaryIterator_get(DictionaryIterator it);
 
 #endif

@@ -3,11 +3,16 @@
 
 #define HASH_TABLE_INITIAL_CAPACITY 4096
 
+// Internal list implementation. It could be abstracted and moved into
+// a separate module (not done since currently used only in this module).
 typedef struct _List {
   Elem elem;
   struct _List* next;
 }* List;
 
+/* --------------------------
+ * Opaque structures definitions
+ * -------------------------- */
 struct _Dictionary {
   List* table;
   unsigned int capacity;
@@ -21,6 +26,7 @@ struct _DictionaryIterator {
   List cur_list_element;
 };
 
+/* Elem constructor and destructor */
 
 Elem Elem_new(void* key, void* value) {
   Elem result = (Elem) malloc(sizeof(struct _Elem));
@@ -28,6 +34,14 @@ Elem Elem_new(void* key, void* value) {
   result->value = value;
   return result;
 }
+
+void Elem_free(Elem elem) {
+  free(elem);
+}
+
+/* --------------------------
+ * DictionaryIterator implementation
+ *  -------------------------- */
 
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
@@ -65,6 +79,10 @@ void DictionaryIterator_next(DictionaryIterator it) {
   }
 }
 
+/* --------------------------
+ * List implementation
+ * -------------------------- */
+
 unsigned int List_length(List list) {
   int count = 0;
   while(list != NULL) {
@@ -87,7 +105,7 @@ void List_free(List list, int free_elems) {
   while(list!=NULL) {
     List tmp = list->next;
     if(free_elems) {
-      free(list->elem);
+      Elem_free(list->elem);
     }
     free(list);
     list = tmp;
@@ -118,6 +136,9 @@ List* List_find_node(List* list_ptr, void* key, KeyInfo keyInfo) {
   return list_ptr;
 }
 
+/* --------------------------
+ * Dictionary implementation
+ * -------------------------- */
 
 void Dictionary_free_lists(Dictionary dictionary, int free_elems) {
   unsigned int capacity = dictionary->capacity;
@@ -144,6 +165,9 @@ void Dictionary_free(Dictionary dictionary) {
   free(dictionary);
 }
 
+// Reallocate the items in the current dictionary doubling the number of
+// buckets. This is a costly operation since all bucket needs to be relocated
+// to new places.
 void Dictionary_realloc(Dictionary dictionary) {
   unsigned int new_capacity = dictionary->capacity * 2;
   List* new_table = (List*) calloc(new_capacity, sizeof(List));

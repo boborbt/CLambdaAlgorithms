@@ -24,7 +24,9 @@ struct _DictionaryIterator {
   Stack stack;
 };
 
-// Stack
+/* --------------------------
+ * Stack implementation
+ * -------------------------- */
 
 #define MAX_STACK_SIZE 1024
 
@@ -71,7 +73,9 @@ void Stack_free(Stack stack) {
   free(stack);
 }
 
-// Iterators
+/* --------------------------
+ * DictionaryIterator implementation
+ * -------------------------- */
 
 void DictionaryIterator_next(DictionaryIterator it) {
   if(Stack_empty(it->stack)) {
@@ -110,8 +114,9 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
 }
 
 
-// Nodes
-
+/* --------------------------
+ * Nodes implementation
+ * -------------------------- */
 
 Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
@@ -123,6 +128,12 @@ Node* Node_new(void* key, void* value) {
 
   return result;
 }
+
+// Find the node storing the given key. Returns a pointer to the variable
+// currently pointing to that node. That pointer can be used to modify
+// the data structure or to access the contents of the node.
+// If no node is found with the given key, returns a pointer to the variable
+// that would point to a node with that key.
 
 Node** Node_find(Node** root, void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
@@ -194,6 +205,8 @@ void Node_tree_free(Node* node) {
   free(node);
 }
 
+// Returns the height of the tree rooted in node. Note that this is a
+// O(n) implementation.
 int Node_height(Node* node) {
   if(node == NULL) {
     return 0;
@@ -204,6 +217,10 @@ int Node_height(Node* node) {
 
   return 1 + (lh > rh ? lh : rh);
 }
+
+/* --------------------------
+ * Dictionary implementation
+ * -------------------------- */
 
 Dictionary Dictionary_new(KeyInfo keyInfo) {
   Dictionary result = (Dictionary) malloc(sizeof(struct _Dictionary));

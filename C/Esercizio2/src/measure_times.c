@@ -8,17 +8,20 @@
 
 
 void print_time(void(^fun)()) {
+  printf("\n======================\n");
   clock_t start = clock();
   fun();
   clock_t end = clock();
 
-  printf("time: %10.2lf secs\n", ((double)end-start) / CLOCKS_PER_SEC);
+  printf("----------------------\n");
+  printf("time:  %10.2lf secs\n", ((double)end-start) / CLOCKS_PER_SEC);
+  printf("======================\n\n");
 }
 
 
 void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
-  unsigned int size = Dataset_get_size(dataset);
+  unsigned int size = Dataset_size(dataset);
 
   for(int i=0; i < size; ++i) {
     if(i%1000000 == 0) {
@@ -111,8 +114,32 @@ int main(int argc, char const *argv[]) {
     DictionaryIterator_free(it);
   });
 
-  free(keyInfo);
+  Record** records = Dataset_get_records(dataset);
+  print_time(^{
+    printf("Making 100_000 accesses\n");
+    unsigned int size = Dataset_size(dataset);
+    for(int i=0; i<100000; ++i) {
+      unsigned int index = drand48() * size;
+      Record* record = records[index];
+      Record* result = NULL;
+      if(!Dictionary_get(dictionary, record, (void**)&result)) {
+        printf("Cannot find record at index %d\n", index);
+      };
+    }
+  });
 
+  print_time(^{
+    printf("Making 100_000 deletions\n");
+    unsigned int size = Dataset_size(dataset);
+    for(int i=0; i<100000; ++i) {
+      unsigned int index = drand48() * size;
+      Record* record = records[index];
+      Dictionary_delete(dictionary, record);
+    }
+    printf("Dictionary size: %d\n", Dictionary_size(dictionary));
+  });
+
+  free(keyInfo);
 
   print_time(^{
     printf("Freeing dictionary\n");

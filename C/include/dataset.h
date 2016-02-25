@@ -24,6 +24,7 @@ double Record_get_field3(Record* record);
 Dataset* Dataset_load(const char* filename);
 // Disposes a dataset freeing all alloced memory
 void Dataset_free(Dataset* dataset);
+
 // Print on the stdout the first num_records of the given dataset
 void Dataset_print(Dataset* dataset, int num_records);
 
@@ -32,6 +33,6 @@ Record** Dataset_get_records(Dataset* dataset);
 
 // Returns the size of the dataset (i.e., the number of records stored in
 // this dataset)
-int Dataset_get_size(Dataset* size);
+int Dataset_size(Dataset* size);
 
 #endif

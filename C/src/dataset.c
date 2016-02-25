@@ -148,7 +148,7 @@ Record** Dataset_get_records(Dataset* dataset) {
   return dataset->records;
 }
 
-int Dataset_get_size(Dataset* dataset) {
+int Dataset_size(Dataset* dataset) {
   return dataset->size;
 }
 
