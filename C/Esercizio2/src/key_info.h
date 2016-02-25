@@ -12,7 +12,7 @@ typedef unsigned int (*KIHash)(const void*);
 
 /* Constructor and destructor*/
 KeyInfo KeyInfo_new( KIComparator, KIHash );
-void KeyInfo_delete(KeyInfo);
+void KeyInfo_free(KeyInfo);
 
 /* Accessors */
 KIComparator KeyInfo_comparator(KeyInfo);

@@ -21,6 +21,6 @@ KIHash KeyInfo_hash(KeyInfo keyInfo) {
   return keyInfo->hash;
 }
 
-void KeyInfo_delete(KeyInfo keyInfo) {
+void KeyInfo_free(KeyInfo keyInfo) {
   free(keyInfo);
 }

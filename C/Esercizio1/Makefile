@@ -1,5 +1,4 @@
-CFLAGS=-O3 -I../include
-# CFLAGS=-g -O0 -I../include
+include ../Makefile.vars
 
 all: bin/tests bin/measure_times
 

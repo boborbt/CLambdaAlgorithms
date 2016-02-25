@@ -1,4 +1,4 @@
-CFLAGS=-g -I../include
+include ../Makefile.vars
 
 .PHONY: clean all tests
 

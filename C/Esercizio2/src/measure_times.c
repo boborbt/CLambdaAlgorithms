@@ -139,7 +139,7 @@ int main(int argc, char const *argv[]) {
     printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   });
 
-  free(keyInfo);
+  KeyInfo_free(keyInfo);
 
   print_time(^{
     printf("Freeing dictionary\n");
