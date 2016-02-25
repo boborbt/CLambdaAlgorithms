@@ -10,10 +10,12 @@ int Dataset_compare_field1(const void* e1, const void* e2);
 int Dataset_compare_field2(const void* e1, const void* e2);
 int Dataset_compare_field3(const void* e1, const void* e2);
 
+// Hash functions based on the three fields defined in Record
 unsigned int Dataset_hash_field1(const void* e);
 unsigned int Dataset_hash_field2(const void* e);
 unsigned int Dataset_hash_field3(const void* e);
 
+// Field accessors
 char* Record_get_field1(Record* record);
 int Record_get_field2(Record* record);
 double Record_get_field3(Record* record);
