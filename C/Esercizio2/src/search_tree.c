@@ -1,34 +1,133 @@
 #include "dictionary.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct _Node {
-  void* key;
-  void* value;
+  Elem elem;
   struct _Node* left;
   struct _Node* right;
 } Node;
 
 struct _Dictionary  {
-  KeyComparator comparator;
+  KeyInfo keyInfo;
   Node* root;
   unsigned int size;
 };
+
+typedef struct _Stack {
+  Node** array;
+  unsigned int size;
+  unsigned int capacity;
+}* Stack;
+
+struct _DictionaryIterator {
+  Stack stack;
+};
+
+// Stack
+
+#define MAX_STACK_SIZE 1024
+
+Node* Stack_top(Stack stack) {
+  if(stack->size==0) {
+    return NULL;
+  }
+
+  return stack->array[stack->size-1];
+}
+
+Node* Stack_pop(Stack stack) {
+  if(stack->size==0) {
+    return NULL;
+  }
+
+  Node* tmp = stack->array[--stack->size];
+  return tmp;
+}
+
+void Stack_push(Stack stack, Node* node) {
+  if(stack->size >= stack->capacity) {
+    printf("Stack size exceeded");
+    exit(1);
+  }
+
+  stack->array[stack->size++] = node;
+}
+
+int Stack_empty(Stack stack) {
+  return stack->size == 0;
+}
+
+Stack Stack_new(unsigned int capacity) {
+  Stack result = (Stack) malloc(sizeof(struct _Stack));
+  result->array = (Node**) malloc(sizeof(Node*) * capacity);
+  result->size = 0;
+  result->capacity = capacity;
+  return result;
+}
+
+void Stack_free(Stack stack) {
+  free(stack->array);
+  free(stack);
+}
+
+// Iterators
+
+void DictionaryIterator_next(DictionaryIterator it) {
+  if(Stack_empty(it->stack)) {
+    return;
+  }
+
+  Node* cur = Stack_pop(it->stack);
+  if(cur->left != NULL) {
+    Stack_push(it->stack, cur->left);
+  }
+
+  if(cur->right != NULL) {
+    Stack_push(it->stack, cur->right);
+  }
+}
+
+DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
+  DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
+  it->stack = Stack_new(MAX_STACK_SIZE);
+
+  Stack_push(it->stack, dictionary->root);
+  return it;
+}
+
+void DictionaryIterator_free(DictionaryIterator it) {
+  Stack_free(it->stack);
+  free(it);
+}
+
+int DictionaryIterator_end(DictionaryIterator it) {
+  return Stack_empty(it->stack);
+}
+
+Elem DictionaryIterator_get(DictionaryIterator it) {
+  return Stack_top(it->stack)->elem;
+}
+
+
+// Nodes
 
 
 Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = NULL;
   result->right = NULL;
-  result->key = key;
-  result->value = value;
+  result->elem = (Elem) malloc(sizeof(struct _Elem));
+  result->elem->key = key;
+  result->elem->value = value;
 
   return result;
 }
 
-Node** Node_find(Node** root, void* key, KeyComparator comparator) {
+Node** Node_find(Node** root, void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
-    int comp = comparator(key, (*node_ptr)->key);
+    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->elem->key);
     if( comp < 0) {
       node_ptr = &(*node_ptr)->left;
       continue;
@@ -58,30 +157,29 @@ Node** Node_find_max(Node** node) {
   return Node_find_max(&(*node)->right);
 }
 
-void Node_copy_key_value(Node* dst, Node* src) {
+void Node_move_key_value(Node* dst, Node* src) {
   if(src == NULL) {
     return;
   }
 
-  dst->key = src->key;
-  dst->value = src->value;
+  dst->elem = src->elem;
+  src->elem = NULL;
 }
 
 void Node_delete(Node** node) {
-  if(*node == NULL) {
-    return;
-  }
-
   if((*node)->left == NULL) {
     Node* tmp = *node;
     *node = (*node)->right;
+    if(tmp->elem != NULL) {
+      free(tmp->elem);
+    }
     free(tmp);
 
     return;
   }
 
   Node** max_left_ptr = Node_find_max(&(*node)->left);
-  Node_copy_key_value(*node, *max_left_ptr);
+  Node_move_key_value(*node, *max_left_ptr);
   Node_delete(max_left_ptr);
 }
 
@@ -92,6 +190,7 @@ void Node_tree_free(Node* node) {
 
   Node_tree_free(node->left);
   Node_tree_free(node->right);
+  free(node->elem);
   free(node);
 }
 
@@ -106,9 +205,9 @@ int Node_height(Node* node) {
   return 1 + (lh > rh ? lh : rh);
 }
 
-Dictionary Dictionary_new(KeyComparator comparator) {
+Dictionary Dictionary_new(KeyInfo keyInfo) {
   Dictionary result = (Dictionary) malloc(sizeof(struct _Dictionary));
-  result->comparator = comparator;
+  result->keyInfo = keyInfo;
   result->root = NULL;
   result->size = 0;
   return result;
@@ -120,10 +219,11 @@ void Dictionary_free(Dictionary dictionary) {
 }
 
 void Dictionary_set(Dictionary dictionary, void* key, void* value) {
-  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->comparator);
+  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
-    (*node_ptr)->value = value;
+    (*node_ptr)->elem->key = key;
+    (*node_ptr)->elem->value = value;
   } else {
     *node_ptr = Node_new(key, value);
     dictionary->size += 1;
@@ -131,17 +231,17 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 }
 
 int Dictionary_get(Dictionary dictionary, void* key, void** value) {
-  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->comparator);
+  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return 0;
   }
 
-  *value = (*node_ptr)->value;
+  *value = (*node_ptr)->elem->value;
   return 1;
 }
 
 void Dictionary_delete(Dictionary dictionary, void* key) {
-  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->comparator);
+  Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return;
   }
@@ -155,6 +255,6 @@ unsigned int Dictionary_size(Dictionary dictionary) {
 }
 
 
-int Dictionary_efficiency_score(Dictionary dictionary) {
+double Dictionary_efficiency_score(Dictionary dictionary) {
   return Node_height(dictionary->root);
 }

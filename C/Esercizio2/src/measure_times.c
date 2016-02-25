@@ -21,8 +21,14 @@ void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   unsigned int size = Dataset_get_size(dataset);
 
   for(int i=0; i < size; ++i) {
+    if(i%1000000 == 0) {
+      printf(".");
+      fflush(stdout);
+    }
     Dictionary_set(dictionary, records[i], records[i]);
   }
+
+  printf("\n");
 }
 
 
@@ -66,19 +72,23 @@ int main(int argc, char const *argv[]) {
 
 
   Dictionary dictionary;
+  KeyInfo keyInfo;
   switch(argv[1][0]) {
     case '1':
-      dictionary = Dictionary_new(Dataset_compare_field1);
+      keyInfo = KeyInfo_new(Dataset_compare_field1, Dataset_hash_field1);
       break;
     case '2':
-      dictionary = Dictionary_new(Dataset_compare_field2);
+      keyInfo = KeyInfo_new(Dataset_compare_field2, Dataset_hash_field2);
       break;
     case '3':
-      dictionary = Dictionary_new(Dataset_compare_field3);
+      keyInfo = KeyInfo_new(Dataset_compare_field3, Dataset_hash_field3);
       break;
     default:
       exit(2);
   }
+
+  dictionary = Dictionary_new(keyInfo);
+
 
   print_time(^{
     printf("Loading dictionary...\n");
@@ -87,7 +97,21 @@ int main(int argc, char const *argv[]) {
   });
 
   printf("Dictionary size: %d\n", Dictionary_size(dictionary));
-  printf("Search tree height: %d\n", Dictionary_efficiency_score(dictionary));
+  printf("Dictionary efficiency score: %f\n", Dictionary_efficiency_score(dictionary));
+
+  print_time(^{
+    printf("Traversing the dictionary...\n");
+    unsigned int count = 0;
+    DictionaryIterator it = DictionaryIterator_new(dictionary);
+    while(!DictionaryIterator_end(it)) {
+      count += 1;
+      DictionaryIterator_next(it);
+    }
+    printf("Counted %d elements\n", count);
+    DictionaryIterator_free(it);
+  });
+
+  free(keyInfo);
 
 
   print_time(^{

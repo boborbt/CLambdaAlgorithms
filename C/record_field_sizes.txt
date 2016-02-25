@@ -1,0 +1,4 @@
+Num records: 20000000
+Num strings: 822
+Num integers: 4908200
+Num floats: 19997945

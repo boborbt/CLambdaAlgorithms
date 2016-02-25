@@ -3,6 +3,9 @@ CFLAGS=-O3 -I../include
 
 all: bin/tests bin/measure_times
 
+tests: bin/tests
+	bin/tests
+
 clean:
 	$(RM) -rf bin/*
 	$(RM) -rf build/*

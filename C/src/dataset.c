@@ -42,6 +42,35 @@ int Dataset_compare_field3(const void* e1, const void* e2) {
   return 0;
 }
 
+unsigned int Dataset_hash_field1(const void* e1) {
+  Record* r1 = (Record*) e1;
+  char* str = r1->field1;
+
+  unsigned int h = 0;
+  size_t len = strlen(str);
+  for(int i=0; i<len; ++i) {
+    unsigned int highorder = h & 0xf8000000;
+    h = h << 5;                    // shift h left by 5 bits
+    h = h ^ (highorder >> 27);     // move the highorder 5 bits to the low-order
+    h = h ^ str[i];                // XOR h and ki
+  }
+  return h;
+}
+
+unsigned int Dataset_hash_field2(const void* e) {
+  Record* r = (Record*) e;
+  int value = r->field2;
+  return value * (value+3);
+}
+
+unsigned int Dataset_hash_field3(const void* e) {
+  Record* r = (Record*) e;
+  double value = r->field3;
+  return (unsigned int) value * (value+3);
+}
+
+
+
 char* Record_get_field1(Record* record) {
   return record->field1;
 }
@@ -109,8 +138,7 @@ Dataset* Dataset_load(const char* filename) {
   free(buf);
 
   if(dataset->size != 20000000) {
-    printf("Error reading datafile, only %d records successfully read", dataset->size);
-    exit(1);
+    printf("Warning reading datafile, only %d records successfully read", dataset->size);
   }
 
   return dataset;
@@ -130,6 +158,7 @@ void Dataset_free(Dataset* dataset) {
     free(dataset->records[i]);
   }
 
+  free(dataset->records);
   free(dataset);
 }
 

@@ -19,3 +19,7 @@ Esercizio1:
 
 Esercizio2:
 	$(MAKE) -C Esercizio2
+
+tests:
+	$(MAKE) -C Esercizio1 tests
+	$(MAKE) -C Esercizio2 tests
