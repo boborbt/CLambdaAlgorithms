@@ -82,6 +82,20 @@ const void* Graph_edge_info(Graph graph, const void* v1, const void* v2) {
   return info;
 }
 
+int Graph_has_vertex(Graph graph, const void* v) {
+  return Graph_adjacents_dictionary(graph, v) != NULL;
+}
+
+int Graph_has_edge(Graph graph, const void* source, const void* dest) {
+  Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, source);
+  const void* info = NULL;
+  if(Dictionary_get(v1_adj_list, dest, &info)==0) {
+    return 0;
+  }
+  return 1;
+}
+
+
 EdgeIterator Graph_adjacents(Graph graph, const void* vertex) {
   Dictionary adj_list = Graph_adjacents_dictionary(graph, vertex);
 

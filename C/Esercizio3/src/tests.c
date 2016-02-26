@@ -184,8 +184,10 @@ void test_dijkstra() {
   double (*info_to_double)(const void*);
   info_to_double = (double (*)(const void*)) DoubleContainer_get;
 
-  const void** min_path = dijkstra(graph, "v1", "v6",  info_to_double);
+  Dijkstra d = Dijkstra_new(graph,info_to_double);
+  const void** min_path = Dijkstra_minpath(d, "v1", "v6");
   assert(min_path!=NULL);
+  Dijkstra_free(d);
 
   int index = 0;
   while(min_path[index]!=NULL) {

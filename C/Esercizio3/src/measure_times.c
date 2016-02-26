@@ -2,12 +2,13 @@
 #include "dictionary.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "print_time.h"
 
 #define BUF_SIZE 1024
 
 
 void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
-  printf("inserting %s -> %s (%lf)\n", v1, v2, len);
+  // printf("inserting %s -> %s (%lf)\n", v1, v2, len);
 
   const void* vertex1 = NULL;
   const void* vertex2 = NULL;
@@ -25,11 +26,10 @@ void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const cha
   }
 
   Graph_add_edge(graph, vertex1, vertex2, DoubleContainer_new(len));
+  Graph_add_edge(graph, vertex2, vertex1, DoubleContainer_new(len));
 }
 
 Graph load_graph(const char* filename) {
-  printf("Loading graph...\n");
-
   KeyInfo keyInfo = KeyInfo_new( Dictionary_string_compare, Dictionary_string_hash );
   Dictionary known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
@@ -72,12 +72,84 @@ void print_path(Graph graph, const void** path) {
   printf("\nLen: %8.2lfKm", path_len/1000);
 }
 
+void execute_dijkstra(Graph graph, char const* source, char const* dest) {
+  __block const void** min_path;
+  print_time(^{
+    printf("Executing Dijkstra\n");
+    Dijkstra d = Dijkstra_new(graph,(double (*)(const void*)) DoubleContainer_get);
+    min_path = Dijkstra_minpath(d, source, dest);
+    Dijkstra_free(d);
+  });
 
-int main(int argc, char const *argv[]) {
-  Graph graph = load_graph(argv[1]);
-  const void** min_path = dijkstra(graph, argv[2], argv[3], (double (*)(const void*)) DoubleContainer_get);
   print_path(graph, min_path);
   free(min_path);
+}
+
+void check_edge(Graph graph, const char* source, const char* dest) {
+  if(!Graph_has_vertex(graph, source)) {
+    printf("vertex %s not in the graph\n", source);
+    return;
+  }
+
+  if(!Graph_has_vertex(graph, dest)) {
+    printf("vertex %s not in the graph\n", dest);
+    return;
+  }
+
+  if(!Graph_has_edge(graph, source, dest)) {
+    printf("edge %s -> %s not in the graph\n", source, dest);
+    return;
+  }
+
+  const void* edge_info = Graph_edge_info(graph, source, dest);
+
+  printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
+}
+
+void print_usage(const char* msg) {
+  printf("%s\n\n",msg);
+  printf("Usage: measure_times <op specifier> <graph file name> <source> <dest>\n");
+  printf("where <op specifier> can be:\n");
+  printf("  -d: to invoke dijkstra\n");
+  printf("  -e: to check edge existence\n");
+}
+
+void check_arguments(int argc, char const* argv[]) {
+  if(argc < 5) {
+    print_usage("Wrong number of arguments.");
+    exit(1);
+  }
+
+  if(argv[1][0]!='-') {
+    print_usage("First argument needs to be the op specifier");
+    exit(1);
+  }
+  char op = argv[1][1];
+  if(op!='d' && op!='e') {
+    print_usage("Op specifier needs to be one of {-d,-e}");
+    exit(1);
+  }
+}
+
+
+int main(int argc, char const *argv[]) {
+  check_arguments(argc, argv);
+
+  __block Graph graph;
+  print_time(^{
+    printf("Loading graph...\n");
+    graph = load_graph(argv[2]);
+  });
+
+  switch(argv[1][1]) {
+    case 'd':
+      execute_dijkstra(graph, argv[3], argv[4]);
+      break;
+    case 'e':
+      check_edge(graph, argv[3], argv[4]);
+      break;
+  }
+
   Graph_free(graph);
   return 0;
 }

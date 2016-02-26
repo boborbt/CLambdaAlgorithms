@@ -5,18 +5,8 @@
 #include <string.h>
 #include "dataset.h"
 #include "dictionary.h"
+#include "print_time.h"
 
-
-void print_time(void(^fun)()) {
-  printf("\n======================\n");
-  clock_t start = clock();
-  fun();
-  clock_t end = clock();
-
-  printf("----------------------\n");
-  printf("time:  %10.2lf secs\n", ((double)end-start) / CLOCKS_PER_SEC);
-  printf("======================\n\n");
-}
 
 
 void load_dictionary(Dataset* dataset, Dictionary dictionary) {

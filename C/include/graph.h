@@ -34,6 +34,8 @@ VertexIterator Graph_vertices(Graph graph);
 EdgeIterator Graph_adjacents(Graph graph, const void* vertex);
 
 const void* Graph_edge_info(Graph graph, const void* v1, const void* v2);
+int Graph_has_vertex(Graph graph, const void* v);
+int Graph_has_edge(Graph graph, const void* source, const void* dest);
 
 void EdgeIterator_free(EdgeIterator it);
 int EdgeIterator_end(EdgeIterator it);

@@ -7,6 +7,7 @@
 #include "merge_sort.h"
 #include "heap_sort.h"
 #include "dataset.h"
+#include "print_time.h"
 
 
 // qsort passes to the comparison function a pointer to the array element,
@@ -25,14 +26,6 @@ int qsort_compare_field3(const void* e1, const void* e2) {
   return Dataset_compare_field3( *(const void**)e1, *(const void**)e2 );
 }
 
-
-void print_time(void(^fun)()) {
-  clock_t start = clock();
-  fun();
-  clock_t end = clock();
-
-  printf("time: %10.2lf secs\n", ((double)end-start) / CLOCKS_PER_SEC);
-}
 
 void test_qsort(Dataset* dataset) {
   print_time(^{

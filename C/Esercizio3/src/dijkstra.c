@@ -11,6 +11,15 @@ typedef struct _DoubleContainer {
   double value;
 }* DoubleContainer;
 
+struct _Dijkstra {
+  Graph graph;
+  double (*graph_info_to_double)(const void*);
+  KIComparator comparator;
+  PriorityQueue pq;
+  Dictionary parents;
+  Dictionary distances;
+};
+
 DoubleContainer DoubleContainer_new(double value) {
   DoubleContainer result = (DoubleContainer) malloc(sizeof(struct _DoubleContainer));
   result->value = value;
@@ -76,64 +85,86 @@ void cleanup_distances_values(Dictionary distances) {
   DictionaryIterator_free(it);
 }
 
-const void** cleanup_and_build_path(PriorityQueue pq, Dictionary parents, Dictionary distances, const void* dest) {
+const void** cleanup_and_build_path(Dijkstra state, const void* dest) {
   const void** result = NULL;
   if(dest != NULL) {
-    result = build_path(parents, dest);
+    result = build_path(state->parents, dest);
   }
 
-  PriorityQueue_free(pq);
-  Dictionary_free(parents);
-  cleanup_distances_values(distances);
-  Dictionary_free(distances);
+  PriorityQueue_free(state->pq);
+  Dictionary_free(state->parents);
+  cleanup_distances_values(state->distances);
+  Dictionary_free(state->distances);
 
   return result;
 }
 
 
-const void** dijkstra(Graph graph, const void* source, const void* dest, double (*graph_info_to_double)(const void*)) {
-  KIComparator comparator = KeyInfo_comparator(Graph_keyInfo(graph));
-  PriorityQueue pq = PriorityQueue_new();
-  Dictionary parents = Dictionary_new(Graph_keyInfo(graph));
-  Dictionary distances = Dictionary_new(Graph_keyInfo(graph));
+Dijkstra Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) {
+  Dijkstra result = (Dijkstra) malloc(sizeof(struct _Dijkstra));
 
-  Dictionary_set(parents, source, source);
-  Dictionary_set(distances, source, DoubleContainer_new(0.0));
+  result->graph = graph;
+  result->graph_info_to_double = graph_info_to_double;
 
-  PriorityQueue_push(pq, source, 0.0);
-  while(!PriorityQueue_empty(pq)) {
-    const void* current = PriorityQueue_top_value(pq);
-    double current_dist = PriorityQueue_top_priority(pq);
-    PriorityQueue_pop(pq);
+  return result;
+}
 
-    if(comparator(current, dest) == 0) {
-      return cleanup_and_build_path(pq, parents, distances, dest );
+void Dijkstra_free(Dijkstra d) {
+  free(d);
+}
+
+void Dijkstra_init_state(Dijkstra state) {
+  state->comparator = KeyInfo_comparator(Graph_keyInfo(state->graph));
+  state->pq = PriorityQueue_new();
+  state->parents = Dictionary_new(Graph_keyInfo(state->graph));
+  state->distances = Dictionary_new(Graph_keyInfo(state->graph));
+}
+
+
+void examine_neighbours(Dijkstra state, const void* current, double current_dist) {
+  EdgeIterator neighbours = Graph_adjacents(state->graph, current);
+  for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
+    EdgeInfo edge = EdgeIterator_get(neighbours);
+    const void* child = edge.vertex;
+    double edge_distance = state->graph_info_to_double(edge.info);
+
+    double new_distance = current_dist + edge_distance;
+    DoubleContainer child_distance;
+    int child_found = Dictionary_get(state->distances, child, (const void**)&child_distance);
+    if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
+      continue;
     }
 
-    EdgeIterator neighbours = Graph_adjacents(graph, current);
-    for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
-      EdgeInfo edge = EdgeIterator_get(neighbours);
-      const void* child = edge.vertex;
-      double edge_distance = graph_info_to_double(edge.info);
-
-      double new_distance = current_dist + edge_distance;
-      DoubleContainer child_distance;
-      int child_found = Dictionary_get(distances, child, (const void**)&child_distance);
-      if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
-        continue;
-      }
-
-      Dictionary_set(parents, child, current);
-      if(!child_found) {
-        PriorityQueue_push(pq, child, new_distance);
-      } else {
-        PriorityQueue_decrease_priority(pq, child, new_distance);
-      }
-
-      Dictionary_set(distances, child, DoubleContainer_new(new_distance));
+    Dictionary_set(state->parents, child, current);
+    if(!child_found) {
+      PriorityQueue_push(state->pq, child, new_distance);
+    } else {
+      PriorityQueue_decrease_priority(state->pq, child, new_distance);
     }
-    EdgeIterator_free(neighbours);
+
+    Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
+  }
+  EdgeIterator_free(neighbours);
+}
+
+const void** Dijkstra_minpath(Dijkstra state, const void* source, const void* dest) {
+  Dijkstra_init_state(state);
+
+  Dictionary_set(state->parents, source, source);
+  Dictionary_set(state->distances, source, DoubleContainer_new(0.0));
+
+  PriorityQueue_push(state->pq, source, 0.0);
+  while(!PriorityQueue_empty(state->pq)) {
+    const void* current = PriorityQueue_top_value(state->pq);
+    double current_dist = PriorityQueue_top_priority(state->pq);
+    PriorityQueue_pop(state->pq);
+
+    if(state->comparator(current, dest) == 0) {
+      return cleanup_and_build_path(state, dest );
+    }
+
+    examine_neighbours(state, current, current_dist);
   }
 
-  return cleanup_and_build_path(pq, parents, distances, dest);
+  return cleanup_and_build_path(state, NULL);
 }
