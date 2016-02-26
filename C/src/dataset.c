@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "dictionary.h"
+
 typedef struct _Record {
   int id;
   char* field1;
@@ -21,24 +23,21 @@ int Dataset_compare_field1(const void* e1, const void* e2) {
   Record* r1 = (Record*) e1;
   Record* r2 = (Record*) e2;
 
-  return strcmp(r1->field1, r2->field1);
+  return Dictionary_string_compare(r1->field1, r2->field1);
 }
 
 int Dataset_compare_field2(const void* e1, const void* e2) {
   Record* r1 = (Record*) e1;
   Record* r2 = (Record*) e2;
 
-  if( r1->field2 < r2->field2 ) return -1;
-  if( r1->field2 > r2->field2 ) return 1;
-  return 0;
+  return Dictionary_int_compare(&r1->field2, &r2->field2);
 }
 
 int Dataset_compare_field3(const void* e1, const void* e2) {
   Record* r1 = (Record*) e1;
   Record* r2 = (Record*) e2;
 
-  if( r1->field3 < r2->field3 ) return -1;
-  if( r1->field3 > r2->field3 ) return 1;
+  return Dictionary_double_compare(&r1->field3, &r2->field3);
   return 0;
 }
 

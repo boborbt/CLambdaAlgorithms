@@ -1,55 +1,62 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "dijkstra.h"
 #include "dictionary.h"
 #include "priority_queue.h"
 
+
 typedef struct _DoubleContainer {
   double value;
 }* DoubleContainer;
 
-DoubleContainer DoubleContainer_new(double d) {
+DoubleContainer DoubleContainer_new(double value) {
   DoubleContainer result = (DoubleContainer) malloc(sizeof(struct _DoubleContainer));
-  result->value = d;
+  result->value = value;
   return result;
+}
+
+void DoubleContainer_free(DoubleContainer dc) {
+  free(dc);
 }
 
 double DoubleContainer_get(DoubleContainer dc) {
   return dc->value;
 }
 
-unsigned int path_len(Dictionary parents, void* dest) {
-  unsigned int count = 0;
-  void* current = dest;
-  void* next;
+unsigned int path_len(Dictionary parents, const void* dest) {
+  unsigned int count = 1;
+  const void* current = dest;
+  const void* next;
   if(Dictionary_get(parents, dest, &next) == 0) {
     printf("Error in retrieving parents");
-    exit(1);
+    assert(0==1);
   }
   while(current != next) {
     count += 1;
+    current = next;
 
-    if(Dictionary_get(parents, dest, &next) == 0) {
+    if(Dictionary_get(parents, current, &next) == 0) {
       printf("Error in retrieving parents");
-      exit(1);
+      assert(0==1);
     }
   }
 
   return count;
 }
 
-void** build_path(Dictionary parents, void* dest) {
+const void** build_path(Dictionary parents, const void* dest) {
   unsigned int len = path_len(parents, dest);
-  void** result = (void**) malloc(sizeof(void*)*(len+1));
+  const void** result = (const void**) malloc(sizeof(void*)*(len+1));
   result[len] = NULL;
 
-  void* current = dest;
-  void* next;
+  const void* current = dest;
+  const void* next;
   Dictionary_get(parents, current, &next);
   int last = len - 1;
 
-  while(current!=next) {
+  while(last>=0) {
     result[last] = current;
     current = next;
     Dictionary_get(parents, current, &next);
@@ -59,9 +66,32 @@ void** build_path(Dictionary parents, void* dest) {
   return result;
 }
 
+void cleanup_distances_values(Dictionary distances) {
+  DictionaryIterator it = DictionaryIterator_new(distances);
+  while(!DictionaryIterator_end(it)) {
+    Elem elem = DictionaryIterator_get(it);
+    DoubleContainer_free((DoubleContainer) elem->value);
+    DictionaryIterator_next(it);
+  }
+  DictionaryIterator_free(it);
+}
 
-// FIXME: MEMORY DEALLOC!
-void** dijkstra(Graph graph, void* source, void* dest, double (*graph_info_to_double)(void*)) {
+const void** cleanup_and_build_path(PriorityQueue pq, Dictionary parents, Dictionary distances, const void* dest) {
+  const void** result = NULL;
+  if(dest != NULL) {
+    result = build_path(parents, dest);
+  }
+
+  PriorityQueue_free(pq);
+  Dictionary_free(parents);
+  cleanup_distances_values(distances);
+  Dictionary_free(distances);
+
+  return result;
+}
+
+
+const void** dijkstra(Graph graph, const void* source, const void* dest, double (*graph_info_to_double)(const void*)) {
   KIComparator comparator = KeyInfo_comparator(Graph_keyInfo(graph));
   PriorityQueue pq = PriorityQueue_new();
   Dictionary parents = Dictionary_new(Graph_keyInfo(graph));
@@ -72,24 +102,24 @@ void** dijkstra(Graph graph, void* source, void* dest, double (*graph_info_to_do
 
   PriorityQueue_push(pq, source, 0.0);
   while(!PriorityQueue_empty(pq)) {
-    void* current = PriorityQueue_top_value(pq);
+    const void* current = PriorityQueue_top_value(pq);
     double current_dist = PriorityQueue_top_priority(pq);
     PriorityQueue_pop(pq);
 
-    if(comparator(source, dest) == 0) {
-      return build_path(dest, parents);
+    if(comparator(current, dest) == 0) {
+      return cleanup_and_build_path(pq, parents, distances, dest );
     }
 
     EdgeIterator neighbours = Graph_adjacents(graph, current);
-    while(!EdgeIterator_end(neighbours)) {
+    for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
       EdgeInfo edge = EdgeIterator_get(neighbours);
-      void* child = edge.vertex;
+      const void* child = edge.vertex;
       double edge_distance = graph_info_to_double(edge.info);
 
       double new_distance = current_dist + edge_distance;
       DoubleContainer child_distance;
-      int child_found = Dictionary_get(distances, child, (void**)&child_distance);
-      if(!child_found || DoubleContainer_get(child_distance) <= new_distance ) {
+      int child_found = Dictionary_get(distances, child, (const void**)&child_distance);
+      if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
         continue;
       }
 
@@ -102,7 +132,8 @@ void** dijkstra(Graph graph, void* source, void* dest, double (*graph_info_to_do
 
       Dictionary_set(distances, child, DoubleContainer_new(new_distance));
     }
+    EdgeIterator_free(neighbours);
   }
 
-  return NULL;
+  return cleanup_and_build_path(pq, parents, distances, dest);
 }

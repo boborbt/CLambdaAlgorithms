@@ -2,8 +2,8 @@
 #include <stdlib.h>
 
 
-void merge(void** array, int start, int mid, int end, MSCompareFun compare) {
-  void** buf = (void**) malloc(sizeof(void*)*(end-start+1));
+void merge(const void** array, int start, int mid, int end, MSCompareFun compare) {
+  const void** buf = (const void**) malloc(sizeof(const void*)*(end-start+1));
   int i = start;
   int j = mid+1;
   int k = 0;
@@ -32,7 +32,7 @@ void merge(void** array, int start, int mid, int end, MSCompareFun compare) {
   free(buf);
 }
 
-void merge_sort_(void** array, int start, int end, MSCompareFun compare) {
+void merge_sort_(const void** array, int start, int end, MSCompareFun compare) {
   if(start >= end)
     return;
 
@@ -44,6 +44,6 @@ void merge_sort_(void** array, int start, int end, MSCompareFun compare) {
 }
 
 
-void merge_sort(void** array, int count, MSCompareFun compare) {
+void merge_sort(const void** array, int count, MSCompareFun compare) {
   merge_sort_(array, 0, count-1, compare);
 }

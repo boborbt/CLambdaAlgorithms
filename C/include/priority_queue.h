@@ -5,14 +5,14 @@ typedef struct _PriorityQueue* PriorityQueue;
 
 PriorityQueue PriorityQueue_new();
 void PriorityQueue_free();
-void PriorityQueue_push(PriorityQueue, void*, double);
+void PriorityQueue_push(PriorityQueue, const void*, double);
 int PriorityQueue_empty(PriorityQueue);
 unsigned int PriorityQueue_size(PriorityQueue);
 
 void PriorityQueue_pop(PriorityQueue);
-void*  PriorityQueue_top_value(PriorityQueue);
+const void*  PriorityQueue_top_value(PriorityQueue);
 double PriorityQueue_top_priority(PriorityQueue);
-void   PriorityQueue_decrease_priority(PriorityQueue, void*, double);
+void   PriorityQueue_decrease_priority(PriorityQueue, const void*, double);
 
 
 #endif

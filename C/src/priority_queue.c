@@ -6,7 +6,7 @@
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
 
 typedef struct {
-  void* elem;
+  const void* elem;
   double priority;
 } PQElem;
 
@@ -92,7 +92,7 @@ void PriorityQueue_movedown(PriorityQueue pq, unsigned int pos) {
   }
 }
 
-void PriorityQueue_push(PriorityQueue pq, void* elem, double priority) {
+void PriorityQueue_push(PriorityQueue pq, const void* elem, double priority) {
   PriorityQueue_try_realloc(pq);
 
   pq->array[pq->size].elem = elem;
@@ -105,7 +105,7 @@ int PriorityQueue_empty(PriorityQueue pq)  {
   return pq->size == 0;
 }
 
-void*  PriorityQueue_top_value(PriorityQueue pq) {
+const void*  PriorityQueue_top_value(PriorityQueue pq) {
   return pq->array[0].elem;
 }
 
@@ -120,7 +120,7 @@ void PriorityQueue_pop(PriorityQueue pq) {
 }
 
 
-void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priority) {
+void PriorityQueue_decrease_priority(PriorityQueue pq, const void* elem, double priority) {
   unsigned int i;
   for(i=0; i<pq->size; ++i) {
     if(pq->array[i].elem == elem) {

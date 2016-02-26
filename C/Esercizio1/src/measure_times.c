@@ -58,24 +58,24 @@ void test_qsort(Dataset* dataset) {
 }
 
 
-void test_algorithm(Dataset* dataset, void (*sort)(void**, int, int(*)(const void*, const void*))) {
+void test_algorithm(Dataset* dataset, void (*sort)(const void**, int, int(*)(const void*, const void*))) {
   print_time(^{
     printf("Sorting according to field1\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   print_time(^{
     printf("Sorting according to field2\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   print_time(^{
     printf("Sorting according to field3\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);

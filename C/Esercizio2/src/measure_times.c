@@ -122,7 +122,7 @@ int main(int argc, char const *argv[]) {
       unsigned int index = drand48() * size;
       Record* record = records[index];
       Record* result = NULL;
-      if(!Dictionary_get(dictionary, record, (void**)&result)) {
+      if(!Dictionary_get(dictionary, record, (const void**)&result)) {
         printf("Cannot find record at index %d\n", index);
       };
     }

@@ -3,5 +3,5 @@
 
 typedef int (*HSCompareFun)(const void*, const void*);
 
-void heap_sort(void** array, int count, HSCompareFun compare);
+void heap_sort(const void** array, int count, HSCompareFun compare);
 #endif

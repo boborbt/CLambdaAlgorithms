@@ -3,6 +3,14 @@
 
 #include "graph.h"
 
-void** dijkstra(Graph graph, void* source, void* dest, double (*graph_info_to_double)(void*));
+typedef struct _DoubleContainer* DoubleContainer;
+
+DoubleContainer DoubleContainer_new(double value);
+void DoubleContainer_free(const DoubleContainer dc);
+double DoubleContainer_get(const DoubleContainer dc);
+
+const void** dijkstra(Graph graph,
+                const void* source,
+                const void* dest, double (*graph_info_to_double)(const void*));
 
 #endif

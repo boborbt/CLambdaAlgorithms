@@ -1,5 +1,6 @@
+include Makefile.vars
 
-CFLAGS=-I./include -O0 -g
+CFLAGS+=-Iinclude
 
 .PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean
 
@@ -9,12 +10,38 @@ clean:
 	$(MAKE) -C Esercizio1 clean
 	$(MAKE) -C Esercizio2 clean
 	$(MAKE) -C Esercizio3 clean
-	$(RM) -f lib/*.o
+	$(RM) -f lib/*.a
+	$(RM) -f build/*.o
 
-lib: lib/dataset.o
+lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 
-lib/dataset.o: src/dataset.c include/dataset.h
-	$(CC) $(CFLAGS) -c src/dataset.c -o lib/dataset.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o
+	libtool -static -o lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o
+
+lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o
+	libtool -static -o lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o
+
+build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
+		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
+
+build/hash_table.o: include/dictionary.h src/hash_table.c include/key_info.h
+	$(CC) $(CFLAGS) -c src/hash_table.c -o build/hash_table.o
+
+build/key_info.o: include/key_info.h src/key_info.c
+	$(CC) $(CFLAGS) -c src/key_info.c -o build/key_info.o
+
+build/dictionary.o: include/dictionary.h src/dictionary.c include/key_info.h
+	$(CC) $(CFLAGS) -c src/dictionary.c -o build/dictionary.o
+
+build/graph.o: src/graph.c include/graph.h include/dictionary.h
+	$(CC) $(CFLAGS) -c src/graph.c -o build/graph.o
+
+build/priority_queue.o: src/priority_queue.c include/priority_queue.h
+	$(CC) $(CFLAGS) -c src/priority_queue.c -o build/priority_queue.o
+
+build/dataset.o: src/dataset.c include/dataset.h
+	$(CC) $(CFLAGS) -c src/dataset.c -o build/dataset.o
+
 
 Esercizio1:
 	$(MAKE) -C Esercizio1

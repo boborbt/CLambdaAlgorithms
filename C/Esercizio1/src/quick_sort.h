@@ -3,6 +3,6 @@
 
 typedef int (*QSCompareFun)(const void*, const void*);
 
-void quick_sort(void** array, int count, QSCompareFun compare);
+void quick_sort(const void** array, int count, QSCompareFun compare);
 
 #endif

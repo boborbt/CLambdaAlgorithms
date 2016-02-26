@@ -2,8 +2,14 @@
 #define __DICTIONARY_H_3NXN3XL378__
 
 #include "key_info.h"
+#include <string.h>
 
 typedef struct _Dictionary* Dictionary;
+
+typedef struct _Elem {
+  const void* key;
+  const void* value;
+}* Elem;
 
 /*
  * Constructor and destructor
@@ -14,17 +20,17 @@ void Dictionary_free(Dictionary dictionary);
 // insert into dictionary the given key/value pair. If key is already
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
-void Dictionary_set(Dictionary dictionary, void* key, void* value);
+void Dictionary_set(Dictionary dictionary, const void* key, const void* value);
 
 // Retrieve the value associated with the given key. The found value
 // is put into *result.
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1.
-int Dictionary_get(Dictionary dictionary, void* key, void** result);
+int Dictionary_get(Dictionary dictionary, const void* key, const void** result);
 
 // Delete key from the given dictionary. Do nothing if key does not belong
 // to the dictionary.
-void Dictionary_delete(Dictionary dictionary, void* key);
+void Dictionary_delete(Dictionary dictionary, const void* key);
 
 // Returns the number of distinct keys stores in the dictionary.
 unsigned int Dictionary_size(Dictionary dictionary);
@@ -39,10 +45,6 @@ double Dictionary_efficiency_score();
 // -------------------------------------
 
 typedef struct _DictionaryIterator* DictionaryIterator;
-typedef struct _Elem {
-  void* key;
-  void* value;
-}* Elem;
 
 // constructor and destructor
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary);
@@ -58,5 +60,16 @@ int DictionaryIterator_end(DictionaryIterator it);
 
 // Returns the element currently pointed by the iterator
 Elem DictionaryIterator_get(DictionaryIterator it);
+
+// ----------------------------------------------
+// Common comparators and hash functions
+// ----------------------------------------------
+
+int Dictionary_string_compare(const void* e1, const void* e2);
+int Dictionary_int_compare(const void* e1, const void* e2);
+int Dictionary_double_compare(const void* e1, const void* e2);
+unsigned int Dictionary_string_hash(const void* e1);
+unsigned int Dictionary_int_hash(const void* e);
+unsigned int Dictionary_double_hash(const void* e);
 
 #endif

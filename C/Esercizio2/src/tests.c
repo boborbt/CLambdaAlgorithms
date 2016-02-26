@@ -53,7 +53,7 @@ void test_search_tree_insert_on_empty_tree() {
   assert_equal((long)Dictionary_size(dictionary), 1l);
 
   long int value = 0;
-  Dictionary_get(dictionary, (void*) 10l, (void**)&value);
+  Dictionary_get(dictionary, (void*) 10l, (const void**)&value);
   assert_equal( value,  -10l );
 
   Dictionary_free(dictionary);
@@ -67,7 +67,7 @@ void test_search_tree_insert_on_full_tree() {
   assert_equal((long)Dictionary_size(dictionary), 8l);
 
   long int value = 0;
-  Dictionary_get(dictionary, (void*) 4l, (void**)&value);
+  Dictionary_get(dictionary, (void*) 4l, (const void**)&value);
   assert_equal( value,  -4l );
 
   Dictionary_free(dictionary);
@@ -81,7 +81,7 @@ void test_search_tree_replace_on_full_tree() {
   assert_equal((long)Dictionary_size(dictionary), 7l);
 
   long int value = 0;
-  Dictionary_get(dictionary, (void*) 15l, (void**)&value);
+  Dictionary_get(dictionary, (void*) 15l, (const void**)&value);
   assert_equal( value,  -115l );
 
   Dictionary_free(dictionary);
@@ -103,7 +103,7 @@ void test_search_tree_delete_root() {
   assert_equal((long)Dictionary_size(dictionary), 6l);
 
   long int value = 0;
-  assert_equal((long) Dictionary_get(dictionary, (void*) 10l, (void**) &value), 0l);
+  assert_equal((long) Dictionary_get(dictionary, (const void*) 10l, (const void**) &value), 0l);
 
   Dictionary_free(dictionary);
 }
@@ -116,7 +116,7 @@ void test_search_tree_delete_mid_node() {
   assert_equal((long)Dictionary_size(dictionary), 6l);
 
   long int value = 0;
-  assert_equal((long) Dictionary_get(dictionary, (void*) 15l, (void**) &value), 0l);
+  assert_equal((long) Dictionary_get(dictionary, (const void*) 15l, (const void**) &value), 0l);
 
   Dictionary_free(dictionary);
 }
@@ -129,7 +129,7 @@ void test_search_tree_delete_leaf() {
   assert_equal((long)Dictionary_size(dictionary), 6l);
 
   long int value = 0;
-  assert_equal((long) Dictionary_get(dictionary, (void*) 11l, (void**) &value), 0l);
+  assert_equal((long) Dictionary_get(dictionary, (const void*) 11l, (const void**) &value), 0l);
 
   Dictionary_free(dictionary);
 }
@@ -152,7 +152,7 @@ void test_search_tree_get_on_empty_tree() {
   Dictionary dictionary = Dictionary_new(keyInfo);
 
   long int value = 0;
-  assert_equal((long)Dictionary_get(dictionary, (void*) 10l, (void**)&value), 0l);
+  assert_equal((long)Dictionary_get(dictionary, (const void*) 10l, (const void**)&value), 0l);
 
   Dictionary_free(dictionary);
 }
@@ -161,7 +161,7 @@ void test_search_tree_get_on_full_tree() {
   Dictionary dictionary = build_fixture_tree();
 
   long int value = 0;
-  assert_equal((long)Dictionary_get(dictionary, (void*) 13l, (void**)&value), 1l);
+  assert_equal((long)Dictionary_get(dictionary, (const void*) 13l, (const void**)&value), 1l);
   assert_equal(-13l, value);
 
   Dictionary_free(dictionary);
@@ -172,7 +172,7 @@ void test_search_tree_get_on_non_present_key() {
   Dictionary dictionary = build_fixture_tree();
 
   long int value = 0;
-  assert_equal((long)Dictionary_get(dictionary, (void*) 21l, (void**)&value), 0l);
+  assert_equal((long)Dictionary_get(dictionary, (const void*) 21l, (const void**)&value), 0l);
 
   Dictionary_free(dictionary);
 }

@@ -28,7 +28,7 @@ struct _DictionaryIterator {
 
 /* Elem constructor and destructor */
 
-Elem Elem_new(void* key, void* value) {
+Elem Elem_new(const void* key, const void* value) {
   Elem result = (Elem) malloc(sizeof(struct _Elem));
   result->key = key;
   result->value = value;
@@ -68,9 +68,11 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
 }
 
 void DictionaryIterator_next(DictionaryIterator it) {
-  it->cur_list_element = it->cur_list_element->next;
   if(it->cur_list_element != NULL) {
-      return;
+    it->cur_list_element = it->cur_list_element->next;
+    if(it->cur_list_element != NULL) {
+        return;
+    }
   }
 
   while(it->cur_index < it->dictionary->capacity - 1 && it->cur_list_element == NULL) {
@@ -112,7 +114,7 @@ void List_free(List list, int free_elems) {
   }
 }
 
-Elem List_find(List list, void* key, KeyInfo keyInfo) {
+Elem List_find(List list, const void* key, KeyInfo keyInfo) {
   while(list != NULL && KeyInfo_comparator(keyInfo)(key, list->elem->key) != 0) {
     list = list->next;
   }
@@ -124,7 +126,7 @@ Elem List_find(List list, void* key, KeyInfo keyInfo) {
   return list->elem;
 }
 
-List* List_find_node(List* list_ptr, void* key, KeyInfo keyInfo) {
+List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
   if(*list_ptr == NULL) {
     return NULL;
   }
@@ -192,7 +194,7 @@ void Dictionary_realloc(Dictionary dictionary) {
 // insert into dictionary the given key/value pair. If key is already
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
-void Dictionary_set(Dictionary dictionary, void* key, void* value) {
+void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
   if(dictionary->capacity < dictionary->size / 2) {
     Dictionary_realloc(dictionary);
   }
@@ -210,17 +212,24 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   dictionary->size += 1;
 }
 
-// Retrieve the value associated with the given key. The found value
-// is put into *result.
-// If the key is not found, the function returns 0 and leave result untouched.
-// Otherwise it returns 1.
-int Dictionary_get(Dictionary dictionary, void* key, void** result) {
+
+Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return 0;
   }
 
-  Elem elem = List_find(dictionary->table[index], key, dictionary->keyInfo );
+  return List_find(dictionary->table[index], key, dictionary->keyInfo );
+}
+
+
+// Retrieve the value associated with the given key. The found value
+// is put into *result.
+// If the key is not found, the function returns 0 and leave result untouched.
+// Otherwise it returns 1.
+int Dictionary_get(Dictionary dictionary, const void* key, const void** result) {
+  Elem elem = Dictionary_get_elem(dictionary, key);
+
   if(elem == NULL) {
     return 0;
   } else {
@@ -230,7 +239,7 @@ int Dictionary_get(Dictionary dictionary, void* key, void** result) {
 }
 
 
-void Dictionary_delete(Dictionary dictionary, void* key) {
+void Dictionary_delete(Dictionary dictionary, const void* key) {
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return;

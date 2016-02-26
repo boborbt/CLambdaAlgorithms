@@ -118,7 +118,7 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
  * Nodes implementation
  * -------------------------- */
 
-Node* Node_new(void* key, void* value) {
+Node* Node_new(const void* key, const void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = NULL;
   result->right = NULL;
@@ -135,7 +135,7 @@ Node* Node_new(void* key, void* value) {
 // If no node is found with the given key, returns a pointer to the variable
 // that would point to a node with that key.
 
-Node** Node_find(Node** root, void* key, KeyInfo keyInfo) {
+Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
     int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->elem->key);
@@ -235,7 +235,7 @@ void Dictionary_free(Dictionary dictionary) {
   free(dictionary);
 }
 
-void Dictionary_set(Dictionary dictionary, void* key, void* value) {
+void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
@@ -247,7 +247,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   }
 }
 
-int Dictionary_get(Dictionary dictionary, void* key, void** value) {
+int Dictionary_get(Dictionary dictionary, const void* key, const void** value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return 0;
@@ -257,7 +257,7 @@ int Dictionary_get(Dictionary dictionary, void* key, void** value) {
   return 1;
 }
 
-void Dictionary_delete(Dictionary dictionary, void* key) {
+void Dictionary_delete(Dictionary dictionary, const void* key) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return;

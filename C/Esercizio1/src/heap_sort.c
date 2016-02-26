@@ -1,8 +1,8 @@
 #include "heap_sort.h"
 #include <stdio.h>
 
-static void swap(void** e1, void** e2) {
-  void* tmp = *e1;
+static void swap(const void** e1, const void** e2) {
+  const void* tmp = *e1;
   *e1 = *e2;
   *e2 = tmp;
 }
@@ -19,7 +19,7 @@ static int right_child(int index) {
   return index * 2 + 2;
 }
 
-static void move_down(void** array, int start, int end, HSCompareFun compare) {
+static void move_down(const void** array, int start, int end, HSCompareFun compare) {
   int root = start;
   int left = left_child(root);
   while( left <= end ) {
@@ -43,7 +43,7 @@ static void move_down(void** array, int start, int end, HSCompareFun compare) {
   }
 }
 
-static void heapify(void** array, int count, HSCompareFun compare) {
+static void heapify(const void** array, int count, HSCompareFun compare) {
   int start = parent(count-1);
   while(start >= 0) {
     move_down(array, start, count-1,   compare);
@@ -51,7 +51,7 @@ static void heapify(void** array, int count, HSCompareFun compare) {
   }
 }
 
-void heap_sort(void** array, int count, HSCompareFun compare) {
+void heap_sort(const void** array, int count, HSCompareFun compare) {
   heapify(array, count, compare);
 
   while(count>1) {

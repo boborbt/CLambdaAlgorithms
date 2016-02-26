@@ -3,6 +3,6 @@
 
 typedef int (*MSCompareFun)(const void*, const void*);
 
-void merge_sort(void** array, int count, MSCompareFun compare);
+void merge_sort(const void** array, int count, MSCompareFun compare);
 
 #endif
