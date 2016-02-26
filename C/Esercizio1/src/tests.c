@@ -3,16 +3,11 @@
 #include "quick_sort.h"
 #include "merge_sort.h"
 #include "heap_sort.h"
+#include "unit_testing.h"
 #include <stdio.h>
 
 void partition_3_way(void** array, int start, int end, int pivot_pos, int* p1, int* p2,  QSCompareFun compare);
 
-#define TRUE 1
-#define FALSE 0
-
-#define assert_equal(a,b) if((a)!=(b)) {\
-   printf("assertion failed at file:%s line:%d. %ld was expected to be equal to %ld\n",\
-    __FILE__, __LINE__, (a), (b)); exit(1); }
 
 
 int compare(const void* elem1, const void* elem2) {

@@ -5,7 +5,8 @@ include ../Makefile.vars
 all: bin/tests_st bin/measure_times_st bin/tests_hash bin/measure_times_hash
 
 clean:
-	$(RM) -f build/* bin/*
+	$(RM) -rf build/*
+	$(RM) -rf bin/*
 
 tests: bin/tests_st bin/tests_hash
 	bin/tests_st

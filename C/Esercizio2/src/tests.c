@@ -2,13 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#define TRUE 1
-#define FALSE 0
-
-#define assert_equal(a,b) if((a)!=(b)) {\
-   printf("assertion failed at file:%s line:%d. %ld was expected to be equal to %ld\n",\
-    __FILE__, __LINE__, (a), (b)); exit(1); }
+#include "unit_testing.h"
 
 int compare(const void* left, const void* right) {
   if((long int) left < (long int) right) {
