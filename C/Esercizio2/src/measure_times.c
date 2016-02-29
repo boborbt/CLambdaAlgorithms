@@ -52,7 +52,7 @@ void check_arguments(int argc, const char** argv) {
 PrintTime init_print_time(int argc, char const *argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
-  Dictionary_set(header, "Esercizio", "1");
+  Dictionary_set(header, "Esercizio", "2");
   Dictionary_set(header, "invocation", argv[0]);
   Dictionary_set(header, "field", argv[1]);
 
