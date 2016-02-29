@@ -18,4 +18,16 @@ void KeyInfo_free(KeyInfo);
 KIComparator KeyInfo_comparator(KeyInfo);
 KIHash KeyInfo_hash(KeyInfo);
 
+
+// ----------------------------------------------
+// Common comparators and hash functions
+// ----------------------------------------------
+
+int KeyInfo_string_compare(const void* e1, const void* e2);
+int KeyInfo_int_compare(const void* e1, const void* e2);
+int KeyInfo_double_compare(const void* e1, const void* e2);
+unsigned int KeyInfo_string_hash(const void* e1);
+unsigned int KeyInfo_int_hash(const void* e);
+unsigned int KeyInfo_double_hash(const void* e);
+
 #endif

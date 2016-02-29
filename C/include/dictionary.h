@@ -62,15 +62,5 @@ int DictionaryIterator_end(DictionaryIterator it);
 // Returns the element currently pointed by the iterator
 Elem DictionaryIterator_get(DictionaryIterator it);
 
-// ----------------------------------------------
-// Common comparators and hash functions
-// ----------------------------------------------
-
-int Dictionary_string_compare(const void* e1, const void* e2);
-int Dictionary_int_compare(const void* e1, const void* e2);
-int Dictionary_double_compare(const void* e1, const void* e2);
-unsigned int Dictionary_string_hash(const void* e1);
-unsigned int Dictionary_int_hash(const void* e);
-unsigned int Dictionary_double_hash(const void* e);
 
 #endif

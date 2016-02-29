@@ -27,22 +27,22 @@ int qsort_compare_field3(const void* e1, const void* e2) {
 }
 
 
-void test_qsort(Dataset* dataset) {
-  print_time(^{
+void test_qsort(Dataset* dataset, PrintTime pt) {
+  PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
     qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field1);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
-  print_time(^{
+  PrintTime_print(pt, "field2", ^{
     printf("Sorting according to field2\n");
     qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field2);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
-  print_time(^{
+  PrintTime_print(pt, "field3", ^{
     printf("Sorting according to field3\n");
     qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field3);
     printf("Done!\n");
@@ -51,22 +51,22 @@ void test_qsort(Dataset* dataset) {
 }
 
 
-void test_algorithm(Dataset* dataset, void (*sort)(const void**, int, int(*)(const void*, const void*))) {
-  print_time(^{
+void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(const void**, int, int(*)(const void*, const void*))) {
+  PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
     sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
-  print_time(^{
+  PrintTime_print(pt, "field2", ^{
     printf("Sorting according to field2\n");
     sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
-  print_time(^{
+  PrintTime_print(pt, "field3", ^{
     printf("Sorting according to field3\n");
     sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
     printf("Done!\n");
@@ -80,7 +80,7 @@ void print_usage() {
   printf(" opts: -q use quick_sort algorithm\n");
   printf("       -Q use system qsort algorithm\n");
   printf("       -m use merge_sort algorithm\n");
-  printf("       -h use heap_sort algorithm\n");
+  printf("       -H use heap_sort algorithm\n");
   printf("       -h print this message\n");
 }
 
@@ -110,11 +110,41 @@ void check_arguments(int argc, const char** argv) {
   }
 }
 
+const char* flag_to_algorithm_name(char ch) {
+  switch(ch) {
+    case 'q': return "quick_sort";
+    case 'Q': return "system_quick_sort";
+    case 'm': return "merge_sort";
+    case 'H': return "heap_sort";
+    default:
+      printf("Flag not in the known set");
+      exit(1);
+  };
+}
+
+PrintTime init_print_time(int argc, char const *argv[]) {
+  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
+  Dictionary header = Dictionary_new(keyInfo);
+  Dictionary_set(header, "Esercizio", "1");
+  Dictionary_set(header, "invocation", argv[0]);
+  Dictionary_set(header, "algorithm", flag_to_algorithm_name(argv[1][1]));
+
+  PrintTime pt = PrintTime_new(header, NULL);
+
+  Dictionary_free(header);
+  KeyInfo_free(keyInfo);
+
+  return pt;
+}
+
+
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
+  PrintTime pt = init_print_time(argc, argv);
+
 
   __block Dataset* dataset;
-  print_time(^{
+  PrintTime_print(pt, "Dataset_load", ^{
     printf("Loading dataset...\n");
     dataset = Dataset_load(argv[2]);
     printf("Done!\n");
@@ -124,26 +154,29 @@ int main(int argc, char const *argv[]) {
 
   switch(argv[1][1]) {
     case 'q':
-      test_algorithm(dataset, quick_sort);
+      test_algorithm(dataset, pt, quick_sort);
       break;
     case 'm':
-      test_algorithm(dataset, merge_sort);
+      test_algorithm(dataset, pt, merge_sort);
       break;
     case 'H':
-      test_algorithm(dataset, heap_sort);
+      test_algorithm(dataset, pt, heap_sort);
       break;
     case 'Q':
-      test_qsort(dataset);
+      test_qsort(dataset, pt);
       break;
     default:
       assert(0); // should never get here
   }
 
-  print_time(^{
+  PrintTime_print(pt, "Dataset_free", ^{
     printf("Freeing dataset\n");
     Dataset_free(dataset);
     printf("Done!\n");
   });
+
+  PrintTime_save(pt);
+  PrintTime_free(pt);
 
   return 0;
 }

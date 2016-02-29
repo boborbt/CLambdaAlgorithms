@@ -5,6 +5,7 @@
 #include "print_time.h"
 #include "graph_visiting.h"
 #include <assert.h>
+#include "double_container.h"
 
 #define BUF_SIZE 1024
 
@@ -33,7 +34,7 @@ void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const cha
 }
 
 Graph load_graph(const char* filename) {
-  KeyInfo keyInfo = KeyInfo_new( Dictionary_string_compare, Dictionary_string_hash );
+  KeyInfo keyInfo = KeyInfo_new( KeyInfo_string_compare, KeyInfo_string_hash );
   Dictionary known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
   FILE* infile = fopen(filename, "r");
@@ -155,9 +156,7 @@ const void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
 
 void find_connected_components(Graph graph) {
   Dictionary visited_vertices = Dictionary_new(Graph_keyInfo(graph));
-  VertexIterator v_it;
   VisitingInfo visit_info = VisitingInfo_new(graph, visit_vertex, visited_vertices);
-  int stop = 0;
   int count = 0;
   const void* vertex;
 
@@ -206,17 +205,44 @@ void check_arguments(int argc, char const* argv[]) {
   }
 }
 
+const char* flag_to_task_name(char ch) {
+  switch(ch) {
+    case 'd': return "dijkstra";
+    case 'c': return "connected_components";
+    case 'e': return "edge_check";
+    default:
+      printf("Unknown flag");
+      exit(1);
+  }
+}
+
+PrintTime init_print_time(int argc, char const *argv[]) {
+  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
+  Dictionary header = Dictionary_new(keyInfo);
+  Dictionary_set(header, "Esercizio", "3");
+  Dictionary_set(header, "invocation", argv[0]);
+  Dictionary_set(header, "task", flag_to_task_name(argv[1][1]));
+
+  PrintTime pt = PrintTime_new(header, NULL);
+
+  Dictionary_free(header);
+  KeyInfo_free(keyInfo);
+
+  return pt;
+}
 
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
+  PrintTime pt = init_print_time(argc, argv);
+
 
   __block Graph graph;
-  print_time(^{
+  PrintTime_print(pt, "Graph_load", ^{
     printf("Loading graph...\n");
     graph = load_graph(argv[2]);
   });
 
-  print_time(^{
+  PrintTime_print(pt, "Algorithm_execution", ^{
     switch(argv[1][1]) {
       case 'd':
         printf("Executing Dijkstra algorithm...\n");
@@ -233,9 +259,14 @@ int main(int argc, char const *argv[]) {
     }
   });
 
-  printf("Freeing memory\n");
-  destroy_graph_double_containers(graph);
-  KeyInfo_free(Graph_keyInfo(graph));
-  Graph_free(graph);
+  PrintTime_print(pt, "Graph_free", ^{
+    printf("Freeing memory\n");
+    destroy_graph_double_containers(graph);
+    KeyInfo_free(Graph_keyInfo(graph));
+    Graph_free(graph);
+  });
+
+  PrintTime_save(pt);
+  PrintTime_free(pt);
   return 0;
 }

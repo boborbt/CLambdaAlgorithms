@@ -8,6 +8,7 @@
 #include "priority_queue.h"
 #include "unit_testing.h"
 #include "dictionary.h"
+#include "double_container.h"
 
 
 PriorityQueue build_pq_fixtures() {
@@ -24,7 +25,7 @@ PriorityQueue build_pq_fixtures() {
 
 
 Graph build_graph_fixtures() {
-  KeyInfo key_info = KeyInfo_new(Dictionary_string_compare, Dictionary_string_hash);
+  KeyInfo key_info = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Graph graph = Graph_new(key_info);
 
   Graph_add_vertex(graph, "v1");

@@ -2,7 +2,7 @@ include Makefile.vars
 
 CFLAGS+=-Iinclude
 
-.PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean
+.PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean experiment1 experiment2 experiment3
 
 all: lib Esercizio1 Esercizio2 Esercizio3
 
@@ -15,11 +15,11 @@ clean:
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 
-lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o
-	libtool -static -o lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
+	libtool -static -o lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
 
-lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o
-	libtool -static -o lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o
+lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
+	libtool -static -o lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
 
 build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
@@ -45,6 +45,8 @@ build/dataset.o: src/dataset.c include/dataset.h
 build/print_time.o: src/print_time.c include/print_time.h
 	$(CC) $(CFLAGS) -c src/print_time.c -o build/print_time.o
 
+build/double_container.o: src/double_container.c include/double_container.h
+	$(CC) $(CFLAGS) -c src/double_container.c -o build/double_container.o
 
 Esercizio1:
 	$(MAKE) -C Esercizio1
@@ -60,3 +62,23 @@ tests:
 	$(MAKE) -C Esercizio1 tests
 	$(MAKE) -C Esercizio2 tests
 	$(MAKE) -C Esercizio3 tests
+
+experiment1:
+	Esercizio1/bin/measure_times -q ../../DatasetsGenerators/records/records.csv
+	Esercizio1/bin/measure_times -H ../../DatasetsGenerators/records/records.csv
+	Esercizio1/bin/measure_times -m ../../DatasetsGenerators/records/records.csv
+
+experiment2:
+	Esercizio2/bin/measure_times_hash 1 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_hash 2 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_hash 3 ../../DatasetsGenerators/records/records.csv
+
+	Esercizio2/bin/measure_times_st 1 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_st 2 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_st 3 ../../DatasetsGenerators/records/records.csv
+
+experiment3:
+	Esercizio3/bin/measure_times -d ../../DatasetsGenerators/cities/italian_dist_graph.csv torino catania
+	Esercizio3/bin/measure_times -c ../../DatasetsGenerators/cities/italian_dist_graph.csv
+
+experiments: experiment1 experiment2 experiment3

@@ -24,10 +24,6 @@ void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   printf("\n");
 }
 
-void add_time(FILE* file, char* label, double secs) {
-  fprintf(file, "   %s: %lf\n", label, secs);
-}
-
 void print_usage() {
   printf("Usage: measure_time <field index> <file name>\n");
 }
@@ -53,24 +49,32 @@ void check_arguments(int argc, const char** argv) {
   }
 }
 
+PrintTime init_print_time(int argc, char const *argv[]) {
+  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
+  Dictionary header = Dictionary_new(keyInfo);
+  Dictionary_set(header, "Esercizio", "1");
+  Dictionary_set(header, "invocation", argv[0]);
+  Dictionary_set(header, "field", argv[1]);
+
+  PrintTime pt = PrintTime_new(header, NULL);
+
+  Dictionary_free(header);
+  KeyInfo_free(keyInfo);
+
+  return pt;
+}
+
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
-  FILE* f_times = fopen("timings.txt", "a");
-  assert(f_times);
-  double secs;
 
-  fprintf(f_times, "- invokation: %s\n", argv[0]);
-  fprintf(f_times, "  field: %s\n", argv[1]);
-  fprintf(f_times, "  data:\n");
+  PrintTime pt = init_print_time(argc, argv);
 
   __block Dataset* dataset;
-  secs = print_time(^{
+  PrintTime_print(pt, "dataset_load", ^{
     printf("Loading dataset...\n");
     dataset = Dataset_load(argv[2]);
     printf("Done!\n");
   });
-
-  add_time(f_times, "ds_load", secs);
 
   Dataset_print(dataset, 10);
 
@@ -94,19 +98,17 @@ int main(int argc, char const *argv[]) {
   dictionary = Dictionary_new(keyInfo);
 
 
-  secs = print_time(^{
+  PrintTime_print(pt, "Dictionary_load", ^{
     printf("Loading dictionary...\n");
     load_dictionary(dataset, dictionary);
     printf("Done!\n");
   });
 
-  add_time(f_times, "dic_load", secs);
-
 
   printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   printf("Dictionary efficiency score: %f\n", Dictionary_efficiency_score(dictionary));
 
-  secs = print_time(^{
+  PrintTime_print(pt, "Dictionary_iterate", ^{
     printf("Traversing the dictionary...\n");
     unsigned int count = 0;
     DictionaryIterator it = DictionaryIterator_new(dictionary);
@@ -118,11 +120,8 @@ int main(int argc, char const *argv[]) {
     DictionaryIterator_free(it);
   });
 
-  add_time(f_times, "iterating", secs);
-
-
   Record** records = Dataset_get_records(dataset);
-  secs = print_time(^{
+  PrintTime_print(pt, "Dictionary_elem_access", ^{
     printf("Making 1_000_000 accesses\n");
     unsigned int size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
@@ -134,9 +133,8 @@ int main(int argc, char const *argv[]) {
       };
     }
   });
-  add_time(f_times, "elem_access", secs);
 
-  secs = print_time(^{
+  PrintTime_print(pt, "Dictionary_elem_deletion", ^{
     printf("Making 1_000_000 deletions\n");
     unsigned int size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
@@ -146,26 +144,24 @@ int main(int argc, char const *argv[]) {
     }
     printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   });
-  add_time(f_times, "elem_del", secs);
-
 
   KeyInfo_free(keyInfo);
 
-  secs = print_time(^{
+  PrintTime_print(pt, "Dictionary_free", ^{
     printf("Freeing dictionary\n");
     Dictionary_free(dictionary);
     printf("Done!\n");
   });
-  add_time(f_times, "dic_dealloc", secs);
 
 
-  print_time(^{
+  PrintTime_print(pt, "Dataset_free", ^{
     printf("Freeing dataset\n");
     Dataset_free(dataset);
     printf("Done!\n");
   });
-  add_time(f_times, "ds_dealloc", secs);
 
+  PrintTime_save(pt);
+  PrintTime_free(pt);
 
   return 0;
 }
