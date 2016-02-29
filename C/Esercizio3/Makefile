@@ -19,5 +19,8 @@ bin/tests: build/dijkstra.o ../include/unit_testing.h src/tests.c ../lib/libcont
 build/dijkstra.o: src/dijkstra.c src/dijkstra.h ../include/graph.h ../include/dictionary.h
 	$(CC) $(CFLAGS) -c src/dijkstra.c -o build/dijkstra.o
 
-bin/measure_times: src/measure_times.c src/dijkstra.h build/dijkstra.o ../include/graph.h ../lib/libcontainers_hash.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/measure_times src/measure_times.c build/dijkstra.o -lcontainers_hash
+bin/measure_times: src/measure_times.c src/dijkstra.h build/dijkstra.o ../include/graph.h ../lib/libcontainers_hash.a build/graph_visiting.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/measure_times src/measure_times.c build/dijkstra.o build/graph_visiting.o -lcontainers_hash
+
+build/graph_visiting.o: src/graph_visiting.c src/graph_visiting.h ../include/graph.h
+	$(CC) $(CFLAGS) -c src/graph_visiting.c -o build/graph_visiting.o

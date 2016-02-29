@@ -46,3 +46,7 @@ unsigned int Dictionary_double_hash(const void* e) {
   double value = *(double*) e;
   return (unsigned int) value * (value+3);
 }
+
+int Dictionary_empty(Dictionary dictionary) {
+  return Dictionary_size(dictionary) == 0;
+}

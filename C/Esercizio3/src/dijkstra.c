@@ -142,6 +142,10 @@ void examine_neighbours(Dijkstra state, const void* current, double current_dist
       PriorityQueue_decrease_priority(state->pq, child, new_distance);
     }
 
+    const void* old_value = NULL;
+    if(Dictionary_get(state->distances, child, &old_value)) {
+      DoubleContainer_free((DoubleContainer) old_value);
+    }
     Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
   }
   EdgeIterator_free(neighbours);

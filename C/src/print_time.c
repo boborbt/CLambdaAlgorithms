@@ -2,13 +2,18 @@
 #include <stdio.h>
 #include <time.h>
 
-void print_time(void(^fun)()) {
+double print_time(void(^fun)()) {
+ double result;
  printf("\n======================\n");
  clock_t start = clock();
  fun();
  clock_t end = clock();
 
+ result = ((double)end-start) / CLOCKS_PER_SEC;
+
  printf("----------------------\n");
- printf("time:  %10.2lf secs\n", ((double)end-start) / CLOCKS_PER_SEC);
+ printf("time:  %10.2lf secs\n", result);
  printf("======================\n\n");
+
+ return result;
 }

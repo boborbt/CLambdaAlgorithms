@@ -24,7 +24,9 @@ void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   printf("\n");
 }
 
-
+void add_time(FILE* file, char* label, double secs) {
+  fprintf(file, "   %s: %lf\n", label, secs);
+}
 
 void print_usage() {
   printf("Usage: measure_time <field index> <file name>\n");
@@ -53,13 +55,22 @@ void check_arguments(int argc, const char** argv) {
 
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
+  FILE* f_times = fopen("timings.txt", "a");
+  assert(f_times);
+  double secs;
+
+  fprintf(f_times, "- invokation: %s\n", argv[0]);
+  fprintf(f_times, "  field: %s\n", argv[1]);
+  fprintf(f_times, "  data:\n");
 
   __block Dataset* dataset;
-  print_time(^{
+  secs = print_time(^{
     printf("Loading dataset...\n");
     dataset = Dataset_load(argv[2]);
     printf("Done!\n");
   });
+
+  add_time(f_times, "ds_load", secs);
 
   Dataset_print(dataset, 10);
 
@@ -83,16 +94,19 @@ int main(int argc, char const *argv[]) {
   dictionary = Dictionary_new(keyInfo);
 
 
-  print_time(^{
+  secs = print_time(^{
     printf("Loading dictionary...\n");
     load_dictionary(dataset, dictionary);
     printf("Done!\n");
   });
 
+  add_time(f_times, "dic_load", secs);
+
+
   printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   printf("Dictionary efficiency score: %f\n", Dictionary_efficiency_score(dictionary));
 
-  print_time(^{
+  secs = print_time(^{
     printf("Traversing the dictionary...\n");
     unsigned int count = 0;
     DictionaryIterator it = DictionaryIterator_new(dictionary);
@@ -104,11 +118,14 @@ int main(int argc, char const *argv[]) {
     DictionaryIterator_free(it);
   });
 
+  add_time(f_times, "iterating", secs);
+
+
   Record** records = Dataset_get_records(dataset);
-  print_time(^{
-    printf("Making 100_000 accesses\n");
+  secs = print_time(^{
+    printf("Making 1_000_000 accesses\n");
     unsigned int size = Dataset_size(dataset);
-    for(int i=0; i<100000; ++i) {
+    for(int i=0; i<1000000; ++i) {
       unsigned int index = drand48() * size;
       Record* record = records[index];
       Record* result = NULL;
@@ -117,31 +134,37 @@ int main(int argc, char const *argv[]) {
       };
     }
   });
+  add_time(f_times, "elem_access", secs);
 
-  print_time(^{
-    printf("Making 100_000 deletions\n");
+  secs = print_time(^{
+    printf("Making 1_000_000 deletions\n");
     unsigned int size = Dataset_size(dataset);
-    for(int i=0; i<100000; ++i) {
+    for(int i=0; i<1000000; ++i) {
       unsigned int index = drand48() * size;
       Record* record = records[index];
       Dictionary_delete(dictionary, record);
     }
     printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   });
+  add_time(f_times, "elem_del", secs);
+
 
   KeyInfo_free(keyInfo);
 
-  print_time(^{
+  secs = print_time(^{
     printf("Freeing dictionary\n");
     Dictionary_free(dictionary);
     printf("Done!\n");
   });
+  add_time(f_times, "dic_dealloc", secs);
+
 
   print_time(^{
     printf("Freeing dataset\n");
     Dataset_free(dataset);
     printf("Done!\n");
   });
+  add_time(f_times, "ds_dealloc", secs);
 
 
   return 0;

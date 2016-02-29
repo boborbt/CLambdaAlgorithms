@@ -14,6 +14,8 @@ struct _Graph {
 };
 
 struct _EdgeIterator {
+  Graph graph;
+  VertexIterator vertex_it;
   DictionaryIterator dic_it;
 };
 
@@ -31,7 +33,13 @@ Graph Graph_new(KeyInfo vertexInfo) {
 }
 
 void Graph_free(Graph graph) {
+  DictionaryIterator it = DictionaryIterator_new(graph->adjacency_matrix);
+  while(!DictionaryIterator_end(it)) {
+    Dictionary_free((Dictionary) DictionaryIterator_get(it)->value);
+    DictionaryIterator_next(it);
+  }
   Dictionary_free(graph->adjacency_matrix);
+  DictionaryIterator_free(it);
   free(graph);
 }
 
@@ -101,6 +109,8 @@ EdgeIterator Graph_adjacents(Graph graph, const void* vertex) {
 
   EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
   it->dic_it = DictionaryIterator_new(adj_list);
+  it->vertex_it = NULL;
+  it->graph = NULL;
   return it;
 }
 
@@ -110,17 +120,55 @@ VertexIterator Graph_vertices(Graph graph) {
   return it;
 }
 
+DictionaryIterator Graph_first_non_empty_edge(Graph graph, VertexIterator vertex_it) {
+  DictionaryIterator dic_it = NULL;
+  while(!VertexIterator_end(vertex_it) && dic_it == NULL) {
+    Dictionary adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
+    if(!Dictionary_empty(adj_list)) {
+      dic_it = DictionaryIterator_new(adj_list);
+    } else {
+      VertexIterator_next(vertex_it);
+    }
+  }
+
+  return dic_it;
+}
+
+EdgeIterator Graph_edges(Graph graph) {
+  EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
+  it->graph = graph;
+  it->vertex_it = Graph_vertices(graph);
+  it->dic_it = Graph_first_non_empty_edge(graph, it->vertex_it);
+
+  return it;
+}
+
 void EdgeIterator_free(EdgeIterator it) {
-  DictionaryIterator_free(it->dic_it);
+  if(it->dic_it!=NULL) {
+    DictionaryIterator_free(it->dic_it);
+  }
+
+  if(it->vertex_it!=NULL) {
+    VertexIterator_free(it->vertex_it);
+  }
   free(it);
 }
 
 int EdgeIterator_end(EdgeIterator it) {
-  return DictionaryIterator_end(it->dic_it);
+  return it->dic_it == NULL || DictionaryIterator_end(it->dic_it);
 }
 
 void EdgeIterator_next(EdgeIterator it) {
+  if(it->dic_it == NULL || DictionaryIterator_end(it->dic_it)) {
+    return;
+  }
+
   DictionaryIterator_next(it->dic_it);
+  while(it->dic_it != NULL && DictionaryIterator_end(it->dic_it) && it->vertex_it != NULL && !VertexIterator_end(it->vertex_it)) {
+    DictionaryIterator_free(it->dic_it);
+    VertexIterator_next(it->vertex_it);
+    it->dic_it = Graph_first_non_empty_edge(it->graph, it->vertex_it);
+  }
 }
 
 EdgeInfo EdgeIterator_get(EdgeIterator it) {
@@ -139,7 +187,7 @@ void VertexIterator_free(VertexIterator it) {
 }
 
 int VertexIterator_end(VertexIterator it) {
-  return DictionaryIterator_end(it->dic_it);
+  return it->dic_it != NULL && DictionaryIterator_end(it->dic_it);
 }
 
 void VertexIterator_next(VertexIterator it) {

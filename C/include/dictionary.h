@@ -34,6 +34,7 @@ void Dictionary_delete(Dictionary dictionary, const void* key);
 
 // Returns the number of distinct keys stores in the dictionary.
 unsigned int Dictionary_size(Dictionary dictionary);
+int Dictionary_empty(Dictionary dictionary);
 
 // Returns an evaluation of the efficiency of the dictionary. Its actual
 // value is implementation specific, but it should be lower for dictionaries
