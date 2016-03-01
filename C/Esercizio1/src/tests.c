@@ -3,6 +3,7 @@
 #include "quick_sort.h"
 #include "merge_sort.h"
 #include "heap_sort.h"
+#include "insertion_sort.h"
 #include "unit_testing.h"
 #include <stdio.h>
 
@@ -41,6 +42,13 @@ void test_heap_sort_empty_array() {
   assert(TRUE); // suffices that the algorithm terminates
 }
 
+void test_insertion_sort_empty_array() {
+  long a[] = {};
+  insertion_sort((const void**)a, 0, compare);
+
+  assert(TRUE); // suffices that the algorithm terminates
+}
+
 
 void test_quick_sort_null_array() {
   quick_sort((const void**) NULL, 0, compare);
@@ -56,6 +64,12 @@ void test_merge_sort_null_array() {
 
 void test_heap_sort_null_array() {
   heap_sort((const void**) NULL, 0, compare);
+
+  assert(TRUE); // suffices that the algorithm terminates
+}
+
+void test_insertion_sort_null_array() {
+  insertion_sort((const void**) NULL, 0, compare);
 
   assert(TRUE); // suffices that the algorithm terminates
 }
@@ -77,6 +91,13 @@ void test_merge_sort_single_element_array() {
 void test_heap_sort_single_element_array() {
   long a[] = { 100 };
   heap_sort((const void**)a, 1, compare);
+
+  assert( a[0] == 100 );
+}
+
+void test_insertion_sort_single_element_array() {
+  long a[] = { 100 };
+  insertion_sort((const void**)a, 1, compare);
 
   assert( a[0] == 100 );
 }
@@ -112,6 +133,15 @@ void test_merge_sort_full_array() {
 void test_heap_sort_full_array() {
   long a[] = { 85, 91, 49, 16, 31, 26, 96, 83, 60, 80 };
   heap_sort((const void**) a, 10, compare);
+
+  for(int i=0; i<9; ++i) {
+    assert(a[i] <= a[i+1]);
+  }
+}
+
+void test_insertion_sort_full_array() {
+  long a[] = { 85, 91, 49, 16, 31, 26, 96, 85, 60, 80 };
+  insertion_sort((const void**) a, 10, compare);
 
   for(int i=0; i<9; ++i) {
     assert(a[i] <= a[i+1]);
@@ -198,6 +228,12 @@ int main(int argc, char const *argv[]) {
   test_heap_sort_null_array();
   test_heap_sort_single_element_array();
   test_heap_sort_full_array();
+
+  test_insertion_sort_empty_array();
+  test_insertion_sort_null_array();
+  test_insertion_sort_single_element_array();
+  test_insertion_sort_full_array();
+
 
 
   return 0;
