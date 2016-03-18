@@ -3,7 +3,7 @@ CFLAGS+=-I../include
 LDFLAGS=-L../lib
 
 
-all: bin/tests bin/measure_times
+all: bin/tests bin/measure_times bin/test_read
 
 tests: bin/tests
 	bin/tests
@@ -31,3 +31,6 @@ build/merge_sort.o: src/merge_sort.h src/merge_sort.c
 
 bin/measure_times: src/measure_times.c src/heap_sort.h src/quick_sort.h src/insertion_sort.h ../include/dataset.h build/quick_sort.o build/heap_sort.o ../lib/libcontainers_st.a build/merge_sort.o build/insertion_sort.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/measure_times src/measure_times.c build/quick_sort.o build/merge_sort.o build/heap_sort.o build/insertion_sort.o -lcontainers_st
+
+bin/test_read: src/test_read.c ../include/dataset.h ../lib/libcontainers_st.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/test_read src/test_read.c -lcontainers_st

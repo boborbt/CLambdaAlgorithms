@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include "double_container.h"
 
-typedef struct _DoubleContainer {
+struct _DoubleContainer {
   double value;
-}* DoubleContainer;
+};
 
 DoubleContainer DoubleContainer_new(double value) {
   DoubleContainer result = (DoubleContainer) malloc(sizeof(struct _DoubleContainer));
