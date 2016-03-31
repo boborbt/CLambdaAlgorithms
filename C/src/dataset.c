@@ -6,17 +6,17 @@
 
 #include "dictionary.h"
 
-typedef struct _Record {
+struct _Record {
   int id;
   char* field1;
   int field2;
   double field3;
-} Record;
+};
 
-typedef struct _Dataset {
+struct _Dataset {
   Record** records;
   int size;
-} Dataset;
+};
 
 
 int Dataset_compare_field1(const void* e1, const void* e2) {
