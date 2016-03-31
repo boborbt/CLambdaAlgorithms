@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "quick_sort.h"
+#include "array_g.h"
 
 int min(int e1, int e2) {
   return e1 < e2 ? e1 : e2;
@@ -16,11 +17,23 @@ void swap(const void** e1, const void** e2) {
   *e2 = tmp;
 }
 
+
+
 void array_block_swap_to_end(const void** array, int start, int end, int len) {
   int b1_start = start;
   int b2_start = end - len + 1;
   for(int i=0; i<len; ++i) {
     swap(&array[b1_start+i], &array[b2_start+i]);
+  }
+}
+
+void array_block_swap_to_end_g(const void* array, int start, int end, int len, int size) {
+  int b1_start = start;
+  int b2_start = end - len + 1;
+  for(int i=0; i<len; ++i) {
+    swap_g(at_g(array, b1_start+i,size),
+           at_g(array, b2_start+i,size),
+           size);
   }
 }
 
@@ -81,6 +94,39 @@ void partition_3_way(const void** array, int start, int end, int pivot_pos, int*
   }
 }
 
+void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int* p1, int* p2, int size, QSCompareFun compare) {
+  swap_g(at_g(array,end,size), at_g(array,pivot_pos, size), size);
+  const void* pivot_ptr = at_g(array,end,size);
+
+  int i = start-1;
+  int p = end;
+  for(int j=start; j<p;) {
+    if(compare(at_g(array,j,size), pivot_ptr)==0) {
+      p-=1;
+      swap_g(at_g(array,j,size), at_g(array,p,size), size);
+      continue;
+    }
+
+    if(compare(at_g(array,j,size), pivot_ptr) < 0) {
+      ++i;
+      swap_g(at_g(array,i,size), at_g(array,j,size), size);
+    }
+
+    ++j;
+  }
+
+  int l = min(p-1-i, end-p+1);
+  array_block_swap_to_end_g(array, i+1, end, l, size);
+
+  *p1 = i;
+
+  if(l == p-1-i) {
+    *p2 = end-l+1;
+  } else {
+    *p2 = i+l+1;
+  }
+}
+
 
 int partition(const void** array, int start, int end, QSCompareFun compare) {
   int pivot_pos = start + random_int(end-start);
@@ -119,8 +165,23 @@ void quick_sort_3_way(const void** array, int start, int end, QSCompareFun compa
   quick_sort_3_way(array, p2, end, compare);
 }
 
+void quick_sort_3_way_g(const void* array, int start, int end, int size, QSCompareFun compare) {
+  if(end - start < 1) return;
+
+  int pivot_pos = start + random_int(end-start);
+  int p1, p2;
+  partition_3_way_g(array, start, end, pivot_pos, &p1, &p2, size, compare);
+
+  quick_sort_3_way_g(array, start, p1, size, compare);
+  quick_sort_3_way_g(array, p2, end, size, compare);
+}
+
 
 void quick_sort(const void** array, int count, QSCompareFun compare) {
   // quick_sort_standard(array, 0, count-1, compare);
   quick_sort_3_way(array, 0, count-1, compare);
+}
+
+void quick_sort_g(const void* array, int count, int size, QSCompareFun fun) {
+  quick_sort_3_way_g(array, 0, count-1, size, fun);
 }

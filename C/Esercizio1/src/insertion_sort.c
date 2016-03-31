@@ -14,11 +14,6 @@ void insert(const void** array, int elem_pos, ISCompareFun compare) {
 
 void insertion_sort(const void** array, int count, ISCompareFun compare) {
   for(int i=1; i<count; ++i) {
-    if(i%100000 == 0) {
-      printf(".");
-      fflush(stdout);
-    }
     insert(array, i, compare);
   }
-  printf("\n");
 }

@@ -15,11 +15,11 @@ clean:
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 
-lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
-	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
+	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
 
-lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
-	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o
+lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
+	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
 
 build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
@@ -47,6 +47,9 @@ build/print_time.o: src/print_time.c include/print_time.h
 
 build/double_container.o: src/double_container.c include/double_container.h
 	$(CC) $(CFLAGS) -c src/double_container.c -o build/double_container.o
+
+build/unit_testing.o: src/unit_testing.c include/unit_testing.h
+	$(CC) $(CFLAGS) -c src/unit_testing.c -o build/unit_testing.o
 
 Esercizio1:
 	$(MAKE) -C Esercizio1
