@@ -102,10 +102,11 @@ void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(const void**, i
 void print_usage() {
   printf("Usage: measure_time <opt> <file name>\n");
   printf(" opts: -q use quick_sort algorithm\n");
-  printf("       -g use quick_sort_g algorithm\n");
+  printf("       -Q use quick_sort_g algorithm\n");
   printf("       -i use insertion_sort algorithm\n");
-  printf("       -Q use system qsort algorithm\n");
+  printf("       -s use system qsort algorithm\n");
   printf("       -m use merge_sort algorithm\n");
+  printf("       -M use merge_sort_g algorithm\n");
   printf("       -H use heap_sort algorithm\n");
   printf("       -h print this message\n");
 }
@@ -124,7 +125,7 @@ void check_arguments(int argc, const char** argv) {
     exit(1);
   }
 
-  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','g','m','h','Q', 'H', 'i'}, 7)) {
+  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','Q','m','M','h','s', 'H', 'i'}, 8)) {
     printf("Option %s not recognized\n", argv[1]);
     print_usage();
     exit(1);
@@ -140,8 +141,9 @@ const char* flag_to_algorithm_name(char ch) {
   switch(ch) {
     case 'i': return "insertion_sort";
     case 'q': return "quick_sort";
-    case 'g': return "quick_sort_g";
-    case 'Q': return "system_quick_sort";
+    case 'Q': return "quick_sort_g";
+    case 's': return "system_quick_sort";
+    case 'M': return "merge_sort_g";
     case 'm': return "merge_sort";
     case 'H': return "heap_sort";
     default:
@@ -192,6 +194,9 @@ int main(int argc, char const *argv[]) {
       break;
     case 'm':
       test_algorithm(dataset, pt, merge_sort);
+      break;
+    case 'M':
+      test_algorithm_g(dataset, pt, merge_sort_g);
       break;
     case 'H':
       test_algorithm(dataset, pt, heap_sort);
