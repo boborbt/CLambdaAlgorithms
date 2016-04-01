@@ -7,3 +7,6 @@ C/Esercizio2/bin/measure_times_st
 C/Esercizio2/bin/tests_hash
 C/Esercizio2/bin/tests_st
 C/lib
+C/Esercizio1/bin/test_read
+*.yml
+*.class

@@ -52,6 +52,29 @@ void test_qsort(Dataset* dataset, PrintTime pt) {
 }
 
 
+void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(const void*, int, int, int(*)(const void*, const void*))) {
+  PrintTime_print(pt, "field1", ^{
+    printf("Sorting according to field1\n");
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field1_g);
+    printf("Done!\n");
+  });
+  Dataset_print(dataset, 10);
+
+  PrintTime_print(pt, "field2", ^{
+    printf("Sorting according to field2\n");
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field2_g);
+    printf("Done!\n");
+  });
+  Dataset_print(dataset, 10);
+
+  PrintTime_print(pt, "field3", ^{
+    printf("Sorting according to field3\n");
+    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field3_g);
+    printf("Done!\n");
+  });
+  Dataset_print(dataset, 10);
+}
+
 void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(const void**, int, int(*)(const void*, const void*))) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
@@ -79,6 +102,7 @@ void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(const void**, i
 void print_usage() {
   printf("Usage: measure_time <opt> <file name>\n");
   printf(" opts: -q use quick_sort algorithm\n");
+  printf("       -g use quick_sort_g algorithm\n");
   printf("       -i use insertion_sort algorithm\n");
   printf("       -Q use system qsort algorithm\n");
   printf("       -m use merge_sort algorithm\n");
@@ -100,7 +124,7 @@ void check_arguments(int argc, const char** argv) {
     exit(1);
   }
 
-  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','m','h','Q', 'H', 'i'}, 6)) {
+  if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','g','m','h','Q', 'H', 'i'}, 7)) {
     printf("Option %s not recognized\n", argv[1]);
     print_usage();
     exit(1);
@@ -116,6 +140,7 @@ const char* flag_to_algorithm_name(char ch) {
   switch(ch) {
     case 'i': return "insertion_sort";
     case 'q': return "quick_sort";
+    case 'g': return "quick_sort_g";
     case 'Q': return "system_quick_sort";
     case 'm': return "merge_sort";
     case 'H': return "heap_sort";
@@ -158,6 +183,9 @@ int main(int argc, char const *argv[]) {
   switch(argv[1][1]) {
     case 'q':
       test_algorithm(dataset, pt, quick_sort);
+      break;
+    case 'g':
+      test_algorithm_g(dataset, pt, quick_sort_g);
       break;
     case 'i':
       test_algorithm(dataset, pt, insertion_sort);

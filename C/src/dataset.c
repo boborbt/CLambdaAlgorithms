@@ -41,6 +41,29 @@ int Dataset_compare_field3(const void* e1, const void* e2) {
   return 0;
 }
 
+
+int Dataset_compare_field1_g(const void* e1, const void* e2) {
+  Record* r1 = *(Record**) e1;
+  Record* r2 = *(Record**) e2;
+
+  return KeyInfo_string_compare(r1->field1, r2->field1);
+}
+
+int Dataset_compare_field2_g(const void* e1, const void* e2) {
+  Record* r1 = *(Record**) e1;
+  Record* r2 = *(Record**) e2;
+
+  return KeyInfo_int_compare(&r1->field2, &r2->field2);
+}
+
+int Dataset_compare_field3_g(const void* e1, const void* e2) {
+  Record* r1 = *(Record**) e1;
+  Record* r2 = *(Record**) e2;
+
+  return KeyInfo_double_compare(&r1->field3, &r2->field3);
+  return 0;
+}
+
 unsigned int Dataset_hash_field1(const void* e1) {
   Record* r1 = (Record*) e1;
   char* str = r1->field1;

@@ -6,9 +6,17 @@ typedef struct _Record Record;
 typedef struct _Dataset Dataset;
 
 // Comparison functions based on the three fields defined in Record
+// g versions assume the parameters point to pointers to the objects
+// to be compared. non g version assume the paramenters point to the actual
+// objects
 int Dataset_compare_field1(const void* e1, const void* e2);
 int Dataset_compare_field2(const void* e1, const void* e2);
 int Dataset_compare_field3(const void* e1, const void* e2);
+
+int Dataset_compare_field1_g(const void* e1, const void* e2);
+int Dataset_compare_field2_g(const void* e1, const void* e2);
+int Dataset_compare_field3_g(const void* e1, const void* e2);
+
 
 // Hash functions based on the three fields defined in Record
 unsigned int Dataset_hash_field1(const void* e);
