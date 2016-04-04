@@ -128,21 +128,40 @@ void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int
 }
 
 
-int partition(const void** array, int start, int end, QSCompareFun compare) {
-  int pivot_pos = start + random_int(end-start);
-  const void* pivot = array[end];
-  swap( &array[end], &array[pivot_pos]);
+// int partition(const void** array, int start, int end, QSCompareFun compare) {
+//   int pivot_pos = start + random_int(end-start);
+//   const void* pivot = array[end];
+//   swap( &array[end], &array[pivot_pos]);
+//
+//   int i = start;
+//   for(int j=start; j <= end - 1; ++j) {
+//     if(compare(array[j], pivot) < 0) {
+//       swap(&array[i], &array[j]);
+//       ++i;
+//     }
+//   }
+//
+//   swap(&array[i], &array[end]);
+//   return i;
+// }
 
-  int i = start;
-  for(int j=start; j <= end - 1; ++j) {
-    if(compare(array[j], pivot) < 0) {
+int partition(const void** array, int first,int last, QSCompareFun compare){
+  swap(&array[first], &array[first + random_int(last-first)]);
+  const void* pivot = array[first];
+  int i = first+1, j = last;
+  while(i<=j){
+    if(compare(array[i], pivot)<0)
+      i++;
+    else if(compare(array[j],pivot)>0)
+      j--;
+    else{
       swap(&array[i], &array[j]);
-      ++i;
+      i++;
+      j--;
     }
   }
-
-  swap(&array[i], &array[end]);
-  return i;
+  swap(&array[first], &array[j]);
+  return j;
 }
 
 void quick_sort_standard(const void** array, int start, int end, QSCompareFun compare) {
@@ -178,8 +197,8 @@ void quick_sort_3_way_g(const void* array, int start, int end, int size, QSCompa
 
 
 void quick_sort(const void** array, int count, QSCompareFun compare) {
-  // quick_sort_standard(array, 0, count-1, compare);
-  quick_sort_3_way(array, 0, count-1, compare);
+  quick_sort_standard(array, 0, count-1, compare);
+  // quick_sort_3_way(array, 0, count-1, compare);
 }
 
 void quick_sort_g(const void* array, int count, int size, QSCompareFun fun) {
