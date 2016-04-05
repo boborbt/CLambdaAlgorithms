@@ -52,6 +52,9 @@ static void heapify(void** array, unsigned int count, HSCompareFun compare) {
 }
 
 void heap_sort(void** array, unsigned int count, HSCompareFun compare) {
+  if(count == 0) {
+    return;
+  }
   heapify(array, count, compare);
 
   while(count>1) {
