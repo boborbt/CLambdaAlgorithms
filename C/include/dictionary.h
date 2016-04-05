@@ -1,5 +1,4 @@
-#ifndef __DICTIONARY_H_3NXN3XL378__
-#define __DICTIONARY_H_3NXN3XL378__
+#pragma once
 
 #include "key_info.h"
 #include <string.h>
@@ -61,6 +60,3 @@ int DictionaryIterator_end(DictionaryIterator it);
 
 // Returns the element currently pointed by the iterator
 Elem DictionaryIterator_get(DictionaryIterator it);
-
-
-#endif

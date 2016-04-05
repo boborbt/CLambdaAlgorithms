@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include "array_g.h"
 
-
-void merge(const void** array, int start, int mid, int end, MSCompareFun compare) {
-  const void** buf = (const void**) malloc(sizeof(const void*)*(end-start+1));
-  int i = start;
-  int j = mid+1;
-  int k = 0;
+static void merge(void** array, unsigned int start, unsigned int mid, unsigned int end, MSCompareFun compare) {
+  void** buf = (void**) malloc(sizeof(const void*)*(end-start+1));
+  unsigned int i = start;
+  unsigned int j = mid+1;
+  unsigned int k = 0;
 
   while(i<=mid && j<=end) {
     if(compare(array[i], array[j]) <= 0) {
@@ -33,11 +32,11 @@ void merge(const void** array, int start, int mid, int end, MSCompareFun compare
   free(buf);
 }
 
-void merge_g(const void* array, int start, int mid, int end, int size, MSCompareFun compare) {
+static void merge_g(void* array, unsigned int start, unsigned int mid, unsigned int end, unsigned int size, MSCompareFun compare) {
   void* buf = (void*) malloc(size*(end-start+1));
-  int i = start;
-  int j = mid+1;
-  int k = 0;
+  unsigned int i = start;
+  unsigned int j = mid+1;
+  unsigned int k = 0;
 
   while(i<=mid && j<=end) {
     if(compare(at_g(array, i, size), at_g(array,j, size)) <= 0) {
@@ -63,22 +62,22 @@ void merge_g(const void* array, int start, int mid, int end, int size, MSCompare
   free(buf);
 }
 
-void merge_sort_(const void** array, int start, int end, MSCompareFun compare) {
+static void merge_sort_(void** array, unsigned int start, unsigned int end, MSCompareFun compare) {
   if(start >= end)
     return;
 
-  int mid = (start + end)/2;
+  unsigned int mid = (start + end)/2;
 
   merge_sort_(array, start, mid, compare);
   merge_sort_(array, mid+1, end, compare);
   merge(array, start, mid, end, compare);
 }
 
-void merge_sort_g_(const void* array, int start, int end, int size, MSCompareFun compare) {
+static void merge_sort_g_(void* array, unsigned int start, unsigned int end, unsigned int size, MSCompareFun compare) {
   if(start >= end)
     return;
 
-  int mid = (start + end)/2;
+  unsigned int mid = (start + end)/2;
 
   merge_sort_g_(array, start, mid, size, compare);
   merge_sort_g_(array, mid+1, end, size, compare);
@@ -86,10 +85,16 @@ void merge_sort_g_(const void* array, int start, int end, int size, MSCompareFun
 }
 
 
-void merge_sort_g(const void* array, int count, int size, MSCompareFun compare) {
+void merge_sort_g(void* array, unsigned int count, unsigned int size, MSCompareFun compare) {
+  if(count==0) {
+    return;
+  }
   merge_sort_g_(array, 0, count-1, size, compare);
 }
 
-void merge_sort(const void** array, int count, MSCompareFun compare) {
+void merge_sort(void** array, unsigned int count, MSCompareFun compare) {
+  if(count == 0) {
+    return;
+  }
   merge_sort_(array, 0, count-1, compare);
 }

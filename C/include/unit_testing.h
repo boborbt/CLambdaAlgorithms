@@ -1,5 +1,4 @@
-#ifndef __UNIT_TESTING_H_MN2UDBK22__
-#define __UNIT_TESTING_H_MN2UDBK22__
+#pragma once
 
 #include <stdio.h>
 
@@ -34,5 +33,3 @@ void end_tests();
 // Calls a testing function. The given test function should
 // exit the program with an error if the test does not succeed.
 void test(void (*test_fun)());
-
-#endif

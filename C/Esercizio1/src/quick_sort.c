@@ -3,50 +3,55 @@
 #include "quick_sort.h"
 #include "array_g.h"
 
-int min(int e1, int e2) {
+void partition_3_way(void** array, unsigned int start, unsigned int end, unsigned int pivot_pos, unsigned int* p1, unsigned int* p2,  QSCompareFun compare);
+void quick_sort_3_way(void** array, unsigned int start, unsigned int end, QSCompareFun compare);
+void quick_sort_3_way_g(void* array, unsigned int start, unsigned int end, unsigned int size, QSCompareFun compare);
+
+
+static unsigned int umin(unsigned int e1, unsigned int e2) {
   return e1 < e2 ? e1 : e2;
 }
 
-int random_int(int size) {
-  return drand48() * size;
+static unsigned int random_int(unsigned int size) {
+  return (unsigned int) (drand48() * size);
 }
 
-void swap(const void** e1, const void** e2) {
-  const void* tmp = *e1;
+static void swap(void** e1,void** e2) {
+  void* tmp = *e1;
   *e1 = *e2;
   *e2 = tmp;
 }
 
 
 
-void array_block_swap_to_end(const void** array, int start, int end, int len) {
-  int b1_start = start;
-  int b2_start = end - len + 1;
-  for(int i=0; i<len; ++i) {
+static void array_block_swap_to_end(void** array, unsigned int start, unsigned int end, unsigned int len) {
+  unsigned int b1_start = start;
+  unsigned int b2_start = (unsigned int) (end - len + 1);
+  for(unsigned int i=0; i<len; ++i) {
     swap(&array[b1_start+i], &array[b2_start+i]);
   }
 }
 
-void array_block_swap_to_end_g(const void* array, int start, int end, int len, int size) {
-  int b1_start = start;
-  int b2_start = end - len + 1;
-  for(int i=0; i<len; ++i) {
+static void array_block_swap_to_end_g(void* array, unsigned int start, unsigned int end, unsigned int len, unsigned int size) {
+  unsigned int b1_start = start;
+  unsigned int b2_start = (unsigned int)(end - len + 1);
+  for(unsigned int i=0; i<len; ++i) {
     swap_g(at_g(array, b1_start+i,size),
            at_g(array, b2_start+i,size),
            size);
   }
 }
 
-void dump_status(const void** array, int start, int end, int i, int j, int p) {
 #ifdef __DEBUG__
+static void dump_status(const void** array, unsigned int start, unsigned int end, int i, int j, int p) {
   for(int k=start; k<=end; ++k) {
     printf("%3ld", (long) array[k]);
   }
 
 
   printf("\ni:%2d j:%2d p:%2d\n", i, j, p);
-#endif
 }
+#endif
 
 // Partition the given array putting all pivot elements in the center of it.
 // After the call *p1 will be the index of the last array cell whose content
@@ -61,13 +66,13 @@ void dump_status(const void** array, int start, int end, int i, int j, int p) {
 // at the end of the array. Last step in the procedure swap those values
 // with the first elements larger than the pivot.
 
-void partition_3_way(const void** array, int start, int end, int pivot_pos, int* p1, int* p2,  QSCompareFun compare) {
+void partition_3_way(void** array, unsigned int start, unsigned int end, unsigned int pivot_pos, unsigned int* p1, unsigned int* p2,  QSCompareFun compare) {
   swap(&array[end], &array[pivot_pos]);
   const void* pivot = array[end];
 
-  int i = start-1;
-  int p = end;
-  for(int j=start; j<p;) {
+  unsigned int i = (unsigned int)(start-1);
+  unsigned int p = end;
+  for(unsigned int j=start; j<p;) {
     if(compare(array[j], pivot)==0) {
       p-=1;
       swap(&array[j], &array[p]);
@@ -82,7 +87,7 @@ void partition_3_way(const void** array, int start, int end, int pivot_pos, int*
     ++j;
   }
 
-  int l = min(p-1-i, end-p+1);
+  unsigned int l = umin(p-1-i, end-p+1);
   array_block_swap_to_end(array, i+1, end, l);
 
   *p1 = i;
@@ -94,13 +99,13 @@ void partition_3_way(const void** array, int start, int end, int pivot_pos, int*
   }
 }
 
-void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int* p1, int* p2, int size, QSCompareFun compare) {
+static void partition_3_way_g(void* array, unsigned int start, unsigned int end, unsigned int pivot_pos, unsigned int* p1, unsigned int* p2, unsigned int size, QSCompareFun compare) {
   swap_g(at_g(array,end,size), at_g(array,pivot_pos, size), size);
   const void* pivot_ptr = at_g(array,end,size);
 
-  int i = start-1;
-  int p = end;
-  for(int j=start; j<p;) {
+  unsigned int i = start-1;
+  unsigned int p = end;
+  for(unsigned int j=start; j<p;) {
     if(compare(at_g(array,j,size), pivot_ptr)==0) {
       p-=1;
       swap_g(at_g(array,j,size), at_g(array,p,size), size);
@@ -115,7 +120,7 @@ void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int
     ++j;
   }
 
-  int l = min(p-1-i, end-p+1);
+  unsigned int l = umin((p-1-i), (end-p+1));
   array_block_swap_to_end_g(array, i+1, end, l, size);
 
   *p1 = i;
@@ -128,7 +133,7 @@ void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int
 }
 
 
-// int partition(const void** array, int start, int end, QSCompareFun compare) {
+// int partition(const void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
 //   int pivot_pos = start + random_int(end-start);
 //   const void* pivot = array[end];
 //   swap( &array[end], &array[pivot_pos]);
@@ -145,10 +150,10 @@ void partition_3_way_g(const void* array, int start, int end, int pivot_pos, int
 //   return i;
 // }
 
-int partition(const void** array, int first,int last, QSCompareFun compare){
+static unsigned int partition(void** array, unsigned int first,unsigned int last, QSCompareFun compare){
   swap(&array[first], &array[first + random_int(last-first)]);
   const void* pivot = array[first];
-  int i = first+1, j = last;
+  unsigned int i = first+1, j = last;
   while(i<=j){
     if(compare(array[i], pivot)<0)
       i++;
@@ -164,31 +169,31 @@ int partition(const void** array, int first,int last, QSCompareFun compare){
   return j;
 }
 
-void quick_sort_standard(const void** array, int start, int end, QSCompareFun compare) {
+static void quick_sort_standard(void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
   if( end - start < 1 ) return;
 
-  int pivot_pos = partition(array, start, end, compare);
+  unsigned int pivot_pos = partition(array, start, end, compare);
 
   quick_sort_standard(array, start, pivot_pos, compare);
   quick_sort_standard(array, pivot_pos+1, end, compare );
 }
 
-void quick_sort_3_way(const void** array, int start, int end, QSCompareFun compare) {
+void quick_sort_3_way(void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
   if(end - start < 1) return;
 
-  int pivot_pos = start + random_int(end-start);
-  int p1, p2;
+  unsigned int pivot_pos = start + random_int(end-start);
+  unsigned int p1, p2;
   partition_3_way(array, start, end, pivot_pos, &p1, &p2, compare);
 
   quick_sort_3_way(array, start, p1, compare);
   quick_sort_3_way(array, p2, end, compare);
 }
 
-void quick_sort_3_way_g(const void* array, int start, int end, int size, QSCompareFun compare) {
+void quick_sort_3_way_g(void* array, unsigned int start, unsigned int end, unsigned int size, QSCompareFun compare) {
   if(end - start < 1) return;
 
-  int pivot_pos = start + random_int(end-start);
-  int p1, p2;
+  unsigned int pivot_pos = start + random_int(end-start);
+  unsigned int p1, p2;
   partition_3_way_g(array, start, end, pivot_pos, &p1, &p2, size, compare);
 
   quick_sort_3_way_g(array, start, p1, size, compare);
@@ -196,11 +201,17 @@ void quick_sort_3_way_g(const void* array, int start, int end, int size, QSCompa
 }
 
 
-void quick_sort(const void** array, int count, QSCompareFun compare) {
+void quick_sort(void** array, unsigned int count, QSCompareFun compare) {
+  if(count == 0) {
+    return;
+  }
   quick_sort_standard(array, 0, count-1, compare);
   // quick_sort_3_way(array, 0, count-1, compare);
 }
 
-void quick_sort_g(const void* array, int count, int size, QSCompareFun fun) {
+void quick_sort_g(void* array, unsigned int count, unsigned int size, QSCompareFun fun) {
+  if(count == 0) {
+    return;
+  }
   quick_sort_3_way_g(array, 0, count-1, size, fun);
 }

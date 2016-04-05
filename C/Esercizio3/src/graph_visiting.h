@@ -1,6 +1,4 @@
-#ifndef __DEPTH_FIRST_VISIT_H__
-#define __DEPTH_FIRST_VISIT_H__
-
+#pragma once
 #include "graph.h"
 
 typedef struct _VisitingInfo* VisitingInfo;
@@ -15,5 +13,3 @@ void VisitingInfo_free(VisitingInfo info);
 
 // Performs a depth first visit
 void Graph_depth_first_visit(VisitingInfo info, const void* source);
-
-#endif

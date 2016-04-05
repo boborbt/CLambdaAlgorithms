@@ -1,5 +1,4 @@
-#ifndef __DATASET_H_KJADFLM83NX83__
-#define __DATASET_H_KJADFLM83NX83__
+#pragma once
 
 // Opaque data structures
 typedef struct _Record Record;
@@ -41,6 +40,4 @@ Record** Dataset_get_records(Dataset* dataset);
 
 // Returns the size of the dataset (i.e., the number of records stored in
 // this dataset)
-int Dataset_size(Dataset* size);
-
-#endif
+unsigned int Dataset_size(Dataset* size);

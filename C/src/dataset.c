@@ -15,7 +15,7 @@ struct _Record {
 
 struct _Dataset {
   Record** records;
-  int size;
+  unsigned int size;
 };
 
 
@@ -170,7 +170,7 @@ Record** Dataset_get_records(Dataset* dataset) {
   return dataset->records;
 }
 
-int Dataset_size(Dataset* dataset) {
+unsigned int Dataset_size(Dataset* dataset) {
   return dataset->size;
 }
 

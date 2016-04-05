@@ -1,9 +1,6 @@
-#ifndef __MERGE_SORT_H_J33NPL2934H
-#define __MERGE_SORT_H_J33NPL2934H
+#pragma once
 
 typedef int (*MSCompareFun)(const void*, const void*);
 
-void merge_sort(const void** array, int count, MSCompareFun compare);
-void merge_sort_g(const void* array, int count, int size, MSCompareFun);
-
-#endif
+void merge_sort(void** array, unsigned int count, MSCompareFun compare);
+void merge_sort_g(void* array, unsigned int count, unsigned int size, MSCompareFun);

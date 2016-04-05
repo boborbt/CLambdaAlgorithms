@@ -1,5 +1,4 @@
-#ifndef __PRINT_TIME_H_JXCI3MX__
-#define __PRINT_TIME_H_JXCI3MX__
+#pragma once
 
 #include "dictionary.h"
 
@@ -10,5 +9,3 @@ void PrintTime_free(PrintTime);
 
 double PrintTime_print(PrintTime pt, const char* label, void(^fun)());
 void PrintTime_save(PrintTime pt);
-
-#endif

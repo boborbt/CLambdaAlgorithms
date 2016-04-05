@@ -1,5 +1,4 @@
-#ifndef __PRIORITY_QUEUE_H_J2XM2N29__
-#define __PRIORITY_QUEUE value_H_J2XM2N29__
+#pragma once
 
 //
 // Implementation of a priority queue (smaller values first)
@@ -33,6 +32,3 @@ double PriorityQueue_top_priority(PriorityQueue);
 
 // Decreases the priority of the given element
 void   PriorityQueue_decrease_priority(PriorityQueue pq, const void* elem, double new_priority);
-
-
-#endif

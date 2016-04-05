@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "unit_testing.h"
 
-int compare(const void* left, const void* right) {
+static int compare(const void* left, const void* right) {
   if((long int) left < (long int) right) {
     return -1;
   }
@@ -16,12 +16,12 @@ int compare(const void* left, const void* right) {
   return 0;
 }
 
-unsigned int hash(const void* elem) {
+static unsigned int hash(const void* elem) {
   long int k = (long int) elem;
   return k*(k+3);
 }
 
-Dictionary build_fixture_tree() {
+static Dictionary build_fixture_tree() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
@@ -36,7 +36,7 @@ Dictionary build_fixture_tree() {
 }
 
 
-void test_search_tree_creation() {
+static void test_search_tree_creation() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
 
   Dictionary dictionary = Dictionary_new(keyInfo);
@@ -46,7 +46,7 @@ void test_search_tree_creation() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_insert_on_empty_tree() {
+static void test_search_tree_insert_on_empty_tree() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
@@ -59,7 +59,7 @@ void test_search_tree_insert_on_empty_tree() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_insert_on_full_tree() {
+static void test_search_tree_insert_on_full_tree() {
   Dictionary dictionary = build_fixture_tree();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
@@ -73,7 +73,7 @@ void test_search_tree_insert_on_full_tree() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_replace_on_full_tree() {
+static void test_search_tree_replace_on_full_tree() {
   Dictionary dictionary = build_fixture_tree();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
@@ -87,7 +87,7 @@ void test_search_tree_replace_on_full_tree() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_delete_on_empty_tree() {
+static void test_search_tree_delete_on_empty_tree() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_delete(dictionary, (void*) 1l);
@@ -95,7 +95,7 @@ void test_search_tree_delete_on_empty_tree() {
   assert(TRUE);
 }
 
-void test_search_tree_delete_root() {
+static void test_search_tree_delete_root() {
   Dictionary dictionary = build_fixture_tree();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
@@ -108,7 +108,7 @@ void test_search_tree_delete_root() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_delete_mid_node() {
+static void test_search_tree_delete_mid_node() {
   Dictionary dictionary = build_fixture_tree();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
@@ -121,7 +121,7 @@ void test_search_tree_delete_mid_node() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_delete_leaf() {
+static void test_search_tree_delete_leaf() {
   Dictionary dictionary = build_fixture_tree();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
@@ -134,7 +134,7 @@ void test_search_tree_delete_leaf() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_delete_whole_tree() {
+static void test_search_tree_delete_whole_tree() {
   Dictionary dictionary = build_fixture_tree();
   long int keys[] =  {10l, 5l, 15l, 7l, 13l, 11l, 18l};
 
@@ -147,7 +147,7 @@ void test_search_tree_delete_whole_tree() {
 }
 
 
-void test_search_tree_get_on_empty_tree() {
+static void test_search_tree_get_on_empty_tree() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
 
@@ -157,7 +157,7 @@ void test_search_tree_get_on_empty_tree() {
   Dictionary_free(dictionary);
 }
 
-void test_search_tree_get_on_full_tree() {
+static void test_search_tree_get_on_full_tree() {
   Dictionary dictionary = build_fixture_tree();
 
   long int value = 0;
@@ -168,7 +168,7 @@ void test_search_tree_get_on_full_tree() {
 }
 
 
-void test_search_tree_get_on_non_present_key() {
+static void test_search_tree_get_on_non_present_key() {
   Dictionary dictionary = build_fixture_tree();
 
   long int value = 0;
@@ -177,7 +177,7 @@ void test_search_tree_get_on_non_present_key() {
   Dictionary_free(dictionary);
 }
 
-int main(int argc, char const *argv[]) {
+int main() {
   test_search_tree_creation();
   test_search_tree_insert_on_empty_tree();
   test_search_tree_insert_on_full_tree();

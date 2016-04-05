@@ -15,20 +15,20 @@
 // not the element itself. Dataset_compare_field? assumes that the given
 // elements are actually the array elements themeselves. We need to dereference
 // the pointers to make the things agree.
-int qsort_compare_field1(const void* e1, const void* e2) {
-  return Dataset_compare_field1( *(const void**)e1, *(const void**)e2 );
+static int qsort_compare_field1(const void* e1, const void* e2) {
+  return Dataset_compare_field1( *( void* const*)e1, *(void* const*)e2 );
 }
 
-int qsort_compare_field2(const void* e1, const void* e2) {
-  return Dataset_compare_field2( *(const void**)e1, *(const void**)e2 );
+static int qsort_compare_field2(const void* e1, const void* e2) {
+  return Dataset_compare_field2( *(void* const*)e1, *(void* const*)e2 );
 }
 
-int qsort_compare_field3(const void* e1, const void* e2) {
-  return Dataset_compare_field3( *(const void**)e1, *(const void**)e2 );
+static int qsort_compare_field3(const void* e1, const void* e2) {
+  return Dataset_compare_field3( *(void* const*)e1, *(void* const*)e2 );
 }
 
 
-void test_qsort(Dataset* dataset, PrintTime pt) {
+static void test_qsort(Dataset* dataset, PrintTime pt) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
     qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field1);
@@ -52,54 +52,54 @@ void test_qsort(Dataset* dataset, PrintTime pt) {
 }
 
 
-void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(const void*, int, int, int(*)(const void*, const void*))) {
+static void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(void*, unsigned int, unsigned int, int(*)(const void*, const void*))) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field1_g);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field1_g);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   PrintTime_print(pt, "field2", ^{
     printf("Sorting according to field2\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field2_g);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field2_g);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   PrintTime_print(pt, "field3", ^{
     printf("Sorting according to field3\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field3_g);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field3_g);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 }
 
-void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(const void**, int, int(*)(const void*, const void*))) {
+static void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(void**, unsigned int, int(*)(const void*, const void*))) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   PrintTime_print(pt, "field2", ^{
     printf("Sorting according to field2\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 
   PrintTime_print(pt, "field3", ^{
     printf("Sorting according to field3\n");
-    sort((const void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
+    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
     printf("Done!\n");
   });
   Dataset_print(dataset, 10);
 }
 
 
-void print_usage() {
+static void print_usage() {
   printf("Usage: measure_time <opt> <file name>\n");
   printf(" opts: -q use quick_sort algorithm\n");
   printf("       -Q use quick_sort_g algorithm\n");
@@ -111,15 +111,15 @@ void print_usage() {
   printf("       -h print this message\n");
 }
 
-int char_included(char ch, char chars[], int size) {
-  for(int i=0; i<size; ++i) {
+static int char_included(char ch, char chars[], unsigned int size) {
+  for(unsigned int i=0; i<size; ++i) {
     if(ch == chars[i]) return 1;
   }
 
   return 0;
 }
 
-void check_arguments(int argc, const char** argv) {
+static void check_arguments(int argc, const char** argv) {
   if(argc <= 2) {
     print_usage();
     exit(1);
@@ -137,7 +137,7 @@ void check_arguments(int argc, const char** argv) {
   }
 }
 
-const char* flag_to_algorithm_name(char ch) {
+static const char* flag_to_algorithm_name(char ch) {
   switch(ch) {
     case 'i': return "insertion_sort";
     case 'q': return "quick_sort";
@@ -152,7 +152,7 @@ const char* flag_to_algorithm_name(char ch) {
   };
 }
 
-PrintTime init_print_time(int argc, char const *argv[]) {
+static PrintTime init_print_time(char const *argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "1");
@@ -170,7 +170,7 @@ PrintTime init_print_time(int argc, char const *argv[]) {
 
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
-  PrintTime pt = init_print_time(argc, argv);
+  PrintTime pt = init_print_time(argv);
 
 
   __block Dataset* dataset;

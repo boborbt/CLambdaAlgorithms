@@ -17,7 +17,7 @@ struct _Dijkstra {
   Dictionary distances;
 };
 
-unsigned int path_len(Dictionary parents, const void* dest) {
+static unsigned int path_len(Dictionary parents, const void* dest) {
   unsigned int count = 1;
   const void* current = dest;
   const void* next;
@@ -38,7 +38,7 @@ unsigned int path_len(Dictionary parents, const void* dest) {
   return count;
 }
 
-const void** build_path(Dictionary parents, const void* dest) {
+static const void** build_path(Dictionary parents, const void* dest) {
   unsigned int len = path_len(parents, dest);
   const void** result = (const void**) malloc(sizeof(void*)*(len+1));
   result[len] = NULL;
@@ -58,7 +58,7 @@ const void** build_path(Dictionary parents, const void* dest) {
   return result;
 }
 
-void cleanup_distances_values(Dictionary distances) {
+static void cleanup_distances_values(Dictionary distances) {
   DictionaryIterator it = DictionaryIterator_new(distances);
   while(!DictionaryIterator_end(it)) {
     Elem elem = DictionaryIterator_get(it);
@@ -96,7 +96,7 @@ void Dijkstra_free(Dijkstra d) {
   free(d);
 }
 
-void Dijkstra_init_state(Dijkstra state) {
+static void Dijkstra_init_state(Dijkstra state) {
   state->comparator = KeyInfo_comparator(Graph_keyInfo(state->graph));
   state->pq = PriorityQueue_new();
   state->parents = Dictionary_new(Graph_keyInfo(state->graph));
@@ -104,7 +104,7 @@ void Dijkstra_init_state(Dijkstra state) {
 }
 
 
-void examine_neighbours(Dijkstra state, const void* current, double current_dist) {
+static void examine_neighbours(Dijkstra state, const void* current, double current_dist) {
   EdgeIterator neighbours = Graph_adjacents(state->graph, current);
   for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
     EdgeInfo edge = EdgeIterator_get(neighbours);
@@ -112,7 +112,7 @@ void examine_neighbours(Dijkstra state, const void* current, double current_dist
     double edge_distance = state->graph_info_to_double(edge.info);
 
     double new_distance = current_dist + edge_distance;
-    DoubleContainer child_distance;
+    const DoubleContainer child_distance;
     int child_found = Dictionary_get(state->distances, child, (const void**)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
       continue;

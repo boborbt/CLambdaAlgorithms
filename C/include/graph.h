@@ -1,5 +1,4 @@
-#ifndef __GRAPH_H_J3HJDL28H__
-#define __GRAPH_H_J3HJDL28H__
+#pragma once
 
 #include "key_info.h"
 
@@ -88,6 +87,3 @@ void VertexIterator_next(VertexIterator it);
 
 // Returns the EdgeInfo currently pointed by the iterator.
 const void* VertexIterator_get(VertexIterator it);
-
-
-#endif

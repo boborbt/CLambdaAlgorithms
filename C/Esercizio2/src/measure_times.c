@@ -9,7 +9,7 @@
 
 
 
-void load_dictionary(Dataset* dataset, Dictionary dictionary) {
+static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
   unsigned int size = Dataset_size(dataset);
 
@@ -24,11 +24,11 @@ void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   printf("\n");
 }
 
-void print_usage() {
+static void print_usage() {
   printf("Usage: measure_time <field index> <file name>\n");
 }
 
-int char_included(char ch, char chars[], int size) {
+static int char_included(char ch, char chars[], unsigned int size) {
   for(int i=0; i<size; ++i) {
     if(ch == chars[i]) return 1;
   }
@@ -36,7 +36,7 @@ int char_included(char ch, char chars[], int size) {
   return 0;
 }
 
-void check_arguments(int argc, const char** argv) {
+static void check_arguments(int argc, const char** argv) {
   if(argc < 3) {
     print_usage();
     exit(1);
@@ -49,7 +49,7 @@ void check_arguments(int argc, const char** argv) {
   }
 }
 
-PrintTime init_print_time(int argc, char const *argv[]) {
+static PrintTime init_print_time(char const *argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "2");
@@ -67,7 +67,7 @@ PrintTime init_print_time(int argc, char const *argv[]) {
 int main(int argc, char const *argv[]) {
   check_arguments(argc, argv);
 
-  PrintTime pt = init_print_time(argc, argv);
+  PrintTime pt = init_print_time(argv);
 
   __block Dataset* dataset;
   PrintTime_print(pt, "dataset_load", ^{
@@ -127,7 +127,7 @@ int main(int argc, char const *argv[]) {
     for(int i=0; i<1000000; ++i) {
       unsigned int index = drand48() * size;
       Record* record = records[index];
-      Record* result = NULL;
+      const Record* result = NULL;
       if(!Dictionary_get(dictionary, record, (const void**)&result)) {
         printf("Cannot find record at index %d\n", index);
       };
