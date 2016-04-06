@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
     case 'q':
       test_algorithm(dataset, pt, quick_sort);
       break;
-    case 'g':
+    case 'Q':
       test_algorithm_g(dataset, pt, quick_sort_g);
       break;
     case 'i':
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]) {
     case 'H':
       test_algorithm(dataset, pt, heap_sort);
       break;
-    case 'Q':
+    case 's':
       test_qsort(dataset, pt);
       break;
     default:
