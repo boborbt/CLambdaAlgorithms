@@ -6,7 +6,7 @@
 void partition_3_way(void** array, unsigned int start, unsigned int end, unsigned int pivot_pos, unsigned int* p1, unsigned int* p2,  QSCompareFun compare);
 void quick_sort_3_way(void** array, unsigned int start, unsigned int end, QSCompareFun compare);
 void quick_sort_3_way_g(void* array, unsigned int start, unsigned int end, unsigned int size, QSCompareFun compare);
-
+void quick_sort_standard(void** array, unsigned int start, unsigned int end, QSCompareFun compare);
 
 static unsigned int umin(unsigned int e1, unsigned int e2) {
   return e1 < e2 ? e1 : e2;
@@ -90,7 +90,11 @@ void partition_3_way(void** array, unsigned int start, unsigned int end, unsigne
   unsigned int l = umin(p-1-i, end-p+1);
   array_block_swap_to_end(array, i+1, end, l);
 
-  *p1 = i;
+  if(i==(unsigned int)-1) {
+    *p1 = 0;
+  } else {
+    *p1 = i;
+  }
 
   if(l == p-1-i) {
     *p2 = end-l+1;
@@ -123,7 +127,11 @@ static void partition_3_way_g(void* array, unsigned int start, unsigned int end,
   unsigned int l = umin((p-1-i), (end-p+1));
   array_block_swap_to_end_g(array, i+1, end, l, size);
 
-  *p1 = i;
+  if(i==(unsigned int) -1) {
+    *p1 = 0;
+  } else {
+    *p1 = i;
+  }
 
   if(l == p-1-i) {
     *p2 = end-l+1;
@@ -169,8 +177,10 @@ static unsigned int partition(void** array, unsigned int first,unsigned int last
   return j;
 }
 
-static void quick_sort_standard(void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
-  if( end - start < 1 ) return;
+void quick_sort_standard(void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
+  if( end <= start ) {
+    return;
+  }
 
   unsigned int pivot_pos = partition(array, start, end, compare);
 
@@ -179,7 +189,9 @@ static void quick_sort_standard(void** array, unsigned int start, unsigned int e
 }
 
 void quick_sort_3_way(void** array, unsigned int start, unsigned int end, QSCompareFun compare) {
-  if(end - start < 1) return;
+  if(end <= start ) {
+    return;
+  }
 
   unsigned int pivot_pos = start + random_int(end-start);
   unsigned int p1, p2;
@@ -190,7 +202,9 @@ void quick_sort_3_way(void** array, unsigned int start, unsigned int end, QSComp
 }
 
 void quick_sort_3_way_g(void* array, unsigned int start, unsigned int end, unsigned int size, QSCompareFun compare) {
-  if(end - start < 1) return;
+  if(end <= start ) {
+    return;
+  }
 
   unsigned int pivot_pos = start + random_int(end-start);
   unsigned int p1, p2;
@@ -205,8 +219,8 @@ void quick_sort(void** array, unsigned int count, QSCompareFun compare) {
   if(count == 0) {
     return;
   }
-  quick_sort_standard(array, 0, count-1, compare);
-  // quick_sort_3_way(array, 0, count-1, compare);
+  // quick_sort_standard(array, 0, count-1, compare);
+  quick_sort_3_way(array, 0, count-1, compare);
 }
 
 void quick_sort_g(void* array, unsigned int count, unsigned int size, QSCompareFun fun) {

@@ -7,7 +7,11 @@ static void swap(void** e1, void** e2) {
   *e2 = tmp;
 }
 
-static unsigned int parent(unsigned int index) {
+static int parent(unsigned int index) {
+  if(index==0) {
+    return -1;
+  }
+
   return (index-1) / 2;
 }
 
@@ -44,7 +48,7 @@ static void move_down(void** array, unsigned int start, unsigned int end, HSComp
 }
 
 static void heapify(void** array, unsigned int count, HSCompareFun compare) {
-  int start = (int) parent(count-1);
+  int start = parent(count-1);
   while(start >= 0) {
     move_down(array, (unsigned int) start, count-1,   compare);
     start-=1;

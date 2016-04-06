@@ -211,7 +211,7 @@ static void test_partition_3_way_all_pivots() {
   int p1;
   int p2;
   partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
-  assert_equal( (long)-1, (long)p1);
+  assert_equal( (long)0, (long)p1);
   assert_equal( (long)14, (long)p2);
   for(int i=0; i<14; ++i) {
     assert_equal(a[i], expected[i]);
