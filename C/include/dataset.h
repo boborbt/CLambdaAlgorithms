@@ -33,7 +33,7 @@ Dataset* Dataset_load(const char* filename);
 void Dataset_free(Dataset* dataset);
 
 // Print on the stdout the first num_records of the given dataset
-void Dataset_print(Dataset* dataset, int num_records);
+void Dataset_print(Dataset* dataset, unsigned int num_records);
 
 // Returns the array of records stored in dataset
 Record** Dataset_get_records(Dataset* dataset);

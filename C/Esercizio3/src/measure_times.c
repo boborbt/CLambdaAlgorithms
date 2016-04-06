@@ -9,11 +9,11 @@
 
 #define BUF_SIZE 1024
 
-void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
+static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
   // printf("inserting %s -> %s (%lf)\n", v1, v2, len);
 
-  const void* vertex1 = NULL;
-  const void* vertex2 = NULL;
+  void* vertex1 = NULL;
+  void* vertex2 = NULL;
 
   if(!Dictionary_get(known_vertices, v1, &vertex1)) {
     vertex1 = strdup(v1);
@@ -33,7 +33,7 @@ void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const cha
   }
 }
 
-Graph load_graph(const char* filename) {
+static Graph load_graph(const char* filename) {
   KeyInfo keyInfo = KeyInfo_new( KeyInfo_string_compare, KeyInfo_string_hash );
   Dictionary known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
@@ -58,7 +58,7 @@ Graph load_graph(const char* filename) {
   return graph;
 }
 
-void destroy_graph_double_containers(Graph graph) {
+static void destroy_graph_double_containers(Graph graph) {
   int count = 0;
   EdgeIterator it = Graph_edges(graph);
   while(!EdgeIterator_end(it)) {
@@ -79,7 +79,7 @@ void destroy_graph_double_containers(Graph graph) {
   VertexIterator_free(v_it);
 }
 
-void print_path(Graph graph, const void** path) {
+static void print_path(Graph graph, void** path) {
   if(path==NULL) {
     printf("Empty path!\n");
     return;
@@ -87,8 +87,8 @@ void print_path(Graph graph, const void** path) {
 
   double path_len = 0.0;
   int index = 0;
-  const void* current = path[index++];
-  const void* prev = NULL;
+  void* current = path[index++];
+  void* prev = NULL;
   while(current!=NULL) {
     prev = current;
     current = path[index++];
@@ -102,8 +102,8 @@ void print_path(Graph graph, const void** path) {
   printf("\nLen: %8.2lfKm", path_len/1000);
 }
 
-void execute_dijkstra(Graph graph, char const* source, char const* dest) {
-  const void** min_path;
+static void execute_dijkstra(Graph graph, char* source, char* dest) {
+  void** min_path;
   Dijkstra d = Dijkstra_new(graph,(double (*)(const void*)) DoubleContainer_get);
   min_path = Dijkstra_minpath(d, source, dest);
   Dijkstra_free(d);
@@ -112,7 +112,7 @@ void execute_dijkstra(Graph graph, char const* source, char const* dest) {
   free(min_path);
 }
 
-void check_edge(Graph graph, const char* source, const char* dest) {
+static void check_edge(Graph graph, const char* source, char* dest) {
   if(!Graph_has_vertex(graph, source)) {
     printf("vertex %s not in the graph\n", source);
     return;
@@ -128,19 +128,19 @@ void check_edge(Graph graph, const char* source, const char* dest) {
     return;
   }
 
-  const void* edge_info = Graph_edge_info(graph, source, dest);
+  void* edge_info = Graph_edge_info(graph, source, dest);
 
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
 }
 
-void visit_vertex(const void* vertex, void* user_info) {
+static void visit_vertex(void* vertex, void* user_info) {
   Dictionary dic = (Dictionary) user_info;
   Dictionary_set(dic, vertex, "VISITED");
 }
 
-const void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
-  const void* result = NULL;
-  const void* dummy;
+static void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
+  void* result = NULL;
+  void* dummy;
   VertexIterator v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it) && result==NULL) {
     if(!Dictionary_get(visited_vertices, VertexIterator_get(v_it), &dummy)) {
@@ -154,11 +154,11 @@ const void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
   return result;
 }
 
-void find_connected_components(Graph graph) {
+static void find_connected_components(Graph graph) {
   Dictionary visited_vertices = Dictionary_new(Graph_keyInfo(graph));
   VisitingInfo visit_info = VisitingInfo_new(graph, visit_vertex, visited_vertices);
   int count = 0;
-  const void* vertex;
+  void* vertex;
 
   while( (vertex = unvisited_vertex(graph, visited_vertices)) != NULL ) {
     Graph_depth_first_visit(visit_info, vertex);
@@ -169,7 +169,7 @@ void find_connected_components(Graph graph) {
   printf("Number of connected components: %d\n", count);
 }
 
-void print_usage(const char* msg) {
+static void print_usage(const char* msg) {
   printf("%s\n\n",msg);
   printf("Usage: measure_times <op specifier> <graph file name> <source> <dest>\n");
   printf("where <op specifier> can be:\n");
@@ -178,7 +178,7 @@ void print_usage(const char* msg) {
   printf("  -c: to find connected components");
 }
 
-void check_arguments(int argc, char const* argv[]) {
+static void check_arguments(int argc, char* argv[]) {
   if(argc < 3) {
     print_usage("Wrong number of arguments.");
     exit(1);
@@ -205,7 +205,7 @@ void check_arguments(int argc, char const* argv[]) {
   }
 }
 
-const char* flag_to_task_name(char ch) {
+static char* flag_to_task_name(char ch) {
   switch(ch) {
     case 'd': return "dijkstra";
     case 'c': return "connected_components";
@@ -216,7 +216,7 @@ const char* flag_to_task_name(char ch) {
   }
 }
 
-PrintTime init_print_time(int argc, char const *argv[]) {
+static PrintTime init_print_time(char* argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "3");
@@ -231,9 +231,9 @@ PrintTime init_print_time(int argc, char const *argv[]) {
   return pt;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
   check_arguments(argc, argv);
-  PrintTime pt = init_print_time(argc, argv);
+  PrintTime pt = init_print_time(argv);
 
 
   __block Graph graph;

@@ -6,8 +6,8 @@
 typedef struct _Dictionary* Dictionary;
 
 typedef struct _Elem {
-  const void* key;
-  const void* value;
+  void* key;
+  void* value;
 }* Elem;
 
 /*
@@ -19,13 +19,13 @@ void Dictionary_free(Dictionary dictionary);
 // insert into dictionary the given key/value pair. If key is already
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
-void Dictionary_set(Dictionary dictionary, const void* key, const void* value);
+void Dictionary_set(Dictionary dictionary, void* key, void* value);
 
 // Retrieve the value associated with the given key. The found value
 // is put into *result.
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1.
-int Dictionary_get(Dictionary dictionary, const void* key, const void** result);
+int Dictionary_get(Dictionary dictionary, const void* key, void** result);
 
 // Delete key from the given dictionary. Do nothing if key does not belong
 // to the dictionary.
@@ -38,7 +38,7 @@ int Dictionary_empty(Dictionary dictionary);
 // Returns an evaluation of the efficiency of the dictionary. Its actual
 // value is implementation specific, but it should be lower for dictionaries
 // working in optimal settings, and higher for degenerate situations.
-double Dictionary_efficiency_score();
+double Dictionary_efficiency_score(Dictionary);
 
 // -------------------------------------
 // Iterator interface to the dictionary

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <stdio.h>
+#include <math.h>
 
 #define TRUE 1
 #define FALSE 0
+#define DOUBLE_MIN_DIST
 
 #define assert_equal(a,b) if((a)!=(b)) {\
    printf("assertion failed at file:%s line:%d. %ld was expected to be equal to %ld\n",\
@@ -14,7 +16,7 @@
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 
-#define assert_double_equal(a,b) if((a)!=(b)) {\
+#define assert_double_equal(a,b,min_dist) if(fabs((a)-(b))>(min_dist)) {\
    printf("assertion failed at file:%s line:%d. %f was expected to be equal to %f\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
@@ -28,7 +30,7 @@
 void start_tests(const char* msg);
 
 // Ends a testing session
-void end_tests();
+void end_tests(void);
 
 // Calls a testing function. The given test function should
 // exit the program with an error if the test does not succeed.

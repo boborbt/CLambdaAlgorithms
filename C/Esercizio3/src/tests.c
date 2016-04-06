@@ -11,7 +11,7 @@
 #include "double_container.h"
 
 
-PriorityQueue build_pq_fixtures() {
+static PriorityQueue build_pq_fixtures() {
   PriorityQueue pq = PriorityQueue_new();
 
   PriorityQueue_push(pq, "10", 10.0);
@@ -24,7 +24,7 @@ PriorityQueue build_pq_fixtures() {
 }
 
 
-Graph build_graph_fixtures() {
+static Graph build_graph_fixtures() {
   KeyInfo key_info = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Graph graph = Graph_new(key_info);
 
@@ -47,7 +47,7 @@ Graph build_graph_fixtures() {
   return graph;
 }
 
-void free_graph_fixture(Graph graph) {
+static void free_graph_fixture(Graph graph) {
   VertexIterator v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
     const void* vertex = VertexIterator_get(v_it);
@@ -66,43 +66,43 @@ void free_graph_fixture(Graph graph) {
   Graph_free(graph);
 }
 
-void test_priority_queue_creation() {
+static void test_priority_queue_creation() {
   PriorityQueue pq = PriorityQueue_new();
   assert_equal( 0l, (long) PriorityQueue_size(pq) );
   assert(PriorityQueue_empty(pq));
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_decrease_priority() {
+static void test_priority_queue_decrease_priority() {
   PriorityQueue pq = build_pq_fixtures();
   PriorityQueue_decrease_priority(pq, "10", 1.0);
   assert_string_equal(PriorityQueue_top_value(pq), "10");
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_push_min_element() {
+static void test_priority_queue_push_min_element() {
   PriorityQueue pq = build_pq_fixtures();
   PriorityQueue_push(pq, "test", 1.0);
-  assert_string_equal((char*) PriorityQueue_top_value(pq), "test");
-  assert_double_equal(PriorityQueue_top_priority(pq), 1.0);
+  assert_string_equal((const char*) PriorityQueue_top_value(pq), "test");
+  assert_double_equal(PriorityQueue_top_priority(pq), 1.0, 0.00001);
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_top_value() {
+static void test_priority_queue_top_value() {
   PriorityQueue pq = build_pq_fixtures();
-  assert_string_equal((char*)PriorityQueue_top_value(pq), "2");
+  assert_string_equal((const char*)PriorityQueue_top_value(pq), "2");
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_top_priority() {
+static void test_priority_queue_top_priority() {
   PriorityQueue pq = build_pq_fixtures();
-  assert_double_equal(PriorityQueue_top_priority(pq), 2.0);
+  assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.00001);
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_pop() {
+static void test_priority_queue_pop() {
   PriorityQueue pq = build_pq_fixtures();
-  assert_double_equal(PriorityQueue_top_priority(pq), 2.0);
+  assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.0001);
 
   assert_equal(5l, (long)PriorityQueue_size(pq));
   PriorityQueue_pop(pq);
@@ -113,18 +113,18 @@ void test_priority_queue_pop() {
   PriorityQueue_free(pq);
 }
 
-void test_priority_queue_pop_order() {
+static void test_priority_queue_pop_order() {
   PriorityQueue pq = build_pq_fixtures();
   double priority_order[] = {2.0, 3.0, 4.0, 6.0, 10.0};
   int count = 0;
   while(!PriorityQueue_empty(pq) && count < 5) {
-    assert_double_equal( PriorityQueue_top_priority(pq), priority_order[count++]);
+    assert_double_equal( PriorityQueue_top_priority(pq), priority_order[count++], 0.00001);
     PriorityQueue_pop(pq);
   }
   PriorityQueue_free(pq);
 }
 
-void test_graph_add_vertex() {
+static void test_graph_add_vertex() {
   Graph graph = build_graph_fixtures();
   assert_equal( 6l, (long) Graph_size(graph) );
 
@@ -134,7 +134,7 @@ void test_graph_add_vertex() {
   free_graph_fixture(graph);
 }
 
-void test_graph_add_edge() {
+static void test_graph_add_edge() {
   Graph graph = build_graph_fixtures();
   Graph_add_edge(graph, "v2", "v5", DoubleContainer_new(4.0));
   EdgeIterator e_it = Graph_adjacents(graph, "v2");
@@ -152,7 +152,7 @@ void test_graph_add_edge() {
   free_graph_fixture(graph);
 }
 
-void test_graph_vertices() {
+static void test_graph_vertices() {
   Graph graph = build_graph_fixtures();
   VertexIterator v_it = Graph_vertices(graph);
   int count = 0;
@@ -166,7 +166,7 @@ void test_graph_vertices() {
   free_graph_fixture(graph);
 }
 
-void test_graph_adjacencts() {
+static void test_graph_adjacencts() {
   Graph graph = build_graph_fixtures();
   EdgeIterator e_it = Graph_adjacents(graph, "v1");
   int count = 0;
@@ -180,13 +180,13 @@ void test_graph_adjacencts() {
   free_graph_fixture(graph);
 }
 
-void test_dijkstra() {
+static void test_dijkstra() {
   Graph graph = build_graph_fixtures();
   double (*info_to_double)(const void*);
   info_to_double = (double (*)(const void*)) DoubleContainer_get;
 
   Dijkstra d = Dijkstra_new(graph,info_to_double);
-  const void** min_path = Dijkstra_minpath(d, "v1", "v6");
+  void** min_path = Dijkstra_minpath(d, "v1", "v6");
   assert(min_path!=NULL);
   Dijkstra_free(d);
 
@@ -206,21 +206,27 @@ void test_dijkstra() {
 
 
 
-int main(int argc, char const *argv[]) {
-  test_priority_queue_creation();
-  test_priority_queue_push_min_element();
-  test_priority_queue_top_value();
-  test_priority_queue_top_priority();
-  test_priority_queue_pop();
-  test_priority_queue_pop_order();
-  test_priority_queue_decrease_priority();
+int main() {
+  start_tests("priority queue");
+  test(test_priority_queue_creation);
+  test(test_priority_queue_push_min_element);
+  test(test_priority_queue_top_value);
+  test(test_priority_queue_top_priority);
+  test(test_priority_queue_pop);
+  test(test_priority_queue_pop_order);
+  test(test_priority_queue_decrease_priority);
+  end_tests();
 
-  test_graph_add_vertex();
-  test_graph_add_edge();
-  test_graph_vertices();
-  test_graph_adjacencts();
+  start_tests("graph");
+  test(test_graph_add_vertex);
+  test(test_graph_add_edge);
+  test(test_graph_vertices);
+  test(test_graph_adjacencts);
+  end_tests();
 
-  test_dijkstra();
+  start_tests("dijkstra");
+  test(test_dijkstra);
+  end_tests();
 
   return 0;
 }

@@ -1,2 +1,3 @@
 -I../include
 -I../Esercizio2/src
+-Weverything

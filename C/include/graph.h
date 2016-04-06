@@ -9,8 +9,8 @@ typedef struct _EdgeIterator* EdgeIterator;
 typedef struct _VertexIterator* VertexIterator;
 
 typedef struct {
-  const void* vertex;
-  const void* info;
+  void* vertex;
+  void* info;
 } EdgeInfo;
 
 // Creates a new graph. Vertices in the graph will be compared and hashed
@@ -24,13 +24,13 @@ void Graph_free(Graph graph);
 KeyInfo Graph_keyInfo(Graph graph);
 
 // add the given vertex to the graph (if it does not already belong to it)
-void Graph_add_vertex(Graph graph, const void* vertex);
+void Graph_add_vertex(Graph graph, void* vertex);
 
 // adds the given edge to the graph. Substitute the info value if the edge
 // already belongs to the graph.
 // if source or dest do not already belong to the graph, it may raise an
 // error and exit.
-void Graph_add_edge(Graph graph, const void* source, const void* dest, const void* info);
+void Graph_add_edge(Graph graph, void* source, void* dest, void* info);
 
 // Returns the number of vertices in the graph
 unsigned int Graph_size(Graph graph);
@@ -47,7 +47,7 @@ EdgeIterator Graph_adjacents(Graph graph, const void* vertex);
 // Returns the info value associated with the edge connecting v1 and v2.
 // If v1 is not in the graph or v2 is not connected to v1, the function
 // prints a message and exit(1);
-const void* Graph_edge_info(Graph graph, const void* v1, const void* v2);
+void* Graph_edge_info(Graph graph, const void* v1, const void* v2);
 
 // Returns 1 if the given vertex belongs to the graph. 0 otherwise.
 int Graph_has_vertex(Graph graph, const void* v);
@@ -86,4 +86,4 @@ int VertexIterator_end(VertexIterator it);
 void VertexIterator_next(VertexIterator it);
 
 // Returns the EdgeInfo currently pointed by the iterator.
-const void* VertexIterator_get(VertexIterator it);
+void* VertexIterator_get(VertexIterator it);

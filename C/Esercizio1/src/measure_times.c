@@ -119,7 +119,7 @@ static int char_included(char ch, char chars[], unsigned int size) {
   return 0;
 }
 
-static void check_arguments(int argc, const char** argv) {
+static void check_arguments(int argc, char** argv) {
   if(argc <= 2) {
     print_usage();
     exit(1);
@@ -137,7 +137,7 @@ static void check_arguments(int argc, const char** argv) {
   }
 }
 
-static const char* flag_to_algorithm_name(char ch) {
+static char* flag_to_algorithm_name(char ch) {
   switch(ch) {
     case 'i': return "insertion_sort";
     case 'q': return "quick_sort";
@@ -152,7 +152,7 @@ static const char* flag_to_algorithm_name(char ch) {
   };
 }
 
-static PrintTime init_print_time(char const *argv[]) {
+static PrintTime init_print_time(char* argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "1");
@@ -168,7 +168,7 @@ static PrintTime init_print_time(char const *argv[]) {
 }
 
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char* argv[]) {
   check_arguments(argc, argv);
   PrintTime pt = init_print_time(argv);
 

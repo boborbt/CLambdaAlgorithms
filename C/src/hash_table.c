@@ -20,22 +20,25 @@ struct _Dictionary {
   KeyInfo keyInfo;
 };
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 struct _DictionaryIterator {
   Dictionary dictionary;
-  int cur_index;
+  unsigned int cur_index;
   List cur_list_element;
 };
+#pragma clang diagnostic pop
 
 /* Elem constructor and destructor */
 
-Elem Elem_new(const void* key, const void* value) {
+static Elem Elem_new(void* key, void* value) {
   Elem result = (Elem) malloc(sizeof(struct _Elem));
   result->key = key;
   result->value = value;
   return result;
 }
 
-void Elem_free(Elem elem) {
+static void Elem_free(Elem elem) {
   free(elem);
 }
 
@@ -85,8 +88,8 @@ void DictionaryIterator_next(DictionaryIterator it) {
  * List implementation
  * -------------------------- */
 
-unsigned int List_length(List list) {
-  int count = 0;
+static unsigned int List_length(List list) {
+  unsigned int count = 0;
   while(list != NULL) {
     count += 1;
     list = list->next;
@@ -95,7 +98,7 @@ unsigned int List_length(List list) {
   return count;
 }
 
-List List_insert(List list, Elem elem) {
+static List List_insert(List list, Elem elem) {
   List new_node = (List) malloc(sizeof(struct _List));
   new_node->elem = elem;
   new_node->next = list;
@@ -103,7 +106,7 @@ List List_insert(List list, Elem elem) {
   return new_node;
 }
 
-void List_free(List list, int free_elems) {
+static void List_free(List list, int free_elems) {
   while(list!=NULL) {
     List tmp = list->next;
     if(free_elems) {
@@ -114,7 +117,7 @@ void List_free(List list, int free_elems) {
   }
 }
 
-Elem List_find(List list, const void* key, KeyInfo keyInfo) {
+static Elem List_find(List list, const void* key, KeyInfo keyInfo) {
   while(list != NULL && KeyInfo_comparator(keyInfo)(key, list->elem->key) != 0) {
     list = list->next;
   }
@@ -126,7 +129,7 @@ Elem List_find(List list, const void* key, KeyInfo keyInfo) {
   return list->elem;
 }
 
-List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
+static List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
   if(*list_ptr == NULL) {
     return NULL;
   }
@@ -142,9 +145,9 @@ List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
  * Dictionary implementation
  * -------------------------- */
 
-void Dictionary_free_lists(Dictionary dictionary, int free_elems) {
+static void Dictionary_free_lists(Dictionary dictionary, int free_elems) {
   unsigned int capacity = dictionary->capacity;
-  for(int i=0; i<capacity; ++i) {
+  for(unsigned int i=0; i<capacity; ++i) {
     if(dictionary->table[i]!=NULL) {
       List_free(dictionary->table[i], free_elems);
     }
@@ -170,14 +173,14 @@ void Dictionary_free(Dictionary dictionary) {
 // Reallocate the items in the current dictionary doubling the number of
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
-void Dictionary_realloc(Dictionary dictionary) {
+static void Dictionary_realloc(Dictionary dictionary) {
   unsigned int new_capacity = dictionary->capacity * 2;
   List* new_table = (List*) calloc(new_capacity, sizeof(List));
 
   DictionaryIterator it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
     Elem current = DictionaryIterator_get(it);
-    int index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
+    unsigned int index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
     new_table[index] = List_insert(new_table[index], current);
 
     DictionaryIterator_next(it);
@@ -194,7 +197,7 @@ void Dictionary_realloc(Dictionary dictionary) {
 // insert into dictionary the given key/value pair. If key is already
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
-void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
+void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   if(dictionary->capacity < dictionary->size / 2) {
     Dictionary_realloc(dictionary);
   }
@@ -213,7 +216,7 @@ void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
 }
 
 
-Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
+static Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return 0;
@@ -227,13 +230,13 @@ Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
 // is put into *result.
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1.
-int Dictionary_get(Dictionary dictionary, const void* key, const void** result) {
+int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
   Elem elem = Dictionary_get_elem(dictionary, key);
 
   if(elem == NULL) {
     return 0;
   } else {
-    *result = elem->value;
+    *result = (void*) elem->value;
     return 1;
   }
 }
@@ -263,7 +266,7 @@ unsigned int Dictionary_size(Dictionary dictionary) {
 double Dictionary_efficiency_score(Dictionary dictionary) {
   unsigned int sum_len = 0;
   unsigned int buckets_count = 0;
-  for(int i=0; i<dictionary->capacity; ++i) {
+  for(unsigned int i=0; i<dictionary->capacity; ++i) {
     if(dictionary->table[i] != NULL) {
       sum_len += List_length(dictionary->table[i]);
       buckets_count += 1;

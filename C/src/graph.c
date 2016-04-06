@@ -4,6 +4,8 @@
 #include "graph.h"
 #include "dictionary.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 // The adjacency matrix is a dictionary storing vertices as keys. Values
 // are dictionaries themselves in which keys are the adjacent vertex and
 // values are the edge info.
@@ -12,6 +14,7 @@ struct _Graph {
   Dictionary adjacency_matrix;
   unsigned int size;
 };
+#pragma clang diagnostic pop
 
 struct _EdgeIterator {
   Graph graph;
@@ -47,8 +50,8 @@ KeyInfo Graph_keyInfo(Graph graph) {
   return graph->vertexInfo;
 }
 
-void Graph_add_vertex(Graph graph, const void* vertex) {
-  const void* dummy;
+void Graph_add_vertex(Graph graph, void* vertex) {
+  void* dummy;
   if(Dictionary_get(graph->adjacency_matrix, vertex, &dummy)) {
     printf("Error: Trying to insert a vertex twice in the graph");
     exit(1);
@@ -57,9 +60,9 @@ void Graph_add_vertex(Graph graph, const void* vertex) {
   graph->size += 1;
 }
 
-Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
+static Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
   Dictionary adj_list;
-  if(Dictionary_get(graph->adjacency_matrix, source, (const void**)&adj_list) == 0) {
+  if(Dictionary_get(graph->adjacency_matrix, source, (void**)&adj_list) == 0) {
     printf("Error: cannot find the given vertex in the graph");
     exit(1);
   }
@@ -67,7 +70,7 @@ Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
   return adj_list;
 }
 
-void Graph_add_edge(Graph graph, const void* source, const void* dest, const void* info) {
+void Graph_add_edge(Graph graph, void* source, void* dest,  void* info) {
   Dictionary adj_list = Graph_adjacents_dictionary(graph, source);
   Dictionary_set(adj_list, dest, info);
 }
@@ -76,13 +79,13 @@ unsigned int Graph_size(Graph graph) {
   return graph->size;
 }
 
-const void* Graph_edge_info(Graph graph, const void* v1, const void* v2) {
+void* Graph_edge_info(Graph graph, const void* v1, const void* v2) {
   Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, v1);
   if(v1_adj_list==NULL) {
     printf("Cannot find given vertex\n");
     exit(1);
   }
-  const void* info = NULL;
+  void* info = NULL;
   if(Dictionary_get(v1_adj_list, v2, &info)==0) {
     printf("Cannot find v2 in v1 adj list\n");
     exit(1);
@@ -96,7 +99,7 @@ int Graph_has_vertex(Graph graph, const void* v) {
 
 int Graph_has_edge(Graph graph, const void* source, const void* dest) {
   Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, source);
-  const void* info = NULL;
+  void* info = NULL;
   if(Dictionary_get(v1_adj_list, dest, &info)==0) {
     return 0;
   }
@@ -120,7 +123,7 @@ VertexIterator Graph_vertices(Graph graph) {
   return it;
 }
 
-DictionaryIterator Graph_first_non_empty_edge(Graph graph, VertexIterator vertex_it) {
+static DictionaryIterator Graph_first_non_empty_edge(Graph graph, VertexIterator vertex_it) {
   DictionaryIterator dic_it = NULL;
   while(!VertexIterator_end(vertex_it) && dic_it == NULL) {
     Dictionary adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
@@ -194,6 +197,6 @@ void VertexIterator_next(VertexIterator it) {
   DictionaryIterator_next(it->dic_it);
 }
 
-const void* VertexIterator_get(VertexIterator it) {
-  return DictionaryIterator_get(it->dic_it)->key;
+void* VertexIterator_get(VertexIterator it) {
+  return (void*) DictionaryIterator_get(it->dic_it)->key;
 }

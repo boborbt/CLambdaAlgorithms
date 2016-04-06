@@ -10,7 +10,7 @@ struct _PrintTime {
   Dictionary data;
 };
 
-void PrintTime_save_dictionary(PrintTime pt, Dictionary dic, const char* padding) {
+static void PrintTime_save_dictionary(PrintTime pt, Dictionary dic, const char* padding) {
   DictionaryIterator it = DictionaryIterator_new(dic);
 
   while(!DictionaryIterator_end(it)) {
@@ -22,7 +22,7 @@ void PrintTime_save_dictionary(PrintTime pt, Dictionary dic, const char* padding
   DictionaryIterator_free(it);
 }
 
-void PrintTime_save_header(PrintTime pt, Dictionary header) {
+static void PrintTime_save_header(PrintTime pt, Dictionary header) {
   fprintf(pt->file, "-\n");
   DictionaryIterator it = DictionaryIterator_new(header);
 
@@ -70,7 +70,7 @@ void PrintTime_free(PrintTime pt) {
 }
 
 
-double PrintTime_print(PrintTime pt, const char* label, void(^fun)()) {
+double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  double result;
  printf("\n======================\n");
  clock_t start = clock();

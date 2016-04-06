@@ -10,10 +10,10 @@ DoubleContainer DoubleContainer_new(double value) {
   result->value = value;
   return result;
 }
-void DoubleContainer_free(DoubleContainer dc) {
+void DoubleContainer_free(DoubleContainer const dc) {
   free(dc);
 }
 
-double DoubleContainer_get(DoubleContainer dc) {
+double DoubleContainer_get(const DoubleContainer dc) {
   return dc->value;
 }

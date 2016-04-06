@@ -8,11 +8,14 @@ typedef struct _Node {
   struct _Node* right;
 } Node;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 struct _Dictionary  {
   KeyInfo keyInfo;
   Node* root;
   unsigned int size;
 };
+#pragma clang diagnostic pop
 
 typedef struct _Stack {
   Node** array;
@@ -30,7 +33,7 @@ struct _DictionaryIterator {
 
 #define MAX_STACK_SIZE 1024
 
-Node* Stack_top(Stack stack) {
+static Node* Stack_top(Stack stack) {
   if(stack->size==0) {
     return NULL;
   }
@@ -38,7 +41,7 @@ Node* Stack_top(Stack stack) {
   return stack->array[stack->size-1];
 }
 
-Node* Stack_pop(Stack stack) {
+static Node* Stack_pop(Stack stack) {
   if(stack->size==0) {
     return NULL;
   }
@@ -47,7 +50,7 @@ Node* Stack_pop(Stack stack) {
   return tmp;
 }
 
-void Stack_push(Stack stack, Node* node) {
+static void Stack_push(Stack stack, Node* node) {
   if(stack->size >= stack->capacity) {
     printf("Stack size exceeded");
     exit(1);
@@ -56,11 +59,11 @@ void Stack_push(Stack stack, Node* node) {
   stack->array[stack->size++] = node;
 }
 
-int Stack_empty(Stack stack) {
+static int Stack_empty(Stack stack) {
   return stack->size == 0;
 }
 
-Stack Stack_new(unsigned int capacity) {
+static Stack Stack_new(unsigned int capacity) {
   Stack result = (Stack) malloc(sizeof(struct _Stack));
   result->array = (Node**) malloc(sizeof(Node*) * capacity);
   result->size = 0;
@@ -68,7 +71,7 @@ Stack Stack_new(unsigned int capacity) {
   return result;
 }
 
-void Stack_free(Stack stack) {
+static void Stack_free(Stack stack) {
   free(stack->array);
   free(stack);
 }
@@ -118,7 +121,7 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
  * Nodes implementation
  * -------------------------- */
 
-Node* Node_new(const void* key, const void* value) {
+static Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = NULL;
   result->right = NULL;
@@ -135,7 +138,7 @@ Node* Node_new(const void* key, const void* value) {
 // If no node is found with the given key, returns a pointer to the variable
 // that would point to a node with that key.
 
-Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
+static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
     int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->elem->key);
@@ -157,18 +160,18 @@ Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   return node_ptr;
 }
 
-int Node_is_leaf(Node* node) {
-  return node->left == NULL && node->right == NULL;
-}
+// static int Node_is_leaf(Node* node) {
+//   return node->left == NULL && node->right == NULL;
+// }
 
-Node** Node_find_max(Node** node) {
+static Node** Node_find_max(Node** node) {
   if((*node)->right == NULL)
     return node;
 
   return Node_find_max(&(*node)->right);
 }
 
-void Node_move_key_value(Node* dst, Node* src) {
+static void Node_move_key_value(Node* dst, Node* src) {
   if(src == NULL) {
     return;
   }
@@ -177,7 +180,7 @@ void Node_move_key_value(Node* dst, Node* src) {
   src->elem = NULL;
 }
 
-void Node_delete(Node** node) {
+static void Node_delete(Node** node) {
   if((*node)->left == NULL) {
     Node* tmp = *node;
     *node = (*node)->right;
@@ -194,7 +197,7 @@ void Node_delete(Node** node) {
   Node_delete(max_left_ptr);
 }
 
-void Node_tree_free(Node* node) {
+static void Node_tree_free(Node* node) {
   if(node == NULL) {
     return;
   }
@@ -207,7 +210,7 @@ void Node_tree_free(Node* node) {
 
 // Returns the height of the tree rooted in node. Note that this is a
 // O(n) implementation.
-int Node_height(Node* node) {
+static int Node_height(Node* node) {
   if(node == NULL) {
     return 0;
   }
@@ -235,7 +238,7 @@ void Dictionary_free(Dictionary dictionary) {
   free(dictionary);
 }
 
-void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
+void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
@@ -247,7 +250,7 @@ void Dictionary_set(Dictionary dictionary, const void* key, const void* value) {
   }
 }
 
-int Dictionary_get(Dictionary dictionary, const void* key, const void** value) {
+int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return 0;

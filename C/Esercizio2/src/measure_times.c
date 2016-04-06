@@ -13,7 +13,7 @@ static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
   unsigned int size = Dataset_size(dataset);
 
-  for(int i=0; i < size; ++i) {
+  for(unsigned int i=0; i < size; ++i) {
     if(i%1000000 == 0) {
       printf(".");
       fflush(stdout);
@@ -29,14 +29,14 @@ static void print_usage() {
 }
 
 static int char_included(char ch, char chars[], unsigned int size) {
-  for(int i=0; i<size; ++i) {
+  for(unsigned int i=0; i<size; ++i) {
     if(ch == chars[i]) return 1;
   }
 
   return 0;
 }
 
-static void check_arguments(int argc, const char** argv) {
+static void check_arguments(int argc, char** argv) {
   if(argc < 3) {
     print_usage();
     exit(1);
@@ -49,7 +49,7 @@ static void check_arguments(int argc, const char** argv) {
   }
 }
 
-static PrintTime init_print_time(char const *argv[]) {
+static PrintTime init_print_time(char* argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "2");
@@ -64,7 +64,7 @@ static PrintTime init_print_time(char const *argv[]) {
   return pt;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char* argv[]) {
   check_arguments(argc, argv);
 
   PrintTime pt = init_print_time(argv);
@@ -125,10 +125,10 @@ int main(int argc, char const *argv[]) {
     printf("Making 1_000_000 accesses\n");
     unsigned int size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
-      unsigned int index = drand48() * size;
+      unsigned int index = (unsigned int)(drand48() * size);
       Record* record = records[index];
-      const Record* result = NULL;
-      if(!Dictionary_get(dictionary, record, (const void**)&result)) {
+      Record* result = NULL;
+      if(!Dictionary_get(dictionary, record, (void**)&result)) {
         printf("Cannot find record at index %d\n", index);
       };
     }
@@ -138,7 +138,7 @@ int main(int argc, char const *argv[]) {
     printf("Making 1_000_000 deletions\n");
     unsigned int size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
-      unsigned int index = drand48() * size;
+      unsigned int index = (unsigned int)(drand48() * size);
       Record* record = records[index];
       Dictionary_delete(dictionary, record);
     }

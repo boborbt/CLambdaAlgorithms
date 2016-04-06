@@ -8,87 +8,88 @@
 
 struct _Record {
   int id;
-  char* field1;
   int field2;
+  char* field1;
   double field3;
 };
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 struct _Dataset {
-  Record** records;
   unsigned int size;
+  Record** records;
 };
+#pragma clang diagnostic pop
 
 
 int Dataset_compare_field1(const void* e1, const void* e2) {
-  Record* r1 = (Record*) e1;
-  Record* r2 = (Record*) e2;
+  const Record* r1 = (const Record*) e1;
+  const Record* r2 = (const Record*) e2;
 
   return KeyInfo_string_compare(r1->field1, r2->field1);
 }
 
 int Dataset_compare_field2(const void* e1, const void* e2) {
-  Record* r1 = (Record*) e1;
-  Record* r2 = (Record*) e2;
+  const Record* r1 = (const Record*) e1;
+  const Record* r2 = (const Record*) e2;
 
   return KeyInfo_int_compare(&r1->field2, &r2->field2);
 }
 
 int Dataset_compare_field3(const void* e1, const void* e2) {
-  Record* r1 = (Record*) e1;
-  Record* r2 = (Record*) e2;
+  const Record* r1 = (const Record*) e1;
+  const Record* r2 = (const Record*) e2;
 
   return KeyInfo_double_compare(&r1->field3, &r2->field3);
-  return 0;
 }
 
 
 int Dataset_compare_field1_g(const void* e1, const void* e2) {
-  Record* r1 = *(Record**) e1;
-  Record* r2 = *(Record**) e2;
+  const Record* r1 = *(Record* const*) e1;
+  const Record* r2 = *(Record* const*) e2;
 
   return KeyInfo_string_compare(r1->field1, r2->field1);
 }
 
 int Dataset_compare_field2_g(const void* e1, const void* e2) {
-  Record* r1 = *(Record**) e1;
-  Record* r2 = *(Record**) e2;
+  const Record* r1 = *(Record* const*) e1;
+  const Record* r2 = *(Record* const*) e2;
 
   return KeyInfo_int_compare(&r1->field2, &r2->field2);
 }
 
 int Dataset_compare_field3_g(const void* e1, const void* e2) {
-  Record* r1 = *(Record**) e1;
-  Record* r2 = *(Record**) e2;
+  const Record* r1 = *(Record* const*) e1;
+  const Record* r2 = *(Record* const*) e2;
 
   return KeyInfo_double_compare(&r1->field3, &r2->field3);
-  return 0;
 }
 
 unsigned int Dataset_hash_field1(const void* e1) {
-  Record* r1 = (Record*) e1;
+  const Record* r1 = (const Record*) e1;
   char* str = r1->field1;
 
   unsigned int h = 0;
   size_t len = strlen(str);
-  for(int i=0; i<len; ++i) {
+  for(size_t i=0; i<len; ++i) {
     unsigned int highorder = h & 0xf8000000;
     h = h << 5;                    // shift h left by 5 bits
     h = h ^ (highorder >> 27);     // move the highorder 5 bits to the low-order
-    h = h ^ str[i];                // XOR h and ki
+    h = h ^ (unsigned int)str[i];                // XOR h and ki
   }
   return h;
 }
 
 unsigned int Dataset_hash_field2(const void* e) {
-  Record* r = (Record*) e;
+  const Record* r = (const Record*) e;
   int value = r->field2;
-  return value * (value+3);
+  return (unsigned int)(value * (value+3));
 }
 
 unsigned int Dataset_hash_field3(const void* e) {
-  Record* r = (Record*) e;
+  const Record* r = (const Record*) e;
   double value = r->field3;
-  return (unsigned int) value * (value+3);
+  return (unsigned int) (value * (value+3));
 }
 
 
@@ -105,7 +106,7 @@ double Record_get_field3(Record* record) {
   return record->field3;
 }
 
-Record* parse_record(const char* str) {
+static Record* parse_record(const char* str) {
   Record* record = (Record*) malloc(sizeof(Record));
   assert(record);
 
@@ -175,7 +176,7 @@ unsigned int Dataset_size(Dataset* dataset) {
 }
 
 void Dataset_free(Dataset* dataset) {
-  for(int i=0; i<dataset->size; ++i) {
+  for(unsigned int i=0; i<dataset->size; ++i) {
     free(dataset->records[i]->field1);
     free(dataset->records[i]);
   }
@@ -184,9 +185,9 @@ void Dataset_free(Dataset* dataset) {
   free(dataset);
 }
 
-void Dataset_print(Dataset* dataset, int num_records) {
+void Dataset_print(Dataset* dataset, unsigned int num_records) {
   assert(num_records < dataset->size);
-  for(int i=0; i<num_records; ++i) {
+  for(unsigned int i=0; i<num_records; ++i) {
     Record* rec = dataset->records[i];
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   }

@@ -20,7 +20,7 @@ struct _Dijkstra {
 static unsigned int path_len(Dictionary parents, const void* dest) {
   unsigned int count = 1;
   const void* current = dest;
-  const void* next;
+  void* next;
   if(Dictionary_get(parents, dest, &next) == 0) {
     printf("Error in retrieving parents");
     assert(0==1);
@@ -38,17 +38,17 @@ static unsigned int path_len(Dictionary parents, const void* dest) {
   return count;
 }
 
-static const void** build_path(Dictionary parents, const void* dest) {
+static void** build_path(Dictionary parents, void* dest) {
   unsigned int len = path_len(parents, dest);
-  const void** result = (const void**) malloc(sizeof(void*)*(len+1));
+  void** result = (void**) malloc(sizeof(void*)*(len+1));
   result[len] = NULL;
 
-  const void* current = dest;
-  const void* next;
+  void* current = dest;
+  void* next;
   Dictionary_get(parents, current, &next);
-  int last = len - 1;
+  unsigned int last = len - 1;
 
-  while(last>=0) {
+  while(last != (unsigned int)-1) {
     result[last] = current;
     current = next;
     Dictionary_get(parents, current, &next);
@@ -68,8 +68,8 @@ static void cleanup_distances_values(Dictionary distances) {
   DictionaryIterator_free(it);
 }
 
-const void** cleanup_and_build_path(Dijkstra state, const void* dest) {
-  const void** result = NULL;
+static void** cleanup_and_build_path(Dijkstra state, void* dest) {
+  void** result = NULL;
   if(dest != NULL) {
     result = build_path(state->parents, dest);
   }
@@ -104,16 +104,16 @@ static void Dijkstra_init_state(Dijkstra state) {
 }
 
 
-static void examine_neighbours(Dijkstra state, const void* current, double current_dist) {
+static void examine_neighbours(Dijkstra state, void* current, double current_dist) {
   EdgeIterator neighbours = Graph_adjacents(state->graph, current);
   for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
     EdgeInfo edge = EdgeIterator_get(neighbours);
-    const void* child = edge.vertex;
+    void* child = edge.vertex;
     double edge_distance = state->graph_info_to_double(edge.info);
 
     double new_distance = current_dist + edge_distance;
-    const DoubleContainer child_distance;
-    int child_found = Dictionary_get(state->distances, child, (const void**)&child_distance);
+    DoubleContainer child_distance;
+    int child_found = Dictionary_get(state->distances, child, (void **)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
       continue;
     }
@@ -125,8 +125,8 @@ static void examine_neighbours(Dijkstra state, const void* current, double curre
       PriorityQueue_decrease_priority(state->pq, child, new_distance);
     }
 
-    const void* old_value = NULL;
-    if(Dictionary_get(state->distances, child, &old_value)) {
+    void* old_value = NULL;
+    if(Dictionary_get(state->distances, child, (void **)&old_value)) {
       DoubleContainer_free((DoubleContainer) old_value);
     }
     Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
@@ -134,7 +134,7 @@ static void examine_neighbours(Dijkstra state, const void* current, double curre
   EdgeIterator_free(neighbours);
 }
 
-const void** Dijkstra_minpath(Dijkstra state, const void* source, const void* dest) {
+void** Dijkstra_minpath(Dijkstra state, void* source, void* dest) {
   Dijkstra_init_state(state);
 
   Dictionary_set(state->parents, source, source);
@@ -142,7 +142,7 @@ const void** Dijkstra_minpath(Dijkstra state, const void* source, const void* de
 
   PriorityQueue_push(state->pq, source, 0.0);
   while(!PriorityQueue_empty(state->pq)) {
-    const void* current = PriorityQueue_top_value(state->pq);
+    void* current = PriorityQueue_top_value(state->pq);
     double current_dist = PriorityQueue_top_priority(state->pq);
     PriorityQueue_pop(state->pq);
 
