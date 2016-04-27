@@ -141,6 +141,12 @@ static List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
   return list_ptr;
 }
 
+static void List_delete_node(List* list_ptr) {
+  List tmp = *list_ptr;
+  *list_ptr = (*list_ptr)->next;
+  free(tmp);
+}
+
 /* --------------------------
  * Dictionary implementation
  * -------------------------- */
@@ -254,9 +260,7 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   }
 
   dictionary->size -= 1;
-  List tmp = *list_ptr;
-  *list_ptr = (*list_ptr)->next;
-  free(tmp);
+  List_delete_node(list_ptr);
 }
 
 unsigned int Dictionary_size(Dictionary dictionary) {
