@@ -8,14 +8,11 @@ typedef struct _Node {
   struct _Node* right;
 } Node;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
 struct _Dictionary  {
   KeyInfo keyInfo;
   Node* root;
   unsigned int size;
 };
-#pragma clang diagnostic pop
 
 typedef struct _Stack {
   Node** array;

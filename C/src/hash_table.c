@@ -20,14 +20,11 @@ struct _Dictionary {
   KeyInfo keyInfo;
 };
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
 struct _DictionaryIterator {
   Dictionary dictionary;
   unsigned int cur_index;
   List cur_list_element;
 };
-#pragma clang diagnostic pop
 
 /* Elem constructor and destructor */
 

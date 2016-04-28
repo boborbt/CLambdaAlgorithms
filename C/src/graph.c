@@ -4,8 +4,6 @@
 #include "graph.h"
 #include "dictionary.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
 // The adjacency matrix is a dictionary storing vertices as keys. Values
 // are dictionaries themselves in which keys are the adjacent vertex and
 // values are the edge info.
@@ -14,7 +12,6 @@ struct _Graph {
   Dictionary adjacency_matrix;
   unsigned int size;
 };
-#pragma clang diagnostic pop
 
 struct _EdgeIterator {
   Graph graph;

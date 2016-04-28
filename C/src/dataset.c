@@ -13,13 +13,10 @@ struct _Record {
   double field3;
 };
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpadded"
 struct _Dataset {
   unsigned int size;
   Record** records;
 };
-#pragma clang diagnostic pop
 
 
 int Dataset_compare_field1(const void* e1, const void* e2) {
