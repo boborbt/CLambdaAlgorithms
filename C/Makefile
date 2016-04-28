@@ -18,11 +18,14 @@ lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
 	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
 
-lib/libcontainers_st.a: build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
-	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
+lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
+	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o
 
 build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
+
+build/stack.o: include/stack.h
+		$(CC) $(CFLAGS) -c src/stack.c -o build/stack.o
 
 build/hash_table.o: include/dictionary.h src/hash_table.c include/key_info.h
 	$(CC) $(CFLAGS) -c src/hash_table.c -o build/hash_table.o

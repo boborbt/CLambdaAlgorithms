@@ -1,4 +1,5 @@
 #include "dictionary.h"
+#include "stack.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -14,64 +15,11 @@ struct _Dictionary  {
   unsigned int size;
 };
 
-typedef struct _Stack {
-  Node** array;
-  unsigned int size;
-  unsigned int capacity;
-}* Stack;
-
 struct _DictionaryIterator {
   Stack stack;
 };
 
-/* --------------------------
- * Stack implementation
- * -------------------------- */
-
 #define MAX_STACK_SIZE 1024
-
-static Node* Stack_top(Stack stack) {
-  if(stack->size==0) {
-    return NULL;
-  }
-
-  return stack->array[stack->size-1];
-}
-
-static Node* Stack_pop(Stack stack) {
-  if(stack->size==0) {
-    return NULL;
-  }
-
-  Node* tmp = stack->array[--stack->size];
-  return tmp;
-}
-
-static void Stack_push(Stack stack, Node* node) {
-  if(stack->size >= stack->capacity) {
-    printf("Stack size exceeded");
-    exit(1);
-  }
-
-  stack->array[stack->size++] = node;
-}
-
-static int Stack_empty(Stack stack) {
-  return stack->size == 0;
-}
-
-static Stack Stack_new(unsigned int capacity) {
-  Stack result = (Stack) malloc(sizeof(struct _Stack));
-  result->array = (Node**) malloc(sizeof(Node*) * capacity);
-  result->size = 0;
-  result->capacity = capacity;
-  return result;
-}
-
-static void Stack_free(Stack stack) {
-  free(stack->array);
-  free(stack);
-}
 
 /* --------------------------
  * DictionaryIterator implementation
@@ -110,7 +58,7 @@ int DictionaryIterator_end(DictionaryIterator it) {
 }
 
 Elem DictionaryIterator_get(DictionaryIterator it) {
-  return Stack_top(it->stack)->elem;
+  return ((Node*)Stack_top(it->stack))->elem;
 }
 
 
