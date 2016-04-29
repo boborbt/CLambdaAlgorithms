@@ -25,6 +25,10 @@
    printf("assertion failed at file:%s line:%d. %s was expected to be equal to %s\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
+#define assert_true(a) if(!a) {\
+   printf("assertion failed at file:%s line:%d. %d was expected to be true\n",\
+    __FILE__, __LINE__, (a)); exit(1); }
+
 
 // Starts a testing session
 void start_tests(const char* msg);

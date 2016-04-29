@@ -72,6 +72,14 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
 }
 
 /* --------------------------
+ * Fwd declaration of test utility methods
+ * -------------------------- */
+
+int Dictionary_check_parents_structure(Dictionary dictionary);
+int Node_check_parents_structure(Node* node);
+
+
+/* --------------------------
  * Nodes implementation
  * -------------------------- */
 
@@ -126,9 +134,9 @@ static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   return Node_find_with_parent(root, key, keyInfo, &parent);
 }
 
-// static int Node_is_leaf(Node* node) {
-//   return node->left == NULL && node->right == NULL;
-// }
+static int Node_is_leaf(Node* node) {
+  return node->left == _nil && node->right == _nil;
+}
 
 static Node** Node_find_max(Node** node) {
   if((*node)->right == _nil)
@@ -189,6 +197,7 @@ static int Node_height(Node* node) {
   return 1 + (lh > rh ? lh : rh);
 }
 
+
 /* --------------------------
  * Dictionary implementation
  * -------------------------- */
@@ -248,4 +257,109 @@ unsigned int Dictionary_size(Dictionary dictionary) {
 
 double Dictionary_efficiency_score(Dictionary dictionary) {
   return Node_height(dictionary->root);
+}
+
+
+
+// * --------------
+// * Test utility methods
+// * --------------
+
+
+int Dictionary_check_parents_structure(Dictionary dictionary) {
+  if(dictionary->root == _nil) {
+    return 1;
+  }
+
+  if(dictionary->root->parent != _nil) {
+    return 0;
+  }
+
+  return Node_check_parents_structure(dictionary->root);
+}
+
+
+void Node_print_address(Node* node);
+
+int Node_check_parents_structure(Node* node) {
+  if( node == _nil ) {
+    return 1;
+  }
+  if( Node_is_leaf(node) ) {
+    return 1;
+  }
+
+  int left_check =
+    node->left == NULL || (
+      node->left->parent == node &&
+      Node_check_parents_structure(node->left)
+    );
+
+  int right_check =
+    node->right == _nil || (
+      node->right->parent == node &&
+      Node_check_parents_structure(node->right)
+    );
+
+  if( !(left_check && right_check) ) {
+    printf("check fails on node:");
+    Node_print_address(node);
+    printf("\n");
+  }
+
+  return left_check && right_check;
+}
+
+void Node_print_address(Node* node) {
+  if(node == NULL) {
+    printf("NULL");
+    return;
+  }
+
+  if(node == _nil) {
+    printf("_nil");
+    return;
+  }
+
+  printf("%p", (void*) node);
+}
+
+#define INDENT_MAX_SIZE sizeof(char)*1024
+
+void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* indent) {
+  char* child_indent = (char*) malloc(INDENT_MAX_SIZE);
+  strcpy(child_indent, indent);
+  strcat(child_indent, "  ");
+
+  if(node == _nil) {
+    Node_print_address(node);
+    return;
+  }
+
+  printf("\n%sself:", indent);
+  Node_print_address(node);
+  printf("\n");
+
+  printf("%skey/value:", indent);
+  print_key_value(node->elem->key, node->elem->value);
+  printf("\n");
+
+  printf("%sparent:", indent);
+  Node_print_address(node->parent);
+  printf("\n");
+
+  printf("%sleft:", indent);
+  Node_dump_tree(node->left, print_key_value, child_indent);
+  printf("\n");
+
+  printf("%sright:", indent);
+  Node_dump_tree(node->right, print_key_value, child_indent);
+  printf("\n");
+
+  free(child_indent);
+}
+
+void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*)) {
+  char* indent = (char*) malloc(INDENT_MAX_SIZE);
+  Node_dump_tree(dictionary->root, print_key_value, indent);
 }
