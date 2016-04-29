@@ -77,6 +77,8 @@ Elem DictionaryIterator_get(DictionaryIterator it) {
 
 int Dictionary_check_parents_structure(Dictionary dictionary);
 int Node_check_parents_structure(Node* node);
+void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* indent);
+void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*));
 
 
 /* --------------------------
@@ -290,7 +292,7 @@ int Node_check_parents_structure(Node* node) {
   }
 
   int left_check =
-    node->left == NULL || (
+    node->left == _nil || (
       node->left->parent == node &&
       Node_check_parents_structure(node->left)
     );

@@ -6,9 +6,9 @@
 
 int Dictionary_check_parents_structure(Dictionary dictionary);
 void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*));
+void print_key_value(void* key, void* value);
 
-
-static void print_key_value(void* key, void* value) {
+void print_key_value(void* key, void* value) {
   printf("%ld/%ld", (long) key, (long) value);
 }
 
@@ -72,7 +72,6 @@ static void test_dictionary_insert_on_empty_dictionary() {
 
 static void test_dictionary_insert_on_full_dictionary() {
   Dictionary dictionary = build_fixture_dictionary();
-  Dictionary_dump(dictionary, print_key_value);
   assert_true( Dictionary_check_parents_structure(dictionary) );
 
   assert_equal( (long) Dictionary_size(dictionary), 7l);
