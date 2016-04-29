@@ -15,11 +15,11 @@ clean:
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 
-lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
-	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/heap_sort.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
+	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/heap_sort.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
 
-lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o
-	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o
+lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/heap_sort.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
+	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/heap_sort.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
 
 build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
@@ -53,6 +53,28 @@ build/double_container.o: src/double_container.c include/double_container.h
 
 build/unit_testing.o: src/unit_testing.c include/unit_testing.h
 	$(CC) $(CFLAGS) -c src/unit_testing.c -o build/unit_testing.o
+
+build/array_g.o: src/array_g.c include/array_g.h
+	$(CC) $(CFLAGS) -c src/array_g.c -o build/array_g.o
+
+build/insertion_sort.o: src/insertion_sort.c include/insertion_sort.h
+	$(CC) $(CFLAGS) -c src/insertion_sort.c -o build/insertion_sort.o
+
+build/quick_sort.o: src/quick_sort.c include/quick_sort.h
+	$(CC) $(CFLAGS) -c src/quick_sort.c -o build/quick_sort.o
+
+build/merge_sort.o: src/merge_sort.c include/merge_sort.h
+	$(CC) $(CFLAGS) -c src/merge_sort.c -o build/merge_sort.o
+
+build/heap_sort.o: src/heap_sort.c include/heap_sort.h
+	$(CC) $(CFLAGS) -c src/heap_sort.c -o build/heap_sort.o
+
+build/dijkstra.o: src/dijkstra.c include/dijkstra.h include/graph.h include/dictionary.h
+	$(CC) $(CFLAGS) -c src/dijkstra.c -o build/dijkstra.o
+
+build/graph_visiting.o: src/graph_visiting.c include/graph_visiting.h include/graph.h
+	$(CC) $(CFLAGS) -c src/graph_visiting.c -o build/graph_visiting.o
+
 
 Esercizio1:
 	$(MAKE) -C Esercizio1

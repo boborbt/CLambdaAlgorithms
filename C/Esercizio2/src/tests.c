@@ -21,7 +21,7 @@ static unsigned int hash(const void* elem) {
   return (unsigned int)(k*(k+3));
 }
 
-static Dictionary build_fixture_tree() {
+static Dictionary build_fixture_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
@@ -36,7 +36,7 @@ static Dictionary build_fixture_tree() {
 }
 
 
-static void test_search_tree_creation() {
+static void test_dictionary_creation() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
 
   Dictionary dictionary = Dictionary_new(keyInfo);
@@ -46,7 +46,7 @@ static void test_search_tree_creation() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_insert_on_empty_tree() {
+static void test_dictionary_insert_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
@@ -59,8 +59,8 @@ static void test_search_tree_insert_on_empty_tree() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_insert_on_full_tree() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_insert_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_set(dictionary, (void*) 4l, (void*) -4l);
@@ -73,8 +73,8 @@ static void test_search_tree_insert_on_full_tree() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_replace_on_full_tree() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_replace_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_set(dictionary, (void*) 15l, (void*) -115l);
@@ -87,7 +87,7 @@ static void test_search_tree_replace_on_full_tree() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_delete_on_empty_tree() {
+static void test_dictionary_delete_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
   Dictionary_delete(dictionary, (void*) 1l);
@@ -95,8 +95,8 @@ static void test_search_tree_delete_on_empty_tree() {
   assert(TRUE);
 }
 
-static void test_search_tree_delete_root() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_delete_root() {
+  Dictionary dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 10l);
@@ -108,8 +108,8 @@ static void test_search_tree_delete_root() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_delete_mid_node() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_delete_mid_node() {
+  Dictionary dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 15l);
@@ -121,8 +121,8 @@ static void test_search_tree_delete_mid_node() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_delete_leaf() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_delete_leaf() {
+  Dictionary dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 11l);
@@ -134,8 +134,8 @@ static void test_search_tree_delete_leaf() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_delete_whole_tree() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_delete_whole_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
   long int keys[] =  {10l, 5l, 15l, 7l, 13l, 11l, 18l};
 
   for(int i = 0; i < 7; ++i) {
@@ -147,7 +147,7 @@ static void test_search_tree_delete_whole_tree() {
 }
 
 
-static void test_search_tree_get_on_empty_tree() {
+static void test_dictionary_get_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
   Dictionary dictionary = Dictionary_new(keyInfo);
 
@@ -157,8 +157,8 @@ static void test_search_tree_get_on_empty_tree() {
   Dictionary_free(dictionary);
 }
 
-static void test_search_tree_get_on_full_tree() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_get_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
 
   long int value = 0;
   assert_equal((long)Dictionary_get(dictionary, (void*) 13l, (void**)&value), 1l);
@@ -168,8 +168,8 @@ static void test_search_tree_get_on_full_tree() {
 }
 
 
-static void test_search_tree_get_on_non_present_key() {
-  Dictionary dictionary = build_fixture_tree();
+static void test_dictionary_get_on_non_present_key() {
+  Dictionary dictionary = build_fixture_dictionary();
 
   long int value = 0;
   assert_equal((long)Dictionary_get(dictionary, (void*) 21l, (void**)&value), 0l);
@@ -178,21 +178,21 @@ static void test_search_tree_get_on_non_present_key() {
 }
 
 int main() {
-  start_tests("search trees");
-  test(test_search_tree_creation);
-  test(test_search_tree_insert_on_empty_tree);
-  test(test_search_tree_insert_on_full_tree);
-  test(test_search_tree_replace_on_full_tree);
+  start_tests("search dictionarys");
+  test(test_dictionary_creation);
+  test(test_dictionary_insert_on_empty_dictionary);
+  test(test_dictionary_insert_on_full_dictionary);
+  test(test_dictionary_replace_on_full_dictionary);
 
-  test(test_search_tree_delete_on_empty_tree);
-  test(test_search_tree_delete_root);
-  test(test_search_tree_delete_mid_node);
-  test(test_search_tree_delete_leaf);
-  test(test_search_tree_delete_whole_tree);
+  test(test_dictionary_delete_on_empty_dictionary);
+  test(test_dictionary_delete_root);
+  test(test_dictionary_delete_mid_node);
+  test(test_dictionary_delete_leaf);
+  test(test_dictionary_delete_whole_dictionary);
 
-  test(test_search_tree_get_on_empty_tree);
-  test(test_search_tree_get_on_full_tree);
-  test(test_search_tree_get_on_non_present_key);
+  test(test_dictionary_get_on_empty_dictionary);
+  test(test_dictionary_get_on_full_dictionary);
+  test(test_dictionary_get_on_non_present_key);
   end_tests();
 
   return 0;
