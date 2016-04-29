@@ -1,295 +1,198 @@
-#include <assert.h>
-#include <stdlib.h>
-#include "quick_sort.h"
-#include "merge_sort.h"
-#include "heap_sort.h"
-#include "insertion_sort.h"
-#include "unit_testing.h"
-#include "array_g.h"
+#include "dictionary.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "unit_testing.h"
 
-void partition_3_way(void** array, unsigned int start, unsigned int end, unsigned int pivot_pos, int* p1, int* p2,  QSCompareFun compare);
+static int compare(const void* left, const void* right) {
+  if((long int) left < (long int) right) {
+    return -1;
+  }
 
-static int compare(const void* elem1, const void* elem2) {
-  long int e1 = (long int) elem1;
-  long int e2 = (long int) elem2;
-
-  if(e1 < e2) return -1;
-  if(e1 > e2) return 1;
+  if((long int) left > (long int) right) {
+    return 1;
+  }
 
   return 0;
 }
 
-static int compare_g(const void* elem1, const void* elem2) {
-  int e1 = *(const int*) elem1;
-  int e2 = *(const int*) elem2;
-  return e1 - e2;
+static unsigned int hash(const void* elem) {
+  long int k = (long int) elem;
+  return (unsigned int)(k*(k+3));
 }
 
-static void test_quick_sort_empty_array() {
-  long a[1];
-  quick_sort((void**)a, 0, compare);
+static Dictionary build_fixture_dictionary() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
+  Dictionary_set(dictionary, (void*)  5l, (void*)  -5l);
+  Dictionary_set(dictionary, (void*) 15l, (void*) -15l);
+  Dictionary_set(dictionary, (void*)  7l, (void*)  -7l);
+  Dictionary_set(dictionary, (void*) 13l, (void*) -13l);
+  Dictionary_set(dictionary, (void*) 11l, (void*) -11l);
+  Dictionary_set(dictionary, (void*) 18l, (void*) -18l);
 
-  assert(TRUE); // suffices that the algorithm terminates
-}
-
-static void test_merge_sort_empty_array() {
-  long a[1];
-  merge_sort((void**)a, 0, compare);
-
-  assert(TRUE); // suffices that the algorithm terminates
-}
-
-static void test_heap_sort_empty_array() {
-  long a[1];
-  heap_sort((void**)a, 0, compare);
-
-  assert(TRUE); // suffices that the algorithm terminates
-}
-
-static void test_insertion_sort_empty_array() {
-  long a[1];
-  insertion_sort((void**)a, 0, compare);
-
-  assert(TRUE); // suffices that the algorithm terminates
+  return dictionary;
 }
 
 
-static void test_quick_sort_null_array() {
-  quick_sort((void**) NULL, 0, compare);
+static void test_dictionary_creation() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
 
-  assert(TRUE); // suffices that the algorithm terminates
+  Dictionary dictionary = Dictionary_new(keyInfo);
+  assert(dictionary != NULL);
+
+  assert_equal((long)Dictionary_size(dictionary), 0l);
+  Dictionary_free(dictionary);
 }
 
-static void test_merge_sort_null_array() {
-  merge_sort((void**) NULL, 0, compare);
+static void test_dictionary_insert_on_empty_dictionary() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
+  assert_equal((long)Dictionary_size(dictionary), 1l);
 
-  assert(TRUE); // suffices that the algorithm terminates
+  long int value = 0;
+  Dictionary_get(dictionary, (void*) 10l, (void**)&value);
+  assert_equal( value,  -10l );
+
+  Dictionary_free(dictionary);
 }
 
-static void test_heap_sort_null_array() {
-  heap_sort((void**) NULL, 0, compare);
+static void test_dictionary_insert_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
+  assert_equal( (long) Dictionary_size(dictionary), 7l);
 
-  assert(TRUE); // suffices that the algorithm terminates
+  Dictionary_set(dictionary, (void*) 4l, (void*) -4l);
+  assert_equal((long)Dictionary_size(dictionary), 8l);
+
+  long int value = 0;
+  Dictionary_get(dictionary, (void*) 4l, (void**)&value);
+  assert_equal( value,  -4l );
+
+  Dictionary_free(dictionary);
 }
 
-static void test_insertion_sort_null_array() {
-  insertion_sort((void**) NULL, 0, compare);
+static void test_dictionary_replace_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
+  assert_equal( (long) Dictionary_size(dictionary), 7l);
 
-  assert(TRUE); // suffices that the algorithm terminates
+  Dictionary_set(dictionary, (void*) 15l, (void*) -115l);
+  assert_equal((long)Dictionary_size(dictionary), 7l);
+
+  long int value = 0;
+  Dictionary_get(dictionary, (void*) 15l, (void**)&value);
+  assert_equal( value,  -115l );
+
+  Dictionary_free(dictionary);
 }
 
-static void test_quick_sort_single_element_array() {
-  long a[] = { 100 };
-  quick_sort((void**)a, 1, compare);
+static void test_dictionary_delete_on_empty_dictionary() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary_delete(dictionary, (void*) 1l);
 
-  assert( a[0] == 100 );
+  assert(TRUE);
 }
 
-static void test_merge_sort_single_element_array() {
-  long a[] = { 100 };
-  merge_sort((void**)a, 1, compare);
+static void test_dictionary_delete_root() {
+  Dictionary dictionary = build_fixture_dictionary();
+  assert_equal( (long) Dictionary_size(dictionary), 7l);
 
-  assert( a[0] == 100 );
+  Dictionary_delete(dictionary, (void*) 10l);
+  assert_equal((long)Dictionary_size(dictionary), 6l);
+
+  long int value = 0;
+  assert_equal((long) Dictionary_get(dictionary, (void*) 10l, (void**) &value), 0l);
+
+  Dictionary_free(dictionary);
 }
 
-static void test_heap_sort_single_element_array() {
-  long a[] = { 100 };
-  heap_sort((void**)a, 1, compare);
+static void test_dictionary_delete_mid_node() {
+  Dictionary dictionary = build_fixture_dictionary();
+  assert_equal( (long) Dictionary_size(dictionary), 7l);
 
-  assert( a[0] == 100 );
+  Dictionary_delete(dictionary, (void*) 15l);
+  assert_equal((long)Dictionary_size(dictionary), 6l);
+
+  long int value = 0;
+  assert_equal((long) Dictionary_get(dictionary, (void*) 15l, (void**) &value), 0l);
+
+  Dictionary_free(dictionary);
 }
 
-static void test_insertion_sort_single_element_array() {
-  long a[] = { 100 };
-  insertion_sort((void**)a, 1, compare);
+static void test_dictionary_delete_leaf() {
+  Dictionary dictionary = build_fixture_dictionary();
+  assert_equal( (long) Dictionary_size(dictionary), 7l);
 
-  assert( a[0] == 100 );
+  Dictionary_delete(dictionary, (void*) 11l);
+  assert_equal((long)Dictionary_size(dictionary), 6l);
+
+  long int value = 0;
+  assert_equal((long) Dictionary_get(dictionary, (void*) 11l, (void**) &value), 0l);
+
+  Dictionary_free(dictionary);
 }
 
+static void test_dictionary_delete_whole_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
+  long int keys[] =  {10l, 5l, 15l, 7l, 13l, 11l, 18l};
 
-static void test_quick_sort_all_repetitions_array() {
-  long a[] = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
-  quick_sort((void**) a, 14, compare);
-
-  for(int i=0; i < 14; ++i) {
-    assert( a[i] == 10 );
+  for(int i = 0; i < 7; ++i) {
+    Dictionary_delete(dictionary, (void*) keys[i]);
   }
+
+  assert_equal((long)Dictionary_size(dictionary), 0l);
+  Dictionary_free(dictionary);
 }
 
-static void test_quick_sort_full_array() {
-  long a[] = { 85, 91, 49, 16, 31, 26, 96, 83, 60, 80 };
-  quick_sort((void**) a, 10, compare);
 
-  for(int i=0; i<9; ++i) {
-    assert(a[i] <= a[i+1]);
-  }
+static void test_dictionary_get_on_empty_dictionary() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  Dictionary dictionary = Dictionary_new(keyInfo);
+
+  long int value = 0;
+  assert_equal((long)Dictionary_get(dictionary, (void*) 10l, (void**)&value), 0l);
+
+  Dictionary_free(dictionary);
 }
 
-static void test_quick_sort_g_full_array() {
-  int a[] = { 85, 91, 49, 16, 31, 26, 96, 83, 60, 80 };
-  quick_sort_g((void*) a, 10, sizeof(int), compare_g);
+static void test_dictionary_get_on_full_dictionary() {
+  Dictionary dictionary = build_fixture_dictionary();
 
-  for(int i=0; i<9; ++i) {
-    assert(a[i] <= a[i+1]);
-  }
+  long int value = 0;
+  assert_equal((long)Dictionary_get(dictionary, (void*) 13l, (void**)&value), 1l);
+  assert_equal(-13l, value);
+
+  Dictionary_free(dictionary);
 }
 
-static void test_merge_sort_full_array() {
-  long a[] = { 85, 91, 49, 16, 31, 26, 96, 83, 60, 80 };
-  merge_sort((void**) a, 10, compare);
 
-  for(int i=0; i<9; ++i) {
-    assert(a[i] <= a[i+1]);
-  }
+static void test_dictionary_get_on_non_present_key() {
+  Dictionary dictionary = build_fixture_dictionary();
+
+  long int value = 0;
+  assert_equal((long)Dictionary_get(dictionary, (void*) 21l, (void**)&value), 0l);
+
+  Dictionary_free(dictionary);
 }
-
-static void test_heap_sort_full_array() {
-  long a[] = { 85, 91, 49, 16, 31, 26, 96, 83, 60, 80 };
-  heap_sort((void**) a, 10, compare);
-
-  for(int i=0; i<9; ++i) {
-    assert(a[i] <= a[i+1]);
-  }
-}
-
-static void test_insertion_sort_full_array() {
-  long a[] = { 85, 91, 49, 16, 31, 26, 96, 85, 60, 80 };
-  insertion_sort((void**) a, 10, compare);
-
-  for(int i=0; i<9; ++i) {
-    assert(a[i] <= a[i+1]);
-  }
-}
-
-static void test_partition_3_way_case1() {
-  long int a[14] = { 1, 10, 3, 4, 10, 2, 10, 25, 22, 10, 11, 10, 9, 10 };
-  long int expected[14] = { 1, 9, 3, 4, 2, 10, 10, 10, 10, 10, 10, 11, 22, 25 };
-
-  int p1;
-  int p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
-  assert_equal( (long)4, (long)p1);
-  assert_equal( (long)11, (long)p2);
-  for(int i=0; i<14; ++i) {
-    assert_equal(a[i], expected[i]);
-  }
-}
-
-static void test_partition_3_way_case2() {
-  long int a[14] = { 1, 10, 3, 4, 12, 2, 15, 25, 22, 10, 11, 11, 9, 10 };
-  long int expected[14] = { 1, 9, 3, 4, 2, 10, 10, 10, 22, 11, 11, 12, 15, 25 };
-
-  int p1;
-  int p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
-  assert_equal( (long)4, (long)p1);
-  assert_equal( (long)8, (long)p2);
-  for(int i=0; i<14; ++i) {
-    assert_equal(a[i], expected[i]);
-  }
-}
-
-static void test_partition_3_way_1_pivot() {
-  long int a[14] = { 1, 10, 3, 4, 12, 2, 15, 25, 22, 14, 11, 11, 9, 9 };
-  long int expected[14] = { 1, 9, 3, 4, 2, 9, 10, 25, 22, 14, 11, 11, 12, 15 };
-
-  int p1;
-  int p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
-  assert_equal( (long)5, (long)p1);
-  assert_equal( (long)7, (long)p2);
-  for(int i=0; i<14; ++i) {
-    assert_equal(a[i], expected[i]);
-  }
-}
-
-static void test_partition_3_way_all_pivots() {
-  long int a[14] = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
-  long int expected[14] = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
-
-  int p1;
-  int p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
-  assert_equal( (long)0, (long)p1);
-  assert_equal( (long)14, (long)p2);
-  for(int i=0; i<14; ++i) {
-    assert_equal(a[i], expected[i]);
-  }
-}
-
-static void test_array_g_swap_at() {
-  int array[] = { 12, 11, 2, 1, 21, 15, 18 };
-  swap_g(at_g(array, 1, sizeof(int)), at_g(array,4,sizeof(int)), sizeof(int));
-  assert_equal32(array[1], 21);
-  assert_equal32(array[4], 11);
-}
-
-static void test_array_g_swap() {
-  int array[] = { 12, 11, 2, 1, 21, 15, 18 };
-  swap_g(&array[1], &array[4], sizeof(int));
-  assert_equal32(array[1], 21);
-  assert_equal32(array[4], 11);
-}
-
-static void test_array_g_at() {
-  int array[] = { 12, 11, 2, 1, 21, 15, 18 };
-  assert_equal32(*(int*)at_g(array, 2, sizeof(int)), 2);
-}
-
-static void test_array_g_cp() {
-  int array[] = { 12, 11, 2, 1, 21, 15, 18 };
-  cp_g(&array[2], &array[5], sizeof(int));
-  assert_equal32(array[2], 15);
-}
-
 
 int main() {
-  start_tests("partition");
-  test(test_partition_3_way_case1);
-  test(test_partition_3_way_case2);
-  test(test_partition_3_way_1_pivot);
-  test(test_partition_3_way_all_pivots);
-  end_tests();
+  start_tests("search dictionarys");
+  test(test_dictionary_creation);
+  test(test_dictionary_insert_on_empty_dictionary);
+  test(test_dictionary_insert_on_full_dictionary);
+  test(test_dictionary_replace_on_full_dictionary);
 
-  start_tests("quick_sort");
-  test(test_quick_sort_empty_array);
-  test(test_quick_sort_null_array);
-  test(test_quick_sort_single_element_array);
-  test(test_quick_sort_all_repetitions_array);
-  test(test_quick_sort_full_array);
-  end_tests();
+  test(test_dictionary_delete_on_empty_dictionary);
+  test(test_dictionary_delete_root);
+  test(test_dictionary_delete_mid_node);
+  test(test_dictionary_delete_leaf);
+  test(test_dictionary_delete_whole_dictionary);
 
-  start_tests("merge_sort");
-  test(test_merge_sort_empty_array);
-  test(test_merge_sort_null_array);
-  test(test_merge_sort_single_element_array);
-  test(test_merge_sort_full_array);
-  end_tests();
-
-  start_tests("heap_sort");
-  test(test_heap_sort_empty_array);
-  test(test_heap_sort_null_array);
-  test(test_heap_sort_single_element_array);
-  test(test_heap_sort_full_array);
-  end_tests();
-
-  start_tests("insertion_sort");
-  test(test_insertion_sort_empty_array);
-  test(test_insertion_sort_null_array);
-  test(test_insertion_sort_single_element_array);
-  test(test_insertion_sort_full_array);
-  end_tests();
-
-  start_tests("quick_sort_g");
-  test(test_quick_sort_g_full_array);
-  end_tests();
-
-  start_tests("array_g");
-  test(test_array_g_swap_at);
-  test(test_array_g_swap);
-  test(test_array_g_at);
-  test(test_array_g_cp);
+  test(test_dictionary_get_on_empty_dictionary);
+  test(test_dictionary_get_on_full_dictionary);
+  test(test_dictionary_get_on_non_present_key);
   end_tests();
 
   return 0;

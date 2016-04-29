@@ -1,6 +1,7 @@
 include Makefile.vars
 
 CFLAGS+=-Iinclude
+LDFLAGS+=-Llib
 
 .PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean experiment1 experiment2 experiment3
 
@@ -12,6 +13,7 @@ clean:
 	$(MAKE) -C Esercizio3 clean
 	$(RM) -f lib/*.a
 	$(RM) -f build/*.o
+	$(RM) -f bin/*
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a
 
@@ -86,10 +88,24 @@ Esercizio3:
 	$(MAKE) -C Esercizio3
 
 
-tests:
-	$(MAKE) -C Esercizio1 tests
-	$(MAKE) -C Esercizio2 tests
-	$(MAKE) -C Esercizio3 tests
+tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/graph_tests
+	bin/sorting_tests
+	bin/dictionary_tests_st
+	bin/dictionary_tests_hash
+	bin/graph_tests
+
+bin/sorting_tests: src/sorting_tests.c lib/libcontainers_st.a
+	$(CC) $(CFLAGS) $(LDFLAGS) src/sorting_tests.c -o bin/sorting_tests -lcontainers_st
+
+bin/dictionary_tests_st: src/dictionary_tests.c lib/libcontainers_st.a
+	$(CC) $(CFLAGS) $(LDFLAGS) src/dictionary_tests.c -o bin/dictionary_tests_st -lcontainers_st
+
+bin/dictionary_tests_hash: src/dictionary_tests.c lib/libcontainers_hash.a
+	$(CC) $(CFLAGS) $(LDFLAGS) src/dictionary_tests.c -o bin/dictionary_tests_hash -lcontainers_hash
+
+bin/graph_tests: src/graph_tests.c lib/libcontainers_hash.a
+	$(CC) $(CFLAGS) $(LDFLAGS) src/graph_tests.c -o bin/graph_tests -lcontainers_hash
+
 
 experiment1:
 	Esercizio1/bin/measure_times -q ../../DatasetsGenerators/records/records.csv
