@@ -177,6 +177,13 @@ static void test_dictionary_get_on_non_present_key() {
   Dictionary_free(dictionary);
 }
 
+static void test_dictionary_iterator_on_empty_dictionary() {
+  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  Dictionary dictionary = Dictionary_new(keyInfo);
+  DictionaryIterator it = DictionaryIterator_new(dictionary);
+  assert_true( DictionaryIterator_end(it) )
+}
+
 int main() {
   start_tests("search dictionarys");
   test(test_dictionary_creation);
@@ -193,6 +200,8 @@ int main() {
   test(test_dictionary_get_on_empty_dictionary);
   test(test_dictionary_get_on_full_dictionary);
   test(test_dictionary_get_on_non_present_key);
+
+  test(test_dictionary_iterator_on_empty_dictionary);
   end_tests();
 
   return 0;

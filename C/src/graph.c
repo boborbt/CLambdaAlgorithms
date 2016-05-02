@@ -187,7 +187,7 @@ void VertexIterator_free(VertexIterator it) {
 }
 
 int VertexIterator_end(VertexIterator it) {
-  return it->dic_it != NULL && DictionaryIterator_end(it->dic_it);
+  return it->dic_it == NULL || DictionaryIterator_end(it->dic_it);
 }
 
 void VertexIterator_next(VertexIterator it) {

@@ -44,7 +44,9 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
   it->stack = Stack_new(MAX_STACK_SIZE);
 
-  Stack_push(it->stack, dictionary->root);
+  if(!Dictionary_empty(dictionary)) {
+    Stack_push(it->stack, dictionary->root);    
+  }
   return it;
 }
 

@@ -30,7 +30,7 @@ lib/libcontainers_rb.a: build/stack.o build/dictionary.o build/graph.o build/rb_
 build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 		$(CC) $(CFLAGS) -c src/search_tree.c -o build/search_tree.o
 
-build/stack.o: include/stack.h
+build/stack.o: src/stack.c include/stack.h
 		$(CC) $(CFLAGS) -c src/stack.c -o build/stack.o
 
 build/hash_table.o: include/dictionary.h src/hash_table.c include/key_info.h
@@ -114,8 +114,8 @@ bin/dictionary_tests_hash: tests/dictionary_tests.c lib/libcontainers_hash.a
 bin/dictionary_tests_rb: tests/dictionary_tests_rb.c lib/libcontainers_rb.a
 	$(CC) $(CFLAGS) $(LDFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb
 
-bin/graph_tests: tests/graph_tests.c lib/libcontainers_hash.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_hash
+bin/graph_tests: tests/graph_tests.c lib/libcontainers_st.a
+	$(CC) $(CFLAGS) $(LDFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st
 
 
 
