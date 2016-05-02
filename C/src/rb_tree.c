@@ -5,7 +5,7 @@
 
 
 typedef enum {
-  RED, BLACK
+  BLACK, RED
 } Color;
 
 typedef struct _Node {
@@ -81,6 +81,7 @@ int Dictionary_check_parents_structure(Dictionary dictionary);
 int Node_check_parents_structure(Node* node);
 void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* indent);
 void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*));
+int Dictionary_check_rb_properties(Dictionary dictionary);
 
 
 /* --------------------------
@@ -98,6 +99,24 @@ static Node* Node_new(void* key, void* value) {
   result->parent = _nil;
 
   return result;
+}
+
+static Node* Node_left(Node* node) {
+  return node->left;
+}
+
+static Node* Node_right(Node* node) {
+  return node->right;
+}
+
+static void Node_set(Node* node, Node* parent, Node* left, Node* right) {
+  node->parent = parent;
+
+  node->left = left;
+  node->left->parent = node;
+
+  node->right = right;
+  node->right->parent = node;
 }
 
 
@@ -139,7 +158,7 @@ static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
 }
 
 static int Node_is_leaf(Node* node) {
-  return node->left == _nil && node->right == _nil;
+  return node == _nil;
 }
 
 static Node** Node_find_max(Node** node) {
@@ -220,6 +239,87 @@ void Dictionary_free(Dictionary dictionary) {
   free(dictionary);
 }
 
+static void Dictionary_rb_left_rotate(Dictionary dictionary, Node* node) {
+  Node* x = node;
+  Node* y = x->right;
+  Node* a = x->left;
+  Node* b = y->left;
+  Node* c = y->right;
+
+  if(x->parent->left == x) {
+    x->parent->left = y;
+  } else {
+    x->parent->right = y;
+  }
+
+  Node_set(y, x->parent, x, c);
+  Node_set(x, y, a, b);
+
+  if(y->parent == _nil) {
+    dictionary->root = y;
+  }
+}
+
+static void Dictionary_rb_right_rotate(Dictionary dictionary, Node* node) {
+  Node* y = node;
+  Node* x = y->left;
+  Node* a = x->left;
+  Node* b = x->right;
+  Node* c = y->right;
+
+  if(y->parent->left == y) {
+    y->parent->left = x;
+  } else {
+    y->parent->right = x;
+  }
+
+  Node_set(x, y->parent, a, y);
+  Node_set(y, x, b, c);
+
+  if(x->parent == _nil) {
+    dictionary->root = x;
+  }
+}
+
+
+static Node* Dictionary_rb_insert_fixup_local(
+            Dictionary dictionary, Node* z,
+            Node* (*child)(Node*),
+            void (*left_rotate)(Dictionary,
+            Node*), void (*right_rotate)(Dictionary, Node*)) {
+
+  Node* y = child(z->parent->parent);
+  if(y->color == RED) {
+    z->parent->color = BLACK;
+    y->color = BLACK;
+    z->parent->parent->color = RED;
+    return z->parent->parent;
+  }
+
+  if( z == child(z->parent) ) {
+    z = z->parent;
+    left_rotate(dictionary, z);
+  }
+
+  z->parent->color = BLACK;
+  z->parent->parent->color = RED;
+  right_rotate(dictionary, z->parent->parent);
+
+  return z;
+}
+
+static void Dictionary_rb_insert_fixup(Dictionary dictionary, Node* z) {
+  while(z->parent->color == RED) {
+    if(z->parent == z->parent->parent->left) {
+      z = Dictionary_rb_insert_fixup_local(dictionary, z, Node_right, Dictionary_rb_left_rotate, Dictionary_rb_right_rotate);
+    } else {
+      z = Dictionary_rb_insert_fixup_local(dictionary, z, Node_left, Dictionary_rb_right_rotate, Dictionary_rb_left_rotate);
+    }
+  }
+
+  dictionary->root->color = BLACK;
+}
+
 void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   Node* parent;
   Node** node_ptr = Node_find_with_parent(&dictionary->root, key, dictionary->keyInfo, &parent);
@@ -232,6 +332,8 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
     (*node_ptr)->parent = parent;
     dictionary->size += 1;
   }
+
+  Dictionary_rb_insert_fixup(dictionary, *node_ptr);
 }
 
 int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
@@ -268,6 +370,74 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
 // * --------------
 // * Test utility methods
 // * --------------
+
+static int Dictionary_check_root_is_black(Dictionary dictionary) {
+  if(dictionary->root->color != BLACK) {
+    printf("CHK FAILED: root color is %d\n", dictionary->root->color);
+    return 0;
+  }
+
+  return 1;
+}
+
+static int Dictionary_check_leaves_are_black(Node* node) {
+  if(node == _nil) {
+    return 1;
+  }
+
+  if(Node_is_leaf(node)) {
+    if(node->color != BLACK) {
+      printf("CHK FAILED: node is a leaf, but has color: %d\n", node->color);
+      return 0;
+    }
+
+    return 1;
+  }
+
+  return Dictionary_check_leaves_are_black(node->left) && Dictionary_check_leaves_are_black(node->right);
+}
+
+static int Dictionary_check_red_nodes_children_color(Node* node) {
+  if(node == _nil) {
+    return 1;
+  }
+
+  if(node->color == RED && (node->left->color==BLACK || node->right->color==BLACK) ) {
+    printf("CHK FAILED: node color is red (%d), but left children color:%d right children color: %d\n",
+      node->color, node->left->color, node->right->color);
+    return 0;
+  }
+
+  return Dictionary_check_leaves_are_black(node->left) && Dictionary_check_leaves_are_black(node->right);
+}
+
+static int Dictionary_check_black_path_lengths(Node* node) {
+  if(node == _nil) {
+    return 1;
+  }
+
+  int left_black_path_len = Dictionary_check_black_path_lengths(node->left);
+  int right_black_path_len = Dictionary_check_black_path_lengths(node->right);
+
+  if( left_black_path_len == right_black_path_len && left_black_path_len != -1 ) {
+    return left_black_path_len + (node->color==BLACK ? 1 : 0);
+  }
+
+  printf("CHK FAILED. left_black_path_len: %d right_black_path_len: %d\n", left_black_path_len, right_black_path_len);
+  return -1;
+}
+
+int Dictionary_check_rb_properties(Dictionary dictionary) {
+  if(Dictionary_empty(dictionary)) {
+    return 1;
+  }
+
+  return
+    Dictionary_check_root_is_black(dictionary) &&
+    Dictionary_check_leaves_are_black(dictionary->root) &&
+    Dictionary_check_red_nodes_children_color(dictionary->root) &&
+    Dictionary_check_black_path_lengths(dictionary->root) != -1;
+}
 
 
 int Dictionary_check_parents_structure(Dictionary dictionary) {
@@ -347,6 +517,8 @@ void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* ind
   printf("%skey/value:", indent);
   print_key_value(node->elem->key, node->elem->value);
   printf("\n");
+
+  printf("%scolor:%d\n", indent, node->color);
 
   printf("%sparent:", indent);
   Node_print_address(node->parent);
