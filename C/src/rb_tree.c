@@ -195,23 +195,31 @@ static void Node_move_key_value(Node* dst, Node* src) {
   src->elem = NULL;
 }
 
-static void Node_delete(Node** node) {
+// Removes the given key/value pair from the tree. If the deleted node
+// was black then it returns a reference to the node that replaced it.
+// If the node was red, it returns NULL.
+static Node* Node_delete(Node** node) {
   if((*node)->left == _nil) {
     Node* tmp = *node;
     *node = (*node)->right;
     (*node)->parent = tmp->parent;
+    Color deleted_color = tmp->color;
 
     if(tmp->elem != NULL) {
       free(tmp->elem);
     }
     free(tmp);
 
-    return;
+    if(deleted_color == BLACK)  {
+      return *node;
+    } else {
+      return NULL;
+    }
   }
 
   Node** max_left_ptr = Node_find_max(&(*node)->left);
   Node_move_key_value(*node, *max_left_ptr);
-  Node_delete(max_left_ptr);
+  return Node_delete(max_left_ptr);
 }
 
 static void Node_tree_free(Node* node) {
@@ -291,6 +299,71 @@ static void Dictionary_rb_right_rotate(Dictionary dictionary, Node* node) {
   }
 }
 
+static int Dictionary_rb_delete_fixup_cases(Node* w) {
+  if(w->color == RED) {
+    return 1;
+  }
+
+  if(w==_nil || (w->left->color == BLACK && w->right->color == BLACK)) {
+    return 2;
+  }
+
+  if(w->right->color == BLACK) {
+    return 3;
+  }
+
+  return 4;
+}
+
+static Node* Dictionary_rb_delete_fixup_local(
+          Dictionary dictionary,
+          Node* x,
+          Node* (*left)(Node*),
+          Node* (*right)(Node*),
+          void (*left_rotate)(Dictionary, Node*),
+          void (*right_rotate)(Dictionary, Node*)) {
+  Node* w;
+  w = right(x->parent);
+  switch(Dictionary_rb_delete_fixup_cases(w)) {
+    case 1:
+      w->color = BLACK;
+      x->parent->color = RED;
+      left_rotate(dictionary, x->parent);
+      w = right(x->parent);
+      // it falls through 2
+    case 2:
+      w->color = RED;
+      x = x->parent;
+      break;
+    case 3:
+      left(w)->color = BLACK;
+      w->color = RED;
+      right_rotate(dictionary, w);
+      w = right(x->parent);
+      // it falls through 4
+    case 4:
+      w->color = x->parent->color;
+      x->parent->color = BLACK;
+      right(w)->color = BLACK;
+      left_rotate(dictionary, x->parent);
+      x = dictionary->root;
+      break;
+  }
+  return x;
+}
+
+static void Dictionary_rb_delete_fixup(Dictionary dictionary, Node* x) {
+  while( x != dictionary->root && x->color != RED ) {
+    if(x==x->parent->left) {
+      x = Dictionary_rb_delete_fixup_local(dictionary, x, Node_left, Node_right, Dictionary_rb_left_rotate, Dictionary_rb_right_rotate);
+    } else {
+      x = Dictionary_rb_delete_fixup_local(dictionary, x, Node_right, Node_left, Dictionary_rb_right_rotate, Dictionary_rb_left_rotate);
+    }
+  }
+
+  x->color = BLACK;
+}
+
 
 static Node* Dictionary_rb_insert_fixup_local(
             Dictionary dictionary, Node* z,
@@ -362,7 +435,10 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
     return;
   }
 
-  Node_delete(node_ptr);
+  Node* node = Node_delete(node_ptr);
+  if(node) {
+    Dictionary_rb_delete_fixup(dictionary, node);
+  }
   dictionary->size -= 1;
 }
 
