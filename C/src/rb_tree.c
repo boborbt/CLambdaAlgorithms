@@ -109,6 +109,12 @@ static Node* Node_right(Node* node) {
   return node->right;
 }
 
+// Sets properties of the given node. In particular, the parent, left and right
+// pointers are set as specified. Note that the left and right parents are also
+// set to point to the given node, while the parent node pointer is *not*
+// updated to point to node (it cannot be done in this method because the
+// parameters provide no information  about wheter node should be the left or
+// the right child of parent).
 static void Node_set(Node* node, Node* parent, Node* left, Node* right) {
   node->parent = parent;
 
@@ -119,7 +125,18 @@ static void Node_set(Node* node, Node* parent, Node* left, Node* right) {
   node->right->parent = node;
 }
 
+// Given a node accesses its parent to find which of his children is x. Then
+// returns a pointer to that branch. That pointer can be then used to reassign
+// that branch to another node.
+static Node** Node_parent_ptr_to(Node* x) {
+  if(x->parent->left == x) {
+    return &x->parent->left;
+  } else {
+    return &x->parent->right;
+  }
+}
 
+// Just like Node_find, but fills parent with a pointer to the parent of the found node.
 static Node** Node_find_with_parent(Node** root, const void* key, KeyInfo keyInfo, Node** parent) {
   (*parent) = _nil;
   Node** node_ptr = root;
@@ -157,6 +174,7 @@ static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   return Node_find_with_parent(root, key, keyInfo, &parent);
 }
 
+// RB tree leaves are _nil sentinels.
 static int Node_is_leaf(Node* node) {
   return node == _nil;
 }
@@ -246,11 +264,7 @@ static void Dictionary_rb_left_rotate(Dictionary dictionary, Node* node) {
   Node* b = y->left;
   Node* c = y->right;
 
-  if(x->parent->left == x) {
-    x->parent->left = y;
-  } else {
-    x->parent->right = y;
-  }
+  *Node_parent_ptr_to(x) = y;
 
   Node_set(y, x->parent, x, c);
   Node_set(x, y, a, b);
@@ -267,11 +281,7 @@ static void Dictionary_rb_right_rotate(Dictionary dictionary, Node* node) {
   Node* b = x->right;
   Node* c = y->right;
 
-  if(y->parent->left == y) {
-    y->parent->left = x;
-  } else {
-    y->parent->right = x;
-  }
+  *Node_parent_ptr_to(y) = x;
 
   Node_set(x, y->parent, a, y);
   Node_set(y, x, b, c);

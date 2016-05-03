@@ -124,6 +124,7 @@ static void test_dictionary_insertions() {
   assert_equal( (long) Dictionary_size(dictionary), 7l);
   assert_true( Dictionary_check_rb_properties(dictionary) );
 
+  assert_true( Dictionary_check_parents_structure(dictionary) );
 
   Dictionary_free(dictionary);
 }
