@@ -227,6 +227,5 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
 }
 
 int Dictionary_check_integrity(Dictionary dictionary) {
-  // to be implemented: the test below is just to avoid unused parameter warning.
-  return dictionary->root != NULL;
+  return dictionary->size == 0 || dictionary->root != NULL;
 }
