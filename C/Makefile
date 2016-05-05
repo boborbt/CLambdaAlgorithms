@@ -133,6 +133,11 @@ experiment2:
 	Esercizio2/bin/measure_times_st 2 ../../DatasetsGenerators/records/records.csv
 	Esercizio2/bin/measure_times_st 3 ../../DatasetsGenerators/records/records.csv
 
+	Esercizio2/bin/measure_times_rb 1 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_rb 2 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_rb 3 ../../DatasetsGenerators/records/records.csv
+
+
 experiment3:
 	Esercizio3/bin/measure_times -d ../../DatasetsGenerators/cities/italian_dist_graph.csv torino catania
 	Esercizio3/bin/measure_times -c ../../DatasetsGenerators/cities/italian_dist_graph.csv
