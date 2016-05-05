@@ -331,14 +331,17 @@ static Node* Dictionary_rb_delete_fixup_local(
           void (*left_rotate)(Dictionary, Node*),
           void (*right_rotate)(Dictionary, Node*)) {
   Node* w;
-  // x->parent may change after rotations (due to the fact that the rotation
-  // may involve shared sentinels: when x is a sentinel, and the rotation
-  // changes the sentinel parent, x parent would unexpectedly change). We
+  // x->parent may change after rotations even when the rotation should not.
+  // This may happen due to the fact that the rotation may involve shared
+  // sentinels: when x is a sentinel, and the rotation rotate another node
+  // which is itself a sentinel, then x parent may unexpectedly change). We
   // save the pointer here to avoid the problem later on.
   Node* x_parent = x->parent;
   w = right(x_parent);
 
-  cases:
+  cases:  // label. it is used in case 2 since after case 2 cases 3 and 4 may or
+          // may not be performed depending on the reevaluation of the
+          // fixup cases.
   switch(Dictionary_rb_delete_fixup_cases(w, right)) {
     case 1:
       Node_set_color(w, BLACK);
@@ -347,7 +350,6 @@ static Node* Dictionary_rb_delete_fixup_local(
       x->parent = x_parent;
       w = right(x->parent);
       goto cases;
-      // it falls through 2
     case 2:
       Node_set_color(w, RED);
       x = x_parent;
@@ -468,11 +470,34 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
   return Node_height(dictionary->root);
 }
 
+static int Dictionary_check_black_path_lengths(Node* node);
+static int Dictionary_check_red_nodes_children_color(Node* node);
+static int Dictionary_check_leaves_are_black(Node* node);
+static int Dictionary_check_root_is_black(Dictionary dictionary);
+
+
+int Dictionary_check_integrity(Dictionary dictionary) {
+  if(Dictionary_empty(dictionary)) {
+    return 1;
+  }
+
+  return
+    Dictionary_check_root_is_black(dictionary) &&
+    Dictionary_check_leaves_are_black(dictionary->root) &&
+    Dictionary_check_red_nodes_children_color(dictionary->root) &&
+    Dictionary_check_black_path_lengths(dictionary->root) != -1;
+}
+
 
 
 // * --------------
 // * Test utility methods
 // * --------------
+
+void Node_print_address(Node* node);
+void Node_dump_colors(Node* node, char* node_name);
+void Node_dump_colors_elem(Node* x, char* node_name);
+
 
 static int Dictionary_check_root_is_black(Dictionary dictionary) {
   if(dictionary->root->color != BLACK) {
@@ -530,18 +555,6 @@ static int Dictionary_check_black_path_lengths(Node* node) {
   return -1;
 }
 
-int Dictionary_check_integrity(Dictionary dictionary) {
-  if(Dictionary_empty(dictionary)) {
-    return 1;
-  }
-
-  return
-    Dictionary_check_root_is_black(dictionary) &&
-    Dictionary_check_leaves_are_black(dictionary->root) &&
-    Dictionary_check_red_nodes_children_color(dictionary->root) &&
-    Dictionary_check_black_path_lengths(dictionary->root) != -1;
-}
-
 
 int Dictionary_check_parents_structure(Dictionary dictionary) {
   if(dictionary->root == _nil) {
@@ -555,8 +568,6 @@ int Dictionary_check_parents_structure(Dictionary dictionary) {
   return Node_check_parents_structure(dictionary->root);
 }
 
-
-void Node_print_address(Node* node);
 
 int Node_check_parents_structure(Node* node) {
   if( node == _nil ) {
@@ -601,12 +612,7 @@ void Node_print_address(Node* node) {
   printf("%p", (void*) node);
 }
 
-
-void Node_dump_colors(Node* node, char* node_name);
-char* Node_color_string(Node* node);
-void Node_dump_colors_elem(Node* x, char* node_name);
-
-char* Node_color_string(Node* node) {
+static char* Node_color_string(Node* node) {
   if(node == _nil) {
     return "*BLACK";
   }

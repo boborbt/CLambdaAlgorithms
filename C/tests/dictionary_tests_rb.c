@@ -227,7 +227,6 @@ static void test_dictionary_delete_red_leaf() {
   Dictionary_set(dictionary, (void*) 15l, (void*) 15l);
 
   Dictionary_delete(dictionary, (void*)15l );
-  Dictionary_dump(dictionary, print_key_value);
   assert_true( Dictionary_check_parents_structure(dictionary) );
   assert_true( Dictionary_check_integrity(dictionary) );
 }
