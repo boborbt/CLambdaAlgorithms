@@ -45,7 +45,7 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   it->stack = Stack_new(MAX_STACK_SIZE);
 
   if(!Dictionary_empty(dictionary)) {
-    Stack_push(it->stack, dictionary->root);    
+    Stack_push(it->stack, dictionary->root);
   }
   return it;
 }
@@ -224,4 +224,9 @@ unsigned int Dictionary_size(Dictionary dictionary) {
 
 double Dictionary_efficiency_score(Dictionary dictionary) {
   return Node_height(dictionary->root);
+}
+
+int Dictionary_check_integrity(Dictionary dictionary) {
+  // to be implemented: the test below is just to avoid unused parameter warning.
+  return dictionary->root != NULL;
 }

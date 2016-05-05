@@ -276,3 +276,8 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
 
   return (double) sum_len / buckets_count;
 }
+
+int Dictionary_check_integrity(Dictionary dictionary) {
+  // to be implemented. The following test is just to avoid param unused warning.
+  return dictionary->table != NULL;
+}

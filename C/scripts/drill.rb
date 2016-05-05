@@ -3,5 +3,9 @@ require "YAMl"
 
 yaml = YAML.load(File.read(ARGV[0]))
 
-key, value = ARGV[1].split(':')
-puts yaml.reject { |exp| exp[key].to_s != value }.to_yaml
+ARGV[1..-1].each do |arg|
+  key, value = arg.split(':')
+  yaml = yaml.reject { |exp| exp[key].to_s != value }
+end
+
+puts yaml.to_yaml

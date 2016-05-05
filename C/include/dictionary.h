@@ -40,6 +40,9 @@ int Dictionary_empty(Dictionary dictionary);
 // working in optimal settings, and higher for degenerate situations.
 double Dictionary_efficiency_score(Dictionary);
 
+// Returns 1 if the dictionary integrity is ok. Return 0 otherwise.
+int Dictionary_check_integrity(Dictionary);
+
 // -------------------------------------
 // Iterator interface to the dictionary
 // -------------------------------------

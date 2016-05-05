@@ -8,7 +8,6 @@
 #include "print_time.h"
 
 
-
 static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
   unsigned int size = Dataset_size(dataset);
@@ -136,12 +135,17 @@ int main(int argc, char* argv[]) {
 
   PrintTime_print(pt, "Dictionary_elem_deletion", ^{
     printf("Making 1_000_000 deletions\n");
+    assert(Dictionary_check_integrity(dictionary));
+
     unsigned int size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
       unsigned int index = (unsigned int)(drand48() * size);
       Record* record = records[index];
+
       Dictionary_delete(dictionary, record);
     }
+
+    assert(Dictionary_check_integrity(dictionary));
     printf("Dictionary size: %d\n", Dictionary_size(dictionary));
   });
 
