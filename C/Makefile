@@ -13,7 +13,7 @@ clean:
 	$(MAKE) -C Esercizio3 clean
 	$(RM) -f lib/*.a
 	$(RM) -f build/*.o
-	$(RM) -f bin/*
+	$(RM) -rf bin/*
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 

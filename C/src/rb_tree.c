@@ -331,7 +331,9 @@ static Node* Dictionary_rb_delete_fixup_local(
           void (*left_rotate)(Dictionary, Node*),
           void (*right_rotate)(Dictionary, Node*)) {
   Node* w;
-  // x->parent may change after rotations even when the rotation should not.
+  // x->parent may change after rotations even when the rotation should not have
+  // this effect.
+  //
   // This may happen due to the fact that the rotation may involve shared
   // sentinels: when x is a sentinel, and the rotation rotate another node
   // which is itself a sentinel, then x parent may unexpectedly change). We
@@ -342,10 +344,9 @@ static Node* Dictionary_rb_delete_fixup_local(
   switch(Dictionary_rb_delete_fixup_cases(w, right)) {
     case 1:
       Node_set_color(w, BLACK);
-      Node_set_color(x_parent, RED);
-      left_rotate(dictionary, x_parent);
-      x->parent = x_parent;
+      Node_set_color(x->parent, RED);
       w = right(x->parent);
+      left_rotate(dictionary, x->parent);
       break;
     case 2:
       Node_set_color(w, RED);
