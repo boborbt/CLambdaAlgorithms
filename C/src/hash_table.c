@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #define HASH_TABLE_INITIAL_CAPACITY 4096
+#define HASH_TABLE_CAPACITY_MIN_MULTIPLIER 2
+#define HASH_TABLE_CAPACITY_MAX_MULTIPLIER 4
+#define HASH_TABLE_CAPACITY_MULTIPLIER 2
 
 // Internal list implementation. It could be abstracted and moved into
 // a separate module (not done since currently used only in this module).
@@ -176,8 +179,7 @@ void Dictionary_free(Dictionary dictionary) {
 // Reallocate the items in the current dictionary doubling the number of
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
-static void Dictionary_realloc(Dictionary dictionary) {
-  unsigned int new_capacity = dictionary->capacity * 2;
+static void Dictionary_realloc(Dictionary dictionary, unsigned int new_capacity) {
   List* new_table = (List*) calloc(new_capacity, sizeof(List));
 
   DictionaryIterator it = DictionaryIterator_new(dictionary);
@@ -201,8 +203,8 @@ static void Dictionary_realloc(Dictionary dictionary) {
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
 void Dictionary_set(Dictionary dictionary, void* key, void* value) {
-  if(dictionary->capacity < dictionary->size / 2) {
-    Dictionary_realloc(dictionary);
+  if(dictionary->capacity < dictionary->size * HASH_TABLE_CAPACITY_MIN_MULTIPLIER) {
+    Dictionary_realloc(dictionary, dictionary->capacity * HASH_TABLE_CAPACITY_MULTIPLIER);
   }
 
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
@@ -258,6 +260,11 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
 
   dictionary->size -= 1;
   List_delete_node(list_ptr);
+
+  if(dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
+     dictionary->capacity > dictionary->size * HASH_TABLE_CAPACITY_MAX_MULTIPLIER ) {
+    Dictionary_realloc(dictionary, dictionary->capacity / HASH_TABLE_CAPACITY_MULTIPLIER);
+  }
 }
 
 unsigned int Dictionary_size(Dictionary dictionary) {

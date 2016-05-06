@@ -339,9 +339,6 @@ static Node* Dictionary_rb_delete_fixup_local(
   Node* x_parent = x->parent;
   w = right(x_parent);
 
-  cases:  // label. it is used in case 2 since after case 2 cases 3 and 4 may or
-          // may not be performed depending on the reevaluation of the
-          // fixup cases.
   switch(Dictionary_rb_delete_fixup_cases(w, right)) {
     case 1:
       Node_set_color(w, BLACK);
@@ -349,7 +346,7 @@ static Node* Dictionary_rb_delete_fixup_local(
       left_rotate(dictionary, x_parent);
       x->parent = x_parent;
       w = right(x->parent);
-      goto cases;
+      break;
     case 2:
       Node_set_color(w, RED);
       x = x_parent;
