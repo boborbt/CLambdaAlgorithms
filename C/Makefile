@@ -17,8 +17,8 @@ clean:
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
-lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
-	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/list.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
+	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/list.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
 
 lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
 	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/key_info.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o
@@ -33,8 +33,11 @@ build/search_tree.o: include/dictionary.h src/search_tree.c include/key_info.h
 build/stack.o: src/stack.c include/stack.h
 		$(CC) $(CFLAGS) -c src/stack.c -o build/stack.o
 
-build/hash_table.o: include/dictionary.h src/hash_table.c include/key_info.h
+build/hash_table.o: include/dictionary.h src/hash_table.c include/key_info.h include/list.h
 	$(CC) $(CFLAGS) -c src/hash_table.c -o build/hash_table.o
+
+build/list.o: include/list.h src/list.c
+	$(CC) $(CFLAGS) -c src/list.c -o build/list.o
 
 build/rb_tree.o: include/dictionary.h src/rb_tree.c include/key_info.h
 	$(CC) $(CFLAGS) -c src/rb_tree.c -o build/rb_tree.o
@@ -116,6 +119,9 @@ bin/dictionary_tests_rb: tests/dictionary_tests_rb.c lib/libcontainers_rb.a
 
 bin/graph_tests: tests/graph_tests.c lib/libcontainers_st.a
 	$(CC) $(CFLAGS) $(LDFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st
+
+bin/list_tests: tests/list_tests.c lib/libcontainers_hash.a
+	$(CC) $(CFLAGS) $(LDFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash
 
 
 

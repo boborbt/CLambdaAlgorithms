@@ -1,17 +1,11 @@
 #include "dictionary.h"
 #include <stdlib.h>
+#include "list.h"
 
 #define HASH_TABLE_INITIAL_CAPACITY 4096
 #define HASH_TABLE_CAPACITY_MIN_MULTIPLIER 2
 #define HASH_TABLE_CAPACITY_MAX_MULTIPLIER 4
 #define HASH_TABLE_CAPACITY_MULTIPLIER 2
-
-// Internal list implementation. It could be abstracted and moved into
-// a separate module (not done since currently used only in this module).
-typedef struct _List {
-  Elem elem;
-  struct _List* next;
-}* List;
 
 /* --------------------------
  * Opaque structures definitions
@@ -36,6 +30,10 @@ static Elem Elem_new(void* key, void* value) {
   result->key = key;
   result->value = value;
   return result;
+}
+
+static const void* Elem_key(const Elem elem) {
+  return elem->key;
 }
 
 static void Elem_free(Elem elem) {
@@ -67,12 +65,12 @@ int DictionaryIterator_end(DictionaryIterator it)  {
 }
 
 Elem DictionaryIterator_get(DictionaryIterator it) {
-  return it->cur_list_element->elem;
+  return List_get(it->cur_list_element);
 }
 
 void DictionaryIterator_next(DictionaryIterator it) {
   if(it->cur_list_element != NULL) {
-    it->cur_list_element = it->cur_list_element->next;
+    it->cur_list_element = List_next(it->cur_list_element);
     if(it->cur_list_element != NULL) {
         return;
     }
@@ -84,78 +82,17 @@ void DictionaryIterator_next(DictionaryIterator it) {
   }
 }
 
-/* --------------------------
- * List implementation
- * -------------------------- */
 
-static unsigned int List_length(List list) {
-  unsigned int count = 0;
-  while(list != NULL) {
-    count += 1;
-    list = list->next;
-  }
-
-  return count;
-}
-
-static List List_insert(List list, Elem elem) {
-  List new_node = (List) malloc(sizeof(struct _List));
-  new_node->elem = elem;
-  new_node->next = list;
-
-  return new_node;
-}
-
-static void List_free(List list, int free_elems) {
-  while(list!=NULL) {
-    List tmp = list->next;
-    if(free_elems) {
-      Elem_free(list->elem);
-    }
-    free(list);
-    list = tmp;
-  }
-}
-
-static Elem List_find(List list, const void* key, KeyInfo keyInfo) {
-  while(list != NULL && KeyInfo_comparator(keyInfo)(key, list->elem->key) != 0) {
-    list = list->next;
-  }
-
-  if(list==NULL) {
-    return NULL;
-  }
-
-  return list->elem;
-}
-
-static List* List_find_node(List* list_ptr, const void* key, KeyInfo keyInfo) {
-  if(*list_ptr == NULL) {
-    return NULL;
-  }
-
-  while( (*list_ptr) != NULL && KeyInfo_comparator(keyInfo)(key, (*list_ptr)->elem->key) != 0 ) {
-    list_ptr = &(*list_ptr)->next;
-  }
-
-  return list_ptr;
-}
-
-static void List_delete_node(List* list_ptr) {
-  List tmp = *list_ptr;
-  *list_ptr = (*list_ptr)->next;
-  free(tmp);
-}
 
 /* --------------------------
  * Dictionary implementation
  * -------------------------- */
 
-static void Dictionary_free_lists(Dictionary dictionary, int free_elems) {
+static void Dictionary_free_lists(Dictionary dictionary, void (*elem_free)(void*)) {
   unsigned int capacity = dictionary->capacity;
   for(unsigned int i=0; i<capacity; ++i) {
     if(dictionary->table[i]!=NULL) {
-      List_free(dictionary->table[i], free_elems);
+      List_free(dictionary->table[i], elem_free);
     }
   }
 }
@@ -171,7 +108,7 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
 }
 
 void Dictionary_free(Dictionary dictionary) {
-  Dictionary_free_lists(dictionary, 1);
+  Dictionary_free_lists(dictionary, (void (*)(void*)) Elem_free);
   free(dictionary->table);
   free(dictionary);
 }
@@ -209,7 +146,9 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
-  Elem elem = List_find(dictionary->table[index], key, dictionary->keyInfo );
+  Elem elem = List_find_wb(dictionary->table[index], key, ^int (const void* key1, const void* key2) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
+    });
   if(elem != NULL) {
     elem->key = key;
     elem->value = value;
@@ -227,7 +166,9 @@ static Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
     return 0;
   }
 
-  return List_find(dictionary->table[index], key, dictionary->keyInfo );
+  return List_find_wb(dictionary->table[index], key, ^int(const void* key1, const void* key2) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
+    });
 }
 
 
@@ -253,7 +194,9 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
     return;
   }
 
-  List* list_ptr = List_find_node(&dictionary->table[index], key, dictionary->keyInfo);
+  List* list_ptr = List_find_node_wb(&dictionary->table[index], key, ^int(const void* key1, const void* key2) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
+    });
   if(*list_ptr == NULL) {
     return;
   }
