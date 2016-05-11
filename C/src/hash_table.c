@@ -146,10 +146,12 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 
   unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
-  Elem elem = List_find_wb(dictionary->table[index], key, ^int (const void* key1, const void* key2) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
+  List* list_elem = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem) elem));
     });
-  if(elem != NULL) {
+
+  if(*list_elem != NULL) {
+    Elem elem = List_get(*list_elem);
     elem->key = key;
     elem->value = value;
     return;
@@ -166,9 +168,15 @@ static Elem Dictionary_get_elem(Dictionary dictionary, const void* key) {
     return 0;
   }
 
-  return List_find_wb(dictionary->table[index], key, ^int(const void* key1, const void* key2) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
+  List* list_elem = List_find_wb(&dictionary->table[index], ^int(const void* elem) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem) elem));
     });
+
+  if(list_elem == NULL) {
+    return NULL;
+  } else {
+    return List_get(*list_elem);
+  }
 }
 
 
@@ -194,9 +202,10 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
     return;
   }
 
-  List* list_ptr = List_find_node_wb(&dictionary->table[index], key, ^int(const void* key1, const void* key2) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key1, Elem_key(key2));
-    });
+  List* list_ptr = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
+      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem) elem));
+  });
+
   if(*list_ptr == NULL) {
     return;
   }

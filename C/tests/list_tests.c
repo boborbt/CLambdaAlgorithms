@@ -44,23 +44,29 @@ static void test_list_insertion() {
 static void test_list_find_wb() {
   List list = build_fixtures();
 
-  void* elem = List_find_wb(list, "4", ^int(const void* key1, const void* key2) {
-    return strcmp(key1, key2);
+  List* list_elem = List_find_wb(&list,  ^int(const void* elem) {
+    return strcmp(elem, "4");
   });
 
-  assert_not_null(elem);
+  assert_not_null(list_elem);
+  assert_not_null(*list_elem);
 
-  assert_true(strcmp(elem, "4")==0);
+  assert_true(strcmp(List_get(*list_elem), "4")==0);
+}
+
+int select_str(const char* str) {
+  return strcmp(str, "4");
 }
 
 static void test_list_find() {
   List list = build_fixtures();
 
-  void* elem = List_find(list, "4", (int (*)(const void*, const void*)) strcmp);
+  List* list_elem = List_find(&list, (int (*)(const void*)) select_str);
 
-  assert_not_null(elem);
+  assert_not_null(list_elem);
+  assert_not_null(*list_elem);
 
-  assert_true(strcmp(elem, "4")==0);
+  assert_true(strcmp(List_get(*list_elem), "4")==0);
 
 }
 
