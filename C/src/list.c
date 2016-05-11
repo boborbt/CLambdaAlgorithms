@@ -57,32 +57,6 @@ void List_free(List list, void (*elem_free)(void*)) {
   }
 }
 
-
-
-// void* List_find_wb(List list, const void* key, int (^elem_comparator)(const void*, const void*)) {
-//   while(list != NULL && elem_comparator(key, list->elem) != 0) {
-//     list = list->next;
-//   }
-//
-//   if(list==NULL) {
-//     return NULL;
-//   }
-//
-//   return list->elem;
-// }
-//
-//
-//
-// void* List_find(List list, const void* key, int (*elem_comparator)(const void*, const void*)) {
-//   return List_find_wb(list, key, ^ int (const void* key1, const void* key2){
-//     return elem_comparator(key1, key2);
-//   });
-// }
-
-
-
-
-
 List* List_find_wb(List* list_ptr,  int (^elem_selector)(const void*)) {
   if(*list_ptr == NULL) {
     return list_ptr;

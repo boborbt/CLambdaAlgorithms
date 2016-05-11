@@ -7,10 +7,16 @@
 // Opaque type definition
 typedef struct _List* List;
 
-// Constructor and destructors
+// Constructor
 List List_new(void);
+
+// Given a pointer to a list, delete the head node from the pointed list and
+// update the pointer to point to the new head.
 void List_delete_node(List* list_ptr);
-void List_free(List list, void (*Elem_free)(void*));
+
+// Frees the list. If elem_free is not null each element is passed to
+// elem_free so to allow user clean-up of the element before deallocing the node.
+void List_free(List list, void (*elem_free)(void*));
 
 // Iterator
 List List_next(List list);
@@ -27,18 +33,12 @@ unsigned int List_length(List list);
 // list = List_insert(list, new_elem);
 List List_insert(List list, void* elem);
 
-// // Finds an element based on the given key and a comparator function. The function
-// // returns the element in the list such that elem_conparator(key, elem) == 0.
-// void* List_find(List list, const void* key, int (*elem_comparator)(const void*, const void*));
-//
-// // Finds with block. Finds an element based on the given key and a comparator
-// // lambda. The function returns the element in the list such that
-// // elem_conparator(key, elem) == 0.
-// void* List_find_wb(List list, const void* key, int (^elem_comparator)(const void*, const void*));
-
-// Finds the node of the list containing an element having the given key.
-// It's identical to List_find with the exception that the whole list node is
-// returned (instead of the element contained in the node)
+// Returns a pointer to the sublist whose head satisfies elem_selector(elem)==1.
+// Notice that this method requires a pointer to a list and returns a pointer
+// to the sublist, while most of the other methods require and return lists
+// (not pointers to them). This is necessary to allow the returned element to
+// be used to delete list nodes.
 List* List_find(List* list_ptr, int (*elem_selector)(const void*));
 
+// Identical to List_find, but accept a block instead of a function.
 List* List_find_wb(List* list_ptr, int (^elem_comparator)(const void*));
