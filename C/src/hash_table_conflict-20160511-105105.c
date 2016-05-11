@@ -169,7 +169,7 @@ static Elem* Dictionary_get_elem(Dictionary dictionary, const void* key) {
   }
 
   List* list_elem = List_find_wb(&dictionary->table[index], ^int(const void* elem) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
+      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((Elem* const) elem));
     });
 
   if(list_elem == NULL) {

@@ -14,7 +14,7 @@ static void PrintTime_save_dictionary(PrintTime pt, Dictionary dic, const char* 
   DictionaryIterator it = DictionaryIterator_new(dic);
 
   while(!DictionaryIterator_end(it)) {
-    Elem elem = DictionaryIterator_get(it);
+    Elem* elem = DictionaryIterator_get(it);
     fprintf(pt->file, "%s%s: %lf\n", padding, elem->key, DoubleContainer_get((DoubleContainer)elem->value));
     DictionaryIterator_next(it);
   }
@@ -27,7 +27,7 @@ static void PrintTime_save_header(PrintTime pt, Dictionary header) {
   DictionaryIterator it = DictionaryIterator_new(header);
 
   while(!DictionaryIterator_end(it)) {
-    Elem elem = DictionaryIterator_get(it);
+    Elem* elem = DictionaryIterator_get(it);
     fprintf(pt->file, "  %s: %s\n", elem->key, elem->value);
     DictionaryIterator_next(it);
   }

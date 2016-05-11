@@ -54,7 +54,7 @@ static void test_list_find_wb() {
   assert_true(strcmp(List_get(*list_elem), "4")==0);
 }
 
-int select_str(const char* str) {
+static int select_str(const char* str) {
   return strcmp(str, "4");
 }
 

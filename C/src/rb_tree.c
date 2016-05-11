@@ -9,7 +9,7 @@ typedef enum {
 } Color;
 
 typedef struct _Node {
-  Elem elem;
+  Elem* elem;
   struct _Node* left;
   struct _Node* right;
   struct _Node* parent;
@@ -69,7 +69,7 @@ int DictionaryIterator_end(DictionaryIterator it) {
   return Stack_empty(it->stack);
 }
 
-Elem DictionaryIterator_get(DictionaryIterator it) {
+Elem* DictionaryIterator_get(DictionaryIterator it) {
   return ((Node*)Stack_top(it->stack))->elem;
 }
 
@@ -92,7 +92,7 @@ static Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = _nil;
   result->right = _nil;
-  result->elem = (Elem) malloc(sizeof(struct _Elem));
+  result->elem = (Elem*) malloc(sizeof(struct _Elem*));
   result->elem->key = key;
   result->elem->value = value;
   result->color = RED;

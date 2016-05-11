@@ -172,7 +172,7 @@ void EdgeIterator_next(EdgeIterator it) {
 }
 
 EdgeInfo EdgeIterator_get(EdgeIterator it) {
-  Elem keyValue = DictionaryIterator_get(it->dic_it);
+  Elem* keyValue = DictionaryIterator_get(it->dic_it);
 
   EdgeInfo result;
   result.vertex = keyValue->key;
