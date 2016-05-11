@@ -31,14 +31,14 @@ static void test_list_insertion() {
   list = List_insert(list, "1");
   assert_not_null(list);
   assert_true(!strcmp(List_get(list), "1"));
-  assert_equal((unsigned long) List_length(list), (long)1);
+  assert_equal((unsigned long) List_length(list), 1l);
 
   list = List_insert(list, "2");
   assert_not_null(list);
   assert_not_null(List_next(list));
   assert_true(strcmp(List_get(list), "2")==0);
   assert_true(strcmp(List_get(List_next(list)), "1")==0);
-  assert_equal((unsigned long) List_length(list), (long)2);
+  assert_equal((unsigned long) List_length(list), 2l);
 }
 
 static void test_list_find_wb() {
@@ -70,7 +70,29 @@ static void test_list_find() {
 
 }
 
+static long delete_elem(void* elem) {
+  static long count = 0;
 
+  if(elem) {
+    count++;
+  }
+
+  return count;
+}
+
+static void test_list_delete_node() {
+  List list = build_fixtures();
+
+  List_delete_node(&list);
+  assert_true(!strcmp(List_get(list), "21") );
+}
+
+static void test_list_free_with_delete_elem() {
+  List list = build_fixtures();
+
+  List_free(list, (void (*)(void*)) delete_elem);
+  assert_equal(delete_elem(NULL), 8l);
+}
 
 int main() {
   start_tests("lists");
@@ -78,6 +100,8 @@ int main() {
   test(test_list_insertion);
   test(test_list_find_wb);
   test(test_list_find);
+  test(test_list_delete_node);
+  test(test_list_free_with_delete_elem);
   end_tests();
 
   return 0;
