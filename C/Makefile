@@ -107,22 +107,22 @@ tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/d
 	bin/list_tests
 
 bin/sorting_tests: tests/sorting_tests.c lib/libcontainers_st.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st
+	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
 
 bin/dictionary_tests_st: tests/dictionary_tests.c lib/libcontainers_st.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_st -lcontainers_st
+	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_st -lcontainers_st $(LDFLAGS)
 
 bin/dictionary_tests_hash: tests/dictionary_tests.c lib/libcontainers_hash.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_hash -lcontainers_hash
+	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_hash -lcontainers_hash $(LDFLAGS)
 
 bin/dictionary_tests_rb: tests/dictionary_tests_rb.c lib/libcontainers_rb.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb
+	$(CC) $(CFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb $(LDFLAGS)
 
 bin/graph_tests: tests/graph_tests.c lib/libcontainers_st.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st
+	$(CC) $(CFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st $(LDFLAGS)
 
 bin/list_tests: tests/list_tests.c lib/libcontainers_hash.a
-	$(CC) $(CFLAGS) $(LDFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash
+	$(CC) $(CFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash $(LDFLAGS)
 
 
 
