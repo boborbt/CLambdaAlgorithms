@@ -88,13 +88,13 @@ build/graph_visiting.o: src/graph_visiting.c include/graph_visiting.h include/gr
 	$(CC) $(CFLAGS) -c src/graph_visiting.c -o build/graph_visiting.o
 
 
-Esercizio1:
+Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	$(MAKE) -C Esercizio1
 
-Esercizio2:
+Esercizio2: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	$(MAKE) -C Esercizio2
 
-Esercizio3:
+Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	$(MAKE) -C Esercizio3
 
 
@@ -126,12 +126,12 @@ bin/list_tests: tests/list_tests.c lib/libcontainers_hash.a
 
 
 
-experiment1:
+experiment1: Esercizio1
 	Esercizio1/bin/measure_times -q ../../DatasetsGenerators/records/records.csv
 	Esercizio1/bin/measure_times -H ../../DatasetsGenerators/records/records.csv
 	Esercizio1/bin/measure_times -m ../../DatasetsGenerators/records/records.csv
 
-experiment2:
+experiment2: Esercizio2
 	Esercizio2/bin/measure_times_hash 1 ../../DatasetsGenerators/records/records.csv
 	Esercizio2/bin/measure_times_hash 2 ../../DatasetsGenerators/records/records.csv
 	Esercizio2/bin/measure_times_hash 3 ../../DatasetsGenerators/records/records.csv
@@ -145,7 +145,7 @@ experiment2:
 	Esercizio2/bin/measure_times_rb 3 ../../DatasetsGenerators/records/records.csv
 
 
-experiment3:
+experiment3: Esercizio 3
 	Esercizio3/bin/measure_times -d ../../DatasetsGenerators/cities/italian_dist_graph.csv torino catania
 	Esercizio3/bin/measure_times -c ../../DatasetsGenerators/cities/italian_dist_graph.csv
 
