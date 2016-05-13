@@ -26,7 +26,7 @@ List List_next(List list);
 void* List_get(List list);
 
 // Returns the length of the given list. This is a O(n) operation.
-unsigned int List_length(List list);
+size_t List_length(List list);
 
 // Inserts a new element in the list and returns a pointer to the new head
 // intended usage is something like:

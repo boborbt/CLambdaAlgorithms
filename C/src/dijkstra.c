@@ -17,8 +17,8 @@ struct _Dijkstra {
   Dictionary distances;
 };
 
-static unsigned int path_len(Dictionary parents, const void* dest) {
-  unsigned int count = 1;
+static size_t path_len(Dictionary parents, const void* dest) {
+  size_t count = 1;
   const void* current = dest;
   void* next;
   if(Dictionary_get(parents, dest, &next) == 0) {
@@ -39,16 +39,16 @@ static unsigned int path_len(Dictionary parents, const void* dest) {
 }
 
 static void** build_path(Dictionary parents, void* dest) {
-  unsigned int len = path_len(parents, dest);
+  size_t len = path_len(parents, dest);
   void** result = (void**) malloc(sizeof(void*)*(len+1));
   result[len] = NULL;
 
   void* current = dest;
   void* next;
   Dictionary_get(parents, current, &next);
-  unsigned int last = len - 1;
+  size_t last = len - 1;
 
-  while(last != (unsigned int)-1) {
+  while(last != (size_t)-1) {
     result[last] = current;
     current = next;
     Dictionary_get(parents, current, &next);

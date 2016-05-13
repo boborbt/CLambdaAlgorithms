@@ -48,26 +48,26 @@ int KeyInfo_double_compare(const void* e1, const void* e2) {
   return 0;
 }
 
-unsigned int KeyInfo_string_hash(const void* e1) {
+size_t KeyInfo_string_hash(const void* e1) {
   const char* str = (const char*) e1;
 
-  unsigned int h = 0;
+  size_t h = 0;
   size_t len = strlen(str);
-  for(unsigned int i=0; i<len; ++i) {
-    unsigned int highorder = h & 0xf8000000;
+  for(size_t i=0; i<len; ++i) {
+    size_t highorder = h & 0xf8000000;
     h = h << 5;                    // shift h left by 5 bits
     h = h ^ (highorder >> 27);     // move the highorder 5 bits to the low-order
-    h = h ^ (unsigned int)str[i];  // XOR h and ki
+    h = h ^ (size_t)str[i];  // XOR h and ki
   }
   return h;
 }
 
-unsigned int KeyInfo_int_hash(const void* e) {
+size_t KeyInfo_int_hash(const void* e) {
   int value = *(const int*)e;
-  return (unsigned int)(value * (value+3));
+  return (size_t)(value * (value+3));
 }
 
-unsigned int KeyInfo_double_hash(const void* e) {
+size_t KeyInfo_double_hash(const void* e) {
   double value = *(const double*) e;
-  return (unsigned int) (value * (value+3));
+  return (size_t) (value * (value+3));
 }

@@ -7,7 +7,7 @@ static void swap(void** e1, void** e2) {
   *e2 = tmp;
 }
 
-static int parent(unsigned int index) {
+static long int parent(size_t index) {
   if(index==0) {
     return -1;
   }
@@ -15,24 +15,24 @@ static int parent(unsigned int index) {
   return (index-1) / 2;
 }
 
-static unsigned int left_child(unsigned int index) {
+static size_t left_child(size_t index) {
   return index * 2 + 1;
 }
 
-static unsigned int right_child(unsigned int index) {
+static size_t right_child(size_t index) {
   return index * 2 + 2;
 }
 
-static void move_down(void** array, unsigned int start, unsigned int end, HSCompareFun compare) {
-  unsigned int root = start;
-  unsigned int left = left_child(root);
+static void move_down(void** array, size_t start, size_t end, HSCompareFun compare) {
+  size_t root = start;
+  size_t left = left_child(root);
   while( left <= end ) {
-    unsigned int swap_index = root;
+    size_t swap_index = root;
     if( compare(array[swap_index], array[left]) < 0) {
       swap_index = left;
     }
 
-    unsigned int right = right_child(root);
+    size_t right = right_child(root);
     if(right <= end && compare(array[swap_index], array[right]) < 0) {
       swap_index = right;
     }
@@ -47,15 +47,15 @@ static void move_down(void** array, unsigned int start, unsigned int end, HSComp
   }
 }
 
-static void heapify(void** array, unsigned int count, HSCompareFun compare) {
-  int start = parent(count-1);
+static void heapify(void** array, size_t count, HSCompareFun compare) {
+  long int start = parent(count-1);
   while(start >= 0) {
-    move_down(array, (unsigned int) start, count-1,   compare);
+    move_down(array, (size_t) start, count-1,   compare);
     start-=1;
   }
 }
 
-void heap_sort(void** array, unsigned int count, HSCompareFun compare) {
+void heap_sort(void** array, size_t count, HSCompareFun compare) {
   if(count == 0) {
     return;
   }

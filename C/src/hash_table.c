@@ -12,14 +12,14 @@
  * -------------------------- */
 struct _Dictionary {
   List* table;
-  unsigned int capacity;
-  unsigned int size;
+  size_t capacity;
+  size_t size;
   KeyInfo keyInfo;
 };
 
 struct _DictionaryIterator {
   Dictionary dictionary;
-  unsigned int cur_index;
+  size_t cur_index;
   List cur_list_element;
 };
 
@@ -89,8 +89,8 @@ void DictionaryIterator_next(DictionaryIterator it) {
  * -------------------------- */
 
 static void Dictionary_free_lists(Dictionary dictionary, void (*elem_free)(void*)) {
-  unsigned int capacity = dictionary->capacity;
-  for(unsigned int i=0; i<capacity; ++i) {
+  size_t capacity = dictionary->capacity;
+  for(size_t i=0; i<capacity; ++i) {
     if(dictionary->table[i]!=NULL) {
       List_free(dictionary->table[i], elem_free);
     }
@@ -116,13 +116,13 @@ void Dictionary_free(Dictionary dictionary) {
 // Reallocate the items in the current dictionary doubling the number of
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
-static void Dictionary_realloc(Dictionary dictionary, unsigned int new_capacity) {
+static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
   List* new_table = (List*) calloc(new_capacity, sizeof(List));
 
   DictionaryIterator it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
     Elem* current = DictionaryIterator_get(it);
-    unsigned int index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
+    size_t index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
     new_table[index] = List_insert(new_table[index], current);
 
     DictionaryIterator_next(it);
@@ -144,7 +144,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
     Dictionary_realloc(dictionary, dictionary->capacity * HASH_TABLE_CAPACITY_MULTIPLIER);
   }
 
-  unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
+  size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
   List* list_elem = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
@@ -163,7 +163,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 
 
 static Elem* Dictionary_get_elem(Dictionary dictionary, const void* key) {
-  unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
+  size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return 0;
   }
@@ -197,7 +197,7 @@ int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
 
 
 void Dictionary_delete(Dictionary dictionary, const void* key) {
-  unsigned int index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
+  size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return;
   }
@@ -219,14 +219,14 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   }
 }
 
-unsigned int Dictionary_size(Dictionary dictionary) {
+size_t Dictionary_size(Dictionary dictionary) {
   return dictionary->size;
 }
 
 double Dictionary_efficiency_score(Dictionary dictionary) {
-  unsigned int sum_len = 0;
-  unsigned int buckets_count = 0;
-  for(unsigned int i=0; i<dictionary->capacity; ++i) {
+  size_t sum_len = 0;
+  size_t buckets_count = 0;
+  for(size_t i=0; i<dictionary->capacity; ++i) {
     if(dictionary->table[i] != NULL) {
       sum_len += List_length(dictionary->table[i]);
       buckets_count += 1;

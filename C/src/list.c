@@ -28,8 +28,8 @@ void* List_get(List list) {
   return list->elem;
 }
 
-unsigned int List_length(List list) {
-  unsigned int count = 0;
+size_t List_length(List list) {
+  size_t count = 0;
   while(list != NULL) {
     count += 1;
     list = list->next;

@@ -2,6 +2,6 @@
 
 typedef int (*QSCompareFun)(const void*, const void*);
 
-void quick_sort(void** array, unsigned int count, QSCompareFun compare);
+void quick_sort(void** array, size_t count, QSCompareFun compare);
 
-void quick_sort_g(void* array, unsigned int count, unsigned int size, QSCompareFun);
+void quick_sort_g(void* array, size_t count, size_t size, QSCompareFun);

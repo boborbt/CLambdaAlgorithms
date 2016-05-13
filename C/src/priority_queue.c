@@ -12,8 +12,8 @@ typedef struct {
 
 struct _PriorityQueue {
   PQElem* array;
-  unsigned int size;
-  unsigned int capacity;
+  size_t size;
+  size_t capacity;
 };
 
 static void PQElem_swap(PQElem* e1, PQElem* e2) {
@@ -22,15 +22,15 @@ static void PQElem_swap(PQElem* e1, PQElem* e2) {
   *e2 = tmp;
 }
 
-static unsigned int PriorityQueue_parent(unsigned int pos) {
+static size_t PriorityQueue_parent(size_t pos) {
   return (pos - 1) / 2;
 }
 
-static unsigned int PriorityQueue_left_child(unsigned int pos) {
+static size_t PriorityQueue_left_child(size_t pos) {
   return pos * 2 + 1;
 }
 
-static unsigned int PriorityQueue_right_child(unsigned int pos) {
+static size_t PriorityQueue_right_child(size_t pos) {
   return pos * 2 + 2;
 }
 
@@ -48,7 +48,7 @@ void PriorityQueue_free(PriorityQueue pq) {
   free(pq);
 }
 
-unsigned int PriorityQueue_size(PriorityQueue pq) {
+size_t PriorityQueue_size(PriorityQueue pq) {
   return pq->size;
 }
 
@@ -60,8 +60,8 @@ static void PriorityQueue_try_realloc(PriorityQueue pq) {
   pq->array = (PQElem*) realloc(pq->array, sizeof(PQElem*) * pq->capacity );
 }
 
-static void PriorityQueue_moveup(PriorityQueue pq, unsigned int pos) {
-  unsigned int parent = PriorityQueue_parent(pos);
+static void PriorityQueue_moveup(PriorityQueue pq, size_t pos) {
+  size_t parent = PriorityQueue_parent(pos);
   while(pos != 0 && pq->array[parent].priority > pq->array[pos].priority) {
     PQElem_swap(&pq->array[parent], &pq->array[pos]);
     pos = parent;
@@ -69,14 +69,14 @@ static void PriorityQueue_moveup(PriorityQueue pq, unsigned int pos) {
   }
 }
 
-static void PriorityQueue_movedown(PriorityQueue pq, unsigned int pos) {
-  unsigned int left = PriorityQueue_left_child(pos);
-  unsigned int right = PriorityQueue_right_child(pos);
+static void PriorityQueue_movedown(PriorityQueue pq, size_t pos) {
+  size_t left = PriorityQueue_left_child(pos);
+  size_t right = PriorityQueue_right_child(pos);
   if(left >= pq->size && right >= pq->size) {
     return;
   }
 
-  unsigned int best;
+  size_t best;
   if(left < pq->size && right < pq->size) {
     best = pq->array[left].priority < pq->array[right].priority ? left : right;
   } else if(left < pq->size) {
@@ -120,7 +120,7 @@ void PriorityQueue_pop(PriorityQueue pq) {
 
 
 void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priority) {
-  unsigned int i;
+  size_t i;
   for(i=0; i<pq->size; ++i) {
     if(pq->array[i].elem == elem) {
       break;

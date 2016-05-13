@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 //
 // Implementation of a priority queue (smaller values first)
 //
@@ -19,7 +21,7 @@ void PriorityQueue_push(PriorityQueue pq, void* elem, double priority);
 int PriorityQueue_empty(PriorityQueue);
 
 // Returns the number of elements in the queue.
-unsigned int PriorityQueue_size(PriorityQueue);
+size_t PriorityQueue_size(PriorityQueue);
 
 // Pops the top element from the queue.
 void PriorityQueue_pop(PriorityQueue);

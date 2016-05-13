@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 // Opaque data structures
 typedef struct _Record Record;
 typedef struct _Dataset Dataset;
@@ -18,9 +20,9 @@ int Dataset_compare_field3_g(const void* e1, const void* e2);
 
 
 // Hash functions based on the three fields defined in Record
-unsigned int Dataset_hash_field1(const void* e);
-unsigned int Dataset_hash_field2(const void* e);
-unsigned int Dataset_hash_field3(const void* e);
+size_t Dataset_hash_field1(const void* e);
+size_t Dataset_hash_field2(const void* e);
+size_t Dataset_hash_field3(const void* e);
 
 // Field accessors
 char* Record_get_field1(Record* record);
@@ -33,11 +35,11 @@ Dataset* Dataset_load(const char* filename);
 void Dataset_free(Dataset* dataset);
 
 // Print on the stdout the first num_records of the given dataset
-void Dataset_print(Dataset* dataset, unsigned int num_records);
+void Dataset_print(Dataset* dataset, size_t num_records);
 
 // Returns the array of records stored in dataset
 Record** Dataset_get_records(Dataset* dataset);
 
 // Returns the size of the dataset (i.e., the number of records stored in
 // this dataset)
-unsigned int Dataset_size(Dataset* size);
+size_t Dataset_size(Dataset* size);

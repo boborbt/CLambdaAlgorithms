@@ -33,7 +33,7 @@ void Graph_add_vertex(Graph graph, void* vertex);
 void Graph_add_edge(Graph graph, void* source, void* dest, void* info);
 
 // Returns the number of vertices in the graph
-unsigned int Graph_size(Graph graph);
+size_t Graph_size(Graph graph);
 
 // Returns an iterator over all vertices in the graph
 VertexIterator Graph_vertices(Graph graph);

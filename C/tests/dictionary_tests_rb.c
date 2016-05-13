@@ -26,9 +26,9 @@ static int compare(const void* left, const void* right) {
   return 0;
 }
 
-static unsigned int hash(const void* elem) {
+static size_t hash(const void* elem) {
   long int k = (long int) elem;
-  return (unsigned int)(k*(k+3));
+  return (size_t)(k*(k+3));
 }
 
 static Dictionary build_fixture_dictionary() {

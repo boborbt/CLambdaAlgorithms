@@ -10,9 +10,9 @@
 
 static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
-  unsigned int size = Dataset_size(dataset);
+  size_t size = Dataset_size(dataset);
 
-  for(unsigned int i=0; i < size; ++i) {
+  for(size_t i=0; i < size; ++i) {
     if(i%1000000 == 0) {
       printf(".");
       fflush(stdout);
@@ -27,8 +27,8 @@ static void print_usage() {
   printf("Usage: measure_time <field index> <file name>\n");
 }
 
-static int char_included(char ch, char chars[], unsigned int size) {
-  for(unsigned int i=0; i<size; ++i) {
+static int char_included(char ch, char chars[], size_t size) {
+  for(size_t i=0; i<size; ++i) {
     if(ch == chars[i]) return 1;
   }
 
@@ -104,31 +104,31 @@ int main(int argc, char* argv[]) {
   });
 
 
-  printf("Dictionary size: %d\n", Dictionary_size(dictionary));
+  printf("Dictionary size: %ld\n", Dictionary_size(dictionary));
   printf("Dictionary efficiency score: %f\n", Dictionary_efficiency_score(dictionary));
 
   PrintTime_print(pt, "Dictionary_iterate", ^{
     printf("Traversing the dictionary...\n");
-    unsigned int count = 0;
+    size_t count = 0;
     DictionaryIterator it = DictionaryIterator_new(dictionary);
     while(!DictionaryIterator_end(it)) {
       count += 1;
       DictionaryIterator_next(it);
     }
-    printf("Counted %d elements\n", count);
+    printf("Counted %ld elements\n", count);
     DictionaryIterator_free(it);
   });
 
   Record** records = Dataset_get_records(dataset);
   PrintTime_print(pt, "Dictionary_elem_access", ^{
     printf("Making 1_000_000 accesses\n");
-    unsigned int size = Dataset_size(dataset);
+    size_t size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
-      unsigned int index = (unsigned int)(drand48() * size);
+      size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
       Record* result = NULL;
       if(!Dictionary_get(dictionary, record, (void**)&result)) {
-        printf("Cannot find record at index %d\n", index);
+        printf("Cannot find record at index %ld\n", index);
       };
     }
   });
@@ -137,16 +137,16 @@ int main(int argc, char* argv[]) {
     printf("Making 1_000_000 deletions\n");
     assert(Dictionary_check_integrity(dictionary));
 
-    unsigned int size = Dataset_size(dataset);
+    size_t size = Dataset_size(dataset);
     for(int i=0; i<1000000; ++i) {
-      unsigned int index = (unsigned int)(drand48() * size);
+      size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
 
       Dictionary_delete(dictionary, record);
     }
 
     assert(Dictionary_check_integrity(dictionary));
-    printf("Dictionary size: %d\n", Dictionary_size(dictionary));
+    printf("Dictionary size: %ld\n", Dictionary_size(dictionary));
   });
 
   KeyInfo_free(keyInfo);

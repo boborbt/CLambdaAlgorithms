@@ -52,7 +52,7 @@ static void test_qsort(Dataset* dataset, PrintTime pt) {
 }
 
 
-static void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(void*, unsigned int, unsigned int, int(*)(const void*, const void*))) {
+static void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
     sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field1_g);
@@ -75,7 +75,7 @@ static void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(void*,
   Dataset_print(dataset, 10);
 }
 
-static void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(void**, unsigned int, int(*)(const void*, const void*))) {
+static void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
   PrintTime_print(pt, "field1", ^{
     printf("Sorting according to field1\n");
     sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
@@ -111,8 +111,8 @@ static void print_usage() {
   printf("       -h print this message\n");
 }
 
-static int char_included(char ch, char chars[], unsigned int size) {
-  for(unsigned int i=0; i<size; ++i) {
+static int char_included(char ch, char chars[], size_t size) {
+  for(size_t i=0; i<size; ++i) {
     if(ch == chars[i]) return 1;
   }
 

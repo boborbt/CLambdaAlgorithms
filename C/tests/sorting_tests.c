@@ -8,7 +8,7 @@
 #include "array_g.h"
 #include <stdio.h>
 
-void partition_3_way(void** array, unsigned int start, unsigned int end, unsigned int pivot_pos, int* p1, int* p2,  QSCompareFun compare);
+void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  QSCompareFun compare);
 
 static int compare(const void* elem1, const void* elem2) {
   long int e1 = (long int) elem1;
@@ -166,8 +166,8 @@ static void test_partition_3_way_case1() {
   long int a[14] = { 1, 10, 3, 4, 10, 2, 10, 25, 22, 10, 11, 10, 9, 10 };
   long int expected[14] = { 1, 9, 3, 4, 2, 10, 10, 10, 10, 10, 10, 11, 22, 25 };
 
-  int p1;
-  int p2;
+  size_t p1;
+  size_t p2;
   partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
   assert_equal( (long)4, (long)p1);
   assert_equal( (long)11, (long)p2);
@@ -180,8 +180,8 @@ static void test_partition_3_way_case2() {
   long int a[14] = { 1, 10, 3, 4, 12, 2, 15, 25, 22, 10, 11, 11, 9, 10 };
   long int expected[14] = { 1, 9, 3, 4, 2, 10, 10, 10, 22, 11, 11, 12, 15, 25 };
 
-  int p1;
-  int p2;
+  size_t p1;
+  size_t p2;
   partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
   assert_equal( (long)4, (long)p1);
   assert_equal( (long)8, (long)p2);
@@ -194,12 +194,12 @@ static void test_partition_3_way_1_pivot() {
   long int a[14] = { 1, 10, 3, 4, 12, 2, 15, 25, 22, 14, 11, 11, 9, 9 };
   long int expected[14] = { 1, 9, 3, 4, 2, 9, 10, 25, 22, 14, 11, 11, 12, 15 };
 
-  int p1;
-  int p2;
+  size_t p1;
+  size_t p2;
   partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
   assert_equal( (long)5, (long)p1);
   assert_equal( (long)7, (long)p2);
-  for(int i=0; i<14; ++i) {
+  for(size_t i=0; i<14; ++i) {
     assert_equal(a[i], expected[i]);
   }
 }
@@ -208,8 +208,8 @@ static void test_partition_3_way_all_pivots() {
   long int a[14] = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
   long int expected[14] = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 };
 
-  int p1;
-  int p2;
+  size_t p1;
+  size_t p2;
   partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
   assert_equal( (long)0, (long)p1);
   assert_equal( (long)14, (long)p2);

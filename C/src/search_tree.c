@@ -12,7 +12,7 @@ typedef struct _Node {
 struct _Dictionary  {
   KeyInfo keyInfo;
   Node* root;
-  unsigned int size;
+  size_t size;
 };
 
 struct _DictionaryIterator {
@@ -217,7 +217,7 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   dictionary->size -= 1;
 }
 
-unsigned int Dictionary_size(Dictionary dictionary) {
+size_t Dictionary_size(Dictionary dictionary) {
   return dictionary->size;
 }
 

@@ -4,8 +4,8 @@
 
 struct _Stack {
   void** array;
-  unsigned int size;
-  unsigned int capacity;
+  size_t size;
+  size_t capacity;
 };
 
 
@@ -43,7 +43,7 @@ int Stack_empty(Stack stack) {
   return stack->size == 0;
 }
 
-Stack Stack_new(unsigned int capacity) {
+Stack Stack_new(size_t capacity) {
   Stack result = (Stack) malloc(sizeof(struct _Stack));
   result->array = (void**) malloc(sizeof(void*) * capacity);
   result->size = 0;

@@ -14,7 +14,7 @@ struct _Record {
 };
 
 struct _Dataset {
-  unsigned int size;
+  size_t size;
   Record** records;
 };
 
@@ -62,31 +62,31 @@ int Dataset_compare_field3_g(const void* e1, const void* e2) {
   return KeyInfo_double_compare(&r1->field3, &r2->field3);
 }
 
-unsigned int Dataset_hash_field1(const void* e1) {
+size_t Dataset_hash_field1(const void* e1) {
   const Record* r1 = (const Record*) e1;
   char* str = r1->field1;
 
-  unsigned int h = 0;
+  size_t h = 0;
   size_t len = strlen(str);
   for(size_t i=0; i<len; ++i) {
-    unsigned int highorder = h & 0xf8000000;
+    size_t highorder = h & 0xf8000000;
     h = h << 5;                    // shift h left by 5 bits
     h = h ^ (highorder >> 27);     // move the highorder 5 bits to the low-order
-    h = h ^ (unsigned int)str[i];                // XOR h and ki
+    h = h ^ (size_t)str[i];                // XOR h and ki
   }
   return h;
 }
 
-unsigned int Dataset_hash_field2(const void* e) {
+size_t Dataset_hash_field2(const void* e) {
   const Record* r = (const Record*) e;
   int value = r->field2;
-  return (unsigned int)(value * (value+3));
+  return (size_t)(value * (value+3));
 }
 
-unsigned int Dataset_hash_field3(const void* e) {
+size_t Dataset_hash_field3(const void* e) {
   const Record* r = (const Record*) e;
   double value = r->field3;
-  return (unsigned int) (value * (value+3));
+  return (size_t) (value * (value+3));
 }
 
 
@@ -148,7 +148,7 @@ Dataset* Dataset_load(const char* filename) {
     }
 
     if(dataset->size >= 20000000) {
-      printf("Trying to read after alloced capacity, currently read %d lines\nnext line:%s", dataset->size, buf);
+      printf("Trying to read after alloced capacity, currently read %ld lines\nnext line:%s", dataset->size, buf);
       exit(1);
     }
 
@@ -158,7 +158,7 @@ Dataset* Dataset_load(const char* filename) {
   free(buf);
 
   if(dataset->size != 20000000) {
-    printf("Warning reading datafile, only %d records successfully read", dataset->size);
+    printf("Warning reading datafile, only %ld records successfully read", dataset->size);
   }
 
   return dataset;
@@ -168,12 +168,12 @@ Record** Dataset_get_records(Dataset* dataset) {
   return dataset->records;
 }
 
-unsigned int Dataset_size(Dataset* dataset) {
+size_t Dataset_size(Dataset* dataset) {
   return dataset->size;
 }
 
 void Dataset_free(Dataset* dataset) {
-  for(unsigned int i=0; i<dataset->size; ++i) {
+  for(size_t i=0; i<dataset->size; ++i) {
     free(dataset->records[i]->field1);
     free(dataset->records[i]);
   }
@@ -182,9 +182,9 @@ void Dataset_free(Dataset* dataset) {
   free(dataset);
 }
 
-void Dataset_print(Dataset* dataset, unsigned int num_records) {
+void Dataset_print(Dataset* dataset, size_t num_records) {
   assert(num_records < dataset->size);
-  for(unsigned int i=0; i<num_records; ++i) {
+  for(size_t i=0; i<num_records; ++i) {
     Record* rec = dataset->records[i];
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   }

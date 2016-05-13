@@ -5,7 +5,7 @@
 #include "unit_testing.h"
 
 static clock_t start_time;
-static unsigned int num_tests;
+static size_t num_tests;
 
 void start_tests(const char* msg) {
   start_time = clock();
@@ -16,7 +16,7 @@ void start_tests(const char* msg) {
 // Ends a testing session
 void end_tests() {
   double elapsed_time = (clock() - start_time)/(double)CLOCKS_PER_SEC;
-  printf("\n%d tests passed in %4.5f seconds\n\n", num_tests, elapsed_time);
+  printf("\n%ld tests passed in %4.5f seconds\n\n", num_tests, elapsed_time);
 }
 
 // Calls a testing function. The given test function should

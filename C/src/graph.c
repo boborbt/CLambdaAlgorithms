@@ -10,7 +10,7 @@
 struct _Graph {
   KeyInfo vertexInfo;
   Dictionary adjacency_matrix;
-  unsigned int size;
+  size_t size;
 };
 
 struct _EdgeIterator {
@@ -72,7 +72,7 @@ void Graph_add_edge(Graph graph, void* source, void* dest,  void* info) {
   Dictionary_set(adj_list, dest, info);
 }
 
-unsigned int Graph_size(Graph graph) {
+size_t Graph_size(Graph graph) {
   return graph->size;
 }
 
