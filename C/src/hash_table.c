@@ -172,7 +172,7 @@ static Elem* Dictionary_get_elem(Dictionary dictionary, const void* key) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
     });
 
-  if(list_elem == NULL) {
+  if(*list_elem == NULL) {
     return NULL;
   } else {
     return List_get(*list_elem);
