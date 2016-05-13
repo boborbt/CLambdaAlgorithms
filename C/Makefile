@@ -100,13 +100,14 @@ Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st
 	$(MAKE) -C Esercizio3
 
 
-tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests
+tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests
 	bin/sorting_tests
 	bin/dictionary_tests_st
 	bin/dictionary_tests_hash
 	bin/dictionary_tests_rb
 	bin/graph_tests
 	bin/list_tests
+	bin/array_tests
 
 bin/sorting_tests: tests/sorting_tests.c lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
@@ -125,6 +126,9 @@ bin/graph_tests: tests/graph_tests.c lib/libcontainers_st.a
 
 bin/list_tests: tests/list_tests.c lib/libcontainers_hash.a
 	$(CC) $(CFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash $(LDFLAGS)
+
+bin/array_tests: tests/array_tests.c lib/libcontainers_st.a
+	$(CC) $(CFLAGS) tests/array_tests.c -o bin/array_tests -lcontainers_st $(LDFLAGS)
 
 
 
@@ -147,7 +151,7 @@ experiment2: Esercizio2
 	Esercizio2/bin/measure_times_rb 3 ../../DatasetsGenerators/records/records.csv
 
 
-experiment3: Esercizio 3
+experiment3: Esercizio3
 	Esercizio3/bin/measure_times -d ../../DatasetsGenerators/cities/italian_dist_graph.csv torino catania
 	Esercizio3/bin/measure_times -c ../../DatasetsGenerators/cities/italian_dist_graph.csv
 

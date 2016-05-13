@@ -23,6 +23,7 @@ Array Array_new(size_t capacity, size_t elem_size) {
   array->carray = (void*) malloc(elem_size * capacity);
   array->size = 0;
   array->capacity = capacity;
+  array->elem_size = elem_size;
   return array;
 }
 
@@ -33,6 +34,7 @@ Array Array_new_by_copying_carray(void* src, size_t size, size_t elem_size ) {
   array->carray = malloc(capacity * elem_size);
   array->capacity = capacity;
   array->size = size;
+  array->elem_size = elem_size;
 
   memcpy(array->carray, src, size * elem_size);
   return array;
@@ -51,7 +53,7 @@ void Array_free(Array array) {
 
 // Accessors
 void* Array_at(Array array, size_t index) {
-  return at_g(array->carray, index, array->elem_size);
+  return *(void**)at_g(array->carray, index, array->elem_size);
 }
 
 void* Array_carray(Array array) {
@@ -60,6 +62,10 @@ void* Array_carray(Array array) {
 
 size_t Array_size(Array array) {
   return array->size;
+}
+
+size_t Array_capacity(Array array) {
+  return array->capacity;
 }
 
 // Setters
@@ -77,12 +83,13 @@ void Array_set_size(Array array, size_t new_size) {
   array->size = new_size;
 }
 
-void Array_set(Array array, size_t index, void* elem) {
+void* Array_set(Array array, size_t index, void* elem) {
   if(index >= array->size) {
     fprintf(stderr, "Array index (%ld) out of bound in array of size (%ld)\n", index, array->size);
     exit(1);
   }
   cp_g(at_g(array->carray, index, array->elem_size), elem, array->elem_size);
+  return elem;
 }
 
 void Array_add(Array array, void* elem) {
