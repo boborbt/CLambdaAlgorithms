@@ -33,13 +33,11 @@ Graph Graph_new(KeyInfo vertexInfo) {
 }
 
 void Graph_free(Graph graph) {
-  DictionaryIterator it = DictionaryIterator_new(graph->adjacency_matrix);
-  while(!DictionaryIterator_end(it)) {
-    Dictionary_free((Dictionary) DictionaryIterator_get(it)->value);
-    DictionaryIterator_next(it);
-  }
+  foreach_dictionary_elem(graph->adjacency_matrix, ^(Elem* elem) {
+    Dictionary_free((Dictionary) elem->value);
+  });
+
   Dictionary_free(graph->adjacency_matrix);
-  DictionaryIterator_free(it);
   free(graph);
 }
 

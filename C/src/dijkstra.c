@@ -59,13 +59,9 @@ static void** build_path(Dictionary parents, void* dest) {
 }
 
 static void cleanup_distances_values(Dictionary distances) {
-  DictionaryIterator it = DictionaryIterator_new(distances);
-  while(!DictionaryIterator_end(it)) {
-    Elem* elem = DictionaryIterator_get(it);
+  foreach_dictionary_elem(distances, ^(Elem* elem) {
     DoubleContainer_free((DoubleContainer) elem->value);
-    DictionaryIterator_next(it);
-  }
-  DictionaryIterator_free(it);
+  });
 }
 
 static void** cleanup_and_build_path(Dijkstra state, void* dest) {
@@ -105,9 +101,7 @@ static void Dijkstra_init_state(Dijkstra state) {
 
 
 static void examine_neighbours(Dijkstra state, void* current, double current_dist) {
-  EdgeIterator neighbours = Graph_adjacents(state->graph, current);
-  for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
-    EdgeInfo edge = EdgeIterator_get(neighbours);
+  foreach_graph_edge_from_iterator(Graph_adjacents(state->graph, current), ^(EdgeInfo edge) {
     void* child = edge.vertex;
     double edge_distance = state->graph_info_to_double(edge.info);
 
@@ -115,7 +109,7 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
     DoubleContainer child_distance;
     int child_found = Dictionary_get(state->distances, child, (void **)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
-      continue;
+      return;
     }
 
     Dictionary_set(state->parents, child, current);
@@ -130,8 +124,7 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
       DoubleContainer_free((DoubleContainer) old_value);
     }
     Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
-  }
-  EdgeIterator_free(neighbours);
+  });
 }
 
 void** Dijkstra_minpath(Dijkstra state, void* source, void* dest) {

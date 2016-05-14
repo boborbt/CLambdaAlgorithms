@@ -109,14 +109,11 @@ int main(int argc, char* argv[]) {
 
   PrintTime_print(pt, "Dictionary_iterate", ^{
     printf("Traversing the dictionary...\n");
-    size_t count = 0;
-    DictionaryIterator it = DictionaryIterator_new(dictionary);
-    while(!DictionaryIterator_end(it)) {
+    __block size_t count = 0;
+    foreach_dictionary_elem(dictionary, ^(__unused Elem* elem) {
       count += 1;
-      DictionaryIterator_next(it);
-    }
+    });
     printf("Counted %ld elements\n", count);
-    DictionaryIterator_free(it);
   });
 
   Record** records = Dataset_get_records(dataset);

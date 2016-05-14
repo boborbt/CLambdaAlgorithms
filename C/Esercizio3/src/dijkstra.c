@@ -59,13 +59,9 @@ static void** build_path(Dictionary parents, void* dest) {
 }
 
 static void cleanup_distances_values(Dictionary distances) {
-  DictionaryIterator it = DictionaryIterator_new(distances);
-  while(!DictionaryIterator_end(it)) {
-    Elem elem = DictionaryIterator_get(it);
+  foreach_dictionary_elem(distances, ^(Elem* elem) {
     DoubleContainer_free((DoubleContainer) elem->value);
-    DictionaryIterator_next(it);
-  }
-  DictionaryIterator_free(it);
+  });
 }
 
 static void** cleanup_and_build_path(Dijkstra state, void* dest) {
