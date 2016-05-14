@@ -53,7 +53,7 @@ void Array_free(Array array) {
 
 // Accessors
 void* Array_at(Array array, size_t index) {
-  return *(void**)at_g(array->carray, index, array->elem_size);
+  return at_g(array->carray, index, array->elem_size);
 }
 
 void* Array_carray(Array array) {

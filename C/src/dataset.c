@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "array.h"
 #include "dictionary.h"
 
 struct _Record {
@@ -14,8 +15,7 @@ struct _Record {
 };
 
 struct _Dataset {
-  size_t size;
-  Record** records;
+  Array records;
 };
 
 
@@ -125,14 +125,11 @@ Dataset* Dataset_load(const char* filename) {
   Dataset* dataset = (Dataset*) malloc(sizeof(Dataset));
   assert(dataset!=NULL);
 
-  // we are cutting some corners here. Assuming the file contains exactly
-  // 20_000_000 records.
-  dataset->records = (Record**) malloc(sizeof(Record*) * 20000000);
+  dataset->records = Array_new(10000, sizeof(Record*));
   assert(dataset->records != NULL);
 
   // field1 is usually small, much smaller than the alloced 2048 characters.
-  dataset->size = 0;
-  char* buf = (char*) malloc(sizeof(char) * 2048 );
+  char* buf = (char*) malloc(sizeof(char)*2048);
   assert(buf != NULL);
 
   size_t buf_len = 2048;
@@ -143,49 +140,45 @@ Dataset* Dataset_load(const char* filename) {
     exit(1);
   }
   while(!feof(file)) {
-    if( getline(&buf, &buf_len, file) == -1 ) {
+    if( getline((char**)&buf, &buf_len, file) == -1 ) {
       break;
     }
-
-    if(dataset->size >= 20000000) {
-      printf("Trying to read after alloced capacity, currently read %ld lines\nnext line:%s", dataset->size, buf);
-      exit(1);
-    }
-
-    dataset->records[dataset->size++] = parse_record(buf);
+    Record* tmp = parse_record(buf);
+    Array_add(dataset->records, &tmp);
   }
   fclose(file);
   free(buf);
 
-  if(dataset->size != 20000000) {
-    printf("Warning reading datafile, only %ld records successfully read", dataset->size);
+  if(Array_size(dataset->records) != 20000000) {
+    printf("Warning reading datafile, only %ld records successfully read", Array_size(dataset->records));
   }
 
   return dataset;
 }
 
 Record** Dataset_get_records(Dataset* dataset) {
-  return dataset->records;
+  return (Record**) Array_carray(dataset->records);
 }
 
 size_t Dataset_size(Dataset* dataset) {
-  return dataset->size;
+  return Array_size(dataset->records);
 }
 
 void Dataset_free(Dataset* dataset) {
-  for(size_t i=0; i<dataset->size; ++i) {
-    free(dataset->records[i]->field1);
-    free(dataset->records[i]);
-  }
+  foreach_array_elem(dataset->records, ^(void* elem) {
+    Record* record = *(Record**) elem;
+    free(record->field1);
+    free(record);
+  });
 
   free(dataset->records);
   free(dataset);
 }
 
 void Dataset_print(Dataset* dataset, size_t num_records) {
-  assert(num_records < dataset->size);
+  assert(num_records < Array_size(dataset->records));
   for(size_t i=0; i<num_records; ++i) {
-    Record* rec = dataset->records[i];
+    Record* rec = *(Record**) Array_at(dataset->records,i);
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   }
 }

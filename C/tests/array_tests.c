@@ -9,8 +9,7 @@ static void* from_int(int elem) {
 
 
 static int to_int(void* p) {
-  long int l_elem = (long int) p;
-  return (int) (l_elem & 0xffffffff);
+  return *(int*) p;
 }
 
 static Array build_fixtures() {
