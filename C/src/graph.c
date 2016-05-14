@@ -197,3 +197,28 @@ void VertexIterator_next(VertexIterator it) {
 void* VertexIterator_get(VertexIterator it) {
   return (void*) DictionaryIterator_get(it->dic_it)->key;
 }
+
+void foreach_graph_edge_from_iterator(EdgeIterator it, void(^callback)(EdgeInfo)) {
+  while(!EdgeIterator_end(it)) {
+    callback(EdgeIterator_get(it));
+    EdgeIterator_next(it);
+  }
+  EdgeIterator_free(it);
+}
+
+void foreach_graph_vertex(Graph graph, void (^callback)(void*)) {
+  VertexIterator it = Graph_vertices(graph);
+  while(!VertexIterator_end(it)) {
+    callback(VertexIterator_get(it));
+    VertexIterator_next(it);
+  }
+  VertexIterator_free(it);
+}
+
+void foreach_graph_edge(Graph graph, void (^callback)(void*, void*, void*)) {
+  foreach_graph_vertex(graph, ^(void* vertex) {
+    foreach_graph_edge_from_iterator(Graph_adjacents(graph, vertex), ^(EdgeInfo edge) {
+      callback(vertex, edge.vertex, edge.info);
+    });
+  });
+}

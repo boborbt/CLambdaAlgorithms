@@ -204,7 +204,31 @@ static void test_dijkstra() {
   free_graph_fixture(graph);
 }
 
+static void test_graph_foreach_edge() {
+  Graph graph = build_graph_fixtures();
+  __block size_t count = 0;
 
+  foreach_graph_edge(graph, ^(void* v1, void* v2, void* info) {
+      assert_not_null(v1);
+      assert_not_null(v2);
+      assert_not_null(info);
+      count+=1;
+  });
+
+  assert_equal(8l, count);
+  Graph_free(graph);
+}
+
+static void test_graph_foreach_vertex() {
+  Graph graph = build_graph_fixtures();
+  __block size_t count = 0;
+  foreach_graph_vertex(graph, ^(void* vertex) {
+    assert_not_null(vertex);
+    count += 1;
+  });
+
+  assert_equal(6l, count);
+}
 
 int main() {
   start_tests("priority queue");
@@ -222,6 +246,11 @@ int main() {
   test(test_graph_add_edge);
   test(test_graph_vertices);
   test(test_graph_adjacencts);
+  end_tests();
+
+  start_tests("iterators");
+  test(test_graph_foreach_vertex);
+  test(test_graph_foreach_edge);
   end_tests();
 
   start_tests("dijkstra");
