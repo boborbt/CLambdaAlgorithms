@@ -144,3 +144,22 @@ int ArrayIterator_end(ArrayIterator it) {
 void* ArrayIterator_get(ArrayIterator it) {
   return Array_at(it->array, it->current_index);
 }
+
+void foreach_array_elem(Array array, void (^callback)(void*)) {
+  ArrayIterator it = ArrayIterator_new(array);
+  while(!ArrayIterator_end(it)) {
+    callback(ArrayIterator_get(it));
+    ArrayIterator_next(it);
+  }
+  ArrayIterator_free(it);
+}
+
+void foreach_array_elem_with_index(Array array, void (^callback)(void*, size_t)) {
+  ArrayIterator it = ArrayIterator_new(array);
+  size_t count = 0;
+  while(!ArrayIterator_end(it)) {
+    callback(ArrayIterator_get(it), count++);
+    ArrayIterator_next(it);
+  }
+  ArrayIterator_free(it);
+}
