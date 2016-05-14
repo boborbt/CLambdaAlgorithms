@@ -184,6 +184,40 @@ static void test_dictionary_iterator_on_empty_dictionary() {
   assert_true( DictionaryIterator_end(it) )
 }
 
+static int find_elem(Elem** elems, size_t size, void* key, void* value) {
+  for(size_t i=0; i<size; ++i) {
+    if(elems[i]->key == key && elems[i]->value == value) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static void test_dictionary_foreach_dictionary_elem() {
+  Dictionary dictionary = build_fixture_dictionary();
+  __block Elem** found_elems = (Elem**) malloc(sizeof(Elem*)*7);
+  __block size_t count = 0;
+
+  foreach_dictionary_elem(dictionary, ^(Elem* elem) {
+    assert_not_equal(7l, count);
+    found_elems[count++] = elem;
+  });
+
+  assert_equal(7l, count);
+
+  assert_true(find_elem(found_elems, 7, (void*) 10l, (void*) -10l));
+  assert_true(find_elem(found_elems, 7, (void*)  5l, (void*)  -5l));
+  assert_true(find_elem(found_elems, 7, (void*) 15l, (void*) -15l));
+  assert_true(find_elem(found_elems, 7, (void*)  7l, (void*)  -7l));
+  assert_true(find_elem(found_elems, 7, (void*) 13l, (void*) -13l));
+  assert_true(find_elem(found_elems, 7, (void*) 11l, (void*) -11l));
+  assert_true(find_elem(found_elems, 7, (void*) 18l, (void*) -18l));
+
+  free(found_elems);
+  Dictionary_free(dictionary);
+}
+
 int main() {
   start_tests("search dictionarys");
   test(test_dictionary_creation);
@@ -202,6 +236,8 @@ int main() {
   test(test_dictionary_get_on_non_present_key);
 
   test(test_dictionary_iterator_on_empty_dictionary);
+
+  test(test_dictionary_foreach_dictionary_elem);
   end_tests();
 
   return 0;
