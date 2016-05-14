@@ -86,7 +86,7 @@ void Array_set_size(Array array, size_t new_size) {
 void* Array_set(Array array, size_t index, void* elem) {
   if(index >= array->size) {
     fprintf(stderr, "Array index (%ld) out of bound in array of size (%ld)\n", index, array->size);
-    exit(1);
+    exit(ARRAY_ERROR_OUT_OF_BOUND_INDEX);
   }
   cp_g(at_g(array->carray, index, array->elem_size), elem, array->elem_size);
   return elem;
@@ -101,17 +101,22 @@ void Array_add(Array array, void* elem) {
 }
 
 void Array_insert(Array array, size_t index, void* elem) {
-  Array_add(array, NULL);
+  if(array->size >= array->capacity) {
+    Array_realloc(array);
+  }
+
   memmove(at_g(array->carray, index+1, array->elem_size),
           at_g(array->carray, index, array->elem_size),
           (array->size - index)*array->elem_size);
+
+  array->size++;
   Array_set(array, index, elem);
 }
 
 void Array_remove(Array array, size_t index) {
-  memmove(at_g(array->carray, index+1, array->elem_size),
-          at_g(array->carray, index, array->elem_size),
-          (array->size - (index+1))*array->elem_size);
+  memmove(at_g(array->carray, index, array->elem_size),
+          at_g(array->carray, index+1, array->elem_size),
+          (array->size - (index+1)) * array->elem_size);
   array->size -= 1;
 }
 
