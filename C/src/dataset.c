@@ -133,6 +133,7 @@ Dataset* Dataset_load(const char* filename) {
   assert(buf != NULL);
 
   size_t buf_len = 2048;
+  size_t count = 0;
 
   FILE* file = fopen(filename, "r");
   if(!file) {
@@ -140,6 +141,11 @@ Dataset* Dataset_load(const char* filename) {
     exit(1);
   }
   while(!feof(file)) {
+    if(count++ % 1000000 == 0) {
+      printf(".");
+      fflush(stdout);
+    }
+
     if( getline((char**)&buf, &buf_len, file) == -1 ) {
       break;
     }
@@ -148,6 +154,8 @@ Dataset* Dataset_load(const char* filename) {
   }
   fclose(file);
   free(buf);
+
+  printf("\n");
 
   if(Array_size(dataset->records) != 20000000) {
     printf("Warning reading datafile, only %ld records successfully read", Array_size(dataset->records));

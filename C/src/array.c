@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "array_g.h"
+#include "quick_sort.h"
 
 
 struct _Array {
@@ -118,6 +119,10 @@ void Array_remove(Array array, size_t index) {
           at_g(array->carray, index+1, array->elem_size),
           (array->size - (index+1)) * array->elem_size);
   array->size -= 1;
+}
+
+void Array_sort(Array array, QSCompareFun compare) {
+  quick_sort_g(Array_carray(array), Array_size(array), array->elem_size, compare);
 }
 
 // Iterator

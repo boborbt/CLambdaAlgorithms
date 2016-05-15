@@ -42,6 +42,10 @@ void Array_add(Array array, void* elem);
 void Array_remove(Array array, size_t index);
 
 
+void Array_sort(Array array, int (*compare)(const void*, const void*));
+// void Array_sort_f(Array array, void (*compare)(void*,void*));
+
+
 // Iterator
 ArrayIterator ArrayIterator_new(Array);
 void ArrayIterator_free(ArrayIterator);
