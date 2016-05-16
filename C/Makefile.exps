@@ -1,0 +1,52 @@
+
+esercizio1_q:
+	Esercizio1/bin/measure_times -q $(RECORDS_DATASET)
+
+esercizio1_h:
+	Esercizio1/bin/measure_times -H $(RECORDS_DATASET)
+
+esercizio1_m:
+	Esercizio1/bin/measure_times -m $(RECORDS_DATASET)
+
+experiment1: Esercizio1 esercizio1_q esercizio1_h esercizio1_m
+
+esercizio2_hash_1:
+	Esercizio2/bin/measure_times_hash 1 $(RECORDS_DATASET)
+
+esercizio2_hash_2:
+	Esercizio2/bin/measure_times_hash 2 $(RECORDS_DATASET)
+
+esercizio2_hash_3:
+	Esercizio2/bin/measure_times_hash 3 $(RECORDS_DATASET)
+
+esercizio2_st_1:
+	Esercizio2/bin/measure_times_st 1 $(RECORDS_DATASET)
+
+esercizio2_st_2:
+	Esercizio2/bin/measure_times_st 2 $(RECORDS_DATASET)
+
+esercizio2_st_3:
+	Esercizio2/bin/measure_times_st 3 $(RECORDS_DATASET)
+
+
+esercizio2_rb_1:
+	Esercizio2/bin/measure_times_rb 1 $(RECORDS_DATASET)
+
+esercizio2_rb_2:
+	Esercizio2/bin/measure_times_rb 2 $(RECORDS_DATASET)
+
+esercizio2_rb_3:
+	Esercizio2/bin/measure_times_rb 3 $(RECORDS_DATASET)
+
+
+experiment2: Esercizio2 esercizio2_hash_1 esercizio2_hash_2 esercizio2_hash_3 esercizio2_rb_1 esercizio2_rb_2 esercizio2_rb_3 esercizio2_st_1 esercizio2_st_2 esercizio2_st_3
+
+esercizio3_d:
+	Esercizio3/bin/measure_times -d $(DIST_DATASET) torino catania
+
+esercizio3_c:
+	Esercizio3/bin/measure_times -c $(DIST_DATASET)
+
+experiment3: Esercizio3 esercizio3_d esercizio3_c
+
+experiments: experiment1 experiment2 experiment3

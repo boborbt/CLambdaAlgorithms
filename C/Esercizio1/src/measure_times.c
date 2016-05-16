@@ -184,21 +184,18 @@ static char* get_compilation_flags() {
   }
 
   buf[strlen(buf)-1] = '\0'; // removing trailing \n
+
+  fclose(file);
   return buf;
 }
 
 static PrintTime init_print_time(char* argv[]) {
-  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
-  Dictionary header = Dictionary_new(keyInfo);
-  Dictionary_set(header, "Esercizio", "1");
-  Dictionary_set(header, "invocation", argv[0]);
-  Dictionary_set(header, "compilation_flags", get_compilation_flags());
-  Dictionary_set(header, "algorithm", flag_to_algorithm_name(argv[1][1]));
+  PrintTime pt = PrintTime_new(NULL);
 
-  PrintTime pt = PrintTime_new(header, NULL);
-
-  Dictionary_free(header);
-  KeyInfo_free(keyInfo);
+  PrintTime_add_header(pt, "Esercizio", "1");
+  PrintTime_add_header(pt, "invocation", argv[0]);
+  PrintTime_add_header(pt, "compilation_flags", get_compilation_flags());
+  PrintTime_add_header(pt, "algorithm", flag_to_algorithm_name(argv[1][1]));
 
   return pt;
 }
