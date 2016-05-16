@@ -1,5 +1,5 @@
 #!env ruby
-require "YAMl"
+require "yaml"
 
 yaml = YAML.load(File.read(ARGV[0]))
 
