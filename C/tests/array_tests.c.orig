@@ -33,6 +33,28 @@ static void test_array_creation() {
   Array_free(array);
 }
 
+<<<<<<< HEAD
+static Array build_fixtures() {
+  Array array = Array_new(10, sizeof(int));
+  Array_set_size(array, 5);
+  Array_set(array, 0, from_int(1));
+  Array_set(array, 1, from_int(2));
+  Array_set(array, 2, from_int(3));
+  Array_set(array, 3, from_int(4));
+  Array_set(array, 4, from_int(5));
+
+  return array;
+}
+
+static void test_array_creation() {
+  Array array = Array_new(10, sizeof(int));
+  assert_equal( Array_size(array), 0l);
+  assert_equal( Array_capacity(array), 10l);
+  assert_not_null( Array_carray(array) );
+}
+
+=======
+>>>>>>> 02937dd5fde3ea8fc044bf3dfe4c672f64f4a479
 
 
 static void test_array_set_and_at() {
@@ -57,6 +79,11 @@ static void test_array_set_out_of_bound_index() {
   Array_free(array);
 }
 
+static void test_array_set_out_of_bound_index() {
+  Array array = build_fixtures();
+  Array_set(array, 11, from_int(3));
+}
+
 
 static void test_array_iterator() {
   Array array = build_fixtures();
@@ -73,6 +100,8 @@ static void test_array_iterator() {
   Array_free(array);
 }
 
+<<<<<<< HEAD
+=======
 static void test_array_add() {
   Array array = build_fixtures();
   Array_add(array, from_int(11));
@@ -184,6 +213,7 @@ static void test_array_remove_at_end() {
 }
 
 
+>>>>>>> 02937dd5fde3ea8fc044bf3dfe4c672f64f4a479
 static void test_array_foreach() {
   Array array = build_fixtures();
   __block size_t count = 1;
@@ -213,6 +243,15 @@ int main() {
   test(test_array_creation);
   test(test_array_set_and_at);
   test(test_array_set_out_of_bound_index);
+<<<<<<< HEAD
+  // test(test_array_add);
+  // test(test_array_insert);
+  // test(test_array_remove);
+  test(test_array_iterator);
+  test(test_array_foreach);
+  test(test_array_foreach_with_index);
+
+=======
   test(test_array_add);
   test(test_array_add_with_new_capacity);
   test(test_array_insert_at_0);
@@ -225,6 +264,7 @@ int main() {
   test(test_array_iterator);
   test(test_array_foreach);
   test(test_array_foreach_with_index);
+>>>>>>> 02937dd5fde3ea8fc044bf3dfe4c672f64f4a479
 
   end_tests();
 

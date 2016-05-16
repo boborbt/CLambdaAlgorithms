@@ -17,8 +17,8 @@ struct _Dijkstra {
   Dictionary distances;
 };
 
-static size_t path_len(Dictionary parents, const void* dest) {
-  size_t count = 1;
+static unsigned int path_len(Dictionary parents, const void* dest) {
+  unsigned int count = 1;
   const void* current = dest;
   void* next;
   if(Dictionary_get(parents, dest, &next) == 0) {
@@ -39,16 +39,16 @@ static size_t path_len(Dictionary parents, const void* dest) {
 }
 
 static void** build_path(Dictionary parents, void* dest) {
-  size_t len = path_len(parents, dest);
+  unsigned int len = path_len(parents, dest);
   void** result = (void**) malloc(sizeof(void*)*(len+1));
   result[len] = NULL;
 
   void* current = dest;
   void* next;
   Dictionary_get(parents, current, &next);
-  size_t last = len - 1;
+  unsigned int last = len - 1;
 
-  while(last != (size_t)-1) {
+  while(last != (unsigned int)-1) {
     result[last] = current;
     current = next;
     Dictionary_get(parents, current, &next);
@@ -101,7 +101,9 @@ static void Dijkstra_init_state(Dijkstra state) {
 
 
 static void examine_neighbours(Dijkstra state, void* current, double current_dist) {
-  foreach_graph_edge_from_iterator(Graph_adjacents(state->graph, current), ^(EdgeInfo edge) {
+  EdgeIterator neighbours = Graph_adjacents(state->graph, current);
+  for(;!EdgeIterator_end(neighbours); EdgeIterator_next(neighbours)) {
+    EdgeInfo edge = EdgeIterator_get(neighbours);
     void* child = edge.vertex;
     double edge_distance = state->graph_info_to_double(edge.info);
 
@@ -109,7 +111,7 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
     DoubleContainer child_distance;
     int child_found = Dictionary_get(state->distances, child, (void **)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
-      return;
+      continue;
     }
 
     Dictionary_set(state->parents, child, current);
@@ -124,7 +126,8 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
       DoubleContainer_free((DoubleContainer) old_value);
     }
     Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
-  });
+  }
+  EdgeIterator_free(neighbours);
 }
 
 void** Dijkstra_minpath(Dijkstra state, void* source, void* dest) {

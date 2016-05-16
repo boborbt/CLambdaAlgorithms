@@ -71,6 +71,12 @@ void EdgeIterator_next(EdgeIterator it);
 // Returns the EdgeInfo currently pointed by the iterator.
 EdgeInfo EdgeIterator_get(EdgeIterator it);
 
+// Uses the iterator to iterate over the pertaining edges
+// Note: the iterator is automatically freed at the end of the loop
+void foreach_graph_edge_from_iterator(EdgeIterator, void(^)(EdgeInfo));
+
+void foreach_graph_edge(Graph graph, void(^)(void*, void*, void*));
+
 //
 // VERTEX ITERATOR
 //
@@ -87,3 +93,5 @@ void VertexIterator_next(VertexIterator it);
 
 // Returns the EdgeInfo currently pointed by the iterator.
 void* VertexIterator_get(VertexIterator it);
+
+void foreach_graph_vertex(Graph graph, void (^)(void*));

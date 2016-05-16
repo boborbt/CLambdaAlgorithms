@@ -133,26 +133,26 @@ bin/array_tests: tests/array_tests.c lib/libcontainers_st.a
 
 
 experiment1: Esercizio1
-	Esercizio1/bin/measure_times -q ../../DatasetsGenerators/records/records.csv
-	Esercizio1/bin/measure_times -H ../../DatasetsGenerators/records/records.csv
-	Esercizio1/bin/measure_times -m ../../DatasetsGenerators/records/records.csv
+	Esercizio1/bin/measure_times -q $(RECORDS_DATASET)
+	Esercizio1/bin/measure_times -H $(RECORDS_DATASET)
+	Esercizio1/bin/measure_times -m $(RECORDS_DATASET)
 
 experiment2: Esercizio2
-	Esercizio2/bin/measure_times_hash 1 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_hash 2 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_hash 3 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_hash 1 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_hash 2 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_hash 3 $(RECORDS_DATASET)
 
-	Esercizio2/bin/measure_times_st 1 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_st 2 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_st 3 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_st 1 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_st 2 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_st 3 $(RECORDS_DATASET)
 
-	Esercizio2/bin/measure_times_rb 1 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_rb 2 ../../DatasetsGenerators/records/records.csv
-	Esercizio2/bin/measure_times_rb 3 ../../DatasetsGenerators/records/records.csv
+	Esercizio2/bin/measure_times_rb 1 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_rb 2 $(RECORDS_DATASET)
+	Esercizio2/bin/measure_times_rb 3 $(RECORDS_DATASET)
 
 
 experiment3: Esercizio3
-	Esercizio3/bin/measure_times -d ../../DatasetsGenerators/cities/italian_dist_graph.csv torino catania
-	Esercizio3/bin/measure_times -c ../../DatasetsGenerators/cities/italian_dist_graph.csv
+	Esercizio3/bin/measure_times -d $(DIST_DATASET) torino catania
+	Esercizio3/bin/measure_times -c $(DIST_DATASET)
 
 experiments: experiment1 experiment2 experiment3

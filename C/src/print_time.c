@@ -11,28 +11,16 @@ struct _PrintTime {
 };
 
 static void PrintTime_save_dictionary(PrintTime pt, Dictionary dic, const char* padding) {
-  DictionaryIterator it = DictionaryIterator_new(dic);
-
-  while(!DictionaryIterator_end(it)) {
-    Elem* elem = DictionaryIterator_get(it);
+  foreach_dictionary_elem(dic, ^(Elem* elem) {
     fprintf(pt->file, "%s%s: %lf\n", padding, elem->key, DoubleContainer_get((DoubleContainer)elem->value));
-    DictionaryIterator_next(it);
-  }
-
-  DictionaryIterator_free(it);
+  });
 }
 
 static void PrintTime_save_header(PrintTime pt, Dictionary header) {
   fprintf(pt->file, "-\n");
-  DictionaryIterator it = DictionaryIterator_new(header);
-
-  while(!DictionaryIterator_end(it)) {
-    Elem* elem = DictionaryIterator_get(it);
+  foreach_dictionary_elem(header, ^(Elem* elem) {
     fprintf(pt->file, "  %s: %s\n", elem->key, elem->value);
-    DictionaryIterator_next(it);
-  }
-
-  DictionaryIterator_free(it);
+  });
 
   fprintf(pt->file, "  data:\n");
 }
@@ -57,13 +45,9 @@ PrintTime PrintTime_new(Dictionary header, const char* out_file) {
 }
 
 void PrintTime_free(PrintTime pt) {
-  DictionaryIterator it = DictionaryIterator_new(pt->data);
-  while(!DictionaryIterator_end(it)) {
-    DoubleContainer_free((DoubleContainer) DictionaryIterator_get(it)->value);
-    DictionaryIterator_next(it);
-  }
-
-  DictionaryIterator_free(it);
+  foreach_dictionary_elem(pt->data, ^(Elem* elem) {
+    DoubleContainer_free((DoubleContainer) elem->value);
+  });
   Dictionary_free(pt->data);
   fclose(pt->file);
   free(pt);
