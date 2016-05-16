@@ -8,7 +8,9 @@
 #include "print_time.h"
 
 #ifndef __unused
-#define __attribute__((unused))
+  #define UNUSED(a) a __attribute__((unused))
+#else
+  #define UNUSED(a) a __unused
 #endif
 
 
@@ -137,7 +139,7 @@ int main(int argc, char* argv[]) {
   PrintTime_print(pt, "Dictionary_iterate", ^{
     printf("Traversing the dictionary...\n");
     __block size_t count = 0;
-    foreach_dictionary_elem(dictionary, ^(Elem* elem __unused) {
+    foreach_dictionary_elem(dictionary, ^(UNUSED(Elem* elem)) {
       count += 1;
     });
     printf("Counted %ld elements\n", count);
