@@ -54,3 +54,8 @@ int ArrayIterator_end(ArrayIterator it);
 
 // Returns the element currently pointed by the iterator
 void* ArrayIterator_get(ArrayIterator it);
+
+// foreach
+
+void foreach_array_elem(Array array, void (^)(void*));
+void foreach_array_elem_with_index(Array array, void (^)(void*, size_t));
