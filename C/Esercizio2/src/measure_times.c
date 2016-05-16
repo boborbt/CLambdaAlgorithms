@@ -77,17 +77,12 @@ static char* get_compilation_flags() {
 }
 
 static PrintTime init_print_time(char* argv[]) {
-  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
-  Dictionary header = Dictionary_new(keyInfo);
-  Dictionary_set(header, "Esercizio", "2");
-  Dictionary_set(header, "invocation", argv[0]);
-  Dictionary_set(header, "field", argv[1]);
-  Dictionary_set(header, "compilation_flags", get_compilation_flags());
+  PrintTime pt = PrintTime_new(NULL);
 
-  PrintTime pt = PrintTime_new(header, NULL);
-
-  Dictionary_free(header);
-  KeyInfo_free(keyInfo);
+  PrintTime_add_header(pt, "Esercizio", "2");
+  PrintTime_add_header(pt, "invocation", argv[0]);
+  PrintTime_add_header(pt, "field", argv[1]);
+  PrintTime_add_header(pt, "compilation_flags", get_compilation_flags());
 
   return pt;
 }
