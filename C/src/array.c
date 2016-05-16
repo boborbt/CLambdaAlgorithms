@@ -41,6 +41,10 @@ Array Array_new_by_copying_carray(void* src, size_t size, size_t elem_size ) {
   return array;
 }
 
+Array Array_dup(Array array) {
+  return Array_new_by_copying_carray(Array_carray(array), Array_size(array), Array_elem_size(array));
+}
+
 // Destructor
 void Array_free(Array array) {
   if(array) {
@@ -67,6 +71,10 @@ size_t Array_size(Array array) {
 
 size_t Array_capacity(Array array) {
   return array->capacity;
+}
+
+size_t Array_elem_size(Array array) {
+  return array->elem_size;
 }
 
 // Setters

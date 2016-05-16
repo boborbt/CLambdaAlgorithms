@@ -8,8 +8,8 @@ static void* from_int(int elem) {
 }
 
 
-static int to_int(void* p) {
-  return *(int*) p;
+static int to_int(const void* p) {
+  return *(const int*) p;
 }
 
 static Array build_fixtures() {
@@ -23,6 +23,19 @@ static Array build_fixtures() {
 
   return array;
 }
+
+static Array build_fixtures2() {
+  Array array = Array_new(10, sizeof(int));
+  Array_set_size(array, 5);
+  Array_set(array, 0, from_int(5));
+  Array_set(array, 1, from_int(2));
+  Array_set(array, 2, from_int(1));
+  Array_set(array, 3, from_int(3));
+  Array_set(array, 4, from_int(4));
+
+  return array;
+}
+
 
 static void test_array_creation() {
   Array array = Array_new(10, sizeof(int));
@@ -206,6 +219,34 @@ static void test_array_foreach_with_index() {
   Array_free(array);
 }
 
+static int compare_ints(const void* e1, const void* e2) {
+  int i1 = to_int(e1);
+  int i2 = to_int(e2);
+  return i1-i2;
+}
+
+static void test_array_sort() {
+  Array array = build_fixtures2();
+  Array_sort(array, compare_ints);
+  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+    assert_equal( (unsigned long) to_int(elem), index + 1);
+  });
+}
+
+static void test_array_dup() {
+  Array array = build_fixtures();
+  Array array_dup = Array_dup(array);
+
+  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+    assert_equal32( to_int(elem), to_int(Array_at(array_dup, index)));
+  });
+
+  assert_pointers_not_equal( Array_carray(array), Array_carray(array_dup) );
+
+  Array_free(array);
+  Array_free(array_dup);
+}
+
 
 int main() {
   start_tests("array");
@@ -221,10 +262,12 @@ int main() {
   test(test_array_remove_at_0);
   test(test_array_remove_at_middle);
   test(test_array_remove_at_end);
+  test(test_array_sort);
 
   test(test_array_iterator);
   test(test_array_foreach);
   test(test_array_foreach_with_index);
+  test(test_array_dup);
 
   end_tests();
 

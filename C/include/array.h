@@ -12,6 +12,7 @@ typedef struct _ArrayIterator* ArrayIterator;
 // Constructors
 Array Array_new(size_t capacity, size_t elem_size);
 Array Array_new_by_copying_carray(void* array, size_t size, size_t elem_size );
+Array Array_dup(Array);
 
 // Destructor
 void Array_free(Array);
@@ -20,6 +21,7 @@ void Array_free(Array);
 void* Array_at(Array array, size_t index);
 void* Array_carray(Array array);
 size_t Array_size(Array array);
+size_t Array_elem_size(Array array);
 size_t Array_capacity(Array array);
 
 // Set the size the array to the new size reallocing the elements if necessary
