@@ -48,12 +48,35 @@ static void check_arguments(int argc, char** argv) {
   }
 }
 
+static char* get_compilation_flags() {
+  static char buf[4096];
+  FILE* file = fopen("Makefile.vars", "r");
+  if(file==NULL) {
+    fprintf(stderr, "Cannot open Makefile.vars to read compilatin flags\n");
+    exit(1);
+  }
+
+  int found = 0;
+  while( !found && fgets(buf, 4096, file) != NULL) {
+    found =  strstr(buf, "CFLAGS") != NULL;
+  }
+
+  if(!found) {
+    fprintf(stderr, "Cannot find CFLAGS string into Makefile.vars\n");
+    exit(1);
+  }
+
+  buf[strlen(buf)-1] = '\0'; // removing trailing \n
+  return buf;
+}
+
 static PrintTime init_print_time(char* argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "2");
   Dictionary_set(header, "invocation", argv[0]);
   Dictionary_set(header, "field", argv[1]);
+  Dictionary_set(header, "compilation_flags", get_compilation_flags());
 
   PrintTime pt = PrintTime_new(header, NULL);
 

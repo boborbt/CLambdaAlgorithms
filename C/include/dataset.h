@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "array.h"
 
 // Opaque data structures
 typedef struct _Record Record;
@@ -31,14 +32,21 @@ double Record_get_field3(Record* record);
 
 // Loads a dataset from file allocing all memory necessary
 Dataset* Dataset_load(const char* filename);
+
 // Disposes a dataset freeing all alloced memory
 void Dataset_free(Dataset* dataset);
 
 // Print on the stdout the first num_records of the given dataset
 void Dataset_print(Dataset* dataset, size_t num_records);
 
+// Print on the stdout the first num_records of the given dataset storage
+void Dataset_print_storage(Array dataset, size_t num_records);
+
 // Returns the array of records stored in dataset
 Record** Dataset_get_records(Dataset* dataset);
+
+// Returns the Array type storing the records in the dataset
+Array Dataset_get_storage(Dataset* dataset);
 
 // Returns the size of the dataset (i.e., the number of records stored in
 // this dataset)

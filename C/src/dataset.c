@@ -168,6 +168,10 @@ Record** Dataset_get_records(Dataset* dataset) {
   return (Record**) Array_carray(dataset->records);
 }
 
+Array Dataset_get_storage(Dataset* dataset) {
+  return dataset->records;
+}
+
 size_t Dataset_size(Dataset* dataset) {
   return Array_size(dataset->records);
 }
@@ -183,8 +187,16 @@ void Dataset_free(Dataset* dataset) {
   free(dataset);
 }
 
+void Dataset_print_storage(Array dataset, size_t num_records) {
+  assert(num_records < Array_size(dataset));
+  for(size_t i=0; i<num_records; ++i) {
+    Record* rec = *(Record**) Array_at(dataset,i);
+    printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
+  }
+}
+
 void Dataset_print(Dataset* dataset, size_t num_records) {
-  assert(num_records < Array_size(dataset->records));
+  assert(num_records < Dataset_size(dataset));
   for(size_t i=0; i<num_records; ++i) {
     Record* rec = *(Record**) Array_at(dataset->records,i);
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);

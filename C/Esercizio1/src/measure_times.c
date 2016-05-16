@@ -27,75 +27,88 @@ static int qsort_compare_field3(const void* e1, const void* e2) {
   return Dataset_compare_field3( *(void* const*)e1, *(void* const*)e2 );
 }
 
-
-static void test_qsort(Dataset* dataset, PrintTime pt) {
-  PrintTime_print(pt, "field1", ^{
-    printf("Sorting according to field1\n");
-    qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field1);
-    printf("Done!\n");
-  });
-  Dataset_print(dataset, 10);
-
-  PrintTime_print(pt, "field2", ^{
-    printf("Sorting according to field2\n");
-    qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field2);
-    printf("Done!\n");
-  });
-  Dataset_print(dataset, 10);
-
-  PrintTime_print(pt, "field3", ^{
-    printf("Sorting according to field3\n");
-    qsort((void**) Dataset_get_records(dataset), Dataset_size(dataset), sizeof(Record*), qsort_compare_field3);
-    printf("Done!\n");
-  });
-  Dataset_print(dataset, 10);
+static void exec_and_print_with_dup_storage(Dataset* dataset, void (^callback)(Array)) {
+  Array array = Array_dup(Dataset_get_storage(dataset));
+  callback(array);
+  Dataset_print_storage(array, 10);
+  Array_free(array);
 }
 
 
-static void test_algorithm_g(Dataset* dataset, PrintTime pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
-  PrintTime_print(pt, "field1", ^{
-    printf("Sorting according to field1\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field1_g);
-    printf("Done!\n");
+static void test_qsort(Dataset* input_dataset, PrintTime pt) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field1", ^{
+      printf("Sorting according to field1\n");
+      qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field1);
+      printf("Done!\n");
+    });
   });
-  Dataset_print(dataset, 10);
 
-  PrintTime_print(pt, "field2", ^{
-    printf("Sorting according to field2\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field2_g);
-    printf("Done!\n");
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field2", ^{
+      printf("Sorting according to field2\n");
+      qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field2);
+      printf("Done!\n");
+    });
   });
-  Dataset_print(dataset, 10);
 
-  PrintTime_print(pt, "field3", ^{
-    printf("Sorting according to field3\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), sizeof(void*), Dataset_compare_field3_g);
-    printf("Done!\n");
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field3", ^{
+      printf("Sorting according to field3\n");
+      qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field3);
+      printf("Done!\n");
+    });
   });
-  Dataset_print(dataset, 10);
+
 }
 
-static void test_algorithm(Dataset* dataset, PrintTime pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
-  PrintTime_print(pt, "field1", ^{
-    printf("Sorting according to field1\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field1);
-    printf("Done!\n");
-  });
-  Dataset_print(dataset, 10);
 
-  PrintTime_print(pt, "field2", ^{
-    printf("Sorting according to field2\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field2);
-    printf("Done!\n");
+static void test_algorithm_g(Dataset* input_dataset, PrintTime pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field1", ^{
+      printf("Sorting according to field1\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field1_g);
+      printf("Done!\n");
+    });
   });
-  Dataset_print(dataset, 10);
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field2", ^{
+      printf("Sorting according to field2\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field2_g);
+      printf("Done!\n");
+    });
+  });
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field3", ^{
+      printf("Sorting according to field3\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field3_g);
+      printf("Done!\n");
+    });
+  });
+}
 
-  PrintTime_print(pt, "field3", ^{
-    printf("Sorting according to field3\n");
-    sort((void**)Dataset_get_records(dataset), Dataset_size(dataset), Dataset_compare_field3);
-    printf("Done!\n");
+static void test_algorithm(Dataset* input_dataset, PrintTime pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field1", ^{
+      printf("Sorting according to field1\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field1);
+      printf("Done!\n");
+    });
   });
-  Dataset_print(dataset, 10);
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field2", ^{
+      printf("Sorting according to field2\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field2);
+      printf("Done!\n");
+    });
+  });
+  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+    PrintTime_print(pt, "field3", ^{
+      printf("Sorting according to field3\n");
+      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field3);
+      printf("Done!\n");
+    });
+  });
 }
 
 
@@ -152,11 +165,34 @@ static char* flag_to_algorithm_name(char ch) {
   };
 }
 
+static char* get_compilation_flags() {
+  static char buf[4096];
+  FILE* file = fopen("Makefile.vars", "r");
+  if(file==NULL) {
+    fprintf(stderr, "Cannot open Makefile.vars to read compilatin flags\n");
+    exit(1);
+  }
+
+  int found = 0;
+  while( !found && fgets(buf, 4096, file) != NULL) {
+    found =  strstr(buf, "CFLAGS") != NULL;
+  }
+
+  if(!found) {
+    fprintf(stderr, "Cannot find CFLAGS string into Makefile.vars\n");
+    exit(1);
+  }
+
+  buf[strlen(buf)-1] = '\0'; // removing trailing \n
+  return buf;
+}
+
 static PrintTime init_print_time(char* argv[]) {
   KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
   Dictionary header = Dictionary_new(keyInfo);
   Dictionary_set(header, "Esercizio", "1");
   Dictionary_set(header, "invocation", argv[0]);
+  Dictionary_set(header, "compilation_flags", get_compilation_flags());
   Dictionary_set(header, "algorithm", flag_to_algorithm_name(argv[1][1]));
 
   PrintTime pt = PrintTime_new(header, NULL);
