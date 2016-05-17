@@ -203,31 +203,34 @@ static void Node_move_key_value(Node* dst, Node* src) {
   src->elem = NULL;
 }
 
+static Node* Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
+  Node* tmp = *node;
+  *node = child(*node);
+  (*node)->parent = tmp->parent;
+  Color deleted_color = tmp->color;
+  if(tmp->elem != NULL) {
+    free(tmp->elem);
+  }
+  free(tmp);
+
+  if(deleted_color == BLACK) {
+    return *node;
+  } else {
+    return NULL;
+  }
+}
+
 // Removes the given key/value pair from the tree. If the deleted node
 // was black then it returns a reference to the node that replaced it.
 // If the node was red, it returns NULL.
 static Node* Node_delete(Node** node) {
   if((*node)->left == _nil) {
-    Node* tmp = *node;
-    *node = (*node)->right;
-    (*node)->parent = tmp->parent;
-    Color deleted_color = tmp->color;
-
-    if(tmp->elem != NULL) {
-      free(tmp->elem);
-    }
-    free(tmp);
-
-    if(deleted_color == BLACK)  {
-      return *node;
-    } else {
-      return NULL;
-    }
+    return Node_delete_non_full_node(node, Node_right);
   }
 
   Node** max_left_ptr = Node_find_max(&(*node)->left);
   Node_move_key_value(*node, *max_left_ptr);
-  return Node_delete(max_left_ptr);
+  return Node_delete_non_full_node(max_left_ptr, Node_left);
 }
 
 static void Node_tree_free(Node* node) {

@@ -127,21 +127,32 @@ static void Node_move_key_value(Node* dst, Node* src) {
   src->elem = NULL;
 }
 
+static Node* Node_left(Node* node) {
+  return node->left;
+}
+
+static Node* Node_right(Node* node) {
+  return node->right;
+}
+
+static void Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
+  Node* tmp = *node;
+  *node = child(*node);
+  if(tmp->elem != NULL) {
+    free(tmp->elem);
+  }
+  free(tmp);
+}
+
 static void Node_delete(Node** node) {
   if((*node)->left == NULL) {
-    Node* tmp = *node;
-    *node = (*node)->right;
-    if(tmp->elem != NULL) {
-      free(tmp->elem);
-    }
-    free(tmp);
-
+    Node_delete_non_full_node(node, Node_right);
     return;
   }
 
   Node** max_left_ptr = Node_find_max(&(*node)->left);
   Node_move_key_value(*node, *max_left_ptr);
-  Node_delete(max_left_ptr);
+  Node_delete_non_full_node(max_left_ptr, Node_left);
 }
 
 static void Node_tree_free(Node* node) {
