@@ -36,6 +36,25 @@ static void PrintTime_save_header(PrintTime pt) {
   fprintf(pt->file, "  data:\n");
 }
 
+static char* get_date_string() {
+  static char buf[1024];
+  time_t t;
+  struct tm *tmp;
+  t = time(NULL);
+  tmp = localtime(&t);
+  if(tmp == NULL) {
+    perror("localtime failed");
+    exit(1);
+  }
+
+  if(strftime(buf, 1024, "%a %b %d %H:%M:%S %Y", tmp) == 0) {
+    fprintf(stderr, "Cannot format time\n");
+    exit(1);
+  }
+
+  return buf;
+}
+
 PrintTime PrintTime_new(const char* out_file) {
   if(out_file==NULL) {
     out_file = "timings.yml";
@@ -48,8 +67,12 @@ PrintTime PrintTime_new(const char* out_file) {
   pt->header = Array_new(20, sizeof(KeyValue));
   pt->data = Array_new(20, sizeof(KeyValue));
 
+  PrintTime_add_header(pt, "date", get_date_string());
+
   return pt;
 }
+
+
 
 void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
   KeyValue kv = { .key = strdup(key), .value = strdup(value) };
