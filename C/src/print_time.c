@@ -5,24 +5,32 @@
 #include <sys/file.h>
 
 #include "double_container.h"
+#include "array.h"
 
 struct _PrintTime {
   const char* file_name;
   FILE* file;
-  Dictionary header;
-  Dictionary data;
+  Array header;
+  Array data;
 };
 
+typedef struct {
+  char* key;
+  void* value;
+} KeyValue;
+
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
-  foreach_dictionary_elem(pt->data, ^(Elem* elem) {
-    fprintf(pt->file, "%s%s: %lf\n", padding, elem->key, DoubleContainer_get((DoubleContainer)elem->value));
+  foreach_array_elem(pt->data, ^(void* elem) {
+    KeyValue kv = *(KeyValue*)elem;
+    fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer)kv.value));
   });
 }
 
 static void PrintTime_save_header(PrintTime pt) {
   fprintf(pt->file, "-\n");
-  foreach_dictionary_elem(pt->header, ^(Elem* elem) {
-    fprintf(pt->file, "  %s: %s\n", elem->key, elem->value);
+  foreach_array_elem(pt->header, ^(void* elem) {
+    KeyValue kv = *(KeyValue*)elem;
+    fprintf(pt->file, "  %s: %s\n", kv.key, (const char*) kv.value);
   });
 
   fprintf(pt->file, "  data:\n");
@@ -37,32 +45,34 @@ PrintTime PrintTime_new(const char* out_file) {
   pt->file_name = out_file;
   pt->file = NULL;
 
-  KeyInfo keyInfo = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
-  pt->header = Dictionary_new(keyInfo);
-  pt->data = Dictionary_new(keyInfo);
+  pt->header = Array_new(20, sizeof(KeyValue));
+  pt->data = Array_new(20, sizeof(KeyValue));
 
   return pt;
 }
 
 void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
-  Dictionary_set(pt->header, strdup(key), strdup(value));
+  KeyValue kv = { .key = strdup(key), .value = strdup(value) };
+  Array_add(pt->header, &kv);
 }
 
 void PrintTime_free(PrintTime pt) {
-  foreach_dictionary_elem(pt->header, ^(Elem* elem) {
-    free(elem->key);
-    free(elem->value);
+  foreach_array_elem(pt->header, ^(void* elem) {
+    KeyValue kv = *(KeyValue*) elem;
+    free(kv.key);
+    free(kv.value);
   });
-  Dictionary_free(pt->header);
+  Array_free(pt->header);
 
-  foreach_dictionary_elem(pt->data, ^(Elem* elem) {
-    DoubleContainer_free((DoubleContainer) elem->value);
+  foreach_array_elem(pt->data, ^(void* elem) {
+    KeyValue kv = *(KeyValue*) elem;
+    free(kv.key);
+    DoubleContainer_free((DoubleContainer) kv.value);
   });
-  Dictionary_free(pt->data);
+  Array_free(pt->data);
 
   free(pt);
 }
-
 
 double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  double result;
@@ -77,7 +87,8 @@ double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  printf("time:  %10.2lf secs\n", result);
  printf("======================\n\n");
 
- Dictionary_set(pt->data, label, DoubleContainer_new(result));
+ KeyValue kv = { .key = strdup(label), .value = DoubleContainer_new(result) };
+ Array_add(pt->data, &kv);
 
  return result;
 }
