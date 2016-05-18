@@ -241,7 +241,7 @@ static char* get_compilation_flags() {
 static PrintTime init_print_time(char* argv[]) {
   PrintTime pt = PrintTime_new(NULL);
 
-  PrintTime_add_header(pt, "Esercizio", "3");
+  PrintTime_add_header(pt,"esercizio", "3");
   PrintTime_add_header(pt, "task", flag_to_task_name(argv[1][1]));
   PrintTime_add_header(pt, "invocation", argv[0]);
   PrintTime_add_header(pt, "compilation_flags", get_compilation_flags());

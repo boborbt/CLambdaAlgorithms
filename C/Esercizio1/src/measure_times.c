@@ -192,7 +192,7 @@ static char* get_compilation_flags() {
 static PrintTime init_print_time(char* argv[]) {
   PrintTime pt = PrintTime_new(NULL);
 
-  PrintTime_add_header(pt, "Esercizio", "1");
+  PrintTime_add_header(pt, "esercizio", "1");
   PrintTime_add_header(pt, "invocation", argv[0]);
   PrintTime_add_header(pt, "compilation_flags", get_compilation_flags());
   PrintTime_add_header(pt, "algorithm", flag_to_algorithm_name(argv[1][1]));

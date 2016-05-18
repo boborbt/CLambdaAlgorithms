@@ -79,7 +79,7 @@ static char* get_compilation_flags() {
 static PrintTime init_print_time(char* argv[]) {
   PrintTime pt = PrintTime_new(NULL);
 
-  PrintTime_add_header(pt, "Esercizio", "2");
+  PrintTime_add_header(pt,"esercizio", "2");
   PrintTime_add_header(pt, "field", argv[1]);
   PrintTime_add_header(pt, "invocation", argv[0]);
   PrintTime_add_header(pt, "compilation_flags", get_compilation_flags());
