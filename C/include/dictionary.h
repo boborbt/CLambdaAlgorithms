@@ -5,11 +5,6 @@
 
 typedef struct _Dictionary* Dictionary;
 
-typedef struct _Elem {
-  void* key;
-  void* value;
-} Elem;
-
 /*
  * Constructor and destructor
  */
@@ -62,6 +57,6 @@ void DictionaryIterator_next(DictionaryIterator it);
 int DictionaryIterator_end(DictionaryIterator it);
 
 // Returns the element currently pointed by the iterator
-Elem* DictionaryIterator_get(DictionaryIterator it);
+KeyValue* DictionaryIterator_get(DictionaryIterator it);
 
-void foreach_dictionary_elem(Dictionary, void(^)(Elem* elem));
+void foreach_dictionary_key_value(Dictionary, void(^)(KeyValue* kv));

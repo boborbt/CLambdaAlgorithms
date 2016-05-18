@@ -23,21 +23,21 @@ struct _DictionaryIterator {
   List cur_list_element;
 };
 
-/* Elem* constructor and destructor */
+/* KeyValue* constructor and destructor */
 
-static Elem* Elem_new(void* key, void* value) {
-  Elem* result = (Elem*) malloc(sizeof(struct _Elem*));
+static KeyValue* KeyValue_new(void* key, void* value) {
+  KeyValue* result = (KeyValue*) malloc(sizeof(struct _KeyValue*));
   result->key = key;
   result->value = value;
   return result;
 }
 
-static const void* Elem_key(const Elem*  elem) {
+static const void* KeyValue_key(const KeyValue*  elem) {
   return elem->key;
 }
 
-static void Elem_free(Elem* elem) {
-  free(elem);
+static void KeyValue_free(KeyValue* kv) {
+  free(kv);
 }
 
 /* --------------------------
@@ -64,7 +64,7 @@ int DictionaryIterator_end(DictionaryIterator it)  {
   return it->cur_list_element == NULL;
 }
 
-Elem* DictionaryIterator_get(DictionaryIterator it) {
+KeyValue* DictionaryIterator_get(DictionaryIterator it) {
   return List_get(it->cur_list_element);
 }
 
@@ -108,7 +108,7 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
 }
 
 void Dictionary_free(Dictionary dictionary) {
-  Dictionary_free_lists(dictionary, (void (*)(void*)) Elem_free);
+  Dictionary_free_lists(dictionary, (void (*)(void*)) KeyValue_free);
   free(dictionary->table);
   free(dictionary);
 }
@@ -121,7 +121,7 @@ static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
 
   DictionaryIterator it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
-    Elem* current = DictionaryIterator_get(it);
+    KeyValue* current = DictionaryIterator_get(it);
     size_t index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
     new_table[index] = List_insert(new_table[index], current);
 
@@ -147,29 +147,29 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
   List* list_elem = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
+      return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
   if(*list_elem != NULL) {
-    Elem* elem = List_get(*list_elem);
-    elem->key = key;
-    elem->value = value;
+    KeyValue* kv = List_get(*list_elem);
+    kv->key = key;
+    kv->value = value;
     return;
   }
 
-  dictionary->table[index] = List_insert(dictionary->table[index], Elem_new(key, value));
+  dictionary->table[index] = List_insert(dictionary->table[index], KeyValue_new(key, value));
   dictionary->size += 1;
 }
 
 
-static Elem* Dictionary_get_elem(Dictionary dictionary, const void* key) {
+static KeyValue* Dictionary_get_key_value(Dictionary dictionary, const void* key) {
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return 0;
   }
 
   List* list_elem = List_find_wb(&dictionary->table[index], ^int(const void* elem) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
+      return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
   if(*list_elem == NULL) {
@@ -185,12 +185,12 @@ static Elem* Dictionary_get_elem(Dictionary dictionary, const void* key) {
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1.
 int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
-  Elem* elem = Dictionary_get_elem(dictionary, key);
+  KeyValue* kv = Dictionary_get_key_value(dictionary, key);
 
-  if(elem == NULL) {
+  if(kv == NULL) {
     return 0;
   } else {
-    *result = (void*) elem->value;
+    *result = (void*) kv->value;
     return 1;
   }
 }
@@ -203,7 +203,7 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   }
 
   List* list_ptr = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
-      return KeyInfo_comparator(dictionary->keyInfo)(key, Elem_key((const Elem*) elem));
+      return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
   });
 
   if(*list_ptr == NULL) {

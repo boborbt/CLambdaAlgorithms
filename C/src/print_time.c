@@ -14,11 +14,6 @@ struct _PrintTime {
   Array data;
 };
 
-typedef struct {
-  char* key;
-  void* value;
-} KeyValue;
-
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
   foreach_array_elem(pt->data, ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;

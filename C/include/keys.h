@@ -11,6 +11,11 @@ typedef struct _KeyInfo* KeyInfo;
 typedef int (*KIComparator)(const void*, const void*);
 typedef size_t (*KIHash)(const void*);
 
+typedef struct _KeyValue {
+  void* key;
+  void* value;
+} KeyValue;
+
 /* Constructor and destructor*/
 KeyInfo KeyInfo_new( KIComparator, KIHash );
 void KeyInfo_free(KeyInfo);

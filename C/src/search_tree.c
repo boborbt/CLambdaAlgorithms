@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 typedef struct _Node {
-  Elem* elem;
+  KeyValue* kv;
   struct _Node* left;
   struct _Node* right;
 } Node;
@@ -59,8 +59,8 @@ int DictionaryIterator_end(DictionaryIterator it) {
   return Stack_empty(it->stack);
 }
 
-Elem* DictionaryIterator_get(DictionaryIterator it) {
-  return ((Node*)Stack_top(it->stack))->elem;
+KeyValue* DictionaryIterator_get(DictionaryIterator it) {
+  return ((Node*)Stack_top(it->stack))->kv;
 }
 
 
@@ -72,9 +72,9 @@ static Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = NULL;
   result->right = NULL;
-  result->elem = (Elem*) malloc(sizeof(struct _Elem*));
-  result->elem->key = key;
-  result->elem->value = value;
+  result->kv = (KeyValue*) malloc(sizeof(struct _KeyValue*));
+  result->kv->key = key;
+  result->kv->value = value;
 
   return result;
 }
@@ -88,7 +88,7 @@ static Node* Node_new(void* key, void* value) {
 static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
-    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->elem->key);
+    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->kv->key);
     if( comp < 0) {
       node_ptr = &(*node_ptr)->left;
       continue;
@@ -123,8 +123,8 @@ static void Node_move_key_value(Node* dst, Node* src) {
     return;
   }
 
-  dst->elem = src->elem;
-  src->elem = NULL;
+  dst->kv = src->kv;
+  src->kv = NULL;
 }
 
 static Node* Node_left(Node* node) {
@@ -138,8 +138,8 @@ static Node* Node_right(Node* node) {
 static void Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
   Node* tmp = *node;
   *node = child(*node);
-  if(tmp->elem != NULL) {
-    free(tmp->elem);
+  if(tmp->kv != NULL) {
+    free(tmp->kv);
   }
   free(tmp);
 }
@@ -162,7 +162,7 @@ static void Node_tree_free(Node* node) {
 
   Node_tree_free(node->left);
   Node_tree_free(node->right);
-  free(node->elem);
+  free(node->kv);
   free(node);
 }
 
@@ -200,8 +200,8 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
-    (*node_ptr)->elem->key = key;
-    (*node_ptr)->elem->value = value;
+    (*node_ptr)->kv->key = key;
+    (*node_ptr)->kv->value = value;
   } else {
     *node_ptr = Node_new(key, value);
     dictionary->size += 1;
@@ -214,7 +214,7 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
     return 0;
   }
 
-  *value = (*node_ptr)->elem->value;
+  *value = (*node_ptr)->kv->value;
   return 1;
 }
 

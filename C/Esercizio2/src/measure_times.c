@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
   PrintTime_print(pt, "Dictionary_iterate", ^{
     printf("Traversing the dictionary...\n");
     __block size_t count = 0;
-    foreach_dictionary_elem(dictionary, ^(UNUSED(Elem* elem)) {
+    foreach_dictionary_key_value(dictionary, ^(UNUSED(KeyValue* kv)) {
       count += 1;
     });
     printf("Counted %ld elements\n", count);

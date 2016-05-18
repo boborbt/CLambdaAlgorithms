@@ -9,7 +9,7 @@ typedef enum {
 } Color;
 
 typedef struct _Node {
-  Elem* elem;
+  KeyValue* kv;
   struct _Node* left;
   struct _Node* right;
   struct _Node* parent;
@@ -28,7 +28,7 @@ struct _DictionaryIterator {
 
 #define MAX_STACK_SIZE 1024
 
-static Node _nilNode = { .elem = NULL, .left = NULL, .right = NULL, .parent = NULL };
+static Node _nilNode = { .kv = NULL, .left = NULL, .right = NULL, .parent = NULL };
 static Node* _nil = &_nilNode;
 
 /* --------------------------
@@ -69,8 +69,8 @@ int DictionaryIterator_end(DictionaryIterator it) {
   return Stack_empty(it->stack);
 }
 
-Elem* DictionaryIterator_get(DictionaryIterator it) {
-  return ((Node*)Stack_top(it->stack))->elem;
+KeyValue* DictionaryIterator_get(DictionaryIterator it) {
+  return ((Node*)Stack_top(it->stack))->kv;
 }
 
 /* --------------------------
@@ -92,9 +92,9 @@ static Node* Node_new(void* key, void* value) {
   Node* result =  (Node*) malloc(sizeof(Node));
   result->left = _nil;
   result->right = _nil;
-  result->elem = (Elem*) malloc(sizeof(struct _Elem*));
-  result->elem->key = key;
-  result->elem->value = value;
+  result->kv = (KeyValue*) malloc(sizeof(struct _KeyValue*));
+  result->kv->key = key;
+  result->kv->value = value;
   result->color = RED;
   result->parent = _nil;
 
@@ -150,7 +150,7 @@ static Node** Node_find_with_parent(Node** root, const void* key, KeyInfo keyInf
   Node** node_ptr = root;
 
   while(*node_ptr != _nil) {
-    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->elem->key);
+    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->kv->key);
     if( comp < 0) {
       *parent = *node_ptr;
       node_ptr = &(*node_ptr)->left;
@@ -199,8 +199,8 @@ static void Node_move_key_value(Node* dst, Node* src) {
     return;
   }
 
-  dst->elem = src->elem;
-  src->elem = NULL;
+  dst->kv = src->kv;
+  src->kv = NULL;
 }
 
 static Node* Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
@@ -208,8 +208,8 @@ static Node* Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
   *node = child(*node);
   (*node)->parent = tmp->parent;
   Color deleted_color = tmp->color;
-  if(tmp->elem != NULL) {
-    free(tmp->elem);
+  if(tmp->kv != NULL) {
+    free(tmp->kv);
   }
   free(tmp);
 
@@ -240,7 +240,7 @@ static void Node_tree_free(Node* node) {
 
   Node_tree_free(node->left);
   Node_tree_free(node->right);
-  free(node->elem);
+  free(node->kv);
   free(node);
 }
 
@@ -429,8 +429,8 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   Node** node_ptr = Node_find_with_parent(&dictionary->root, key, dictionary->keyInfo, &parent);
 
   if((*node_ptr) != _nil) {
-    (*node_ptr)->elem->key = key;
-    (*node_ptr)->elem->value = value;
+    (*node_ptr)->kv->key = key;
+    (*node_ptr)->kv->value = value;
   } else {
     *node_ptr = Node_new(key, value);
     (*node_ptr)->parent = parent;
@@ -445,7 +445,7 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
     return 0;
   }
 
-  *value = (*node_ptr)->elem->value;
+  *value = (*node_ptr)->kv->value;
   return 1;
 }
 
@@ -701,7 +701,7 @@ void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* ind
   printf("\n");
 
   printf("%skey/value:", indent);
-  print_key_value(node->elem->key, node->elem->value);
+  print_key_value(node->kv->key, node->kv->value);
   printf("\n");
 
   printf("%scolor:%d\n", indent, node->color);

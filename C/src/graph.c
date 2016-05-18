@@ -33,8 +33,8 @@ Graph Graph_new(KeyInfo vertexInfo) {
 }
 
 void Graph_free(Graph graph) {
-  foreach_dictionary_elem(graph->adjacency_matrix, ^(Elem* elem) {
-    Dictionary_free((Dictionary) elem->value);
+  foreach_dictionary_key_value(graph->adjacency_matrix, ^(KeyValue* kv) {
+    Dictionary_free((Dictionary) kv->value);
   });
 
   Dictionary_free(graph->adjacency_matrix);
@@ -170,7 +170,7 @@ void EdgeIterator_next(EdgeIterator it) {
 }
 
 EdgeInfo EdgeIterator_get(EdgeIterator it) {
-  Elem* keyValue = DictionaryIterator_get(it->dic_it);
+  KeyValue* keyValue = DictionaryIterator_get(it->dic_it);
 
   EdgeInfo result;
   result.vertex = keyValue->key;

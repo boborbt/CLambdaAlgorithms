@@ -5,7 +5,7 @@ int Dictionary_empty(Dictionary dictionary) {
   return Dictionary_size(dictionary) == 0;
 }
 
-void foreach_dictionary_elem(Dictionary dictionary, void (^callback)(Elem* elem)) {
+void foreach_dictionary_key_value(Dictionary dictionary, void (^callback)(KeyValue* kv)) {
   DictionaryIterator it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
     callback(DictionaryIterator_get(it));

@@ -184,7 +184,7 @@ static void test_dictionary_iterator_on_empty_dictionary() {
   assert_true( DictionaryIterator_end(it) )
 }
 
-static int find_elem(Elem** elems, size_t size, void* key, void* value) {
+static int find_key_value(KeyValue** elems, size_t size, void* key, void* value) {
   for(size_t i=0; i<size; ++i) {
     if(elems[i]->key == key && elems[i]->value == value) {
       return 1;
@@ -194,25 +194,25 @@ static int find_elem(Elem** elems, size_t size, void* key, void* value) {
   return 0;
 }
 
-static void test_dictionary_foreach_dictionary_elem() {
+static void test_dictionary_foreach_dictionary_key_value() {
   Dictionary dictionary = build_fixture_dictionary();
-  __block Elem** found_elems = (Elem**) malloc(sizeof(Elem*)*7);
+  __block KeyValue** found_elems = (KeyValue**) malloc(sizeof(KeyValue*)*7);
   __block size_t count = 0;
 
-  foreach_dictionary_elem(dictionary, ^(Elem* elem) {
+  foreach_dictionary_key_value(dictionary, ^(KeyValue* kv) {
     assert_not_equal(7l, count);
-    found_elems[count++] = elem;
+    found_elems[count++] = kv;
   });
 
   assert_equal(7l, count);
 
-  assert_true(find_elem(found_elems, 7, (void*) 10l, (void*) -10l));
-  assert_true(find_elem(found_elems, 7, (void*)  5l, (void*)  -5l));
-  assert_true(find_elem(found_elems, 7, (void*) 15l, (void*) -15l));
-  assert_true(find_elem(found_elems, 7, (void*)  7l, (void*)  -7l));
-  assert_true(find_elem(found_elems, 7, (void*) 13l, (void*) -13l));
-  assert_true(find_elem(found_elems, 7, (void*) 11l, (void*) -11l));
-  assert_true(find_elem(found_elems, 7, (void*) 18l, (void*) -18l));
+  assert_true(find_key_value(found_elems, 7, (void*) 10l, (void*) -10l));
+  assert_true(find_key_value(found_elems, 7, (void*)  5l, (void*)  -5l));
+  assert_true(find_key_value(found_elems, 7, (void*) 15l, (void*) -15l));
+  assert_true(find_key_value(found_elems, 7, (void*)  7l, (void*)  -7l));
+  assert_true(find_key_value(found_elems, 7, (void*) 13l, (void*) -13l));
+  assert_true(find_key_value(found_elems, 7, (void*) 11l, (void*) -11l));
+  assert_true(find_key_value(found_elems, 7, (void*) 18l, (void*) -18l));
 
   free(found_elems);
   Dictionary_free(dictionary);
@@ -237,7 +237,7 @@ int main() {
 
   test(test_dictionary_iterator_on_empty_dictionary);
 
-  test(test_dictionary_foreach_dictionary_elem);
+  test(test_dictionary_foreach_dictionary_key_value);
   end_tests();
 
   return 0;
