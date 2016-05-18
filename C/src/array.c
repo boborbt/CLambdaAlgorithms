@@ -129,7 +129,7 @@ void Array_remove(Array array, size_t index) {
   array->size -= 1;
 }
 
-void Array_sort(Array array, QSCompareFun compare) {
+void Array_sort(Array array, KIComparator compare) {
   quick_sort_g(Array_carray(array), Array_size(array), array->elem_size, compare);
 }
 

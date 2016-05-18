@@ -23,7 +23,7 @@ static size_t right_child(size_t index) {
   return index * 2 + 2;
 }
 
-static void move_down(void** array, size_t start, size_t end, HSCompareFun compare) {
+static void move_down(void** array, size_t start, size_t end, KIComparator compare) {
   size_t root = start;
   size_t left = left_child(root);
   while( left <= end ) {
@@ -47,7 +47,7 @@ static void move_down(void** array, size_t start, size_t end, HSCompareFun compa
   }
 }
 
-static void heapify(void** array, size_t count, HSCompareFun compare) {
+static void heapify(void** array, size_t count, KIComparator compare) {
   long int start = parent(count-1);
   while(start >= 0) {
     move_down(array, (size_t) start, count-1,   compare);
@@ -55,7 +55,7 @@ static void heapify(void** array, size_t count, HSCompareFun compare) {
   }
 }
 
-void heap_sort(void** array, size_t count, HSCompareFun compare) {
+void heap_sort(void** array, size_t count, KIComparator compare) {
   if(count == 0) {
     return;
   }

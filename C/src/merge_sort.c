@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "array_g.h"
 
-static void merge(void** array, size_t start, size_t mid, size_t end, MSCompareFun compare) {
+static void merge(void** array, size_t start, size_t mid, size_t end, KIComparator compare) {
   void** buf = (void**) malloc(sizeof(const void*)*(end-start+1));
   size_t i = start;
   size_t j = mid+1;
@@ -32,7 +32,7 @@ static void merge(void** array, size_t start, size_t mid, size_t end, MSCompareF
   free(buf);
 }
 
-static void merge_g(void* array, size_t start, size_t mid, size_t end, size_t size, MSCompareFun compare) {
+static void merge_g(void* array, size_t start, size_t mid, size_t end, size_t size, KIComparator compare) {
   void* buf = (void*) malloc(size*(end-start+1));
   size_t i = start;
   size_t j = mid+1;
@@ -62,7 +62,7 @@ static void merge_g(void* array, size_t start, size_t mid, size_t end, size_t si
   free(buf);
 }
 
-static void merge_sort_(void** array, size_t start, size_t end, MSCompareFun compare) {
+static void merge_sort_(void** array, size_t start, size_t end, KIComparator compare) {
   if(start >= end)
     return;
 
@@ -73,7 +73,7 @@ static void merge_sort_(void** array, size_t start, size_t end, MSCompareFun com
   merge(array, start, mid, end, compare);
 }
 
-static void merge_sort_g_(void* array, size_t start, size_t end, size_t size, MSCompareFun compare) {
+static void merge_sort_g_(void* array, size_t start, size_t end, size_t size, KIComparator compare) {
   if(start >= end)
     return;
 
@@ -85,14 +85,14 @@ static void merge_sort_g_(void* array, size_t start, size_t end, size_t size, MS
 }
 
 
-void merge_sort_g(void* array, size_t count, size_t size, MSCompareFun compare) {
+void merge_sort_g(void* array, size_t count, size_t size, KIComparator compare) {
   if(count==0) {
     return;
   }
   merge_sort_g_(array, 0, count-1, size, compare);
 }
 
-void merge_sort(void** array, size_t count, MSCompareFun compare) {
+void merge_sort(void** array, size_t count, KIComparator compare) {
   if(count == 0) {
     return;
   }

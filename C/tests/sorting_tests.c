@@ -8,7 +8,7 @@
 #include "array_g.h"
 #include <stdio.h>
 
-void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  QSCompareFun compare);
+void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  KIComparator compare);
 
 static int compare(const void* elem1, const void* elem2) {
   long int e1 = (long int) elem1;

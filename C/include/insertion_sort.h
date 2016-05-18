@@ -3,6 +3,6 @@
 #include <stdlib.h>
 
 
-typedef int (*ISCompareFun)(const void*, const void*);
+typedef int (*KIComparator)(const void*, const void*);
 
-void insertion_sort(void** array, size_t count, ISCompareFun compare);
+void insertion_sort(void** array, size_t count, KIComparator compare);
