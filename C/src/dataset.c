@@ -23,21 +23,21 @@ int Dataset_compare_field1(const void* e1, const void* e2) {
   const Record* r1 = (const Record*) e1;
   const Record* r2 = (const Record*) e2;
 
-  return KeyInfo_string_compare(r1->field1, r2->field1);
+  return Key_string_compare(r1->field1, r2->field1);
 }
 
 int Dataset_compare_field2(const void* e1, const void* e2) {
   const Record* r1 = (const Record*) e1;
   const Record* r2 = (const Record*) e2;
 
-  return KeyInfo_int_compare(&r1->field2, &r2->field2);
+  return Key_int_compare(&r1->field2, &r2->field2);
 }
 
 int Dataset_compare_field3(const void* e1, const void* e2) {
   const Record* r1 = (const Record*) e1;
   const Record* r2 = (const Record*) e2;
 
-  return KeyInfo_double_compare(&r1->field3, &r2->field3);
+  return Key_double_compare(&r1->field3, &r2->field3);
 }
 
 
@@ -45,21 +45,21 @@ int Dataset_compare_field1_g(const void* e1, const void* e2) {
   const Record* r1 = *(Record* const*) e1;
   const Record* r2 = *(Record* const*) e2;
 
-  return KeyInfo_string_compare(r1->field1, r2->field1);
+  return Key_string_compare(r1->field1, r2->field1);
 }
 
 int Dataset_compare_field2_g(const void* e1, const void* e2) {
   const Record* r1 = *(Record* const*) e1;
   const Record* r2 = *(Record* const*) e2;
 
-  return KeyInfo_int_compare(&r1->field2, &r2->field2);
+  return Key_int_compare(&r1->field2, &r2->field2);
 }
 
 int Dataset_compare_field3_g(const void* e1, const void* e2) {
   const Record* r1 = *(Record* const*) e1;
   const Record* r2 = *(Record* const*) e2;
 
-  return KeyInfo_double_compare(&r1->field3, &r2->field3);
+  return Key_double_compare(&r1->field3, &r2->field3);
 }
 
 size_t Dataset_hash_field1(const void* e1) {

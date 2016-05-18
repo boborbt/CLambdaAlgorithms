@@ -1,6 +1,7 @@
-#include "key_info.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "keys.h"
 
 struct _KeyInfo {
   KIComparator comparator;
@@ -26,11 +27,11 @@ void KeyInfo_free(KeyInfo keyInfo) {
   free(keyInfo);
 }
 
-int KeyInfo_string_compare(const void* e1, const void* e2) {
+int Key_string_compare(const void* e1, const void* e2) {
   return strcmp((const char*) e1, (const char*) e2);
 }
 
-int KeyInfo_int_compare(const void* e1, const void* e2) {
+int Key_int_compare(const void* e1, const void* e2) {
   int i1 = *(const int*) e1;
   int i2 = *(const int*) e2;
 
@@ -39,7 +40,7 @@ int KeyInfo_int_compare(const void* e1, const void* e2) {
   return 0;
 }
 
-int KeyInfo_double_compare(const void* e1, const void* e2) {
+int Key_double_compare(const void* e1, const void* e2) {
   double d1 = *(const double*) e1;
   double d2 = *(const double*) e2;
 

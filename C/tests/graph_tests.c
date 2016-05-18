@@ -25,8 +25,8 @@ static PriorityQueue build_pq_fixtures() {
 
 
 static Graph build_graph_fixtures() {
-  KeyInfo key_info = KeyInfo_new(KeyInfo_string_compare, KeyInfo_string_hash);
-  Graph graph = Graph_new(key_info);
+  KeyInfo keys = KeyInfo_new(Key_string_compare, KeyInfo_string_hash);
+  Graph graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
   Graph_add_vertex(graph, "v2");

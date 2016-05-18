@@ -24,9 +24,9 @@ KIHash KeyInfo_hash(KeyInfo);
 // Common comparators and hash functions
 // ----------------------------------------------
 
-int KeyInfo_string_compare(const void* e1, const void* e2);
-int KeyInfo_int_compare(const void* e1, const void* e2);
-int KeyInfo_double_compare(const void* e1, const void* e2);
+int Key_string_compare(const void* e1, const void* e2);
+int Key_int_compare(const void* e1, const void* e2);
+int Key_double_compare(const void* e1, const void* e2);
 size_t KeyInfo_string_hash(const void* e1);
 size_t KeyInfo_int_hash(const void* e);
 size_t KeyInfo_double_hash(const void* e);

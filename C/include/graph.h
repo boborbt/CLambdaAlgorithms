@@ -1,6 +1,6 @@
 #pragma once
 
-#include "key_info.h"
+#include "keys.h"
 
 typedef int (*GVertexCompare)(void*, void*);
 
