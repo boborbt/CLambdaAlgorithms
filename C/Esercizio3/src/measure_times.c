@@ -34,7 +34,7 @@ static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, co
 }
 
 static Graph load_graph(const char* filename) {
-  KeyInfo keyInfo = KeyInfo_new( Key_string_compare, KeyInfo_string_hash );
+  KeyInfo keyInfo = KeyInfo_new( Key_string_compare, Key_string_hash );
   Dictionary known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
   FILE* infile = fopen(filename, "r");

@@ -49,7 +49,7 @@ int Key_double_compare(const void* e1, const void* e2) {
   return 0;
 }
 
-size_t KeyInfo_string_hash(const void* e1) {
+size_t Key_string_hash(const void* e1) {
   const char* str = (const char*) e1;
 
   size_t h = 0;
@@ -63,12 +63,12 @@ size_t KeyInfo_string_hash(const void* e1) {
   return h;
 }
 
-size_t KeyInfo_int_hash(const void* e) {
+size_t Key_int_hash(const void* e) {
   int value = *(const int*)e;
   return (size_t)(value * (value+3));
 }
 
-size_t KeyInfo_double_hash(const void* e) {
+size_t Key_double_hash(const void* e) {
   double value = *(const double*) e;
   return (size_t) (value * (value+3));
 }
