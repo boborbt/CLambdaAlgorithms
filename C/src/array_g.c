@@ -5,7 +5,9 @@
 
 typedef unsigned char uchar;
 
-#define SWAP_BUFFER_SIZE 4096
+#ifndef ARRAY_G_SWAP_BUFFER_SIZE
+#define ARRAY_G_SWAP_BUFFER_SIZE 4096
+#endif
 
 void* at_g(void* array, size_t pos, size_t size) {
   uchar* carray = (uchar*) array;
@@ -17,8 +19,8 @@ void cp_g(void* dst, const void* src, size_t size) {
 }
 
 void swap_g(void* el1, void* el2, size_t size) {
-  assert(size <= SWAP_BUFFER_SIZE);
-  static uchar SWAP_BUFFER[SWAP_BUFFER_SIZE];
+  assert(size <= ARRAY_G_SWAP_BUFFER_SIZE);
+  static uchar SWAP_BUFFER[ARRAY_G_SWAP_BUFFER_SIZE];
 
   cp_g(SWAP_BUFFER, el1, size);
   cp_g(el1, el2, size);
