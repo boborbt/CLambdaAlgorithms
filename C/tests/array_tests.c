@@ -1,5 +1,6 @@
 #include "array.h"
 #include "unit_testing.h"
+#include "errors.h"
 
 static void* from_int(int elem) {
   static int elem_p;
@@ -66,7 +67,7 @@ static void test_array_set_and_at() {
 
 static void test_array_set_out_of_bound_index() {
   Array array = build_fixtures();
-  assert_exits_with_code(Array_set(array, 11, from_int(3)), ARRAY_ERROR_OUT_OF_BOUND_INDEX);
+  assert_exits_with_code(Array_set(array, 11, from_int(3)), ERROR_INDEX_OUT_OF_BOUND);
   Array_free(array);
 }
 

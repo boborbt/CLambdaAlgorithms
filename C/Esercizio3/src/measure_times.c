@@ -6,6 +6,7 @@
 #include "graph_visiting.h"
 #include <assert.h>
 #include "double_container.h"
+#include "errors.h"
 
 #define BUF_SIZE 1024
 
@@ -181,27 +182,27 @@ static void print_usage(const char* msg) {
 static void check_arguments(int argc, char* argv[]) {
   if(argc < 3) {
     print_usage("Wrong number of arguments.");
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 
   if(argv[1][0]!='-') {
     print_usage("First argument needs to be the op specifier");
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
   char op = argv[1][1];
   if(op!='d' && op!='e' && op!='c') {
     print_usage("Op specifier needs to be one of {-d,-e,-c}");
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 
   if(op!='c' && argc != 5)  {
     print_usage("Wrong number of arguments");
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 
   if(op=='c' && argc != 3) {
     print_usage("Wrong number of arguments");
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 }
 
@@ -212,7 +213,7 @@ static char* flag_to_task_name(char ch) {
     case 'e': return "edge_check";
     default:
       printf("Unknown flag");
-      exit(1);
+      exit(ERROR_ARGUMENT_PARSING);
   }
 }
 
@@ -220,8 +221,7 @@ static char* get_compilation_flags() {
   static char buf[4096];
   FILE* file = fopen("Makefile.vars", "r");
   if(file==NULL) {
-    fprintf(stderr, "Cannot open Makefile.vars to read compilatin flags\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags"));
   }
 
   int found = 0;
@@ -230,8 +230,7 @@ static char* get_compilation_flags() {
   }
 
   if(!found) {
-    fprintf(stderr, "Cannot find CFLAGS string into Makefile.vars\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
   }
 
   buf[strlen(buf)-1] = '\0'; // removing trailing \n

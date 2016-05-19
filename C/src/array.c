@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "array_g.h"
 #include "quick_sort.h"
-
+#include "errors.h"
 
 struct _Array {
   void* carray;
@@ -69,6 +69,10 @@ size_t Array_size(Array array) {
   return array->size;
 }
 
+int Array_empty(Array array) {
+  return Array_size(array) == 0;
+}
+
 size_t Array_capacity(Array array) {
   return array->capacity;
 }
@@ -94,8 +98,7 @@ void Array_set_size(Array array, size_t new_size) {
 
 void* Array_set(Array array, size_t index, void* elem) {
   if(index >= array->size) {
-    fprintf(stderr, "Array index (%ld) out of bound in array of size (%ld)\n", index, array->size);
-    exit(ARRAY_ERROR_OUT_OF_BOUND_INDEX);
+    Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND,"Array index (%ld) out of bound in array of size (%ld)\n", index, array->size));
   }
   cp_g(at_g(array->carray, index, array->elem_size), elem, array->elem_size);
   return elem;

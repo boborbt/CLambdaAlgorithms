@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/file.h>
+#include <errno.h>
 
 #include "double_container.h"
 #include "array.h"
+#include "errors.h"
 
 struct _PrintTime {
   const char* file_name;
@@ -38,13 +40,11 @@ static char* get_date_string() {
   t = time(NULL);
   tmp = localtime(&t);
   if(tmp == NULL) {
-    perror("localtime failed");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "localtime failed"));
   }
 
   if(strftime(buf, 1024, "%a %b %d %H:%M:%S %Y", tmp) == 0) {
-    fprintf(stderr, "Cannot format time\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Cannot format time"));
   }
 
   return buf;
@@ -115,23 +115,22 @@ void PrintTime_save(PrintTime pt) {
 
   pt->file = fopen(pt->file_name, "a");
   if(!pt->file) {
-    perror("Cannot open output file");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_OPENING, "Cannot open output file - %s", strerror(errno)));
   }
 
   if(flock(fileno(pt->file), LOCK_EX) != 0) {
-    perror("Cannot lock output file");
+    Error error = Error_new(ERROR_FILE_LOCKING, "Unable to lock file %s -- %s", pt->file_name, strerror(errno));
     fclose(pt->file);
-    exit(1);
+    Error_raise(error);
   }
 
   PrintTime_save_header(pt);
   PrintTime_save_dictionary(pt, "    ");
 
   if(flock(fileno(pt->file), LOCK_UN) != 0) {
-    perror("Cannot unlock output file");
+    Error error = Error_new(ERROR_FILE_LOCKING, "Cannot unlock file %s -- %s", pt->file_name, strerror(errno));
     fclose(pt->file);
-    exit(1);
+    Error_raise(error);
   }
 
   fclose(pt->file);

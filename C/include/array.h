@@ -2,8 +2,6 @@
 
 #include <stdlib.h>
 
-#define ARRAY_ERROR_OUT_OF_BOUND_INDEX 100
-
 
 typedef struct _Array* Array;
 typedef struct _ArrayIterator* ArrayIterator;
@@ -21,6 +19,7 @@ void Array_free(Array);
 void* Array_at(Array array, size_t index);
 void* Array_carray(Array array);
 size_t Array_size(Array array);
+int Array_empty(Array array);
 size_t Array_elem_size(Array array);
 size_t Array_capacity(Array array);
 

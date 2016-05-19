@@ -3,9 +3,9 @@ include Makefile.vars
 CFLAGS+=-Iinclude
 LDFLAGS+=-Llib
 
-.PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean experiment1 experiment2 experiment3 tests
+.PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean experiment1 experiment2 experiment3 tests test_binaries
 
-all: lib Esercizio1 Esercizio2 Esercizio3
+all: lib Esercizio1 Esercizio2 Esercizio3 test_binaries
 
 clean:
 	$(MAKE) -C Esercizio1 clean
@@ -17,14 +17,14 @@ clean:
 
 lib: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
-lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
-	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
+lib/libcontainers_hash.a: build/dictionary.o build/graph.o build/hash_table.o build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
+	$(LIBTOOL) lib/libcontainers_hash.a build/dictionary.o build/graph.o build/hash_table.o build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
 
-lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
-	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
+lib/libcontainers_st.a: build/stack.o build/dictionary.o build/graph.o build/search_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
+	$(LIBTOOL) lib/libcontainers_st.a build/dictionary.o build/graph.o build/search_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
 
-lib/libcontainers_rb.a: build/stack.o build/dictionary.o build/graph.o build/rb_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
-	$(LIBTOOL) lib/libcontainers_rb.a build/dictionary.o build/graph.o build/rb_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o
+lib/libcontainers_rb.a: build/stack.o build/dictionary.o build/graph.o build/rb_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
+	$(LIBTOOL) lib/libcontainers_rb.a build/dictionary.o build/graph.o build/rb_tree.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/stack.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/errors.o
 
 build/array.o: include/array.h include/array_g.h src/array.c
 	$(CC) $(CFLAGS) -c src/array.c -o build/array.o
@@ -89,6 +89,9 @@ build/dijkstra.o: src/dijkstra.c include/dijkstra.h include/graph.h include/dict
 build/graph_visiting.o: src/graph_visiting.c include/graph_visiting.h include/graph.h
 	$(CC) $(CFLAGS) -c src/graph_visiting.c -o build/graph_visiting.o
 
+build/errors.o: src/errors.c include/errors.h
+	$(CC) $(CFLAGS) -c src/errors.c -o build/errors.o
+
 
 Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	$(MAKE) -C Esercizio1
@@ -100,7 +103,7 @@ Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st
 	$(MAKE) -C Esercizio3
 
 
-tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests
+tests: test_binaries
 	bin/sorting_tests
 	bin/dictionary_tests_st
 	bin/dictionary_tests_hash
@@ -108,28 +111,33 @@ tests: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/d
 	bin/graph_tests
 	bin/list_tests
 	bin/array_tests
+	bin/errors_tests
 
-bin/sorting_tests: tests/sorting_tests.c lib/libcontainers_st.a
+test_binaries: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests
+
+bin/sorting_tests: tests/sorting_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
 
-bin/dictionary_tests_st: tests/dictionary_tests.c lib/libcontainers_st.a
+bin/dictionary_tests_st: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_st -lcontainers_st $(LDFLAGS)
 
-bin/dictionary_tests_hash: tests/dictionary_tests.c lib/libcontainers_hash.a
+bin/dictionary_tests_hash: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_hash.a
 	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_hash -lcontainers_hash $(LDFLAGS)
 
-bin/dictionary_tests_rb: tests/dictionary_tests_rb.c lib/libcontainers_rb.a
+bin/dictionary_tests_rb: tests/dictionary_tests_rb.c include/unit_testing.h lib/libcontainers_rb.a
 	$(CC) $(CFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb $(LDFLAGS)
 
-bin/graph_tests: tests/graph_tests.c lib/libcontainers_st.a
+bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st $(LDFLAGS)
 
-bin/list_tests: tests/list_tests.c lib/libcontainers_hash.a
+bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash.a
 	$(CC) $(CFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash $(LDFLAGS)
 
-bin/array_tests: tests/array_tests.c lib/libcontainers_st.a
+bin/array_tests: tests/array_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/array_tests.c -o bin/array_tests -lcontainers_st $(LDFLAGS)
 
+bin/errors_tests: tests/errors_tests.c include/unit_testing.h lib/libcontainers_st.a
+	$(CC) $(CFLAGS) tests/errors_tests.c -o bin/errors_tests -lcontainers_st $(LDFLAGS)
 
 
 include Makefile.exps

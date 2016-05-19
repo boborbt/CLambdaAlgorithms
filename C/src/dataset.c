@@ -3,9 +3,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "array.h"
 #include "dictionary.h"
+#include "errors.h"
+
 
 struct _Record {
   int id;
@@ -112,8 +115,7 @@ static Record* parse_record(const char* str) {
   int num_fields = sscanf(str, "%d,%[^,],%d,%lf", &record->id, buf, &record->field2, &record->field3 );
 
   if(num_fields!=4) {
-    printf("Read only %d fields on line %s", num_fields, str );
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Read only %d fields on line %s", num_fields, str));
   }
 
   record->field1 = strdup(buf);
@@ -137,8 +139,7 @@ Dataset* Dataset_load(const char* filename) {
 
   FILE* file = fopen(filename, "r");
   if(!file) {
-    perror(NULL);
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, strerror(errno)));
   }
   while(!feof(file)) {
     if(count++ % 1000000 == 0) {

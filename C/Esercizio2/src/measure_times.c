@@ -6,6 +6,7 @@
 #include "dataset.h"
 #include "dictionary.h"
 #include "print_time.h"
+#include "errors.h"
 
 #ifndef __unused
   #define UNUSED(a) a __attribute__((unused))
@@ -58,8 +59,7 @@ static char* get_compilation_flags() {
   static char buf[4096];
   FILE* file = fopen("Makefile.vars", "r");
   if(file==NULL) {
-    fprintf(stderr, "Cannot open Makefile.vars to read compilatin flags\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags" ));
   }
 
   int found = 0;
@@ -68,8 +68,7 @@ static char* get_compilation_flags() {
   }
 
   if(!found) {
-    fprintf(stderr, "Cannot find CFLAGS string into Makefile.vars\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
   }
 
   buf[strlen(buf)-1] = '\0'; // removing trailing \n
@@ -115,7 +114,7 @@ int main(int argc, char* argv[]) {
       keyInfo = KeyInfo_new(Dataset_compare_field3, Dataset_hash_field3);
       break;
     default:
-      exit(2);
+      Error_raise(Error_new(ERROR_ARGUMENT_PARSING, "Index field was expected to be in {1,2,3} but was %d", argv[1][0]));
   }
 
   dictionary = Dictionary_new(keyInfo);

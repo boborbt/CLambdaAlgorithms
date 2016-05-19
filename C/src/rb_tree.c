@@ -2,7 +2,7 @@
 #include "stack.h"
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "errors.h"
 
 typedef enum {
   BLACK, RED
@@ -127,8 +127,7 @@ static void Node_set(Node* node, Node* parent, Node* left, Node* right) {
 
 static void Node_set_color(Node* node, Color color) {
   if(node == _nil && color == RED) {
-    printf("Error: setting color of _nil to red");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Setting color of _nil to red" ));
   }
   node->color = color;
 }

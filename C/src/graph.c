@@ -3,6 +3,7 @@
 
 #include "graph.h"
 #include "dictionary.h"
+#include "errors.h"
 
 // The adjacency matrix is a dictionary storing vertices as keys. Values
 // are dictionaries themselves in which keys are the adjacent vertex and
@@ -48,8 +49,7 @@ KeyInfo Graph_keyInfo(Graph graph) {
 void Graph_add_vertex(Graph graph, void* vertex) {
   void* dummy;
   if(Dictionary_get(graph->adjacency_matrix, vertex, &dummy)) {
-    printf("Error: Trying to insert a vertex twice in the graph");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Trying to insert a vertex twice in the graph"));
   }
   Dictionary_set(graph->adjacency_matrix, vertex, Dictionary_new(graph->vertexInfo));
   graph->size += 1;
@@ -58,8 +58,7 @@ void Graph_add_vertex(Graph graph, void* vertex) {
 static Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
   Dictionary adj_list;
   if(Dictionary_get(graph->adjacency_matrix, source, (void**)&adj_list) == 0) {
-    printf("Error: cannot find the given vertex in the graph");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
   }
 
   return adj_list;
@@ -77,13 +76,11 @@ size_t Graph_size(Graph graph) {
 void* Graph_edge_info(Graph graph, const void* v1, const void* v2) {
   Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, v1);
   if(v1_adj_list==NULL) {
-    printf("Cannot find given vertex\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Cannot find given vertex"));
   }
   void* info = NULL;
   if(Dictionary_get(v1_adj_list, v2, &info)==0) {
-    printf("Cannot find v2 in v1 adj list\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Cannot find v2 in v1 adj list"));
   }
   return info;
 }

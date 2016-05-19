@@ -9,6 +9,7 @@
 #include "heap_sort.h"
 #include "dataset.h"
 #include "print_time.h"
+#include "errors.h"
 
 
 // qsort passes to the comparison function a pointer to the array element,
@@ -134,19 +135,19 @@ static int char_included(char ch, char chars[], size_t size) {
 
 static void check_arguments(int argc, char** argv) {
   if(argc <= 2) {
-    print_usage();
-    exit(1);
+    printf("Expected more than 2 arguments, got %d", argc);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 
   if(strlen(argv[1])!=2 || argv[1][0] != '-' || !char_included(argv[1][1], (char[]){'q','Q','m','M','h','s', 'H', 'i'}, 8)) {
     printf("Option %s not recognized\n", argv[1]);
     print_usage();
-    exit(1);
+    exit(ERROR_ARGUMENT_PARSING);
   }
 
   if(!strcmp(argv[1], "-h")) {
     print_usage();
-    exit(1);
+    exit(0);
   }
 }
 
@@ -161,7 +162,7 @@ static char* flag_to_algorithm_name(char ch) {
     case 'H': return "heap_sort";
     default:
       printf("Flag not in the known set");
-      exit(1);
+      exit(ERROR_ARGUMENT_PARSING);
   };
 }
 
@@ -169,8 +170,7 @@ static char* get_compilation_flags() {
   static char buf[4096];
   FILE* file = fopen("Makefile.vars", "r");
   if(file==NULL) {
-    fprintf(stderr, "Cannot open Makefile.vars to read compilatin flags\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags"));
   }
 
   int found = 0;
@@ -179,8 +179,7 @@ static char* get_compilation_flags() {
   }
 
   if(!found) {
-    fprintf(stderr, "Cannot find CFLAGS string into Makefile.vars\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
   }
 
   buf[strlen(buf)-1] = '\0'; // removing trailing \n

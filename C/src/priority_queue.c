@@ -1,6 +1,7 @@
 #include "priority_queue.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "errors.h"
 
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
@@ -128,8 +129,7 @@ void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priori
   }
 
   if(i==pq->size) {
-    printf("Could not find elem in the queue\n");
-    exit(1);
+    Error_raise(Error_new(ERROR_GENERIC, "Priority queues: cannot find element while decreasing its priority"));
   }
 
   pq->array[i].priority = priority;
