@@ -30,8 +30,14 @@ lib/libcontainers_st.a: build/search_tree.o	$(COMMON_OBJECTS)
 lib/libcontainers_rb.a: build/rb_tree.o $(COMMON_OBJECTS)
 	$(LIBTOOL) lib/libcontainers_rb.a build/rb_tree.o $(COMMON_OBJECTS)
 
-build/%.o: src/%.c $(HEADERS)
+
+# Source compilation
+
+build/%.o: src/%.c $(HEADERS) Makefile Makefile.vars
 	$(CC) $(CFLAGS) -c $< -o $@
+
+
+# Experiments
 
 Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	$(MAKE) -C Esercizio1
