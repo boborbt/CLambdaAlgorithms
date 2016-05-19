@@ -3,11 +3,13 @@ CFLAGS+=-I../include
 LDFLAGS+=-L../lib
 
 
-all: bin/measure_times bin/test_read
+all: bin bin/measure_times bin/test_read
+
+bin:
+	mkdir bin
 
 clean:
-	$(RM) -rf bin/*
-	$(RM) -rf build/*
+	$(RM) -rf bin
 
 
 bin/measure_times: src/measure_times.c ../include/heap_sort.h ../include/quick_sort.h ../include/insertion_sort.h ../include/dataset.h  ../lib/libcontainers_st.a Makefile ../Makefile.vars

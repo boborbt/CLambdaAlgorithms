@@ -3,9 +3,9 @@ include Makefile.vars
 CFLAGS+=-Iinclude
 LDFLAGS+=-Llib
 
-.PHONY: Esercizio1 Esercizio2 Esercizio3 lib clean experiment1 experiment2 experiment3 tests
+.PHONY: Esercizio1 Esercizio2 Esercizio3 libs clean experiment1 experiment2 experiment3 tests
 
-all: lib Esercizio1 Esercizio2 Esercizio3
+all: build lib bin libs Esercizio1 Esercizio2 Esercizio3
 
 clean:
 	$(MAKE) -C Esercizio1 clean
@@ -19,7 +19,16 @@ HEADERS=include/*.h
 
 COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o
 
-lib: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
+build:
+	mkdir build
+
+lib:
+	mkdir lib
+
+bin:
+	mkdir bin
+
+libs: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
 lib/libcontainers_hash.a: build/hash_table.o $(COMMON_OBJECTS)
 	$(LIBTOOL) lib/libcontainers_hash.a build/hash_table.o $(COMMON_OBJECTS)

@@ -4,11 +4,17 @@ LDFLAGS+=-L../lib
 
 .PHONY: clean all tests
 
-all:  bin/measure_times_st bin/measure_times_hash bin/measure_times_rb
+all: bin build  bin/measure_times_st bin/measure_times_hash bin/measure_times_rb
+
+bin:
+	mkdir bin
+
+build:
+	mkdir build
 
 clean:
-	$(RM) -rf build/*
-	$(RM) -rf bin/*
+	$(RM) -rf build
+	$(RM) -rf bin
 
 
 bin/measure_times_st: src/measure_times.c ../include/keys.h  ../include/stack.h ../lib/libcontainers_st.a Makefile ../Makefile.vars

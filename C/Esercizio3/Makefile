@@ -4,11 +4,14 @@ LDFLAGS+=-L../lib
 
 .PHONY: all clean
 
-all: bin/measure_times
+all: bin bin/measure_times
+
+bin:
+	mkdir bin
 
 clean:
-	$(RM) -rf build/*
-	$(RM) -rf bin/*
+	$(RM) -rf build
+	$(RM) -rf bin
 
 
 bin/measure_times: src/measure_times.c ../include/dijkstra.h ../include/graph.h ../lib/libcontainers_hash.a ../Makefile.vars Makefile
