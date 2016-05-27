@@ -11,9 +11,9 @@ clean:
 	$(MAKE) -C Esercizio1 clean
 	$(MAKE) -C Esercizio2 clean
 	$(MAKE) -C Esercizio3 clean
-	$(RM) -f lib/*.a
-	$(RM) -f build/*.o
-	$(RM) -rf bin/*
+	$(RM) -rf lib
+	$(RM) -rf build
+	$(RM) -rf bin
 
 HEADERS=include/*.h
 
@@ -42,7 +42,7 @@ lib/libcontainers_rb.a: build/rb_tree.o $(COMMON_OBJECTS)
 
 # Source compilation
 
-build/%.o: src/%.c $(HEADERS) Makefile Makefile.vars
+build/%.o: src/%.c   Makefile Makefile.vars
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
