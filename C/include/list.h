@@ -34,10 +34,13 @@ size_t List_length(List list);
 List List_insert(List list, void* elem);
 
 // Returns a pointer to the sublist whose head satisfies elem_selector(elem)==1.
-// Notice that this method requires a pointer to a list and returns a pointer
-// to the sublist, while most of the other methods require and return lists
-// (not pointers to them). This is necessary to allow the returned element to
-// be used to delete list nodes.
+// Notice that this method requires a pointer to a variable holding a list and
+// returns a pointer to the variable in the list that points to the the sublist,
+// while most of the other methods require and return lists
+// (not pointers to them). This allows the returned pointer to be used to change
+// the list itself. For instance if List* subl = List_find(...), then
+// List_delete_node(subl) will remove the head of subl from the original list
+// changing the original list head if necessary.
 List* List_find(List* list_ptr, int (*elem_selector)(const void*));
 
 // Identical to List_find, but accept a block instead of a function.
