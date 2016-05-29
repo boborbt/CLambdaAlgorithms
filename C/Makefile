@@ -68,7 +68,7 @@ tests: test_binaries
 	bin/array_tests
 	bin/errors_tests
 
-test_binaries: bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests
 
 bin/sorting_tests: tests/sorting_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
