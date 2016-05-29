@@ -109,7 +109,7 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
     DoubleContainer child_distance;
     int child_found = Dictionary_get(state->distances, child, (void **)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
-      return;
+      return; // -> next foreach iteration
     }
 
     Dictionary_set(state->parents, child, current);
