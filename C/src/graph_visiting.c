@@ -31,8 +31,7 @@ static void depth_first_visit(VisitingInfo info, void* source) {
   EdgeIterator adj_it = Graph_adjacents(info->graph, source);
   while(!EdgeIterator_end(adj_it)) {
     void* neighbour = EdgeIterator_get(adj_it).vertex;
-    void* dummy;
-    if(!Dictionary_get(info->visited_vertices, neighbour, &dummy)) {
+    if(!Dictionary_get(info->visited_vertices, neighbour, NULL)) {
       depth_first_visit(info, neighbour);
     }
     EdgeIterator_next(adj_it);

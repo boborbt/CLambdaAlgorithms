@@ -82,7 +82,7 @@ bin/dictionary_tests_hash: tests/dictionary_tests.c include/unit_testing.h lib/l
 bin/dictionary_tests_rb: tests/dictionary_tests_rb.c include/unit_testing.h lib/libcontainers_rb.a
 	$(CC) $(CFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb $(LDFLAGS)
 
-bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_hash.a
 	$(CC) $(CFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st $(LDFLAGS)
 
 bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash.a

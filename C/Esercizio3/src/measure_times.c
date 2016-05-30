@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "double_container.h"
 #include "errors.h"
+#include <errno.h>
 
 #define BUF_SIZE 1024
 
@@ -39,6 +40,11 @@ static Graph load_graph(const char* filename) {
   Dictionary known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
   FILE* infile = fopen(filename, "r");
+  if(infile==NULL) {
+    Error_raise( Error_new( ERROR_FILE_OPENING, "Cannot open file %s for reading, reason: %s", filename, strerror(errno)));
+  }
+
+
   int count = 0;
 
   while(!feof(infile)) {
@@ -141,10 +147,9 @@ static void visit_vertex(void* vertex, void* user_info) {
 
 static void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
   void* result = NULL;
-  void* dummy;
   VertexIterator v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it) && result==NULL) {
-    if(!Dictionary_get(visited_vertices, VertexIterator_get(v_it), &dummy)) {
+    if(!Dictionary_get(visited_vertices, VertexIterator_get(v_it), NULL)) {
       result = VertexIterator_get(v_it);
     }
 

@@ -47,8 +47,7 @@ KeyInfo Graph_keyInfo(Graph graph) {
 }
 
 void Graph_add_vertex(Graph graph, void* vertex) {
-  void* dummy;
-  if(Dictionary_get(graph->adjacency_matrix, vertex, &dummy)) {
+  if(Dictionary_get(graph->adjacency_matrix, vertex, NULL)) {
     Error_raise(Error_new(ERROR_GENERIC, "Trying to insert a vertex twice in the graph"));
   }
 
