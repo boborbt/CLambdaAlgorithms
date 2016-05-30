@@ -11,6 +11,12 @@
 
 #define BUF_SIZE 1024
 
+#ifndef __unused
+  #define UNUSED(a) a __attribute__((unused))
+#else
+  #define UNUSED(a) a __unused
+#endif
+
 static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
   // printf("inserting %s -> %s (%lf)\n", v1, v2, len);
 
@@ -140,33 +146,16 @@ static void check_edge(Graph graph, const char* source, char* dest) {
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
 }
 
-static void visit_vertex(void* vertex, void* user_info) {
-  Dictionary dic = (Dictionary) user_info;
-  Dictionary_set(dic, vertex, "VISITED");
-}
-
-static void* unvisited_vertex(Graph graph, Dictionary visited_vertices) {
-  void* result = NULL;
-  VertexIterator v_it = Graph_vertices(graph);
-  while(!VertexIterator_end(v_it) && result==NULL) {
-    if(!Dictionary_get(visited_vertices, VertexIterator_get(v_it), NULL)) {
-      result = VertexIterator_get(v_it);
-    }
-
-    VertexIterator_next(v_it);
-  }
-  VertexIterator_free(v_it);
-
-  return result;
+static void visit_vertex(void* UNUSED(vertex), void* UNUSED(user_info)) {
+  return;
 }
 
 static void find_connected_components(Graph graph) {
-  Dictionary visited_vertices = Dictionary_new(Graph_keyInfo(graph));
-  VisitingInfo visit_info = VisitingInfo_new(graph, visit_vertex, visited_vertices);
+  VisitingInfo visit_info = VisitingInfo_new(graph, visit_vertex, NULL);
   int count = 0;
-  void* vertex;
+  VINode* vertex;
 
-  while( (vertex = unvisited_vertex(graph, visited_vertices)) != NULL ) {
+  while( (vertex = VisitingInfo_next_unvisited(visit_info)) != NULL ) {
     Graph_depth_first_visit(visit_info, vertex);
     count+=1;
   }
