@@ -17,9 +17,9 @@ void Dictionary_free(Dictionary dictionary);
 void Dictionary_set(Dictionary dictionary, void* key, void* value);
 
 // Retrieve the value associated with the given key. The found value
-// is put into *result.
+// is put into *result unless result==NULL.
 // If the key is not found, the function returns 0 and leave result untouched.
-// Otherwise it returns 1.
+// Otherwise it returns 1 and, if result!=NULL, sets *results to point to the found KeyValue.
 int Dictionary_get(Dictionary dictionary, const void* key, void** result);
 
 // Delete key from the given dictionary. Do nothing if key does not belong
@@ -59,4 +59,7 @@ int DictionaryIterator_end(DictionaryIterator it);
 // Returns the element currently pointed by the iterator
 KeyValue* DictionaryIterator_get(DictionaryIterator it);
 
+//
+// FOREACH
+//
 void foreach_dictionary_key_value(Dictionary, void(^)(KeyValue* kv));

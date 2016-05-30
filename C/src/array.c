@@ -58,6 +58,10 @@ void Array_free(Array array) {
 
 // Accessors
 void* Array_at(Array array, size_t index) {
+  if(index >= Array_size(array)) {
+    Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND, "Index %ld is out of bounds (0,%ld)", index, Array_size(array) ));
+  }
+  
   return at_g(array->carray, index, array->elem_size);
 }
 

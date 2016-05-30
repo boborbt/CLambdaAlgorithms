@@ -51,6 +51,7 @@ void Graph_add_vertex(Graph graph, void* vertex) {
   if(Dictionary_get(graph->adjacency_matrix, vertex, &dummy)) {
     Error_raise(Error_new(ERROR_GENERIC, "Trying to insert a vertex twice in the graph"));
   }
+
   Dictionary_set(graph->adjacency_matrix, vertex, Dictionary_new(graph->vertexInfo));
   graph->size += 1;
 }
@@ -65,6 +66,10 @@ static Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
 }
 
 void Graph_add_edge(Graph graph, void* source, void* dest,  void* info) {
+  if( !Dictionary_get(graph->adjacency_matrix, dest, NULL) ) {
+    Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the source vertex in the graph"));
+  }
+
   Dictionary adj_list = Graph_adjacents_dictionary(graph, source);
   Dictionary_set(adj_list, dest, info);
 }

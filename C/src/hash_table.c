@@ -181,18 +181,21 @@ static KeyValue* Dictionary_get_key_value(Dictionary dictionary, const void* key
 
 
 // Retrieve the value associated with the given key. The found value
-// is put into *result.
+// is put into *result unless result==NULL.
 // If the key is not found, the function returns 0 and leave result untouched.
-// Otherwise it returns 1.
+// Otherwise it returns 1 and, if result!=NULL, sets *results to point to the found KeyValue.
 int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
   KeyValue* kv = Dictionary_get_key_value(dictionary, key);
 
   if(kv == NULL) {
     return 0;
-  } else {
-    *result = (void*) kv->value;
-    return 1;
   }
+
+  if(result!=NULL) {
+    *result = (void*) kv->value;
+  }
+
+  return 1;
 }
 
 

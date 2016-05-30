@@ -4,10 +4,19 @@
 
 typedef int (*GVertexCompare)(void*, void*);
 
+// Graph opaque type
 typedef struct _Graph* Graph;
+
+// EdgeIterator opaque type
 typedef struct _EdgeIterator* EdgeIterator;
+
+// VertexIterator opaque type
 typedef struct _VertexIterator* VertexIterator;
 
+
+// Edge information as returned by the EdgeIterator. Note that the struct
+// lacks a pointer to the source vertex. In most cases this is implied by
+// an outer iteration over vertices.
 typedef struct {
   void* vertex;
   void* info;
@@ -23,13 +32,14 @@ void Graph_free(Graph graph);
 // Returns the KeyInfo with which vertices are compared
 KeyInfo Graph_keyInfo(Graph graph);
 
-// add the given vertex to the graph (if it does not already belong to it)
+// Adds the given vertex to the graph (if it does not already belong to it).
+// Raises an ERROR_GENERIC if the vertex already belongs to the graph.
 void Graph_add_vertex(Graph graph, void* vertex);
 
 // adds the given edge to the graph. Substitute the info value if the edge
 // already belongs to the graph.
-// if source or dest do not already belong to the graph, it may raise an
-// error and exit.
+// if source or dest do not already belong to the graph, it raises a
+// ERROR_GENERIC.
 void Graph_add_edge(Graph graph, void* source, void* dest, void* info);
 
 // Returns the number of vertices in the graph
@@ -38,7 +48,13 @@ size_t Graph_size(Graph graph);
 // Returns an iterator over all vertices in the graph
 VertexIterator Graph_vertices(Graph graph);
 
-// Returns an iterator over all edges in the graph
+// Returns an iterator over all edges in the graph. Please not that since
+// the edge iterator will provide information about the edge destination only,
+// this function is mainly useful if you need to iterate over the list of all
+// stored weights. If you need information about source, destination and weight,
+// you need to iterate over all vertices (sources) and then get the destinations
+// and weights through Graph_adjacencts (alternatively, you can use the
+// foreach_graph_edge iterator).
 EdgeIterator Graph_edges(Graph graph);
 
 // Returns all edges exiting the given vertex
@@ -71,11 +87,6 @@ void EdgeIterator_next(EdgeIterator it);
 // Returns the EdgeInfo currently pointed by the iterator.
 EdgeInfo EdgeIterator_get(EdgeIterator it);
 
-// Uses the iterator to iterate over the pertaining edges
-// Note: the iterator is automatically freed at the end of the loop
-void foreach_graph_edge_from_iterator(EdgeIterator, void(^)(EdgeInfo));
-
-void foreach_graph_edge(Graph graph, void(^)(void*, void*, void*));
 
 //
 // VERTEX ITERATOR
@@ -94,4 +105,23 @@ void VertexIterator_next(VertexIterator it);
 // Returns the EdgeInfo currently pointed by the iterator.
 void* VertexIterator_get(VertexIterator it);
 
+//
+// FOREACH methods
+//
+
+// Iterates over all vertices in the graph calling the given block on each
+// node.
 void foreach_graph_vertex(Graph graph, void (^)(void*));
+
+// Iterates over all edges in the graph calling the given block on each
+// edge. The block needs to expect the edge to be given in the form (src,dst,weight)
+void foreach_graph_edge(Graph graph, void(^)(void*, void*, void*));
+
+
+// Uses the iterator to iterate over the pertaining edges
+// This foreach statement is mainly useful when one has a custom way to iterate over
+// the vertices, e.g., one needs to skip some of them based on some criteria,
+// and wants to iterate over the adjacents of the selected vertices only.
+//
+// Note: the iterator is automatically freed at the end of the loop
+void foreach_graph_edge_from_iterator(EdgeIterator, void(^)(EdgeInfo));

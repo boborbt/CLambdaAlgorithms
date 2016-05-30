@@ -15,12 +15,29 @@ Array Array_dup(Array);
 // Destructor
 void Array_free(Array);
 
+//
 // Accessors
+//
+
+// Returns the element at the given index. It raises an ERROR_INDEX_OUT_OF_BOUND
+// if index is not in bounds.
 void* Array_at(Array array, size_t index);
+
+// Returns a C array representation of the given array. Valid indices are
+// between 0 and Array_size(array).
 void* Array_carray(Array array);
+
+// Returns the number of elements in the current array
 size_t Array_size(Array array);
+
+// Returns true iff Array_size(array)==0
 int Array_empty(Array array);
+
+// Returns the size in bytes of an element stored in the array
 size_t Array_elem_size(Array array);
+
+// Returns the number of elements the array can accomodate without reallocating
+// to a larger structure.
 size_t Array_capacity(Array array);
 
 // Set the size the array to the new size reallocing the elements if necessary
@@ -62,7 +79,8 @@ int ArrayIterator_end(ArrayIterator it);
 // Returns the element currently pointed by the iterator
 void* ArrayIterator_get(ArrayIterator it);
 
-// foreach
-
+//
+// FOREACH
+//
 void foreach_array_elem(Array array, void (^)(void*));
 void foreach_array_elem_with_index(Array array, void (^)(void*, size_t));

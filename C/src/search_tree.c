@@ -214,7 +214,10 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
     return 0;
   }
 
-  *value = (*node_ptr)->kv->value;
+  if(value != NULL) {
+    *value = (*node_ptr)->kv->value;
+  }
+  
   return 1;
 }
 

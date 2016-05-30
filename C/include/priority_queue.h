@@ -6,6 +6,7 @@
 // Implementation of a priority queue (smaller values first)
 //
 
+// PriorityQueue opaque type
 typedef struct _PriorityQueue* PriorityQueue;
 
 // Alloc the priority queue

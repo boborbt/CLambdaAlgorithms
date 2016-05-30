@@ -64,7 +64,7 @@
     if(!WIFEXITED(__ut_status) || WEXITSTATUS(__ut_status) != (code)) {\
     printf("\nassertion failed at file: %s line:%d. function expected to exit with code %d but it exited insead with code (%d,%d)\n",\
       __FILE__, __LINE__, (code), WIFEXITED(__ut_status), WEXITSTATUS(__ut_status)); exit(1); } \
-  } while(0);\
+  } while(0);
 
 
 
