@@ -205,13 +205,26 @@ void foreach_graph_edge_from_iterator(EdgeIterator it, void(^callback)(EdgeInfo)
   EdgeIterator_free(it);
 }
 
-void foreach_graph_vertex(Graph graph, void (^callback)(void*)) {
+void* find_graph_vertex(Graph graph, int (^callback)(void*)) {
   VertexIterator it = Graph_vertices(graph);
-  while(!VertexIterator_end(it)) {
-    callback(VertexIterator_get(it));
+  int found = 0;
+  void* result = NULL;
+  while(!VertexIterator_end(it) && !found) {
+    result = VertexIterator_get(it);
+    found = callback(result);
+
     VertexIterator_next(it);
   }
   VertexIterator_free(it);
+
+  return found ? result : NULL;
+}
+
+void foreach_graph_vertex(Graph graph, void (^callback)(void*)) {
+  find_graph_vertex(graph, ^(void* vertex) {
+    callback(vertex);
+    return 0;
+  });
 }
 
 void foreach_graph_edge(Graph graph, void (^callback)(void*, void*, void*)) {
