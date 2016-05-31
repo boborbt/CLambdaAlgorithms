@@ -25,7 +25,7 @@ void* Queue_front(Queue queue) {
 }
 
 size_t Queue_size(Queue queue) {
-  return List_length(queue);
+  return List_size(queue);
 }
 
 int Queue_empty(Queue queue) {

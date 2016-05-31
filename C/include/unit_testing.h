@@ -20,7 +20,6 @@
   printf("\nassertion failed at file:%s line:%d. %p was expected to be null\n",\
     __FILE__, __LINE__, (a)); exit(1); }
 
-
 #define assert_equal(a,b) if((a)!=(b)) {\
    printf("\nassertion failed at file:%s line:%d. %ld was expected to be equal to %ld\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
@@ -40,7 +39,6 @@
 #define assert_double_equal(a,b,min_dist) if(fabs((a)-(b))>(min_dist)) {\
    printf("\nassertion failed at file:%s line:%d. %f was expected to be equal to %f\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
-
 
 #define assert_string_equal(a,b) if(strcmp((a),(b))) {\
    printf("\nassertion failed at file:%s line:%d. %s was expected to be equal to %s\n",\

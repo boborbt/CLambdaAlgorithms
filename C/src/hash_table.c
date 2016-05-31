@@ -240,7 +240,7 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
   size_t buckets_count = 0;
   for(size_t i=0; i<dictionary->capacity; ++i) {
     if(dictionary->table[i] != NULL) {
-      sum_len += List_length(dictionary->table[i]);
+      sum_len += List_size(dictionary->table[i]);
       buckets_count += 1;
     }
   }

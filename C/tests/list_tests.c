@@ -22,18 +22,18 @@ static List build_fixtures() {
 
 static void test_list_creation() {
   List list = List_new();
-  assert_equal((unsigned long)List_length(list), (long)0);
+  assert_equal((unsigned long)List_size(list), (long)0);
 }
 
 static void test_list_insertion() {
   List list = List_new();
   List_insert(list, "1");
   assert_not_null(list);
-  assert_equal(1l, List_length(list));
+  assert_equal(1l, List_size(list));
   assert_true(!strcmp(List_get_head(list), "1"));
 
   List_insert(list, "2");
-  assert_equal(2l, List_length(list));
+  assert_equal(2l, List_size(list));
   ListIterator it = ListIterator_new(list);
 
   assert_true(strcmp(ListIterator_get(it), "2")==0);
@@ -91,7 +91,7 @@ static void test_list_delete_node() {
   List_delete_node(list, elem);
 
   assert_true(!strcmp(ListIterator_get(it), "21") );
-  assert_equal(7l, List_length(list));
+  assert_equal(7l, List_size(list));
 }
 
 static void test_list_free_with_delete_elem() {

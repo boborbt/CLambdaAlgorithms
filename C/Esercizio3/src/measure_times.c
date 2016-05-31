@@ -13,8 +13,6 @@
 #define BUF_SIZE 1024
 
 static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
-  // printf("inserting %s -> %s (%lf)\n", v1, v2, len);
-
   void* vertex1 = NULL;
   void* vertex2 = NULL;
 

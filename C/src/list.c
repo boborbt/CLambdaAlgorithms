@@ -42,7 +42,7 @@ void* List_get_head(List list) {
   return list->head->elem;
 }
 
-size_t List_length(List list) {
+size_t List_size(List list) {
   return list->size;
 }
 

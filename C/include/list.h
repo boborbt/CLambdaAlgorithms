@@ -20,7 +20,7 @@ void List_free(List list, void (*elem_free)(void*));
 void* List_get_head(List list);
 
 // Returns the length of the given list. This is a O(1) operation.
-size_t List_length(List list);
+size_t List_size(List list);
 
 // Returns 1 iff the list is empty
 int List_empty(List list);
