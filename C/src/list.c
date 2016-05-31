@@ -88,6 +88,31 @@ void List_insert(List list, void* elem) {
   list->size += 1;
 }
 
+void List_append(List list, void* elem) {
+  ListNode new_node = (ListNode) malloc(sizeof(struct _ListNode));
+  new_node->elem = elem;
+  new_node->succ = NULL;
+  new_node->pred = list->tail;
+  list->tail = new_node;
+  if(list->head==NULL) {
+    list->head = new_node;
+  }
+
+  if(new_node->pred) {
+    new_node->pred->succ = new_node;
+  }
+
+  list->size += 1;
+}
+
+ListNode List_head(List list) {
+  return list->head;
+}
+
+ListNode List_tail(List list) {
+  return list->tail;
+}
+
 void List_free(List list, void (*elem_free)(void*)) {
   ListNode current = list->head;
   while(current!=NULL) {
@@ -194,4 +219,13 @@ void ListIterator_next(ListIterator it) {
 
 int ListIterator_end(ListIterator it) {
   return it==NULL || it->current == NULL;
+}
+
+void foreach_list_element(List list, void(^callback)(void*)) {
+  ListIterator it = ListIterator_new(list);
+  while( !ListIterator_end(it) ) {
+    callback(ListIterator_get(it));
+    ListIterator_next(it);
+  }
+  ListIterator_free(it);
 }

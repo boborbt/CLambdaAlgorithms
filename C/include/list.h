@@ -11,38 +11,40 @@ typedef struct _ListNode* ListNode;
 // Constructor
 List List_new(void);
 
-// Given a pointer to a list, delete the head node from the pointed list and
-// update the pointer to point to the new head.
-void List_delete_node(List list, ListNode node);
-
 // Frees the list. If elem_free is not null each element is passed to
 // elem_free so to allow user clean-up of the element before deallocing the node.
 void List_free(List list, void (*elem_free)(void*));
 
-// Returns the element at the head of the given list
+// Returns the element at the head of the given list.
+// Semantically equivalent to List_iterator_get(ListIterator_new(list))
 void* List_get_head(List list);
 
-// Returns the length of the given list. This is a O(n) operation.
+// Returns the length of the given list. This is a O(1) operation.
 size_t List_length(List list);
 
-// Inserts a new element in the list and returns a pointer to the new head
-// intended usage is something like:
-// list = List_insert(list, new_elem);
+// Inserts a new element at the head of the list.
 void List_insert(List list, void* elem);
 
-// Returns a pointer to the sublist whose head satisfies elem_selector(elem)==1.
-// Notice that this method requires a pointer to a variable holding a list and
-// returns a pointer to the variable in the list that points to the the sublist,
-// while most of the other methods require and return lists
-// (not pointers to them). This allows the returned pointer to be used to change
-// the list itself. For instance if List* subl = List_find(...), then
-// List_delete_node(subl) will remove the head of subl from the original list
-// changing the original list head if necessary.
+// Insert a new element at the end of the list.
+void List_append(List list, void* elem);
+
+// Deletes the given ListNode from the list
+void List_delete_node(List list, ListNode node);
+
+// Returns the list node at the head of the list
+ListNode List_head(List list);
+
+// Returns the list node at the end of the list
+ListNode List_tail(List list);
+
+
+// Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==1.
 ListNode List_find(List list, int (*elem_selector)(const void*));
 
 // Identical to List_find, but accept a block instead of a function.
 ListNode List_find_wb(List list, int (^elem_comparator)(const void*));
 
+// Returns the element stored in the given ListNode
 void* ListNode_get(ListNode);
 
 //
