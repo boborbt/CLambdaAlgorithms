@@ -23,3 +23,7 @@ void* Queue_dequeue(Queue queue) {
 void* Queue_front(Queue queue) {
   return ListNode_get( List_tail(queue) );
 }
+
+size_t Queue_size(Queue queue) {
+  return List_length(queue);
+}
