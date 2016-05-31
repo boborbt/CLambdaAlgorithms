@@ -7,13 +7,7 @@
 #include "dictionary.h"
 #include "print_time.h"
 #include "errors.h"
-
-#ifndef __unused
-  #define UNUSED(a) a __attribute__((unused))
-#else
-  #define UNUSED(a) a __unused
-#endif
-
+#include "macros.h"
 
 static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);

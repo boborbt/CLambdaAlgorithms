@@ -6,8 +6,6 @@
 
 struct _VisitingInfo {
   Graph graph;
-  void (*visit)(void*, void*);
-  void* user_info;
 
   Dictionary vertex_set;
   UnionFindSet visited_set;
@@ -15,64 +13,89 @@ struct _VisitingInfo {
 };
 
 
-static void VisitingInfo_init_singletons(VisitingInfo info)  {
-  foreach_graph_vertex(info->graph, ^(void* vertex){
-    Dictionary_set(info->vertex_set, vertex, UnionFindSet_new(vertex));
-  });
-}
-
-VisitingInfo VisitingInfo_new(Graph graph, void (*visit)(void*, void*), void* user_info) {
+VisitingInfo VisitingInfo_new(Graph graph) {
   VisitingInfo result = (VisitingInfo) malloc(sizeof(struct _VisitingInfo));
 
   result->graph = graph;
-  result->visit = visit;
   result->vertex_set = Dictionary_new(Graph_keyInfo(graph));
-  result->user_info = user_info;
-  VisitingInfo_init_singletons(result);
+  foreach_graph_vertex(result->graph, ^(void* vertex){
+    Dictionary_set(result->vertex_set, vertex, UnionFindSet_new(vertex));
+  });
   result->current = DictionaryIterator_new(result->vertex_set);
-  result->visited_set = DictionaryIterator_get(result->current)->value;
+  result->visited_set = UnionFindSet_new(NULL);
 
   return result;
 }
 
-void* VINode_get(VINode node) {
-  return UnionFindSet_get(node);
-}
-
 void VisitingInfo_free(VisitingInfo info) {
+  UnionFindSet_free(info->visited_set);
+  DictionaryIterator_free(info->current);
   foreach_dictionary_key_value(info->vertex_set, ^(KeyValue* kv) {
     UnionFindSet_free(kv->value);
   });
+  Dictionary_free(info->vertex_set);
 
   free(info);
 }
 
-VINode VisitingInfo_next_unvisited(VisitingInfo info) {
+// Returns the next unvisited node. Thanks to the UnionFindSet we have O(1)
+// check if a node has been visited. Also visiting info maintain an iterator
+// over vertices which allows to traverse the list of all vertices exactly once.
+// Counting all possible calls to this function over to explore a graph, the
+// cumulative time is therefore O(n) in the worst and in the best case. This is
+// assuming O(1) Dictionary_get. A naive implementation not using the union set
+// and traversing each time the dictionary in the search of the next unvisited
+// node would require O(n) time in the best case, and O(n^2) in the worst.
+void* VisitingInfo_next_unvisited(VisitingInfo info) {
   if(DictionaryIterator_end(info->current)) {
     return NULL;
   }
 
-  VINode result = DictionaryIterator_get(info->current)->value;
+  UnionFindSet result = DictionaryIterator_get(info->current)->value;
   DictionaryIterator_next(info->current);
 
-  return result;
+  while( UnionFindSet_same(result, info->visited_set) && !DictionaryIterator_end(info->current)) {
+    result = DictionaryIterator_get(info->current)->value;
+    DictionaryIterator_next(info->current);
+  }
+
+  if( UnionFindSet_same(result, info->visited_set) ) {
+    return NULL;
+  }
+
+  return UnionFindSet_get(result);
 }
 
-
-void Graph_depth_first_visit(VisitingInfo info, VINode source) {
+// This is the real depth first visit. The visit is performed on UnionFindSet
+// wrapped nodes, assumes that the source is this kind of node, and calls itself
+// recursively on this kind of nodes. The outer visit only serves as a wrapper
+// which recover the UnionFindSet node corresponding to the given vertex.
+static void Graph_depth_first_visit_uf_set(VisitingInfo info, UnionFindSet source, void (^visit)(void*)) {
   UnionFindSet_union(source, info->visited_set);
-  info->visit(VINode_get(source), info->user_info);
+  visit(UnionFindSet_get(source));
 
-  foreach_graph_edge_from_iterator(Graph_adjacents(info->graph, VINode_get(source)), ^(EdgeInfo ei) {
+  foreach_graph_edge_from_iterator(Graph_adjacents(info->graph, UnionFindSet_get(source)), ^(EdgeInfo ei) {
     void* neighbour = ei.vertex;
-    VINode neighbour_set;
+    UnionFindSet neighbour_set;
 
-    if(!Dictionary_get(info->vertex_set, neighbour, &neighbour_set)) {
+    if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {
       Error_raise( Error_new( ERROR_GENERIC, "Cannot find searched vertex" ));
     }
 
     if(!UnionFindSet_same(neighbour_set, info->visited_set)) {
-      Graph_depth_first_visit(info, neighbour_set);
+      Graph_depth_first_visit_uf_set(info, neighbour_set, visit);
     }
   });
+}
+
+// Finds the UnionFindSet corresponding a source_vertex and calls the
+// DFS based on UnionFindSet nodes.
+void Graph_depth_first_visit(VisitingInfo info, void* source_vertex, void (^visit)(void*)) {
+  UnionFindSet source;
+
+  if(!Dictionary_get(info->vertex_set, source_vertex, (void**)&source)) {
+    Error_raise( Error_new(ERROR_GENERIC, "DFS: cannot find given vertex") );
+  }
+
+  Graph_depth_first_visit_uf_set(info, source, visit);
 }

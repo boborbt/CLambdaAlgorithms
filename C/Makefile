@@ -30,13 +30,13 @@ bin:
 
 libs: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
-lib/libcontainers_hash.a: build/hash_table.o $(COMMON_OBJECTS)
+lib/libcontainers_hash.a: build lib build/hash_table.o $(COMMON_OBJECTS)
 	$(LIBTOOL) lib/libcontainers_hash.a build/hash_table.o $(COMMON_OBJECTS)
 
-lib/libcontainers_st.a: build/search_tree.o	$(COMMON_OBJECTS)
+lib/libcontainers_st.a: build lib build/search_tree.o	$(COMMON_OBJECTS)
 	$(LIBTOOL) lib/libcontainers_st.a build/search_tree.o	$(COMMON_OBJECTS)
 
-lib/libcontainers_rb.a: build/rb_tree.o $(COMMON_OBJECTS)
+lib/libcontainers_rb.a: build lib build/rb_tree.o $(COMMON_OBJECTS)
 	$(LIBTOOL) lib/libcontainers_rb.a build/rb_tree.o $(COMMON_OBJECTS)
 
 

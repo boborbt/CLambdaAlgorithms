@@ -4,11 +4,13 @@
 #include <string.h>
 
 #include "graph.h"
+#include "graph_visiting.h"
 #include "dijkstra.h"
 #include "priority_queue.h"
 #include "unit_testing.h"
 #include "dictionary.h"
 #include "double_container.h"
+#include "macros.h"
 
 
 static PriorityQueue build_pq_fixtures() {
@@ -230,6 +232,42 @@ static void test_graph_foreach_vertex() {
   assert_equal(6l, count);
 }
 
+
+// dfs visit on:
+// v1->v2->v3->(v1)
+// v4
+// v5->v6
+static void test_dfs_visit() {
+  KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
+  Graph graph = Graph_new(keys);
+
+  Graph_add_vertex(graph, "v1");
+  Graph_add_vertex(graph, "v2");
+  Graph_add_vertex(graph, "v3");
+  Graph_add_vertex(graph, "v4");
+  Graph_add_vertex(graph, "v5");
+  Graph_add_vertex(graph, "v6");
+
+  Graph_add_edge(graph, "v1", "v2", NULL);
+  Graph_add_edge(graph, "v2", "v3", NULL);
+  Graph_add_edge(graph, "v3", "v1", NULL);
+
+  Graph_add_edge(graph, "v5", "v6", NULL);
+
+  void* vertex;
+  VisitingInfo info = VisitingInfo_new(graph);
+  __block size_t visited_vertices_count = 0;
+  size_t num_components = 0;
+  while( (vertex = VisitingInfo_next_unvisited(info)) != NULL ) {
+    num_components += 1;
+    Graph_depth_first_visit(info, vertex, ^(void* UNUSED(v)) {
+      visited_vertices_count += 1;
+    });
+  }
+  assert_equal(3l, num_components);
+  assert_equal(6l, visited_vertices_count);
+}
+
 int main() {
   start_tests("priority queue");
   test(test_priority_queue_creation);
@@ -255,6 +293,10 @@ int main() {
 
   start_tests("dijkstra");
   test(test_dijkstra);
+  end_tests();
+
+  start_tests("dfs visit");
+  test(test_dfs_visit);
   end_tests();
 
   return 0;

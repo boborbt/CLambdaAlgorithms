@@ -7,15 +7,10 @@
 #include <assert.h>
 #include "double_container.h"
 #include "errors.h"
+#include "macros.h"
 #include <errno.h>
 
 #define BUF_SIZE 1024
-
-#ifndef __unused
-  #define UNUSED(a) a __attribute__((unused))
-#else
-  #define UNUSED(a) a __unused
-#endif
 
 static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
   // printf("inserting %s -> %s (%lf)\n", v1, v2, len);
@@ -146,18 +141,19 @@ static void check_edge(Graph graph, const char* source, char* dest) {
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
 }
 
-static void visit_vertex(void* UNUSED(vertex), void* UNUSED(user_info)) {
-  return;
-}
-
 static void find_connected_components(Graph graph) {
-  VisitingInfo visit_info = VisitingInfo_new(graph, visit_vertex, NULL);
+  VisitingInfo visit_info = VisitingInfo_new(graph);
   int count = 0;
-  VINode* vertex;
+  void* vertex;
 
   while( (vertex = VisitingInfo_next_unvisited(visit_info)) != NULL ) {
-    Graph_depth_first_visit(visit_info, vertex);
+    __block size_t component_size = 0;
+    Graph_depth_first_visit(visit_info, vertex, ^(void* UNUSED(v)) {
+      component_size += 1;
+    });
     count+=1;
+
+    printf("Component %d size: %ld\n", count, component_size);
   }
 
   VisitingInfo_free(visit_info);
@@ -251,6 +247,7 @@ int main(int argc, char *argv[]) {
   PrintTime_print(pt, "Graph_load", ^{
     printf("Loading graph...\n");
     graph = load_graph(argv[2]);
+    printf("Graph size: %ld\n", Graph_size(graph));
   });
 
   PrintTime_print(pt, "Algorithm_execution", ^{
