@@ -13,7 +13,6 @@ UnionFindSet UnionFindSet_new(void* elem) {
   return result;
 }
 
-
 void UnionFindSet_union(UnionFindSet s1, UnionFindSet s2) {
   UnionFindSet s1_guard = UnionFindSet_find(s1);
   UnionFindSet s2_guard = UnionFindSet_find(s2);

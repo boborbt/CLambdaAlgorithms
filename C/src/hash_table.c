@@ -20,7 +20,7 @@ struct _Dictionary {
 struct _DictionaryIterator {
   Dictionary dictionary;
   size_t cur_index;
-  List cur_list_element;
+  ListIterator cur_list_element;
 };
 
 /* KeyValue* constructor and destructor */
@@ -48,8 +48,8 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
   it->dictionary = dictionary;
   it->cur_index = 0;
-  it->cur_list_element = it->dictionary->table[0];
-  if(it->cur_list_element == NULL) {
+  it->cur_list_element = ListIterator_new(it->dictionary->table[0]);
+  if(ListIterator_end(it->cur_list_element)) {
     DictionaryIterator_next(it);
   }
 
@@ -57,28 +57,30 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
 }
 
 void DictionaryIterator_free(DictionaryIterator it) {
+  ListIterator_free(it->cur_list_element);
   free(it);
 }
 
 int DictionaryIterator_end(DictionaryIterator it)  {
-  return it->cur_list_element == NULL;
+  return ListIterator_end(it->cur_list_element);
 }
 
 KeyValue* DictionaryIterator_get(DictionaryIterator it) {
-  return List_get(it->cur_list_element);
+  return ListIterator_get(it->cur_list_element);
 }
 
 void DictionaryIterator_next(DictionaryIterator it) {
-  if(it->cur_list_element != NULL) {
-    it->cur_list_element = List_next(it->cur_list_element);
-    if(it->cur_list_element != NULL) {
+  if(!ListIterator_end(it->cur_list_element)) {
+    ListIterator_next(it->cur_list_element);
+    if(!ListIterator_end(it->cur_list_element)) {
         return;
     }
   }
 
-  while(it->cur_index < it->dictionary->capacity - 1 && it->cur_list_element == NULL) {
+  while(it->cur_index < it->dictionary->capacity - 1 && ListIterator_end(it->cur_list_element)) {
     it->cur_index += 1;
-    it->cur_list_element = it->dictionary->table[it->cur_index];
+    ListIterator_free(it->cur_list_element);
+    it->cur_list_element = ListIterator_new(it->dictionary->table[it->cur_index]);
   }
 }
 
@@ -123,7 +125,10 @@ static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
   while(!DictionaryIterator_end(it)) {
     KeyValue* current = DictionaryIterator_get(it);
     size_t index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
-    new_table[index] = List_insert(new_table[index], current);
+    if(new_table[index]==NULL) {
+      new_table[index] = List_new();
+    }
+    List_insert(new_table[index], current);
 
     DictionaryIterator_next(it);
   };
@@ -146,18 +151,22 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
-  List* list_elem = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
+  if(dictionary->table[index]==NULL) {
+    dictionary->table[index] = List_new();
+  }
+
+  ListNode list_elem = List_find_wb(dictionary->table[index], ^int (const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
-  if(*list_elem != NULL) {
-    KeyValue* kv = List_get(*list_elem);
+  if(list_elem != NULL) {
+    KeyValue* kv = ListNode_get(list_elem);
     kv->key = key;
     kv->value = value;
     return;
   }
 
-  dictionary->table[index] = List_insert(dictionary->table[index], KeyValue_new(key, value));
+  List_insert(dictionary->table[index], KeyValue_new(key, value));
   dictionary->size += 1;
 }
 
@@ -168,14 +177,14 @@ static KeyValue* Dictionary_get_key_value(Dictionary dictionary, const void* key
     return 0;
   }
 
-  List* list_elem = List_find_wb(&dictionary->table[index], ^int(const void* elem) {
+  ListNode list_elem = List_find_wb(dictionary->table[index], ^int(const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
-  if(*list_elem == NULL) {
+  if(list_elem == NULL) {
     return NULL;
   } else {
-    return List_get(*list_elem);
+    return ListNode_get(list_elem);
   }
 }
 
@@ -205,16 +214,16 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
     return;
   }
 
-  List* list_ptr = List_find_wb(&dictionary->table[index], ^int (const void* elem) {
+  ListNode list_ptr = List_find_wb(dictionary->table[index], ^int (const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
   });
 
-  if(*list_ptr == NULL) {
+  if(list_ptr == NULL) {
     return;
   }
 
   dictionary->size -= 1;
-  List_delete_node(list_ptr);
+  List_delete_node(dictionary->table[index], list_ptr);
 
   if(dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
      dictionary->capacity > dictionary->size * HASH_TABLE_CAPACITY_MAX_MULTIPLIER ) {

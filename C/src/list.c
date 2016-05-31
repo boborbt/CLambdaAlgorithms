@@ -1,13 +1,26 @@
 #include <stdlib.h>
 #include "keys.h"
 #include "list.h"
+#include "errors.h"
+#include <assert.h>
 
+
+struct _ListNode {
+  void* elem;
+  struct _ListNode* pred;
+  struct _ListNode* succ;
+};
 
 // Internal list implementation. It could be abstracted and moved into
 // a separate module (not done since currently used only in this module).
 struct _List {
-  void* elem;
-  struct _List* next;
+  ListNode head;
+  ListNode tail;
+  size_t size;
+};
+
+struct _ListIterator {
+  ListNode current;
 };
 
 
@@ -16,68 +29,169 @@ struct _List {
  * -------------------------- */
 
 List List_new() {
-  return NULL;
+  List result = (List) malloc(sizeof(struct _List));
+  result->head = NULL;
+  result->tail = NULL;
+  result->size = 0l;
+
+  return result;
 }
 
 
-List List_next(List list) {
-  return list->next;
-}
-
-void* List_get(List list) {
-  return list->elem;
+void* List_get_head(List list) {
+  return list->head->elem;
 }
 
 size_t List_length(List list) {
-  size_t count = 0;
-  while(list != NULL) {
-    count += 1;
-    list = list->next;
-  }
-
-  return count;
+  return list->size;
 }
 
-List List_insert(List list, void* elem) {
-  List new_node = (List) malloc(sizeof(struct _List));
-  new_node->elem = elem;
-  new_node->next = list;
+// static void list_check(List list) {
+//   ListNode last = NULL;
+//   ListNode cur = list->head;
+//   size_t count = 0;
+//   while(cur != NULL) {
+//     last = cur;
+//     cur = cur->succ;
+//     count += 1;
+//   }
+//
+//   assert(count == list->size);
+//   assert( last == list->tail );
+//
+//   cur = list->tail;
+//   count = 0;
+//   while(cur != NULL) {
+//     last = cur;
+//     cur = cur->pred;
+//     count += 1;
+//   }
+//
+//   assert(count == list->size);
+//   assert( last == list->head );
+// }
 
-  return new_node;
+void List_insert(List list, void* elem) {
+  ListNode new_node = (ListNode) malloc(sizeof(struct _ListNode));
+  new_node->elem = elem;
+  new_node->succ = list->head;
+  new_node->pred = NULL;
+  list->head = new_node;
+  if(list->tail==NULL) {
+    list->tail = new_node;
+  }
+
+  if(new_node->succ) {
+    new_node->succ->pred = new_node;
+  }
+
+  list->size += 1;
 }
 
 void List_free(List list, void (*elem_free)(void*)) {
-  while(list!=NULL) {
-    List tmp = list->next;
+  ListNode current = list->head;
+  while(current!=NULL) {
+    ListNode next = current->succ;
     if(elem_free) {
-      elem_free(list->elem);
+      elem_free(current->elem);
     }
-    free(list);
-    list = tmp;
+    free(current);
+    current = next;
+  }
+
+  free(list);
+}
+
+ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
+  ListIterator it = ListIterator_new(list);
+
+  while( !ListIterator_end(it) && elem_selector(ListIterator_get(it)) != 0 ) {
+    ListIterator_next(it);
+  }
+
+  if(!ListIterator_end(it)) {
+    return ListIterator_get_node(it);
+  } else {
+    return NULL;
   }
 }
 
-List* List_find_wb(List* list_ptr,  int (^elem_selector)(const void*)) {
-  if(*list_ptr == NULL) {
-    return list_ptr;
-  }
-
-  while( (*list_ptr) != NULL && elem_selector((*list_ptr)->elem) != 0 ) {
-    list_ptr = &(*list_ptr)->next;
-  }
-
-  return list_ptr;
-}
-
-List* List_find(List* list_ptr, int (*elem_selector)(const void*)) {
-  return List_find_wb(list_ptr, ^int(const void* elem) {
+ListNode List_find(List list, int (*elem_selector)(const void*)) {
+  return List_find_wb(list, ^int(const void* elem) {
       return elem_selector(elem);
   });
 }
 
+void* ListNode_get(ListNode node) {
+  return node->elem;
+}
 
-void List_delete_node(List* list_ptr) {
-  List tmp = *list_ptr;
-  *list_ptr = (*list_ptr)->next;
-  free(tmp);
+
+void List_delete_node(List list, ListNode node) {
+  if(list->size == 0) {
+    Error_raise( Error_new( ERROR_GENERIC, "Trying to delete from an empty list" ) );
+  }
+
+  if(list->head == node) {
+    list->head = node->succ;
+  }
+
+  if(list->tail == node) {
+    list->tail = node->pred;
+  }
+
+  if(node->succ != NULL) {
+    node->succ->pred = node->pred;
+  }
+
+  if(node->pred != NULL) {
+    node->pred->succ = node->succ;
+  }
+
+  free(node);
+
+  list->size -= 1;
+}
+
+
+ListIterator ListIterator_new(List list) {
+  if(list == NULL) {
+    return NULL;
+  }
+
+  ListIterator result = (ListIterator) malloc(sizeof(struct _ListIterator));
+  result->current = list->head;
+  return result;
+}
+
+ListIterator ListIterator_new_from_node(ListNode node) {
+  if(node == NULL) {
+    return NULL;
+  }
+
+  ListIterator result = (ListIterator) malloc(sizeof(struct _ListIterator));
+  result->current = node;
+  return result;
+}
+
+void ListIterator_free(ListIterator it) {
+  if(it!=NULL) {
+    free(it);
+  }
+}
+
+void* ListIterator_get(ListIterator it) {
+  return it->current->elem;
+}
+
+ListNode ListIterator_get_node(ListIterator it) {
+  return it->current;
+}
+
+void ListIterator_next(ListIterator it) {
+  it->current = it->current->succ;
+}
+
+int ListIterator_end(ListIterator it) {
+  return it==NULL || it->current == NULL;
 }

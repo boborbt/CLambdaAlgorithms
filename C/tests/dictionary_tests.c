@@ -146,6 +146,16 @@ static void test_dictionary_delete_whole_dictionary() {
   Dictionary_free(dictionary);
 }
 
+static void test_dictionary_delete_element_twice() {
+  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary_delete(dictionary, (void*)15l);
+  assert_equal(6l, Dictionary_size(dictionary));
+
+  Dictionary_delete(dictionary, (void*)15l);
+  assert_equal(6l, Dictionary_size(dictionary));
+  assert_false(Dictionary_get(dictionary, (void*)15l, NULL));
+}
+
 
 static void test_dictionary_get_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
@@ -230,6 +240,7 @@ int main() {
   test(test_dictionary_delete_mid_node);
   test(test_dictionary_delete_leaf);
   test(test_dictionary_delete_whole_dictionary);
+  test(test_dictionary_delete_element_twice);
 
   test(test_dictionary_get_on_empty_dictionary);
   test(test_dictionary_get_on_full_dictionary);
