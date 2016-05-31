@@ -46,6 +46,10 @@ size_t List_length(List list) {
   return list->size;
 }
 
+int List_empty(List list) {
+  return list->head == NULL;
+}
+
 // static void list_check(List list) {
 //   ListNode last = NULL;
 //   ListNode cur = list->head;

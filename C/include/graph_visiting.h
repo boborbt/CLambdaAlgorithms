@@ -18,3 +18,7 @@ void* VisitingInfo_next_unvisited(VisitingInfo);
 // Performs a depth first visit calling VisitingInfo_callback(info) every time
 // a node is explored.
 void Graph_depth_first_visit(VisitingInfo info, void* source, void(^)(void*));
+
+// Performs a breadth first visit calling VisitingInfo_callback(info) every time
+// a node is explored.
+void Graph_breadth_first_visit(VisitingInfo info, void* source, void(^)(void*));

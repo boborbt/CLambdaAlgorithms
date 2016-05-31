@@ -3,6 +3,7 @@
 #include "union_find.h"
 #include <stdlib.h>
 #include "errors.h"
+#include "queue.h"
 
 struct _VisitingInfo {
   Graph graph;
@@ -98,4 +99,39 @@ void Graph_depth_first_visit(VisitingInfo info, void* source_vertex, void (^visi
   }
 
   Graph_depth_first_visit_uf_set(info, source, visit);
+}
+
+void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^visit)(void*)) {
+  UnionFindSet source;
+
+  if(!Dictionary_get(info->vertex_set, source_vertex, (void**)&source)) {
+    Error_raise( Error_new(ERROR_GENERIC, "BFS: cannot find given vertex") );
+  }
+
+  Queue queue = Queue_new();
+  Queue_enqueue(queue, source);
+
+  while(!Queue_empty(queue)) {
+    UnionFindSet current = Queue_dequeue(queue);
+    if(UnionFindSet_same(current, info->visited_set)) {
+      continue;
+    }
+    
+    visit(UnionFindSet_get(current));
+    UnionFindSet_union(current, info->visited_set);
+
+    EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(current));
+    foreach_graph_edge_from_iterator(adjacents, ^(EdgeInfo ei) {
+      void* neighbour = ei.vertex;
+      UnionFindSet neighbour_set;
+
+      if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {
+        Error_raise( Error_new( ERROR_GENERIC, "Cannot find searched vertex" ));
+      }
+
+      if(!UnionFindSet_same(neighbour_set, info->visited_set)) {
+        Queue_enqueue(queue, neighbour_set);
+      }
+    });
+  }
 }

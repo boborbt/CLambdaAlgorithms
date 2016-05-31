@@ -12,3 +12,4 @@ void* Queue_dequeue(Queue);
 void* Queue_front(Queue);
 
 size_t Queue_size(Queue);
+int Queue_empty(Queue);

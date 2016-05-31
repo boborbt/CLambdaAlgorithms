@@ -22,6 +22,9 @@ void* List_get_head(List list);
 // Returns the length of the given list. This is a O(1) operation.
 size_t List_length(List list);
 
+// Returns 1 iff the list is empty
+int List_empty(List list);
+
 // Inserts a new element at the head of the list.
 void List_insert(List list, void* elem);
 
