@@ -141,14 +141,14 @@ static void check_edge(Graph graph, const char* source, char* dest) {
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
 }
 
-static void find_connected_components(Graph graph) {
+static void find_connected_components(Graph graph, void (*graph_visit)(VisitingInfo, void*, void(^)(void*))) {
   VisitingInfo visit_info = VisitingInfo_new(graph);
   int count = 0;
   void* vertex;
 
   while( (vertex = VisitingInfo_next_unvisited(visit_info)) != NULL ) {
     __block size_t component_size = 0;
-    Graph_depth_first_visit(visit_info, vertex, ^(void* UNUSED(v)) {
+    graph_visit(visit_info, vertex, ^(void* UNUSED(v)) {
       component_size += 1;
     });
     count+=1;
@@ -166,7 +166,8 @@ static void print_usage(const char* msg) {
   printf("where <op specifier> can be:\n");
   printf("  -d: to invoke dijkstra\n");
   printf("  -e: to check edge existence\n");
-  printf("  -c: to find connected components");
+  printf("  -c: to find connected components using dfs\n");
+  printf("  -b: to find connected components using bfs\n");
 }
 
 static void check_arguments(int argc, char* argv[]) {
@@ -180,18 +181,18 @@ static void check_arguments(int argc, char* argv[]) {
     exit(ERROR_ARGUMENT_PARSING);
   }
   char op = argv[1][1];
-  if(op!='d' && op!='e' && op!='c') {
-    print_usage("Op specifier needs to be one of {-d,-e,-c}");
+  if(op!='d' && op!='e' && op!='c' && op!='b') {
+    print_usage("Op specifier needs to be one of {-d,-e,-c,-b}");
     exit(ERROR_ARGUMENT_PARSING);
   }
 
-  if(op!='c' && argc != 5)  {
-    print_usage("Wrong number of arguments");
+  if(op!='c' && op!='b' && argc != 5)  {
+    print_usage("Wrong number of arguments - expected 5");
     exit(ERROR_ARGUMENT_PARSING);
   }
 
-  if(op=='c' && argc != 3) {
-    print_usage("Wrong number of arguments");
+  if((op=='c' || op=='b') && argc != 3) {
+    print_usage("Wrong number of arguments - expected 3");
     exit(ERROR_ARGUMENT_PARSING);
   }
 }
@@ -199,7 +200,8 @@ static void check_arguments(int argc, char* argv[]) {
 static char* flag_to_task_name(char ch) {
   switch(ch) {
     case 'd': return "dijkstra";
-    case 'c': return "connected_components";
+    case 'c': return "connected_components_dfs";
+    case 'b': return "connected_components_bfs";
     case 'e': return "edge_check";
     default:
       printf("Unknown flag");
@@ -261,8 +263,12 @@ int main(int argc, char *argv[]) {
         check_edge(graph, argv[3], argv[4]);
         break;
       case 'c':
-        printf("Finding connected components...\n");
-        find_connected_components(graph);
+        printf("Finding connected components (dfs)...\n");
+        find_connected_components(graph, Graph_depth_first_visit);
+        break;
+      case 'b':
+        printf("Finding connected components (bfs)...\n");
+        find_connected_components(graph, Graph_breadth_first_visit);
         break;
     }
   });

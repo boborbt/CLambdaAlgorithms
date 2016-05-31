@@ -47,6 +47,10 @@ esercizio3_d:
 esercizio3_c:
 	Esercizio3/bin/measure_times -c $(DIST_DATASET)
 
-experiment3: Esercizio3 esercizio3_d esercizio3_c
+esercizio3_b:
+	Esercizio3/bin/measure_times -b $(DIST_DATASET)
+
+
+experiment3: Esercizio3 esercizio3_d esercizio3_b esercizio3_c
 
 experiments: experiment1 experiment2 experiment3
