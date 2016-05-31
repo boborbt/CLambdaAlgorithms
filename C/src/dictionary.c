@@ -5,11 +5,23 @@ int Dictionary_empty(Dictionary dictionary) {
   return Dictionary_size(dictionary) == 0;
 }
 
-void foreach_dictionary_key_value(Dictionary dictionary, void (^callback)(KeyValue* kv)) {
+KeyValue* find_dictionary_key_value(Dictionary dictionary, int (^callback)(KeyValue* kv)) {
   DictionaryIterator it = DictionaryIterator_new(dictionary);
-  while(!DictionaryIterator_end(it)) {
-    callback(DictionaryIterator_get(it));
+  int found = 0;
+  KeyValue* result = NULL;
+  while(!DictionaryIterator_end(it) && !found) {
+    result = DictionaryIterator_get(it);
+    found = callback(result);
     DictionaryIterator_next(it);
   }
   DictionaryIterator_free(it);
+
+  return found ? result : NULL ;
+}
+
+void foreach_dictionary_key_value(Dictionary dictionary, void (^callback)(KeyValue* kv)) {
+  find_dictionary_key_value(dictionary, ^(KeyValue* kv) {
+    callback(kv);
+    return 0;
+  });
 }

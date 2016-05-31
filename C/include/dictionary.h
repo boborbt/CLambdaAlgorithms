@@ -63,3 +63,7 @@ KeyValue* DictionaryIterator_get(DictionaryIterator it);
 // FOREACH
 //
 void foreach_dictionary_key_value(Dictionary, void(^)(KeyValue* kv));
+
+// returns the kv KeyValue pair such that criterion(kv)==1 or NULL if such
+// element does not exists. Please note that this is a O(n) operation
+KeyValue* find_dictionary_key_value(Dictionary, int(^criterion)(KeyValue* kv));

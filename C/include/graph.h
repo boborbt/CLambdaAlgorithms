@@ -113,6 +113,8 @@ void* VertexIterator_get(VertexIterator it);
 // node.
 void foreach_graph_vertex(Graph graph, void (^)(void*));
 
+void* find_graph_vertex(Graph graph, int (^)(void*));
+
 // Iterates over all edges in the graph calling the given block on each
 // edge. The block needs to expect the edge to be given in the form (src,dst,weight)
 void foreach_graph_edge(Graph graph, void(^)(void*, void*, void*));
