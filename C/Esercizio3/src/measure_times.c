@@ -105,7 +105,7 @@ static void print_path(Graph graph, void** path) {
     }
   }
 
-  printf("\nLen: %8.2lfKm", path_len/1000);
+  printf("\nLen: %8.2lfKm\n", path_len/1000);
 }
 
 static void execute_dijkstra(Graph graph, char* source, char* dest) {
