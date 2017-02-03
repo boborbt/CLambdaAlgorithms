@@ -9,8 +9,13 @@
 // PriorityQueue opaque type
 typedef struct _PriorityQueue* PriorityQueue;
 
+typedef enum {
+  PQOrder_ascending = 1,
+  PQOrder_descending = -1
+} PQOrder;
+
 // Alloc the priority queue
-PriorityQueue PriorityQueue_new(void);
+PriorityQueue PriorityQueue_new(PQOrder);
 
 // Dealloc the priority queue
 void PriorityQueue_free(PriorityQueue);
@@ -35,3 +40,5 @@ double PriorityQueue_top_priority(PriorityQueue);
 
 // Decreases the priority of the given element
 void   PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double new_priority);
+
+void PriorityQueue_foreach(PriorityQueue pq, void (^callback)(void* elem, double priority));

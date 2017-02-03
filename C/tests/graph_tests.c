@@ -14,7 +14,7 @@
 
 
 static PriorityQueue build_pq_fixtures() {
-  PriorityQueue pq = PriorityQueue_new();
+  PriorityQueue pq = PriorityQueue_new(PQOrder_ascending);
 
   PriorityQueue_push(pq, "10", 10.0);
   PriorityQueue_push(pq, "2", 2.0);
@@ -69,7 +69,7 @@ static void free_graph_fixture(Graph graph) {
 }
 
 static void test_priority_queue_creation() {
-  PriorityQueue pq = PriorityQueue_new();
+  PriorityQueue pq = PriorityQueue_new(PQOrder_ascending);
   assert_equal( 0l, (long) PriorityQueue_size(pq) );
   assert(PriorityQueue_empty(pq));
   PriorityQueue_free(pq);

@@ -13,6 +13,7 @@ typedef struct {
 
 struct _PriorityQueue {
   PQElem* array;
+  PQOrder order;
   size_t size;
   size_t capacity;
 };
@@ -35,11 +36,12 @@ static size_t PriorityQueue_right_child(size_t pos) {
   return pos * 2 + 2;
 }
 
-PriorityQueue PriorityQueue_new() {
+PriorityQueue PriorityQueue_new(PQOrder order) {
   PriorityQueue result = (PriorityQueue) malloc(sizeof(struct _PriorityQueue));
   result->array = (PQElem*) malloc(sizeof(PQElem*) * PRIORITY_QUEUE_INITIAL_CAPACITY);
   result->size = 0;
   result->capacity = PRIORITY_QUEUE_INITIAL_CAPACITY;
+  result->order = order;
 
   return result;
 }
@@ -53,6 +55,14 @@ size_t PriorityQueue_size(PriorityQueue pq) {
   return pq->size;
 }
 
+static int pq_key_cmp(PriorityQueue pq, double p1, double p2) {
+  if(pq->order == PQOrder_ascending) {
+    return p1 > p2;
+  } else {
+    return p1 < p2;
+  }
+}
+
 static void PriorityQueue_try_realloc(PriorityQueue pq) {
   if(pq->capacity > pq->size) {
     return;
@@ -63,7 +73,7 @@ static void PriorityQueue_try_realloc(PriorityQueue pq) {
 
 static void PriorityQueue_moveup(PriorityQueue pq, size_t pos) {
   size_t parent = PriorityQueue_parent(pos);
-  while(pos != 0 && pq->array[parent].priority > pq->array[pos].priority) {
+  while(pos != 0 && pq_key_cmp(pq, pq->array[parent].priority, pq->array[pos].priority)) {
     PQElem_swap(&pq->array[parent], &pq->array[pos]);
     pos = parent;
     parent = PriorityQueue_parent(pos);
@@ -79,14 +89,14 @@ static void PriorityQueue_movedown(PriorityQueue pq, size_t pos) {
 
   size_t best;
   if(left < pq->size && right < pq->size) {
-    best = pq->array[left].priority < pq->array[right].priority ? left : right;
+    best = !pq_key_cmp(pq, pq->array[left].priority, pq->array[right].priority) ? left : right;
   } else if(left < pq->size) {
     best = left;
   } else {
     best = right;
   }
 
-  if(pq->array[best].priority < pq->array[pos].priority) {
+  if(!pq_key_cmp(pq, pq->array[best].priority, pq->array[pos].priority)) {
     PQElem_swap(&pq->array[best], &pq->array[pos]);
     PriorityQueue_movedown(pq, best);
   }
@@ -134,4 +144,11 @@ void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priori
 
   pq->array[i].priority = priority;
   PriorityQueue_moveup(pq, i);
+}
+
+
+void PriorityQueue_foreach(PriorityQueue pq, void (^callback)(void* elem, double priority)) {
+  for(size_t i=0; i<pq->size; ++i) {
+    callback(pq->array[i].elem, pq->array[i].priority);
+  }
 }
