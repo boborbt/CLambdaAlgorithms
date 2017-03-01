@@ -17,7 +17,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o
 
 build:
 	mkdir build
@@ -70,6 +70,7 @@ tests: test_binaries
 	bin/union_find_tests
 	bin/queue_tests
 	bin/priority_queue_tests
+	bin/multy_way_tree_tests
 
 test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests
 
@@ -105,5 +106,9 @@ bin/queue_tests: tests/queue_tests.c include/unit_testing.h lib/libcontainers_st
 
 bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/priority_queue_tests.c -o bin/priority_queue_tests -lcontainers_st $(LDFLAGS)
+
+bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a
+	$(CC) $(CFLAGS) tests/multy_way_tree_tests.c -o bin/multy_way_tree_tests -lcontainers_st $(LDFLAGS)
+
 
 include Makefile.exps
