@@ -28,6 +28,11 @@
    printf("\nassertion failed at file:%s line:%d. %ld was not expected to be equal to %ld\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
+#define assert_pointers_equal(a,b) if((a)!=(b)) {\
+   printf("\nassertion failed at file:%s line:%d. %p was expected to be equal to %p\n",\
+    __FILE__, __LINE__, (a), (b)); exit(1); }
+
+
 #define assert_pointers_not_equal(a,b) if((a)==(b)) {\
    printf("\nassertion failed at file:%s line:%d. %p was not expected to be equal to %p\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }

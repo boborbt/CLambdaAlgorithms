@@ -8,6 +8,8 @@
 #include "double_container.h"
 #include "errors.h"
 #include "macros.h"
+#include "kruskal.h"
+#include "array.h"
 #include <errno.h>
 
 #define BUF_SIZE 1024
@@ -158,6 +160,62 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
   printf("Number of connected components: %d\n", count);
 }
 
+// static int KCompare(const void* o1, const void* o2) {
+//   double w1 = DoubleContainer_get(*(const DoubleContainer*) o1);
+//   double w2 = DoubleContainer_get(*(const DoubleContainer*) o2);
+//
+//   if(w1 < w2) {
+//     return -1;
+//   }
+//
+//   if(w2 < w1) {
+//     return 1;
+//   }
+//
+//   return 0;
+// }
+//
+// static void print_kruskal_edges(Graph graph) {
+//   Array edges_weights = Array_new(20000, sizeof(DoubleContainer));
+//   foreach_graph_edge( graph, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
+//     Array_add(edges_weights, &info);
+//   });
+//
+//   Array_sort(edges_weights, KCompare);
+//
+//   foreach_array_elem_with_index(edges_weights, ^(void* elem, size_t index) {
+//     printf("%ld: %f\n", index, DoubleContainer_get(*(DoubleContainer*)elem));
+//   });
+// }
+
+static void execute_kruskal(Graph graph) {
+  Kruskal kruskal = Kruskal_new(graph, (double (*)(const void*)) DoubleContainer_get);
+  Graph result = Kruskal_mintree(kruskal);
+
+  __block double tree_size = 0.0;
+  __block int num_edges = 0;
+  __block double min_edge = 10000000;
+  foreach_graph_edge(result, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
+    double edge_weight = DoubleContainer_get(info);
+    tree_size += DoubleContainer_get(info);
+    num_edges += 1.0;
+
+    if( edge_weight < min_edge ) {
+      min_edge = edge_weight;
+    }
+  });
+
+  printf("Original graph size:%ld\n", Graph_size(graph));
+  printf("Result graph size:%ld\n", Graph_size(result));
+  printf("Result graph num edges:%d\n", num_edges / 2);
+  printf("Result graph min edge:%f\n", min_edge);
+
+  // print_kruskal_edges(result);
+
+  printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
+  Graph_free(result);
+}
+
 static void print_usage(const char* msg) {
   printf("%s\n\n",msg);
   printf("Usage: measure_times <op specifier> <graph file name> <source> <dest>\n");
@@ -166,6 +224,7 @@ static void print_usage(const char* msg) {
   printf("  -e: to check edge existence\n");
   printf("  -c: to find connected components using dfs\n");
   printf("  -b: to find connected components using bfs\n");
+  printf("  -k: to invoke kruskal\n");
 }
 
 static void check_arguments(int argc, char* argv[]) {
@@ -179,8 +238,8 @@ static void check_arguments(int argc, char* argv[]) {
     exit(ERROR_ARGUMENT_PARSING);
   }
   char op = argv[1][1];
-  if(op!='d' && op!='e' && op!='c' && op!='b') {
-    print_usage("Op specifier needs to be one of {-d,-e,-c,-b}");
+  if(op!='d' && op!='e' && op!='c' && op!='b' && op!='k') {
+    print_usage("Op specifier needs to be one of {-d,-e,-c,-b,-k}");
     exit(ERROR_ARGUMENT_PARSING);
   }
 
@@ -201,6 +260,7 @@ static char* flag_to_task_name(char ch) {
     case 'c': return "connected_components_dfs";
     case 'b': return "connected_components_bfs";
     case 'e': return "edge_check";
+    case 'k': return "kruskal";
     default:
       printf("Unknown flag");
       exit(ERROR_ARGUMENT_PARSING);
@@ -267,6 +327,10 @@ int main(int argc, char *argv[]) {
       case 'b':
         printf("Finding connected components (bfs)...\n");
         find_connected_components(graph, Graph_breadth_first_visit);
+        break;
+      case 'k':
+        printf("Executing kruskal...\n");
+        execute_kruskal(graph);
         break;
     }
   });

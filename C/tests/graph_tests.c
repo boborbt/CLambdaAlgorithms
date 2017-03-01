@@ -11,6 +11,7 @@
 #include "dictionary.h"
 #include "double_container.h"
 #include "macros.h"
+#include "kruskal.h"
 
 
 static PriorityQueue build_pq_fixtures() {
@@ -206,6 +207,32 @@ static void test_dijkstra() {
   free_graph_fixture(graph);
 }
 
+
+static void test_kruskal() {
+  Graph graph = build_graph_fixtures();
+  Graph_add_vertex(graph, "v8");
+  Graph_add_vertex(graph, "v9");
+
+  Graph_add_edge(graph, "v8", "v9", DoubleContainer_new(3.0));
+
+  double (*info_to_double)(const void*);
+  info_to_double = (double (*)(const void*)) DoubleContainer_get;
+
+  Kruskal k = Kruskal_new(graph, info_to_double);
+  Graph mintree = Kruskal_mintree(k);
+  __block double treesize = 0.0;
+
+  foreach_graph_edge(mintree, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
+    treesize += DoubleContainer_get(info);
+  });
+
+  assert_equal32( (int)treesize/2, 8);
+
+  Kruskal_free(k);
+  Graph_free(mintree);
+  free_graph_fixture(graph);
+}
+
 static void test_graph_foreach_edge() {
   Graph graph = build_graph_fixtures();
   __block size_t count = 0;
@@ -329,6 +356,10 @@ int main() {
 
   start_tests("dijkstra");
   test(test_dijkstra);
+  end_tests();
+
+  start_tests("kruskal");
+  test(test_kruskal);
   end_tests();
 
   start_tests("visits");
