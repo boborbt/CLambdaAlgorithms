@@ -18,7 +18,7 @@ void Stack_free(Stack stack);
 // Returns a pointer to object at the top of the stack.
 void* Stack_top(Stack stack);
 
-// Returns a pointer to object at the top of the stack and removes it.
+// Returns a pointer to the object at the top of the stack and removes it.
 void* Stack_pop(Stack stack);
 
 // Add an object at the top of the stack.

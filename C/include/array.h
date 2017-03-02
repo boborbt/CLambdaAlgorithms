@@ -97,7 +97,7 @@ void ArrayIterator_free(ArrayIterator);
 void ArrayIterator_next(ArrayIterator it);
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
-// ArrayIterator_get would return a sensible result), 0 otherwise.
+// ArrayIterator_get would not return a sensible result), 0 otherwise.
 int ArrayIterator_end(ArrayIterator it);
 
 // Returns the element currently pointed by the iterator
