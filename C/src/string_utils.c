@@ -40,7 +40,7 @@ char* String_join(Array array, char delim) {
   delim_str[0] = delim;
   delim_str[1] = '\0';
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     char* piece = *(char**) elem;
     total_len += strlen(piece)+1;
   });
@@ -51,7 +51,7 @@ char* String_join(Array array, char delim) {
   char* buf = (char*) malloc(sizeof(char) * (total_len + 1));
   buf[0] = '\0';
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     char* piece = *(char**) elem;
     strcat(buf, piece);
     strcat(buf, delim_str);

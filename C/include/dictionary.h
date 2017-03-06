@@ -1,6 +1,8 @@
 #pragma once
 
 #include "keys.h"
+#include "iterator.h"
+
 #include <string.h>
 
 typedef struct _Dictionary* Dictionary;
@@ -59,11 +61,11 @@ int DictionaryIterator_end(DictionaryIterator it);
 // Returns the element currently pointed by the iterator
 KeyValue* DictionaryIterator_get(DictionaryIterator it);
 
-//
-// FOREACH
-//
-void foreach_dictionary_key_value(Dictionary, void(^)(KeyValue* kv));
 
-// returns the kv KeyValue pair such that criterion(kv)==1 or NULL if such
-// element does not exists. Please note that this is a O(n) operation
-KeyValue* find_dictionary_key_value(Dictionary, int(^criterion)(KeyValue* kv));
+// Important notice: the iterator will return KeyValue* objects.
+// so a tipical for_each will be something like:
+// for_each(Dictionary_it(dictionary), ^(void* obj) {
+//    KeyValue* kv = (KeyValue*) obj;
+//    ... do your work ...
+// });
+Iterator Dictionary_it(Dictionary);

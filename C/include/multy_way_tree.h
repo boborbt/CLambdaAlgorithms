@@ -64,7 +64,6 @@ int MultyWayTreeIterator_end(MultyWayTreeIterator it);
 // Returns the element currently pointed by the iterator
 void* MultyWayTreeIterator_get(MultyWayTreeIterator it);
 
-//
-// FOREACH
-//
-void foreach_multy_way_tree_elem(MultyWayTree multy_way_tree, void (^)(void*));
+// iterator
+
+Iterator MultyWayTree_it(MultyWayTree);

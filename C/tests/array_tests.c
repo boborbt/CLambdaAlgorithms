@@ -210,7 +210,7 @@ static void test_array_foreach() {
   Array array = build_fixtures();
   __block size_t count = 1;
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     assert_equal( count, (unsigned long) to_int(elem));
     count+=1;
   });
@@ -221,7 +221,7 @@ static void test_array_foreach() {
 static void test_array_foreach_with_index() {
   Array array = build_fixtures();
 
-  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+  for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal( index+1, (unsigned long) to_int(elem));
   });
 
@@ -237,7 +237,7 @@ static int compare_ints(const void* e1, const void* e2) {
 static void test_array_sort() {
   Array array = build_fixtures2();
   Array_sort(array, compare_ints);
-  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+  for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal( (unsigned long) to_int(elem), index + 1);
   });
 }
@@ -246,7 +246,7 @@ static void test_array_dup() {
   Array array = build_fixtures();
   Array array_dup = Array_dup(array);
 
-  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+  for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal32( to_int(elem), to_int(Array_at(array_dup, index)));
   });
 
@@ -291,7 +291,7 @@ static void test_array_add_records() {
   assert_equal32(tr->field1, 5);
   assert_equal32(tr->field2, 6);
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     TestRecord tmp = *(TestRecord*) elem;
     free(tmp);
   });

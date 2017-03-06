@@ -183,7 +183,7 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 //
 //   Array_sort(edges_weights, KCompare);
 //
-//   foreach_array_elem_with_index(edges_weights, ^(void* elem, size_t index) {
+//   for_each_with_index( Array_it(edges_weights),  ^(void* elem, size_t index) {
 //     printf("%ld: %f\n", index, DoubleContainer_get(*(DoubleContainer*)elem));
 //   });
 // }

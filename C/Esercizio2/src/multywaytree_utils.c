@@ -25,7 +25,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
     return;
   }
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     MultyWayTree child = *(MultyWayTree*) elem;
     char* childValue = (char*) MultyWayTree_get(child);
     if(childValue == NULL) {
@@ -36,7 +36,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
 
   fprintf(file, "\n");
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     MultyWayTree child = *(MultyWayTree*) elem;
     save_tree(child, file);
   });

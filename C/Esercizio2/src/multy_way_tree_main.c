@@ -51,7 +51,7 @@ static MultyWayTree build_binary_search_tree_from_array(Array values, size_t sta
 
 static MultyWayTree build_binary_search_tree(MultyWayTree tree) {
   Array values = Array_new(2000, sizeof(MultyWayTree));
-  foreach_multy_way_tree_elem(tree, ^(void* elem) {
+  for_each(MultyWayTree_it(tree), ^(void* elem) {
     Array_add(values, elem);
   });
 

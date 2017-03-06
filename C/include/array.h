@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "iterator.h"
 
 
 typedef struct _Array* Array;
@@ -106,5 +107,5 @@ void* ArrayIterator_get(ArrayIterator it);
 //
 // FOREACH
 //
-void foreach_array_elem(Array array, void (^)(void*));
-void foreach_array_elem_with_index(Array array, void (^)(void*, size_t));
+
+Iterator Array_it(Array array);

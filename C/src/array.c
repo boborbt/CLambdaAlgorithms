@@ -61,7 +61,7 @@ void* Array_at(Array array, size_t index) {
   if(index >= Array_size(array)) {
     Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND, "Index %ld is out of bounds (0,%ld)", index, Array_size(array) ));
   }
-  
+
   return at_g(array->carray, index, array->elem_size);
 }
 
@@ -170,21 +170,24 @@ void* ArrayIterator_get(ArrayIterator it) {
   return Array_at(it->array, it->current_index);
 }
 
-void foreach_array_elem(Array array, void (^callback)(void*)) {
-  ArrayIterator it = ArrayIterator_new(array);
-  while(!ArrayIterator_end(it)) {
-    callback(ArrayIterator_get(it));
-    ArrayIterator_next(it);
-  }
-  ArrayIterator_free(it);
+Iterator Array_it(Array array)
+{
+ return Iterator_make(
+   array,
+   (void* (*)(void*)) ArrayIterator_new,
+   (void (*)(void*))  ArrayIterator_next,
+   (void* (*)(void*)) ArrayIterator_get,
+   (int (*)(void*))   ArrayIterator_end,
+   (void (*)(void*))  ArrayIterator_free
+ );
 }
-
-void foreach_array_elem_with_index(Array array, void (^callback)(void*, size_t)) {
-  ArrayIterator it = ArrayIterator_new(array);
-  size_t count = 0;
-  while(!ArrayIterator_end(it)) {
-    callback(ArrayIterator_get(it), count++);
-    ArrayIterator_next(it);
-  }
-  ArrayIterator_free(it);
-}
+// 
+// void for_each_with_index( Array_it(Array array),  void (^callback)(void*, size_t)) {
+//   ArrayIterator it = ArrayIterator_new(array);
+//   size_t count = 0;
+//   while(!ArrayIterator_end(it)) {
+//     callback(ArrayIterator_get(it), count++);
+//     ArrayIterator_next(it);
+//   }
+//   ArrayIterator_free(it);
+// }

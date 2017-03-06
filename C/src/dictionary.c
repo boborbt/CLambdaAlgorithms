@@ -1,6 +1,18 @@
 #include "dictionary.h"
 #include "string.h"
 
+Iterator Dictionary_it(Dictionary dictionary) {
+ return Iterator_make(
+   dictionary,
+   (void* (*)(void*)) DictionaryIterator_new,
+   (void (*)(void*))  DictionaryIterator_next,
+   (void* (*)(void*)) DictionaryIterator_get,
+   (int (*)(void*))   DictionaryIterator_end,
+   (void (*)(void*))  DictionaryIterator_free
+ );
+}
+
+
 int Dictionary_empty(Dictionary dictionary) {
   return Dictionary_size(dictionary) == 0;
 }
@@ -17,11 +29,4 @@ KeyValue* find_dictionary_key_value(Dictionary dictionary, int (^callback)(KeyVa
   DictionaryIterator_free(it);
 
   return found ? result : NULL ;
-}
-
-void foreach_dictionary_key_value(Dictionary dictionary, void (^callback)(KeyValue* kv)) {
-  find_dictionary_key_value(dictionary, ^(KeyValue* kv) {
-    callback(kv);
-    return 0;
-  });
 }

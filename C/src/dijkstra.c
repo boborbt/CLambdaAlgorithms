@@ -59,8 +59,8 @@ static void** build_path(Dictionary parents, void* dest) {
 }
 
 static void cleanup_distances_values(Dictionary distances) {
-  foreach_dictionary_key_value(distances, ^(KeyValue* kv) {
-    DoubleContainer_free((DoubleContainer) kv->value);
+  for_each(Dictionary_it(distances),  ^(void* kv) {
+    DoubleContainer_free((DoubleContainer) ((KeyValue*)kv)->value);
   });
 }
 

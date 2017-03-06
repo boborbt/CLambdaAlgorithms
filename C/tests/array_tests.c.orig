@@ -218,7 +218,7 @@ static void test_array_foreach() {
   Array array = build_fixtures();
   __block size_t count = 1;
 
-  foreach_array_elem(array, ^(void* elem) {
+  for_each(Array_it(array), ^(void* elem) {
     assert_equal( count, (unsigned long) to_int(elem));
     count+=1;
   });
@@ -229,7 +229,7 @@ static void test_array_foreach() {
 static void test_array_foreach_with_index() {
   Array array = build_fixtures();
 
-  foreach_array_elem_with_index(array, ^(void* elem, size_t index) {
+  for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal( index+1, (unsigned long) to_int(elem));
   });
 

@@ -17,7 +17,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/iterator.o
 
 build:
 	mkdir build
@@ -49,12 +49,15 @@ build/%.o: src/%.c   Makefile Makefile.vars
 # Experiments
 
 Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; echo "Entering Esercizio 1"; tput sgr 0
 	$(MAKE) -C Esercizio1
 
 Esercizio2: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; echo "Entering Esercizio 2"; tput sgr 0
 	$(MAKE) -C Esercizio2
 
 Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; echo "Entering Esercizio 3"; tput sgr 0
 	$(MAKE) -C Esercizio3
 
 

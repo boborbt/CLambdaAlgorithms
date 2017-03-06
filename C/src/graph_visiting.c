@@ -31,8 +31,8 @@ VisitingInfo VisitingInfo_new(Graph graph) {
 void VisitingInfo_free(VisitingInfo info) {
   UnionFindSet_free(info->visited_set);
   DictionaryIterator_free(info->current);
-  foreach_dictionary_key_value(info->vertex_set, ^(KeyValue* kv) {
-    UnionFindSet_free(kv->value);
+  for_each(Dictionary_it(info->vertex_set),  ^(void* kv) {
+    UnionFindSet_free(((KeyValue*)kv)->value);
   });
   Dictionary_free(info->vertex_set);
 
@@ -116,7 +116,7 @@ void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^vi
     if(UnionFindSet_same(current, info->visited_set)) {
       continue;
     }
-    
+
     visit(UnionFindSet_get(current));
     UnionFindSet_union(current, info->visited_set);
 

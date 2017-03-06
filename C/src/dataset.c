@@ -178,7 +178,7 @@ size_t Dataset_size(Dataset* dataset) {
 }
 
 void Dataset_free(Dataset* dataset) {
-  foreach_array_elem(dataset->records, ^(void* elem) {
+  for_each(Array_it(dataset->records), ^(void* elem) {
     Record* record = *(Record**) elem;
     free(record->field1);
     free(record);

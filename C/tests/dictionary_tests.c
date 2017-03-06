@@ -209,7 +209,7 @@ static void test_dictionary_foreach_dictionary_key_value() {
   __block KeyValue** found_elems = (KeyValue**) malloc(sizeof(KeyValue*)*7);
   __block size_t count = 0;
 
-  foreach_dictionary_key_value(dictionary, ^(KeyValue* kv) {
+  for_each(Dictionary_it(dictionary),  ^(void* kv) {
     assert_not_equal(7l, count);
     found_elems[count++] = kv;
   });

@@ -17,7 +17,7 @@ struct _PrintTime {
 };
 
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
-  foreach_array_elem(pt->data, ^(void* elem) {
+  for_each(Array_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
     fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer)kv.value));
   });
@@ -25,7 +25,7 @@ static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
 
 static void PrintTime_save_header(PrintTime pt) {
   fprintf(pt->file, "-\n");
-  foreach_array_elem(pt->header, ^(void* elem) {
+  for_each(Array_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
     fprintf(pt->file, "  %s: %s\n", kv.key, (const char*) kv.value);
   });
@@ -75,14 +75,14 @@ void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
 }
 
 void PrintTime_free(PrintTime pt) {
-  foreach_array_elem(pt->header, ^(void* elem) {
+  for_each(Array_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     free(kv.key);
     free(kv.value);
   });
   Array_free(pt->header);
 
-  foreach_array_elem(pt->data, ^(void* elem) {
+  for_each(Array_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     free(kv.key);
     DoubleContainer_free((DoubleContainer) kv.value);

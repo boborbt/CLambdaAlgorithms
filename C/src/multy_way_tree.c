@@ -116,7 +116,7 @@ size_t MultyWayTree_size(MultyWayTree tree) {
     return 1;
   }
 
-  foreach_array_elem(children, ^(void* elem) {
+  for_each(Array_it(children), ^(void* elem) {
     MultyWayTree node = *(MultyWayTree*) elem;
 
     count += MultyWayTree_size(node);
@@ -138,7 +138,7 @@ long int MultyWayTree_height(MultyWayTree tree) {
     return 0;
   }
 
-  foreach_array_elem(children, ^(void* elem) {
+  for_each(Array_it(children), ^(void* elem) {
     MultyWayTree child = *(MultyWayTree*) elem;
 
     long int child_height = MultyWayTree_height(child);
@@ -163,7 +163,7 @@ size_t MultyWayTree_max_branching_factor(MultyWayTree tree) {
 
   __block size_t max_bf = Array_size(children);
 
-  foreach_array_elem(children, ^(void* elem) {
+  for_each(Array_it(children), ^(void* elem) {
     MultyWayTree child = *(MultyWayTree*) elem;
 
     size_t child_max_bf = MultyWayTree_max_branching_factor(child);
@@ -229,7 +229,7 @@ void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
     return;
   }
 
-  foreach_array_elem(children, ^(void* elem) {
+  for_each(Array_it(children), ^(void* elem) {
     MultyWayTree child = *(MultyWayTree*) elem;
     Stack_push(it->state, child);
   });
@@ -244,16 +244,14 @@ int MultyWayTreeIterator_end(MultyWayTreeIterator it) {
 }
 
 
-//
-// FOREACH
-//
-void foreach_multy_way_tree_elem(MultyWayTree tree, void (^callback)(void*)) {
-  MultyWayTreeIterator it = MultyWayTreeIterator_new(tree);
+Iterator MultyWayTree_it(MultyWayTree tree) {
 
-  while(!MultyWayTreeIterator_end(it)) {
-    callback(MultyWayTreeIterator_get(it));
-    MultyWayTreeIterator_next(it);
-  }
-
-  MultyWayTreeIterator_free(it);
+  return Iterator_make(
+    tree,
+    (void* (*)(void*)) MultyWayTreeIterator_new,
+    (void (*)(void*)) MultyWayTreeIterator_next,
+    (void* (*)(void*)) MultyWayTreeIterator_get,
+    (int (*)(void*)) MultyWayTreeIterator_end,
+    (void (*)(void*)) MultyWayTreeIterator_free
+  );
 }

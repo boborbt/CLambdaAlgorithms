@@ -128,7 +128,7 @@ Graph Kruskal_mintree(Kruskal k) {
   Kruskal_initializeSets(k);
   Array edges = Kruskal_initEdgesArray(k);
 
-  foreach_array_elem(edges, ^(void* obj) {
+  for_each(Array_it(edges), ^(void* obj) {
     KruskalEdge edge = *(KruskalEdge*) obj;
 
     UnionFindSet source = KruskalEdge_source(edge);
@@ -145,7 +145,7 @@ Graph Kruskal_mintree(Kruskal k) {
     }
   });
 
-  foreach_array_elem(edges, ^(void* obj) {
+  for_each(Array_it(edges), ^(void* obj) {
     KruskalEdge ke = *(KruskalEdge*) obj;
     KruskalEdge_free(ke);
   });
@@ -156,8 +156,8 @@ Graph Kruskal_mintree(Kruskal k) {
 
 // Frees the datastructures used by the Kruskal algorithm
 void Kruskal_free(Kruskal k) {
-  foreach_dictionary_key_value(k->sets, ^(KeyValue* kv) {
-    UnionFindSet_free(kv->value);
+  for_each(Dictionary_it(k->sets),  ^(void* kv) {
+    UnionFindSet_free(((KeyValue*)kv)->value);
   });
 
   Dictionary_free(k->sets);

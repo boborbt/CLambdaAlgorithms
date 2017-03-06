@@ -34,8 +34,8 @@ Graph Graph_new(KeyInfo vertexInfo) {
 }
 
 void Graph_free(Graph graph) {
-  foreach_dictionary_key_value(graph->adjacency_matrix, ^(KeyValue* kv) {
-    Dictionary_free((Dictionary) kv->value);
+  for_each(Dictionary_it(graph->adjacency_matrix),  ^(void* kv) {
+    Dictionary_free((Dictionary) ((KeyValue*)kv)->value);
   });
 
   Dictionary_free(graph->adjacency_matrix);
