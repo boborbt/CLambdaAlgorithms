@@ -75,8 +75,10 @@ static void Graph_depth_first_visit_uf_set(VisitingInfo info, UnionFindSet sourc
   UnionFindSet_union(source, info->visited_set);
   visit(UnionFindSet_get(source));
 
-  foreach_graph_edge_from_iterator(Graph_adjacents(info->graph, UnionFindSet_get(source)), ^(EdgeInfo ei) {
-    void* neighbour = ei.destination;
+  EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(source));
+  for_each(AdjacentsEdge_it(adjacents), ^(void* obj) {
+    EdgeInfo* ei = (EdgeInfo*) obj;
+    void* neighbour = ei->destination;
     UnionFindSet neighbour_set;
 
     if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {
@@ -121,8 +123,9 @@ void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^vi
     UnionFindSet_union(current, info->visited_set);
 
     EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(current));
-    foreach_graph_edge_from_iterator(adjacents, ^(EdgeInfo ei) {
-      void* neighbour = ei.destination;
+    for_each(AdjacentsEdge_it(adjacents), ^(void* obj) {
+      EdgeInfo* ei = (EdgeInfo*) obj;
+      void* neighbour = ei->destination;
       UnionFindSet neighbour_set;
 
       if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {

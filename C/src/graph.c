@@ -211,15 +211,6 @@ void* VertexIterator_get(VertexIterator it) {
   return (void*) DictionaryIterator_get(it->dic_it)->key;
 }
 
-void foreach_graph_edge_from_iterator(EdgeIterator it, void(^callback)(EdgeInfo)) {
-  while(!EdgeIterator_end(it)) {
-    callback(*EdgeIterator_get(it));
-    EdgeIterator_next(it);
-  }
-  EdgeIterator_free(it);
-}
-
-
 Iterator Vertex_it(Graph graph) {
  return Iterator_make(
    graph,
@@ -243,18 +234,18 @@ Iterator Edge_it(Graph graph) {
   );
 }
 
+void* AdjacentsEdgeIt_new(EdgeIterator it);
+void* AdjacentsEdgeIt_new(EdgeIterator it) {
+  return it;
+}
 
-void* find_graph_vertex(Graph graph, int (^callback)(void*)) {
-  VertexIterator it = Graph_vertices(graph);
-  int found = 0;
-  void* result = NULL;
-  while(!VertexIterator_end(it) && !found) {
-    result = VertexIterator_get(it);
-    found = callback(result);
-
-    VertexIterator_next(it);
-  }
-  VertexIterator_free(it);
-
-  return found ? result : NULL;
+Iterator AdjacentsEdge_it(EdgeIterator it) {
+  return Iterator_make(
+  it,
+  (void* (*)(void*)) AdjacentsEdgeIt_new,
+  (void (*)(void*))  EdgeIterator_next,
+  (void* (*)(void*)) EdgeIterator_get,
+  (int (*)(void*))   EdgeIterator_end,
+  (void (*)(void*))  EdgeIterator_free
+);
 }

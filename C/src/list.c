@@ -225,11 +225,13 @@ int ListIterator_end(ListIterator it) {
   return it==NULL || it->current == NULL;
 }
 
-void foreach_list_element(List list, void(^callback)(void*)) {
-  ListIterator it = ListIterator_new(list);
-  while( !ListIterator_end(it) ) {
-    callback(ListIterator_get(it));
-    ListIterator_next(it);
-  }
-  ListIterator_free(it);
+Iterator List_it(List list) {
+  return Iterator_make(
+    list,
+    (void* (*)(void*)) ListIterator_new,
+    (void (*)(void*))  ListIterator_next,
+    (void* (*)(void*)) ListIterator_get,
+    (int (*)(void*))   ListIterator_end,
+    (void (*)(void*))  ListIterator_free
+  );
 }

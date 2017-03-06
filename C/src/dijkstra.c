@@ -101,9 +101,10 @@ static void Dijkstra_init_state(Dijkstra state) {
 
 
 static void examine_neighbours(Dijkstra state, void* current, double current_dist) {
-  foreach_graph_edge_from_iterator(Graph_adjacents(state->graph, current), ^(EdgeInfo edge) {
-    void* child = edge.destination;
-    double edge_distance = state->graph_info_to_double(edge.info);
+  for_each(AdjacentsEdge_it(Graph_adjacents(state->graph, current)), ^(void* obj) {
+    EdgeInfo* edge = (EdgeInfo*) obj;
+    void* child = edge->destination;
+    double edge_distance = state->graph_info_to_double(edge->info);
 
     double new_distance = current_dist + edge_distance;
     DoubleContainer child_distance;

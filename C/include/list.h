@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "keys.h"
 #include "list.h"
+#include "iterator.h"
+
 
 // Opaque type definition
 typedef struct _List* List;
@@ -82,5 +84,5 @@ void ListIterator_next(ListIterator);
 // element
 int ListIterator_end(ListIterator);
 
-// foreach
-void foreach_list_element(List list, void(^)(void*));
+// Iterator interface
+Iterator List_it(List list);

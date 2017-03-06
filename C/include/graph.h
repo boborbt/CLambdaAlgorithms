@@ -113,15 +113,4 @@ void* VertexIterator_get(VertexIterator it);
 
 Iterator Vertex_it(Graph graph);
 Iterator Edge_it(Graph graph);
-
-// FIXME: convert it to iterator.h find interface
-void* find_graph_vertex(Graph graph, int (^)(void*));
-
-
-// Uses the iterator to iterate over the pertaining edges
-// This foreach statement is mainly useful when one has a custom way to iterate over
-// the vertices, e.g., one needs to skip some of them based on some criteria,
-// and wants to iterate over the adjacents of the selected vertices only.
-//
-// Note: the iterator is automatically freed at the end of the loop
-void foreach_graph_edge_from_iterator(EdgeIterator, void(^)(EdgeInfo));
+Iterator AdjacentsEdge_it(EdgeIterator it);
