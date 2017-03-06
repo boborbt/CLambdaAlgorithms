@@ -53,11 +53,11 @@ static Graph build_graph_fixtures() {
 static void free_graph_fixture(Graph graph) {
   VertexIterator v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
-    const void* vertex = VertexIterator_get(v_it);
+    void* vertex = VertexIterator_get(v_it);
 
     EdgeIterator e_it = Graph_adjacents(graph, vertex);
     while(!EdgeIterator_end(e_it)) {
-      DoubleContainer_free((DoubleContainer) EdgeIterator_get(e_it).info);
+      DoubleContainer_free((DoubleContainer) EdgeIterator_get(e_it)->info);
       EdgeIterator_next(e_it);
     }
     EdgeIterator_free(e_it);
@@ -144,7 +144,7 @@ static void test_graph_add_edge() {
 
   int found = FALSE;
   while(!found && !EdgeIterator_end(e_it)) {
-    if(!strcmp(EdgeIterator_get(e_it).vertex, "v5")) {
+    if(!strcmp(EdgeIterator_get(e_it)->destination, "v5")) {
       found = TRUE;
     }
     EdgeIterator_next(e_it);
@@ -222,8 +222,9 @@ static void test_kruskal() {
   Graph mintree = Kruskal_mintree(k);
   __block double treesize = 0.0;
 
-  foreach_graph_edge(mintree, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
-    treesize += DoubleContainer_get(info);
+  for_each(Edge_it(mintree), ^(void* obj) {
+    EdgeInfo* ei = (EdgeInfo*) obj;
+    treesize += DoubleContainer_get(ei->info);
   });
 
   assert_equal32( (int)treesize/2, 8);
@@ -237,11 +238,12 @@ static void test_graph_foreach_edge() {
   Graph graph = build_graph_fixtures();
   __block size_t count = 0;
 
-  foreach_graph_edge(graph, ^(void* v1, void* v2, void* info) {
-      assert_not_null(v1);
-      assert_not_null(v2);
-      assert_not_null(info);
-      count+=1;
+  for_each( Edge_it(graph), ^(void* obj) {
+    EdgeInfo* info = (EdgeInfo*) obj;
+    assert_not_null(info->source);
+    assert_not_null(info->destination);
+    assert_not_null(info->info);
+    count+=1;
   });
 
   assert_equal(8l, count);
@@ -251,7 +253,7 @@ static void test_graph_foreach_edge() {
 static void test_graph_foreach_vertex() {
   Graph graph = build_graph_fixtures();
   __block size_t count = 0;
-  foreach_graph_vertex(graph, ^(void* vertex) {
+  for_each(Vertex_it(graph), ^(void* vertex) {
     assert_not_null(vertex);
     count += 1;
   });

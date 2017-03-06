@@ -18,6 +18,9 @@ struct _EdgeIterator {
   Graph graph;
   VertexIterator vertex_it;
   DictionaryIterator dic_it;
+  void* current_source;
+
+  EdgeInfo result;
 };
 
 struct _VertexIterator {
@@ -103,11 +106,12 @@ int Graph_has_edge(Graph graph, const void* source, const void* dest) {
 }
 
 
-EdgeIterator Graph_adjacents(Graph graph, const void* vertex) {
+EdgeIterator Graph_adjacents(Graph graph, void* vertex) {
   Dictionary adj_list = Graph_adjacents_dictionary(graph, vertex);
 
   EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
   it->dic_it = DictionaryIterator_new(adj_list);
+  it->current_source = vertex;
   it->vertex_it = NULL;
   it->graph = NULL;
   return it;
@@ -119,25 +123,28 @@ VertexIterator Graph_vertices(Graph graph) {
   return it;
 }
 
-static DictionaryIterator Graph_first_non_empty_edge(Graph graph, VertexIterator vertex_it) {
+static void* Graph_first_vertex_with_adjacents(Graph graph, VertexIterator vertex_it) {
   DictionaryIterator dic_it = NULL;
   while(!VertexIterator_end(vertex_it) && dic_it == NULL) {
     Dictionary adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
     if(!Dictionary_empty(adj_list)) {
-      dic_it = DictionaryIterator_new(adj_list);
+      return VertexIterator_get(vertex_it);
     } else {
       VertexIterator_next(vertex_it);
     }
   }
 
-  return dic_it;
+  return NULL;
 }
 
 EdgeIterator Graph_edges(Graph graph) {
   EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
   it->graph = graph;
   it->vertex_it = Graph_vertices(graph);
-  it->dic_it = Graph_first_non_empty_edge(graph, it->vertex_it);
+
+  void* vertex = Graph_first_vertex_with_adjacents(graph, it->vertex_it);
+  it->current_source = vertex;
+  it->dic_it = DictionaryIterator_new( Graph_adjacents_dictionary(graph, vertex) );
 
   return it;
 }
@@ -166,18 +173,25 @@ void EdgeIterator_next(EdgeIterator it) {
   while(it->dic_it != NULL && DictionaryIterator_end(it->dic_it) && it->vertex_it != NULL && !VertexIterator_end(it->vertex_it)) {
     DictionaryIterator_free(it->dic_it);
     VertexIterator_next(it->vertex_it);
-    it->dic_it = Graph_first_non_empty_edge(it->graph, it->vertex_it);
+    void* vertex = Graph_first_vertex_with_adjacents(it->graph, it->vertex_it);
+    it->current_source = vertex;
+
+    if(vertex != NULL) {
+      it->dic_it = DictionaryIterator_new(Graph_adjacents_dictionary(it->graph, vertex));
+    } else {
+      it->dic_it = NULL;
+    }
   }
 }
 
-EdgeInfo EdgeIterator_get(EdgeIterator it) {
+EdgeInfo* EdgeIterator_get(EdgeIterator it) {
   KeyValue* keyValue = DictionaryIterator_get(it->dic_it);
 
-  EdgeInfo result;
-  result.vertex = keyValue->key;
-  result.info = keyValue->value;
+  it->result.source = it->current_source;
+  it->result.destination = keyValue->key;
+  it->result.info = keyValue->value;
 
-  return result;
+  return &it->result;
 }
 
 void VertexIterator_free(VertexIterator it) {
@@ -199,11 +213,36 @@ void* VertexIterator_get(VertexIterator it) {
 
 void foreach_graph_edge_from_iterator(EdgeIterator it, void(^callback)(EdgeInfo)) {
   while(!EdgeIterator_end(it)) {
-    callback(EdgeIterator_get(it));
+    callback(*EdgeIterator_get(it));
     EdgeIterator_next(it);
   }
   EdgeIterator_free(it);
 }
+
+
+Iterator Vertex_it(Graph graph) {
+ return Iterator_make(
+   graph,
+   (void* (*)(void*)) Graph_vertices,
+   (void (*)(void*))  VertexIterator_next,
+   (void* (*)(void*)) VertexIterator_get,
+   (int (*)(void*))   VertexIterator_end,
+   (void (*)(void*))  VertexIterator_free
+ );
+}
+
+
+Iterator Edge_it(Graph graph) {
+  return Iterator_make(
+    graph,
+    (void* (*)(void*)) Graph_edges,
+    (void (*)(void*))  EdgeIterator_next,
+    (void* (*)(void*)) EdgeIterator_get,
+    (int (*)(void*))   EdgeIterator_end,
+    (void (*)(void*))  EdgeIterator_free
+  );
+}
+
 
 void* find_graph_vertex(Graph graph, int (^callback)(void*)) {
   VertexIterator it = Graph_vertices(graph);
@@ -218,19 +257,4 @@ void* find_graph_vertex(Graph graph, int (^callback)(void*)) {
   VertexIterator_free(it);
 
   return found ? result : NULL;
-}
-
-void foreach_graph_vertex(Graph graph, void (^callback)(void*)) {
-  find_graph_vertex(graph, ^(void* vertex) {
-    callback(vertex);
-    return 0;
-  });
-}
-
-void foreach_graph_edge(Graph graph, void (^callback)(void*, void*, void*)) {
-  foreach_graph_vertex(graph, ^(void* vertex) {
-    foreach_graph_edge_from_iterator(Graph_adjacents(graph, vertex), ^(EdgeInfo edge) {
-      callback(vertex, edge.vertex, edge.info);
-    });
-  });
 }

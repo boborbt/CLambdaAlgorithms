@@ -70,7 +70,7 @@ static void KruskalEdge_free(KruskalEdge edge) {
 }
 
 static void Kruskal_initializeSets(Kruskal k) {
-  foreach_graph_vertex(k->graph, ^(void* vertex) {
+  for_each(Vertex_it(k->graph), ^(void* vertex) {
     Dictionary_set(k->sets, vertex, UnionFindSet_new(vertex));
   });
 }
@@ -93,18 +93,19 @@ static int Kruskal_compare_edges(const void* obj1, const void* obj2) {
 static Array Kruskal_initEdgesArray(Kruskal k) {
   Array result =  Array_new(Graph_size(k->graph)*10, sizeof(KruskalEdge));
 
-  foreach_graph_edge(k->graph, ^(void* src, void* dest, void* info){
+  for_each(Edge_it(k->graph), ^(void* obj){
+    EdgeInfo* ei = (EdgeInfo*) obj;
     UnionFindSet set1 = NULL;
     UnionFindSet set2 = NULL;
 
-    Dictionary_get(k->sets, src,  (void**) &set1);
-    Dictionary_get(k->sets, dest, (void**) &set2);
+    Dictionary_get(k->sets, ei->source,  (void**) &set1);
+    Dictionary_get(k->sets, ei->destination, (void**) &set2);
 
     if(set1 == NULL || set2 == NULL) {
       Error_raise(Error_new(ERROR_GENERIC, "Cannot find vertices in Kruskal sets dictionary"));
     }
 
-    KruskalEdge ke = KruskalEdge_new(set1, set2, k->graph_info_to_double(info), info );
+    KruskalEdge ke = KruskalEdge_new(set1, set2, k->graph_info_to_double(ei->info), ei->info );
     Array_add( result,  &ke);
   });
 
@@ -121,7 +122,7 @@ Graph Kruskal_mintree(Kruskal k) {
   KeyInfo ki = Graph_keyInfo(k->graph);
 
   Graph result = Graph_new(ki);
-  foreach_graph_vertex(k->graph, ^(void* vertex) {
+  for_each(Vertex_it(k->graph), ^(void* vertex) {
     Graph_add_vertex(result, vertex);
   });
 

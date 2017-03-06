@@ -44,3 +44,17 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
 
   it.free(iterator);
 }
+
+
+void* find_first(Iterator it, int(^condition)(void* elem)) {
+  void* iterator = it.new(it.container);
+
+  while(!it.end(iterator) && condition(it.get(iterator)) == 0) {
+    it.next(iterator);
+  }
+
+  void* result = it.get(iterator);
+
+  it.free(iterator);
+  return result;
+}

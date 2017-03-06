@@ -1,6 +1,7 @@
 #pragma once
 
 #include "keys.h"
+#include "iterator.h"
 
 typedef int (*GVertexCompare)(void*, void*);
 
@@ -18,7 +19,8 @@ typedef struct _VertexIterator* VertexIterator;
 // lacks a pointer to the source vertex. In most cases this is implied by
 // an outer iteration over vertices.
 typedef struct {
-  void* vertex;
+  void* source;
+  void* destination;
   void* info;
 } EdgeInfo;
 
@@ -58,7 +60,7 @@ VertexIterator Graph_vertices(Graph graph);
 EdgeIterator Graph_edges(Graph graph);
 
 // Returns all edges exiting the given vertex
-EdgeIterator Graph_adjacents(Graph graph, const void* vertex);
+EdgeIterator Graph_adjacents(Graph graph, void* vertex);
 
 // Returns the info value associated with the edge connecting v1 and v2.
 // If v1 is not in the graph or v2 is not connected to v1, the function
@@ -85,7 +87,7 @@ int EdgeIterator_end(EdgeIterator it);
 void EdgeIterator_next(EdgeIterator it);
 
 // Returns the EdgeInfo currently pointed by the iterator.
-EdgeInfo EdgeIterator_get(EdgeIterator it);
+EdgeInfo* EdgeIterator_get(EdgeIterator it);
 
 
 //
@@ -109,15 +111,11 @@ void* VertexIterator_get(VertexIterator it);
 // FOREACH methods
 //
 
-// Iterates over all vertices in the graph calling the given block on each
-// node.
-void foreach_graph_vertex(Graph graph, void (^)(void*));
+Iterator Vertex_it(Graph graph);
+Iterator Edge_it(Graph graph);
 
+// FIXME: convert it to iterator.h find interface
 void* find_graph_vertex(Graph graph, int (^)(void*));
-
-// Iterates over all edges in the graph calling the given block on each
-// edge. The block needs to expect the edge to be given in the form (src,dst,weight)
-void foreach_graph_edge(Graph graph, void(^)(void*, void*, void*));
 
 
 // Uses the iterator to iterate over the pertaining edges

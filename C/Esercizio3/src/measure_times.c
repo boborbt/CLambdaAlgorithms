@@ -71,7 +71,7 @@ static void destroy_graph_double_containers(Graph graph) {
   EdgeIterator it = Graph_edges(graph);
   while(!EdgeIterator_end(it)) {
     count += 1;
-    EdgeInfo info = EdgeIterator_get(it);
+    EdgeInfo info = *EdgeIterator_get(it);
     DoubleContainer_free((DoubleContainer)info.info);
     EdgeIterator_next(it);
   }
@@ -177,7 +177,7 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 //
 // static void print_kruskal_edges(Graph graph) {
 //   Array edges_weights = Array_new(20000, sizeof(DoubleContainer));
-//   foreach_graph_edge( graph, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
+//   for_each(Edge_it( graph), ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
 //     Array_add(edges_weights, &info);
 //   });
 //
@@ -195,9 +195,10 @@ static void execute_kruskal(Graph graph) {
   __block double tree_size = 0.0;
   __block int num_edges = 0;
   __block double min_edge = 10000000;
-  foreach_graph_edge(result, ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
-    double edge_weight = DoubleContainer_get(info);
-    tree_size += DoubleContainer_get(info);
+  for_each(Edge_it(result), ^(void* obj) {
+    EdgeInfo* ei = (EdgeInfo*) obj;
+    double edge_weight = DoubleContainer_get(ei->info);
+    tree_size += DoubleContainer_get(ei->info);
     num_edges += 1.0;
 
     if( edge_weight < min_edge ) {

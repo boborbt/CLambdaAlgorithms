@@ -62,6 +62,7 @@ Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st
 
 
 tests: test_binaries
+	bin/iterator_tests
 	bin/sorting_tests
 	bin/dictionary_tests_st
 	bin/dictionary_tests_hash
@@ -75,7 +76,10 @@ tests: test_binaries
 	bin/priority_queue_tests
 	bin/multy_way_tree_tests
 
-test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
+
+bin/iterator_tests: tests/iterator_tests.c include/unit_testing.h lib/libcontainers_st.a
+	$(CC) $(CFLAGS) tests/iterator_tests.c -o bin/iterator_tests -lcontainers_st $(LDFLAGS)
 
 bin/sorting_tests: tests/sorting_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
@@ -110,7 +114,7 @@ bin/queue_tests: tests/queue_tests.c include/unit_testing.h lib/libcontainers_st
 bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/priority_queue_tests.c -o bin/priority_queue_tests -lcontainers_st $(LDFLAGS)
 
-bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/multy_way_tree_tests: tests/multy_way_tree_tests.c include/unit_testing.h lib/libcontainers_st.a
 	$(CC) $(CFLAGS) tests/multy_way_tree_tests.c -o bin/multy_way_tree_tests -lcontainers_st $(LDFLAGS)
 
 

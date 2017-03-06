@@ -19,7 +19,7 @@ VisitingInfo VisitingInfo_new(Graph graph) {
 
   result->graph = graph;
   result->vertex_set = Dictionary_new(Graph_keyInfo(graph));
-  foreach_graph_vertex(result->graph, ^(void* vertex){
+  for_each(Vertex_it(result->graph), ^(void* vertex){
     Dictionary_set(result->vertex_set, vertex, UnionFindSet_new(vertex));
   });
   result->current = DictionaryIterator_new(result->vertex_set);
@@ -76,7 +76,7 @@ static void Graph_depth_first_visit_uf_set(VisitingInfo info, UnionFindSet sourc
   visit(UnionFindSet_get(source));
 
   foreach_graph_edge_from_iterator(Graph_adjacents(info->graph, UnionFindSet_get(source)), ^(EdgeInfo ei) {
-    void* neighbour = ei.vertex;
+    void* neighbour = ei.destination;
     UnionFindSet neighbour_set;
 
     if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {
@@ -122,7 +122,7 @@ void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^vi
 
     EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(current));
     foreach_graph_edge_from_iterator(adjacents, ^(EdgeInfo ei) {
-      void* neighbour = ei.vertex;
+      void* neighbour = ei.destination;
       UnionFindSet neighbour_set;
 
       if(!Dictionary_get(info->vertex_set, neighbour, (void**)&neighbour_set)) {
