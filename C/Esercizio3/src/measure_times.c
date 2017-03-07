@@ -10,6 +10,7 @@
 #include "macros.h"
 #include "kruskal.h"
 #include "array.h"
+#include "iterator_functions.h"
 #include <errno.h>
 
 #define BUF_SIZE 1024

@@ -12,6 +12,7 @@
 #include "double_container.h"
 #include "macros.h"
 #include "kruskal.h"
+#include "iterator_functions.h"
 
 
 static PriorityQueue build_pq_fixtures() {

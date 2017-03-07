@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "unit_testing.h"
+#include "iterator_functions.h"
 
 static int compare(const void* left, const void* right) {
   if((long int) left < (long int) right) {

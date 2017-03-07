@@ -8,6 +8,7 @@
 #include "print_time.h"
 #include "errors.h"
 #include "macros.h"
+#include "iterator_functions.h"
 
 static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);

@@ -1,6 +1,7 @@
 #include "array.h"
 #include "unit_testing.h"
 #include "errors.h"
+#include "iterator_functions.h"
 
 typedef struct _TestRecord* TestRecord;
 

@@ -2,6 +2,7 @@
 #include "stack.h"
 #include "string_utils.h"
 #include <stdio.h>
+#include "iterator_functions.h"
 
 struct _MultyWayTree {
   void* content;

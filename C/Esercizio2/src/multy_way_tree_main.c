@@ -4,6 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "iterator_functions.h"
 #include "multywaytree_utils.h"
 
 

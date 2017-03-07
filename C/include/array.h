@@ -3,10 +3,8 @@
 #include <stdlib.h>
 #include "iterator.h"
 
-
 typedef struct _Array* Array;
 typedef struct _ArrayIterator* ArrayIterator;
-
 
 // Constructors
 Array Array_new(size_t capacity, size_t elem_size);

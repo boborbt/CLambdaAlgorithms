@@ -2,6 +2,7 @@
 #include "iterator.h"
 #include "array.h"
 #include "double_container.h"
+#include "iterator_functions.h"
 
 static Array build_fixtures() {
   Array array = Array_new(10, sizeof(DoubleContainer));

@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include "iterator_functions.h"
+
 #include "multywaytree_utils.h"
 
 #define NUM_NODES 1000

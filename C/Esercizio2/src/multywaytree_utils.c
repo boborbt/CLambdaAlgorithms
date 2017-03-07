@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "iterator_functions.h"
+
 #define NULL_STR "__NULL__"
 
 void save_tree(MultyWayTree tree, FILE* file) {
@@ -52,7 +54,7 @@ static int String_compare(void* s1, void* s2) {
   if(s2 == NULL) {
     return 1;
   }
-  
+
   return strcmp((char*) s1, (char*) s2);
 }
 
