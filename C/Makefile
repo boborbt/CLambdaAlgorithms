@@ -1,7 +1,17 @@
 include Makefile.vars
 
+MAKEFLAGS += --silent
+
 CFLAGS+=-Iinclude
 LDFLAGS+=-Llib
+
+define exec
+	@tput bold
+	@echo $(1)
+	@tput sgr 0
+
+	@$(1)
+endef
 
 .PHONY: Esercizio1 Esercizio2 Esercizio3 libs clean experiment1 experiment2 experiment3 tests
 
@@ -31,50 +41,54 @@ bin:
 libs: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
 lib/libcontainers_hash.a: build lib build/hash_table.o $(COMMON_OBJECTS)
+	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_hash.a build/hash_table.o $(COMMON_OBJECTS)
 
 lib/libcontainers_st.a: build lib build/search_tree.o	$(COMMON_OBJECTS)
+	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_st.a build/search_tree.o	$(COMMON_OBJECTS)
 
 lib/libcontainers_rb.a: build lib build/rb_tree.o $(COMMON_OBJECTS)
+	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_rb.a build/rb_tree.o $(COMMON_OBJECTS)
 
 
 # Source compilation
 
 build/%.o: src/%.c   Makefile Makefile.vars
+	tput dim; echo Making $<; tput sgr 0
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
 # Experiments
 
 Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; echo "Entering Esercizio 1"; tput sgr 0
+	tput bold; tput setaf 2; echo "Making all in Esercizio 1"; tput sgr 0
 	$(MAKE) -C Esercizio1
 
 Esercizio2: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; echo "Entering Esercizio 2"; tput sgr 0
+	tput bold; tput setaf 2; echo "Making all in Esercizio 2"; tput sgr 0
 	$(MAKE) -C Esercizio2
 
 Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; echo "Entering Esercizio 3"; tput sgr 0
+	tput bold; tput setaf 2; echo "Making all in Esercizio 3"; tput sgr 0
 	$(MAKE) -C Esercizio3
 
 
 tests: test_binaries
-	bin/iterator_tests
-	bin/sorting_tests
-	bin/dictionary_tests_st
-	bin/dictionary_tests_hash
-	bin/dictionary_tests_rb
-	bin/graph_tests
-	bin/list_tests
-	bin/array_tests
-	bin/errors_tests
-	bin/union_find_tests
-	bin/queue_tests
-	bin/priority_queue_tests
-	bin/multy_way_tree_tests
+	$(call exec, bin/iterator_tests)
+	$(call exec, bin/sorting_tests)
+	$(call exec, bin/dictionary_tests_st)
+	$(call exec, bin/dictionary_tests_hash)
+	$(call exec, bin/dictionary_tests_rb)
+	$(call exec, bin/graph_tests)
+	$(call exec, bin/list_tests)
+	$(call exec, bin/array_tests)
+	$(call exec, bin/errors_tests)
+	$(call exec, bin/union_find_tests)
+	$(call exec, bin/queue_tests)
+	$(call exec, bin/priority_queue_tests)
+	$(call exec, bin/multy_way_tree_tests)
 
 test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
 
