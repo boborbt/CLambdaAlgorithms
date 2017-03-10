@@ -21,13 +21,13 @@ static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, co
   void* vertex2 = NULL;
 
   if(!Dictionary_get(known_vertices, v1, &vertex1)) {
-    vertex1 = strdup(v1);
+    vertex1 = Mem_strdup(v1);
     Dictionary_set(known_vertices, vertex1, vertex1);
     Graph_add_vertex(graph, vertex1);
   }
 
   if(!Dictionary_get(known_vertices, v2, &vertex2)) {
-    vertex2 = strdup(v2);
+    vertex2 = Mem_strdup(v2);
     Dictionary_set(known_vertices, vertex2, vertex2);
     Graph_add_vertex(graph, vertex2);
   }

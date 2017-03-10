@@ -12,12 +12,14 @@ typedef struct {
 #define Mem_calloc(count,size) Mem_calloc_ext((count), (size), __FILE__, __LINE__)
 #define  Mem_free(ptr) Mem_free_ext((ptr), __FILE__, __LINE__)
 
+#define Mem_strdup(str) Mem_strdup_ext((str), __FILE__, __LINE__)
+
 void* Mem_alloc_ext(size_t size, char* file, size_t lineno);
 void* Mem_realloc_ext(void*, size_t size, char* file, size_t lineno);
 void* Mem_calloc_ext(size_t count, size_t size, char* file, size_t lineno);
 void  Mem_free_ext(void*, char* file, size_t lineno);
 
-
+char* Mem_strdup_ext(const char*, char* file, size_t lineno);
 
 MemStats Mem_stats(void);
 int Mem_all_freed(void);

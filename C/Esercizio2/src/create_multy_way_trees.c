@@ -55,7 +55,7 @@ static void init_node_names() {
   char buf[1000];
   for(size_t i=0; i<NODENAMES->count; ++i) {
     sprintf(buf, "N:%04ld", i);
-    NODENAMES->names[i] = strdup(buf);
+    NODENAMES->names[i] = Mem_strdup(buf);
   }
 }
 

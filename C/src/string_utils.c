@@ -15,7 +15,7 @@ Array String_split(char* string, char delim) {
   while(pos < len) {
     if(string[pos] == delim) {
       buf[buf_pos] = '\0';
-      char* piece = strdup(buf);
+      char* piece = Mem_strdup(buf);
       Array_add(result, &piece);
       buf_pos = 0;
       pos += 1;
@@ -27,7 +27,7 @@ Array String_split(char* string, char delim) {
 
   if(buf_pos!=0) {
     buf[buf_pos] = '\0';
-    char* piece = strdup(buf);
+    char* piece = Mem_strdup(buf);
     Array_add(result, &piece);
   }
 

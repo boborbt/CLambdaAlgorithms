@@ -120,7 +120,7 @@ static Record* parse_record(const char* str) {
     Error_raise(Error_new(ERROR_FILE_READING, "Read only %d fields on line %s", num_fields, str));
   }
 
-  record->field1 = strdup(buf);
+  record->field1 = Mem_strdup(buf);
 
   return record;
 }
@@ -186,7 +186,7 @@ void Dataset_free(Dataset* dataset) {
     Mem_free(record);
   });
 
-  Mem_free(dataset->records);
+  Array_free(dataset->records);
   Mem_free(dataset);
 }
 

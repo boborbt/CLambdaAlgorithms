@@ -72,7 +72,7 @@ PrintTime PrintTime_new(const char* out_file) {
 
 
 void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
-  KeyValue kv = { .key = strdup(key), .value = strdup(value) };
+  KeyValue kv = { .key = Mem_strdup(key), .value = Mem_strdup(value) };
   Array_add(pt->header, &kv);
 }
 
@@ -107,7 +107,7 @@ double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  printf("time:  %10.2lf secs\n", result);
  printf("======================\n\n");
 
- KeyValue kv = { .key = strdup(label), .value = DoubleContainer_new(result) };
+ KeyValue kv = { .key = Mem_strdup(label), .value = DoubleContainer_new(result) };
  Array_add(pt->data, &kv);
 
  return result;

@@ -2,6 +2,7 @@
 #include "macros.h"
 #include <malloc/malloc.h>
 #include <stdio.h>
+#include <string.h>
 
 #define MEM_VERBOSE 0
 
@@ -97,6 +98,28 @@ void  Mem_free_ext(void* ptr, char* UNUSED(file), size_t UNUSED(line)) {
 
 #endif
 
+
+#if MEM_VERBOSE == 1
+
+char* Mem_strdup_ext(const char* str, char* file, size_t line) {
+  char* tmp = strdup(str);
+
+  printf("Mem_strdup ptr: %p file: %s line %ld\n", (void*)tmp, file, line);
+
+  mem_stats.alloced_memory += malloc_size(tmp);
+  return tmp;
+}
+
+#else
+
+char* Mem_strdup_ext(const char* str, char* UNUSED(file), size_t UNUSED(line)) {
+  char* tmp = strdup(str);
+
+  mem_stats.alloced_memory += malloc_size(tmp);
+  return tmp;
+}
+
+#endif
 
 
 int Mem_all_freed(void) {

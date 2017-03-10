@@ -14,7 +14,7 @@ end
 calls.each do |key,value|
   count = value.inject(0) do |sum,rec|
     inc = 0
-    inc = +1 if ['alloc', 'realloc', 'calloc'].include?(rec[:fun])
+    inc = +1 if ['alloc', 'realloc', 'calloc', 'strdup'].include?(rec[:fun])
     inc = -1 if ['free'].include?(rec[:fun])
     raise "function not known #{rec[:fun]}" if inc == 0
 

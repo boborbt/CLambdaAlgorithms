@@ -10,6 +10,7 @@
 #include "dataset.h"
 #include "print_time.h"
 #include "errors.h"
+#include "mem.h"
 
 
 // qsort passes to the comparison function a pointer to the array element,
@@ -248,6 +249,13 @@ int main(int argc, char* argv[]) {
 
   PrintTime_save(pt);
   PrintTime_free(pt);
+
+  if( !Mem_all_freed() ) {
+    MemStats stats = Mem_stats();
+    printf("\nLeaked memory");
+    printf("alloced: %ld\n", stats.alloced_memory);
+    printf("freed: %ld\n", stats.freed_memory);
+  }
 
   return 0;
 }
