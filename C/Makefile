@@ -40,15 +40,15 @@ bin:
 
 libs: lib/libcontainers_hash.a lib/libcontainers_st.a lib/libcontainers_rb.a
 
-lib/libcontainers_hash.a: build lib build/hash_table.o $(COMMON_OBJECTS)
+lib/libcontainers_hash.a: build lib build/hash_table.o $(COMMON_OBJECTS) $(HEADERS)
 	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_hash.a build/hash_table.o $(COMMON_OBJECTS)
 
-lib/libcontainers_st.a: build lib build/search_tree.o	$(COMMON_OBJECTS)
+lib/libcontainers_st.a: build lib build/search_tree.o	$(COMMON_OBJECTS) $(HEADERS)
 	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_st.a build/search_tree.o	$(COMMON_OBJECTS)
 
-lib/libcontainers_rb.a: build lib build/rb_tree.o $(COMMON_OBJECTS)
+lib/libcontainers_rb.a: build lib build/rb_tree.o $(COMMON_OBJECTS) $(HEADERS)
 	tput bold; echo Making $@; tput sgr 0
 	$(LIBTOOL) lib/libcontainers_rb.a build/rb_tree.o $(COMMON_OBJECTS)
 
@@ -92,43 +92,43 @@ tests: test_binaries
 
 test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
 
-bin/iterator_tests: tests/iterator_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/iterator_tests: tests/iterator_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/iterator_tests.c -o bin/iterator_tests -lcontainers_st $(LDFLAGS)
 
-bin/sorting_tests: tests/sorting_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/sorting_tests: tests/sorting_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/sorting_tests.c -o bin/sorting_tests -lcontainers_st $(LDFLAGS)
 
-bin/dictionary_tests_st: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/dictionary_tests_st: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_st -lcontainers_st $(LDFLAGS)
 
-bin/dictionary_tests_hash: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_hash.a
+bin/dictionary_tests_hash: tests/dictionary_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/dictionary_tests.c -o bin/dictionary_tests_hash -lcontainers_hash $(LDFLAGS)
 
-bin/dictionary_tests_rb: tests/dictionary_tests_rb.c include/unit_testing.h lib/libcontainers_rb.a
+bin/dictionary_tests_rb: tests/dictionary_tests_rb.c include/unit_testing.h lib/libcontainers_rb.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/dictionary_tests_rb.c -o bin/dictionary_tests_rb -lcontainers_rb $(LDFLAGS)
 
-bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_hash.a
+bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st $(LDFLAGS)
 
-bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash.a
+bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash $(LDFLAGS)
 
-bin/array_tests: tests/array_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/array_tests: tests/array_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/array_tests.c -o bin/array_tests -lcontainers_st $(LDFLAGS)
 
-bin/errors_tests: tests/errors_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/errors_tests: tests/errors_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/errors_tests.c -o bin/errors_tests -lcontainers_st $(LDFLAGS)
 
-bin/union_find_tests: tests/union_find_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/union_find_tests: tests/union_find_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/union_find_tests.c -o bin/union_find_tests -lcontainers_st $(LDFLAGS)
 
-bin/queue_tests: tests/queue_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/queue_tests: tests/queue_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/queue_tests.c -o bin/queue_tests -lcontainers_st $(LDFLAGS)
 
-bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/priority_queue_tests.c -o bin/priority_queue_tests -lcontainers_st $(LDFLAGS)
 
-bin/multy_way_tree_tests: tests/multy_way_tree_tests.c include/unit_testing.h lib/libcontainers_st.a
+bin/multy_way_tree_tests: tests/multy_way_tree_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/multy_way_tree_tests.c -o bin/multy_way_tree_tests -lcontainers_st $(LDFLAGS)
 
 

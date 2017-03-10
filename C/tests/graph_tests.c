@@ -349,8 +349,6 @@ static void test_bfs_visit() {
 }
 
 int main() {
-  test_focus(test_bfs_visit);
-
   start_tests("priority queue");
   test(test_priority_queue_creation);
   test(test_priority_queue_push_min_element);
