@@ -1,13 +1,15 @@
 #include "union_find.h"
 #include <stdlib.h>
 
+#include "mem.h"
+
 struct _UnionFindSet {
   void* elem;
   struct _UnionFindSet* parent;
 };
 
 UnionFindSet UnionFindSet_new(void* elem) {
-  UnionFindSet result = (UnionFindSet) malloc(sizeof(struct _UnionFindSet));
+  UnionFindSet result = (UnionFindSet) Mem_alloc(sizeof(struct _UnionFindSet));
   result->elem = elem;
   result->parent = NULL;
   return result;
@@ -37,7 +39,7 @@ void* UnionFindSet_get(UnionFindSet set) {
 }
 
 void UnionFindSet_free(UnionFindSet set) {
-  free(set);
+  Mem_free(set);
 }
 
 int UnionFindSet_same(UnionFindSet set1, UnionFindSet set2) {

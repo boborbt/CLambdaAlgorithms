@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "mem.h"
 
 struct _Error {
   char* message;
@@ -40,7 +41,7 @@ __attribute__((noreturn)) void Error_raise(Error error)  {
 }
 
 Error Error_new(ErrorCode code, const char* formatted_message, ...) {
-  Error error = (Error) malloc(sizeof(struct _Error));
+  Error error = (Error) Mem_alloc(sizeof(struct _Error));
   error->code = code;
 
   va_list args;

@@ -40,6 +40,9 @@ double Dictionary_efficiency_score(Dictionary);
 // Returns 1 if the dictionary integrity is ok. Return 0 otherwise.
 int Dictionary_check_integrity(Dictionary);
 
+// Returns the key infos used to create the dictionary
+KeyInfo Dictionary_key_info(Dictionary);
+
 // -------------------------------------
 // Iterator interface to the dictionary
 // -------------------------------------

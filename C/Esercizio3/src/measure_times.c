@@ -11,6 +11,7 @@
 #include "kruskal.h"
 #include "array.h"
 #include "iterator_functions.h"
+#include "mem.h"
 #include <errno.h>
 
 #define BUF_SIZE 1024
@@ -82,7 +83,7 @@ static void destroy_graph_double_containers(Graph graph) {
 
   VertexIterator v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
-    free((void*)VertexIterator_get(v_it));
+    Mem_free((void*)VertexIterator_get(v_it));
     VertexIterator_next(v_it);
   }
   VertexIterator_free(v_it);
@@ -118,7 +119,7 @@ static void execute_dijkstra(Graph graph, char* source, char* dest) {
   Dijkstra_free(d);
 
   print_path(graph, min_path);
-  free(min_path);
+  Mem_free(min_path);
 }
 
 static void check_edge(Graph graph, const char* source, char* dest) {

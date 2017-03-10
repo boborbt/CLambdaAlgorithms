@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "errors.h"
+#include "mem.h"
 
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
@@ -37,8 +38,8 @@ static size_t PriorityQueue_right_child(size_t pos) {
 }
 
 PriorityQueue PriorityQueue_new(PQOrder order) {
-  PriorityQueue result = (PriorityQueue) malloc(sizeof(struct _PriorityQueue));
-  result->array = (PQElem*) malloc(sizeof(PQElem*) * PRIORITY_QUEUE_INITIAL_CAPACITY);
+  PriorityQueue result = (PriorityQueue) Mem_alloc(sizeof(struct _PriorityQueue));
+  result->array = (PQElem*) Mem_alloc(sizeof(PQElem*) * PRIORITY_QUEUE_INITIAL_CAPACITY);
   result->size = 0;
   result->capacity = PRIORITY_QUEUE_INITIAL_CAPACITY;
   result->order = order;
@@ -47,8 +48,8 @@ PriorityQueue PriorityQueue_new(PQOrder order) {
 }
 
 void PriorityQueue_free(PriorityQueue pq) {
-  free(pq->array);
-  free(pq);
+  Mem_free(pq->array);
+  Mem_free(pq);
 }
 
 size_t PriorityQueue_size(PriorityQueue pq) {
@@ -68,7 +69,7 @@ static void PriorityQueue_try_realloc(PriorityQueue pq) {
     return;
   }
   pq->capacity *= 2;
-  pq->array = (PQElem*) realloc(pq->array, sizeof(PQElem*) * pq->capacity );
+  pq->array = (PQElem*)Mem_realloc(pq->array, sizeof(PQElem*) * pq->capacity );
 }
 
 static void PriorityQueue_moveup(PriorityQueue pq, size_t pos) {

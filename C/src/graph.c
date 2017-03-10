@@ -4,6 +4,8 @@
 #include "graph.h"
 #include "dictionary.h"
 #include "errors.h"
+#include "iterator_functions.h"
+#include "mem.h"
 
 // The adjacency matrix is a dictionary storing vertices as keys. Values
 // are dictionaries themselves in which keys are the adjacent vertex and
@@ -29,7 +31,7 @@ struct _VertexIterator {
 
 
 Graph Graph_new(KeyInfo vertexInfo) {
-  Graph result = (Graph) malloc(sizeof(struct _Graph));
+  Graph result = (Graph) Mem_alloc(sizeof(struct _Graph));
   result->vertexInfo = vertexInfo;
   result->adjacency_matrix = Dictionary_new(vertexInfo);
   result->size = 0;
@@ -42,7 +44,7 @@ void Graph_free(Graph graph) {
   });
 
   Dictionary_free(graph->adjacency_matrix);
-  free(graph);
+  Mem_free(graph);
 }
 
 KeyInfo Graph_keyInfo(Graph graph) {
@@ -109,7 +111,7 @@ int Graph_has_edge(Graph graph, const void* source, const void* dest) {
 EdgeIterator Graph_adjacents(Graph graph, void* vertex) {
   Dictionary adj_list = Graph_adjacents_dictionary(graph, vertex);
 
-  EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
+  EdgeIterator it = (EdgeIterator) Mem_alloc(sizeof(struct _EdgeIterator));
   it->dic_it = DictionaryIterator_new(adj_list);
   it->current_source = vertex;
   it->vertex_it = NULL;
@@ -118,7 +120,7 @@ EdgeIterator Graph_adjacents(Graph graph, void* vertex) {
 }
 
 VertexIterator Graph_vertices(Graph graph) {
-  VertexIterator it = (VertexIterator) malloc(sizeof(struct _VertexIterator));
+  VertexIterator it = (VertexIterator) Mem_alloc(sizeof(struct _VertexIterator));
   it->dic_it = DictionaryIterator_new(graph->adjacency_matrix);
   return it;
 }
@@ -138,7 +140,7 @@ static void* Graph_first_vertex_with_adjacents(Graph graph, VertexIterator verte
 }
 
 EdgeIterator Graph_edges(Graph graph) {
-  EdgeIterator it = (EdgeIterator) malloc(sizeof(struct _EdgeIterator));
+  EdgeIterator it = (EdgeIterator) Mem_alloc(sizeof(struct _EdgeIterator));
   it->graph = graph;
   it->vertex_it = Graph_vertices(graph);
 
@@ -157,7 +159,7 @@ void EdgeIterator_free(EdgeIterator it) {
   if(it->vertex_it!=NULL) {
     VertexIterator_free(it->vertex_it);
   }
-  free(it);
+  Mem_free(it);
 }
 
 int EdgeIterator_end(EdgeIterator it) {
@@ -196,7 +198,7 @@ EdgeInfo* EdgeIterator_get(EdgeIterator it) {
 
 void VertexIterator_free(VertexIterator it) {
   DictionaryIterator_free(it->dic_it);
-  free(it);
+  Mem_free(it);
 }
 
 int VertexIterator_end(VertexIterator it) {

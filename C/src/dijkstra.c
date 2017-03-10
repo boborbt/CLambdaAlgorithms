@@ -5,7 +5,9 @@
 #include "dijkstra.h"
 #include "dictionary.h"
 #include "priority_queue.h"
+#include "iterator_functions.h"
 #include "double_container.h"
+#include "mem.h"
 
 
 struct _Dijkstra {
@@ -40,7 +42,7 @@ static size_t path_len(Dictionary parents, const void* dest) {
 
 static void** build_path(Dictionary parents, void* dest) {
   size_t len = path_len(parents, dest);
-  void** result = (void**) malloc(sizeof(void*)*(len+1));
+  void** result = (void**) Mem_alloc(sizeof(void*)*(len+1));
   result[len] = NULL;
 
   void* current = dest;
@@ -80,7 +82,7 @@ static void** cleanup_and_build_path(Dijkstra state, void* dest) {
 
 
 Dijkstra Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) {
-  Dijkstra result = (Dijkstra) malloc(sizeof(struct _Dijkstra));
+  Dijkstra result = (Dijkstra) Mem_alloc(sizeof(struct _Dijkstra));
 
   result->graph = graph;
   result->graph_info_to_double = graph_info_to_double;
@@ -89,7 +91,7 @@ Dijkstra Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) 
 }
 
 void Dijkstra_free(Dijkstra d) {
-  free(d);
+  Mem_free(d);
 }
 
 static void Dijkstra_init_state(Dijkstra state) {

@@ -4,6 +4,8 @@
 #include "errors.h"
 #include <assert.h>
 
+#include "mem.h"
+
 
 struct _ListNode {
   void* elem;
@@ -29,7 +31,7 @@ struct _ListIterator {
  * -------------------------- */
 
 List List_new() {
-  List result = (List) malloc(sizeof(struct _List));
+  List result = (List) Mem_alloc(sizeof(struct _List));
   result->head = NULL;
   result->tail = NULL;
   result->size = 0l;
@@ -76,7 +78,7 @@ int List_empty(List list) {
 // }
 
 void List_insert(List list, void* elem) {
-  ListNode new_node = (ListNode) malloc(sizeof(struct _ListNode));
+  ListNode new_node = (ListNode) Mem_alloc(sizeof(struct _ListNode));
   new_node->elem = elem;
   new_node->succ = list->head;
   new_node->pred = NULL;
@@ -93,7 +95,7 @@ void List_insert(List list, void* elem) {
 }
 
 void List_append(List list, void* elem) {
-  ListNode new_node = (ListNode) malloc(sizeof(struct _ListNode));
+  ListNode new_node = (ListNode) Mem_alloc(sizeof(struct _ListNode));
   new_node->elem = elem;
   new_node->succ = NULL;
   new_node->pred = list->tail;
@@ -124,11 +126,11 @@ void List_free(List list, void (*elem_free)(void*)) {
     if(elem_free) {
       elem_free(current->elem);
     }
-    free(current);
+    Mem_free(current);
     current = next;
   }
 
-  free(list);
+  Mem_free(list);
 }
 
 ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
@@ -177,7 +179,7 @@ void List_delete_node(List list, ListNode node) {
     node->pred->succ = node->succ;
   }
 
-  free(node);
+  Mem_free(node);
 
   list->size -= 1;
 }
@@ -188,7 +190,7 @@ ListIterator ListIterator_new(List list) {
     return NULL;
   }
 
-  ListIterator result = (ListIterator) malloc(sizeof(struct _ListIterator));
+  ListIterator result = (ListIterator) Mem_alloc(sizeof(struct _ListIterator));
   result->current = list->head;
   return result;
 }
@@ -198,14 +200,14 @@ ListIterator ListIterator_new_from_node(ListNode node) {
     return NULL;
   }
 
-  ListIterator result = (ListIterator) malloc(sizeof(struct _ListIterator));
+  ListIterator result = (ListIterator) Mem_alloc(sizeof(struct _ListIterator));
   result->current = node;
   return result;
 }
 
 void ListIterator_free(ListIterator it) {
   if(it!=NULL) {
-    free(it);
+    Mem_free(it);
   }
 }
 

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "errors.h"
 #include "queue.h"
+#include "mem.h"
+#include "iterator_functions.h"
 
 struct _VisitingInfo {
   Graph graph;
@@ -15,7 +17,7 @@ struct _VisitingInfo {
 
 
 VisitingInfo VisitingInfo_new(Graph graph) {
-  VisitingInfo result = (VisitingInfo) malloc(sizeof(struct _VisitingInfo));
+  VisitingInfo result = (VisitingInfo) Mem_alloc(sizeof(struct _VisitingInfo));
 
   result->graph = graph;
   result->vertex_set = Dictionary_new(Graph_keyInfo(graph));
@@ -36,7 +38,7 @@ void VisitingInfo_free(VisitingInfo info) {
   });
   Dictionary_free(info->vertex_set);
 
-  free(info);
+  Mem_free(info);
 }
 
 // Returns the next unvisited node. Thanks to the UnionFindSet we have O(1)

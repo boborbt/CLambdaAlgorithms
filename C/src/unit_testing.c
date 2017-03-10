@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include "mem.h"
+#include <stdio.h>
 
 
 #include "unit_testing.h"
@@ -22,8 +24,16 @@ void end_tests() {
 
 // Calls a testing function. The given test function should
 // exit the program with an error if the test does not succeed.
-void test(void (*test_fun)()) {
+void test_ext(void (*test_fun)(), char* test_name, char* file, size_t lineno) {
   num_tests += 1;
   printf(".");
   test_fun();
+
+  if( !Mem_all_freed() ) {
+    MemStats stats = Mem_stats();
+    printf("\nLeaked memory after test: %s at line: %ld of file: %s\n", test_name, lineno, file);
+    printf("alloced: %ld\n", stats.alloced_memory);
+    printf("freed: %ld\n", stats.freed_memory);
+    assert_true(Mem_all_freed());
+  }
 }

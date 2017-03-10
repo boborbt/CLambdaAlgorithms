@@ -1,4 +1,6 @@
 #include "iterator.h"
+#include "iterator_functions.h"
+#include "mem.h"
 
 Iterator Iterator_make(
   void* container,

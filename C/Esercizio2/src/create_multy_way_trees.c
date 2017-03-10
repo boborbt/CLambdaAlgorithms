@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include "mem.h"
 
 #include "iterator_functions.h"
 
@@ -46,10 +47,10 @@ static size_t random_int3() {
 }
 
 static void init_node_names() {
-  NODENAMES = (NodeNames) malloc(sizeof(struct _NodeNames));
+  NODENAMES = (NodeNames) Mem_alloc(sizeof(struct _NodeNames));
   NODENAMES->count = NUM_NODES + 100;
   NODENAMES->current = 0;
-  NODENAMES->names = (char**) malloc(sizeof(char*)*NODENAMES->count);
+  NODENAMES->names = (char**) Mem_alloc(sizeof(char*)*NODENAMES->count);
 
   char buf[1000];
   for(size_t i=0; i<NODENAMES->count; ++i) {

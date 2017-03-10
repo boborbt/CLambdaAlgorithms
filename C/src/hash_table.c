@@ -1,6 +1,7 @@
 #include "dictionary.h"
 #include <stdlib.h>
 #include "list.h"
+#include "mem.h"
 
 #define HASH_TABLE_INITIAL_CAPACITY 4096
 #define HASH_TABLE_CAPACITY_MIN_MULTIPLIER 2
@@ -26,7 +27,7 @@ struct _DictionaryIterator {
 /* KeyValue* constructor and destructor */
 
 static KeyValue* KeyValue_new(void* key, void* value) {
-  KeyValue* result = (KeyValue*) malloc(sizeof(struct _KeyValue*));
+  KeyValue* result = (KeyValue*) Mem_alloc(sizeof(struct _KeyValue*));
   result->key = key;
   result->value = value;
   return result;
@@ -37,7 +38,7 @@ static const void* KeyValue_key(const KeyValue*  elem) {
 }
 
 static void KeyValue_free(KeyValue* kv) {
-  free(kv);
+  Mem_free(kv);
 }
 
 /* --------------------------
@@ -45,7 +46,7 @@ static void KeyValue_free(KeyValue* kv) {
  *  -------------------------- */
 
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
+  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->dictionary = dictionary;
   it->cur_index = 0;
   it->cur_list_element = ListIterator_new(it->dictionary->table[0]);
@@ -58,7 +59,7 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
 
 void DictionaryIterator_free(DictionaryIterator it) {
   ListIterator_free(it->cur_list_element);
-  free(it);
+  Mem_free(it);
 }
 
 int DictionaryIterator_end(DictionaryIterator it)  {
@@ -100,8 +101,8 @@ static void Dictionary_free_lists(Dictionary dictionary, void (*elem_free)(void*
 }
 
 Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) malloc( sizeof(struct _Dictionary) );
-  result->table = (List*) calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List));
+  Dictionary result = (Dictionary) Mem_alloc( sizeof(struct _Dictionary) );
+  result->table = (List*)Mem_calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List));
   result->capacity = HASH_TABLE_INITIAL_CAPACITY;
   result->size = 0;
   result->keyInfo = keyInfo;
@@ -111,15 +112,19 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
 
 void Dictionary_free(Dictionary dictionary) {
   Dictionary_free_lists(dictionary, (void (*)(void*)) KeyValue_free);
-  free(dictionary->table);
-  free(dictionary);
+  Mem_free(dictionary->table);
+  Mem_free(dictionary);
+}
+
+KeyInfo Dictionary_key_info(Dictionary dictionary) {
+  return dictionary->keyInfo;
 }
 
 // Reallocate the items in the current dictionary doubling the number of
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
 static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
-  List* new_table = (List*) calloc(new_capacity, sizeof(List));
+  List* new_table = (List*)Mem_calloc(new_capacity, sizeof(List));
 
   DictionaryIterator it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
@@ -136,7 +141,7 @@ static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
   DictionaryIterator_free(it);
 
   Dictionary_free_lists(dictionary, 0);
-  free(dictionary->table);
+  Mem_free(dictionary->table);
   dictionary->table = new_table;
   dictionary->capacity = new_capacity;
 }

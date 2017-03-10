@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "errors.h"
+#include "mem.h"
 
 typedef enum {
   BLACK, RED
@@ -51,7 +52,7 @@ void DictionaryIterator_next(DictionaryIterator it) {
 }
 
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
+  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->stack = Stack_new(MAX_STACK_SIZE);
 
   if(!Dictionary_empty(dictionary)) {
@@ -62,7 +63,7 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
 
 void DictionaryIterator_free(DictionaryIterator it) {
   Stack_free(it->stack);
-  free(it);
+  Mem_free(it);
 }
 
 int DictionaryIterator_end(DictionaryIterator it) {
@@ -89,10 +90,10 @@ int Dictionary_check_integrity(Dictionary dictionary);
  * -------------------------- */
 
 static Node* Node_new(void* key, void* value) {
-  Node* result =  (Node*) malloc(sizeof(Node));
+  Node* result =  (Node*) Mem_alloc(sizeof(Node));
   result->left = _nil;
   result->right = _nil;
-  result->kv = (KeyValue*) malloc(sizeof(struct _KeyValue*));
+  result->kv = (KeyValue*) Mem_alloc(sizeof(struct _KeyValue*));
   result->kv->key = key;
   result->kv->value = value;
   result->color = RED;
@@ -208,9 +209,9 @@ static Node* Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
   (*node)->parent = tmp->parent;
   Color deleted_color = tmp->color;
   if(tmp->kv != NULL) {
-    free(tmp->kv);
+    Mem_free(tmp->kv);
   }
-  free(tmp);
+  Mem_free(tmp);
 
   if(deleted_color == BLACK) {
     return *node;
@@ -239,8 +240,8 @@ static void Node_tree_free(Node* node) {
 
   Node_tree_free(node->left);
   Node_tree_free(node->right);
-  free(node->kv);
-  free(node);
+  Mem_free(node->kv);
+  Mem_free(node);
 }
 
 // Returns the height of the tree rooted in node. Note that this is a
@@ -262,7 +263,7 @@ static int Node_height(Node* node) {
  * -------------------------- */
 
 Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) malloc(sizeof(struct _Dictionary));
+  Dictionary result = (Dictionary) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = _nil;
   result->size = 0;
@@ -270,9 +271,14 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
   return result;
 }
 
+KeyInfo Dictionary_key_info(Dictionary dictionary) {
+  return dictionary->keyInfo;
+}
+
+
 void Dictionary_free(Dictionary dictionary) {
   Node_tree_free(dictionary->root);
-  free(dictionary);
+  Mem_free(dictionary);
 }
 
 static void Dictionary_rb_left_rotate(Dictionary dictionary, Node* node) {
@@ -447,7 +453,7 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
   if(value!=NULL) {
     *value = (*node_ptr)->kv->value;
   }
-  
+
   return 1;
 }
 
@@ -689,7 +695,7 @@ void Node_dump_colors(Node* x, char* name) {
 #define INDENT_MAX_SIZE sizeof(char)*1024
 
 void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* indent) {
-  char* child_indent = (char*) malloc(INDENT_MAX_SIZE);
+  char* child_indent = (char*) Mem_alloc(INDENT_MAX_SIZE);
   strcpy(child_indent, indent);
   strcat(child_indent, "  ");
 
@@ -720,11 +726,11 @@ void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* ind
   Node_dump_tree(node->right, print_key_value, child_indent);
   printf("\n");
 
-  free(child_indent);
+  Mem_free(child_indent);
 }
 
 
 void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*)) {
-  char* indent = (char*) malloc(INDENT_MAX_SIZE);
+  char* indent = (char*) Mem_alloc(INDENT_MAX_SIZE);
   Node_dump_tree(dictionary->root, print_key_value, indent);
 }

@@ -42,8 +42,6 @@ static void test_for_each() {
   __block size_t count = 0;
 
   for_each(Array_it(array), ^(void* obj) {
-    DoubleContainer dbl = *(DoubleContainer*) obj;
-    printf("\nvalue: %f\n", DoubleContainer_get(dbl));
 
     void* expected = Array_at(array, index++);
     assert_pointers_equal(expected, obj);
@@ -61,9 +59,6 @@ static void test_for_each_with_index() {
   __block size_t count = 0;
 
   for_each_with_index(Array_it(array), ^(void* obj, size_t index) {
-    DoubleContainer dbl = *(DoubleContainer*) obj;
-    printf("\nvalue: %f\n", DoubleContainer_get(dbl));
-
     void* expected = Array_at(array, index);
 
     assert_equal(cur_index++, index);

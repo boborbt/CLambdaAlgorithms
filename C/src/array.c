@@ -4,6 +4,7 @@
 #include "array_g.h"
 #include "quick_sort.h"
 #include "errors.h"
+#include "mem.h"
 
 struct _Array {
   void* carray;
@@ -20,8 +21,8 @@ struct _ArrayIterator {
 
 // Constructors
 Array Array_new(size_t capacity, size_t elem_size) {
-  Array array = (Array) malloc(sizeof(struct _Array));
-  array->carray = (void*) malloc(elem_size * capacity);
+  Array array = (Array) Mem_alloc(sizeof(struct _Array));
+  array->carray = (void*) Mem_alloc(elem_size * capacity);
   array->size = 0;
   array->capacity = capacity;
   array->elem_size = elem_size;
@@ -31,8 +32,8 @@ Array Array_new(size_t capacity, size_t elem_size) {
 
 Array Array_new_by_copying_carray(void* src, size_t size, size_t elem_size ) {
   size_t capacity = size + 100;
-  Array array = (Array) malloc(sizeof(struct _Array));
-  array->carray = malloc(capacity * elem_size);
+  Array array = (Array) Mem_alloc(sizeof(struct _Array));
+  array->carray = Mem_alloc(capacity * elem_size);
   array->capacity = capacity;
   array->size = size;
   array->elem_size = elem_size;
@@ -49,10 +50,10 @@ Array Array_dup(Array array) {
 void Array_free(Array array) {
   if(array) {
     if(array->carray) {
-      free(array->carray);
+      Mem_free(array->carray);
     }
 
-    free(array);
+    Mem_free(array);
   }
 }
 
@@ -89,7 +90,7 @@ size_t Array_elem_size(Array array) {
 
 static void Array_realloc(Array array) {
   array->capacity *= 2;
-  array->carray = realloc(array->carray, array->capacity * array->elem_size);
+  array->carray =Mem_realloc(array->carray, array->capacity * array->elem_size);
 }
 
 void Array_set_size(Array array, size_t new_size) {
@@ -142,7 +143,7 @@ void Array_sort(Array array, KIComparator compare) {
 
 // Iterator
 ArrayIterator ArrayIterator_new(Array array) {
-  ArrayIterator iterator = (ArrayIterator) malloc(sizeof(struct _ArrayIterator));
+  ArrayIterator iterator = (ArrayIterator) Mem_alloc(sizeof(struct _ArrayIterator));
   iterator->array = array;
   iterator->current_index = 0;
 
@@ -150,7 +151,7 @@ ArrayIterator ArrayIterator_new(Array array) {
 }
 
 void ArrayIterator_free(ArrayIterator iterator) {
-  free(iterator);
+  Mem_free(iterator);
 }
 
 // Move the iterator to the next element. Do nothing if it is already past the
@@ -181,7 +182,7 @@ Iterator Array_it(Array array)
    (void (*)(void*))  ArrayIterator_free
  );
 }
-// 
+//
 // void for_each_with_index( Array_it(Array array),  void (^callback)(void*, size_t)) {
 //   ArrayIterator it = ArrayIterator_new(array);
 //   size_t count = 0;

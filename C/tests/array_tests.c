@@ -2,6 +2,7 @@
 #include "unit_testing.h"
 #include "errors.h"
 #include "iterator_functions.h"
+#include "mem.h"
 
 typedef struct _TestRecord* TestRecord;
 
@@ -241,6 +242,8 @@ static void test_array_sort() {
   for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal( (unsigned long) to_int(elem), index + 1);
   });
+
+  Array_free(array);
 }
 
 static void test_array_dup() {
@@ -261,15 +264,15 @@ static void test_array_dup() {
 static void test_array_add_records() {
   Array array = Array_new(10, sizeof(TestRecord));
 
-  TestRecord tr1 = (TestRecord) malloc(sizeof(struct _TestRecord));
+  TestRecord tr1 = (TestRecord) Mem_alloc(sizeof(struct _TestRecord));
   tr1->field1 = 1;
   tr1->field2 = 2;
 
-  TestRecord tr2 = (TestRecord) malloc(sizeof(struct _TestRecord));
+  TestRecord tr2 = (TestRecord) Mem_alloc(sizeof(struct _TestRecord));
   tr2->field1 = 3;
   tr2->field2 = 4;
 
-  TestRecord tr3 = (TestRecord) malloc(sizeof(struct _TestRecord));
+  TestRecord tr3 = (TestRecord) Mem_alloc(sizeof(struct _TestRecord));
   tr3->field1 = 5;
   tr3->field2 = 6;
 
@@ -294,7 +297,7 @@ static void test_array_add_records() {
 
   for_each(Array_it(array), ^(void* elem) {
     TestRecord tmp = *(TestRecord*) elem;
-    free(tmp);
+    Mem_free(tmp);
   });
 
   Array_free(array);
@@ -316,7 +319,6 @@ int main() {
   test(test_array_remove_at_middle);
   test(test_array_remove_at_end);
   test(test_array_sort);
-
   test(test_array_iterator);
   test(test_array_foreach);
   test(test_array_foreach_with_index);

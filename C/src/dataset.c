@@ -8,6 +8,8 @@
 #include "array.h"
 #include "dictionary.h"
 #include "errors.h"
+#include "iterator_functions.h"
+#include "mem.h"
 
 
 struct _Record {
@@ -107,7 +109,7 @@ double Record_get_field3(Record* record) {
 }
 
 static Record* parse_record(const char* str) {
-  Record* record = (Record*) malloc(sizeof(Record));
+  Record* record = (Record*) Mem_alloc(sizeof(Record));
   assert(record);
 
   char buf[2048];
@@ -124,14 +126,14 @@ static Record* parse_record(const char* str) {
 }
 
 Dataset* Dataset_load(const char* filename) {
-  Dataset* dataset = (Dataset*) malloc(sizeof(Dataset));
+  Dataset* dataset = (Dataset*) Mem_alloc(sizeof(Dataset));
   assert(dataset!=NULL);
 
   dataset->records = Array_new(10000, sizeof(Record*));
   assert(dataset->records != NULL);
 
   // field1 is usually small, much smaller than the alloced 2048 characters.
-  char* buf = (char*) malloc(sizeof(char)*2048);
+  char* buf = (char*) Mem_alloc(sizeof(char)*2048);
   assert(buf != NULL);
 
   size_t buf_len = 2048;
@@ -154,7 +156,7 @@ Dataset* Dataset_load(const char* filename) {
     Array_add(dataset->records, &tmp);
   }
   fclose(file);
-  free(buf);
+  Mem_free(buf);
 
   printf("\n");
 
@@ -180,12 +182,12 @@ size_t Dataset_size(Dataset* dataset) {
 void Dataset_free(Dataset* dataset) {
   for_each(Array_it(dataset->records), ^(void* elem) {
     Record* record = *(Record**) elem;
-    free(record->field1);
-    free(record);
+    Mem_free(record->field1);
+    Mem_free(record);
   });
 
-  free(dataset->records);
-  free(dataset);
+  Mem_free(dataset->records);
+  Mem_free(dataset);
 }
 
 void Dataset_print_storage(Array dataset, size_t num_records) {

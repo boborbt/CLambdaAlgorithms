@@ -80,6 +80,8 @@
   } while(0);
 
 
+#define test(fun) test_ext((fun), #fun, __FILE__, __LINE__)
+
 
 // Starts a testing session
 void start_tests(const char* msg);
@@ -89,4 +91,4 @@ void end_tests(void);
 
 // Calls a testing function. The given test function should
 // exit the program with an error if the test does not succeed.
-void test(void (*test_fun)());
+void test_ext(void (*test_fun)(), char* test_name, char* file, size_t lineno);

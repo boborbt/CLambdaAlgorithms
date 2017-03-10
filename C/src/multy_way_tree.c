@@ -3,6 +3,7 @@
 #include "string_utils.h"
 #include <stdio.h>
 #include "iterator_functions.h"
+#include "mem.h"
 
 struct _MultyWayTree {
   void* content;
@@ -18,7 +19,7 @@ struct _MultyWayTreeIterator {
 
 // constructor
 MultyWayTree MultyWayTree_new(void* root_content) {
-  MultyWayTree result = (MultyWayTree) malloc(sizeof(struct _MultyWayTree));
+  MultyWayTree result = (MultyWayTree) Mem_alloc(sizeof(struct _MultyWayTree));
   result->content = root_content;
   result->child = NULL;
   result->sibling = NULL;
@@ -189,7 +190,7 @@ void MultyWayTree_free(MultyWayTree root) {
   MultyWayTree_free(root->sibling);
   root->sibling = NULL;
 
-  free(root);
+  Mem_free(root);
 }
 
 
@@ -197,7 +198,7 @@ void MultyWayTree_free(MultyWayTree root) {
 
 // Iterator
 MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree tree) {
-  MultyWayTreeIterator iterator = (MultyWayTreeIterator) malloc(sizeof(struct _MultyWayTreeIterator));
+  MultyWayTreeIterator iterator = (MultyWayTreeIterator) Mem_alloc(sizeof(struct _MultyWayTreeIterator));
   iterator->state = Stack_new(100);
   Stack_push(iterator->state, tree);
   MultyWayTreeIterator_next(iterator);
@@ -206,7 +207,7 @@ MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree tree) {
 
 void MultyWayTreeIterator_free(MultyWayTreeIterator iterator) {
   Stack_free(iterator->state);
-  free(iterator);
+  Mem_free(iterator);
 }
 
 // Returns the element currently pointed by the iterator

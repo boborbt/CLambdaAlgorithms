@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "errors.h"
 
+#include "mem.h"
+
 struct _Stack {
   Array array;
 };
@@ -41,12 +43,12 @@ int Stack_empty(Stack stack) {
 }
 
 Stack Stack_new(size_t capacity) {
-  Stack result = (Stack) malloc(sizeof(struct _Stack));
+  Stack result = (Stack) Mem_alloc(sizeof(struct _Stack));
   result->array = Array_new(capacity, sizeof(void*));
   return result;
 }
 
 void Stack_free(Stack stack) {
   Array_free(stack->array);
-  free(stack);
+  Mem_free(stack);
 }

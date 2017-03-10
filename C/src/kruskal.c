@@ -6,6 +6,9 @@
 #include "errors.h"
 #include <stdio.h>
 #include <assert.h>
+#include "iterator_functions.h"
+
+#include "mem.h"
 
 
 struct _Kruskal {
@@ -25,7 +28,7 @@ typedef const struct _KruskalEdge* ConstKruskalEdge;
 
 // Creates and initializes the data structures used by the Dijkstra algorithm
 Kruskal Kruskal_new(Graph graph, double (*graph_info_to_double)(const void*)) {
-  Kruskal result = (Kruskal) malloc(sizeof(struct _Kruskal));
+  Kruskal result = (Kruskal) Mem_alloc(sizeof(struct _Kruskal));
   result->graph = graph;
   result->graph_info_to_double = graph_info_to_double;
   result->sets = Dictionary_new(Graph_keyInfo(graph));
@@ -50,7 +53,7 @@ static void* KruskalEdge_info(const ConstKruskalEdge edge) {
 }
 
 static KruskalEdge KruskalEdge_new(void* src, void* dst, double weight, void* info) {
-  KruskalEdge result = (KruskalEdge) malloc(sizeof(struct _KruskalEdge));
+  KruskalEdge result = (KruskalEdge) Mem_alloc(sizeof(struct _KruskalEdge));
 
   if(src == NULL || dst == NULL) {
     printf("DEBUG: src or dst are NULL!\n");
@@ -66,7 +69,7 @@ static KruskalEdge KruskalEdge_new(void* src, void* dst, double weight, void* in
 }
 
 static void KruskalEdge_free(KruskalEdge edge) {
-  free(edge);
+  Mem_free(edge);
 }
 
 static void Kruskal_initializeSets(Kruskal k) {
@@ -163,5 +166,5 @@ void Kruskal_free(Kruskal k) {
 
   Dictionary_free(k->sets);
 
-  free(k);
+  Mem_free(k);
 }

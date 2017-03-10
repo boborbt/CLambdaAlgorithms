@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "mem.h"
+
 typedef struct _Node {
-  KeyValue* kv;
+  KeyValue kv;
   struct _Node* left;
   struct _Node* right;
 } Node;
@@ -41,7 +43,7 @@ void DictionaryIterator_next(DictionaryIterator it) {
 }
 
 DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) malloc(sizeof(struct _DictionaryIterator));
+  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->stack = Stack_new(MAX_STACK_SIZE);
 
   if(!Dictionary_empty(dictionary)) {
@@ -52,7 +54,7 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
 
 void DictionaryIterator_free(DictionaryIterator it) {
   Stack_free(it->stack);
-  free(it);
+  Mem_free(it);
 }
 
 int DictionaryIterator_end(DictionaryIterator it) {
@@ -60,7 +62,7 @@ int DictionaryIterator_end(DictionaryIterator it) {
 }
 
 KeyValue* DictionaryIterator_get(DictionaryIterator it) {
-  return ((Node*)Stack_top(it->stack))->kv;
+  return &((Node*)Stack_top(it->stack))->kv;
 }
 
 
@@ -69,12 +71,12 @@ KeyValue* DictionaryIterator_get(DictionaryIterator it) {
  * -------------------------- */
 
 static Node* Node_new(void* key, void* value) {
-  Node* result =  (Node*) malloc(sizeof(Node));
+  Node* result =  (Node*) Mem_alloc(sizeof(Node));
   result->left = NULL;
   result->right = NULL;
-  result->kv = (KeyValue*) malloc(sizeof(struct _KeyValue*));
-  result->kv->key = key;
-  result->kv->value = value;
+  // result->kv = (KeyValue*) Mem_alloc(sizeof(struct _KeyValue*));
+  result->kv.key = key;
+  result->kv.value = value;
 
   return result;
 }
@@ -88,7 +90,7 @@ static Node* Node_new(void* key, void* value) {
 static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
-    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->kv->key);
+    int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->kv.key);
     if( comp < 0) {
       node_ptr = &(*node_ptr)->left;
       continue;
@@ -124,7 +126,8 @@ static void Node_move_key_value(Node* dst, Node* src) {
   }
 
   dst->kv = src->kv;
-  src->kv = NULL;
+  src->kv.key = NULL;
+  src->kv.value = NULL;
 }
 
 static Node* Node_left(Node* node) {
@@ -138,10 +141,8 @@ static Node* Node_right(Node* node) {
 static void Node_delete_non_full_node(Node** node, Node* (*child)(Node*)) {
   Node* tmp = *node;
   *node = child(*node);
-  if(tmp->kv != NULL) {
-    free(tmp->kv);
-  }
-  free(tmp);
+
+   Mem_free(tmp);
 }
 
 static void Node_delete(Node** node) {
@@ -162,8 +163,7 @@ static void Node_tree_free(Node* node) {
 
   Node_tree_free(node->left);
   Node_tree_free(node->right);
-  free(node->kv);
-  free(node);
+  Mem_free(node);
 }
 
 // Returns the height of the tree rooted in node. Note that this is a
@@ -184,24 +184,29 @@ static int Node_height(Node* node) {
  * -------------------------- */
 
 Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) malloc(sizeof(struct _Dictionary));
+  Dictionary result = (Dictionary) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = NULL;
   result->size = 0;
   return result;
 }
 
+KeyInfo Dictionary_key_info(Dictionary dictionary) {
+  return dictionary->keyInfo;
+}
+
+
 void Dictionary_free(Dictionary dictionary) {
   Node_tree_free(dictionary->root);
-  free(dictionary);
+  Mem_free(dictionary);
 }
 
 void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
-    (*node_ptr)->kv->key = key;
-    (*node_ptr)->kv->value = value;
+    (*node_ptr)->kv.key = key;
+    (*node_ptr)->kv.value = value;
   } else {
     *node_ptr = Node_new(key, value);
     dictionary->size += 1;
@@ -215,9 +220,9 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
   }
 
   if(value != NULL) {
-    *value = (*node_ptr)->kv->value;
+    *value = (*node_ptr)->kv.value;
   }
-  
+
   return 1;
 }
 

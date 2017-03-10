@@ -7,7 +7,9 @@
 
 #include "double_container.h"
 #include "array.h"
+#include "iterator_functions.h"
 #include "errors.h"
+#include "mem.h"
 
 struct _PrintTime {
   const char* file_name;
@@ -55,7 +57,7 @@ PrintTime PrintTime_new(const char* out_file) {
     out_file = "timings.yml";
   }
 
-  PrintTime pt = (PrintTime) malloc(sizeof(struct _PrintTime));
+  PrintTime pt = (PrintTime) Mem_alloc(sizeof(struct _PrintTime));
   pt->file_name = out_file;
   pt->file = NULL;
 
@@ -77,19 +79,19 @@ void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
 void PrintTime_free(PrintTime pt) {
   for_each(Array_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
-    free(kv.key);
-    free(kv.value);
+    Mem_free(kv.key);
+    Mem_free(kv.value);
   });
   Array_free(pt->header);
 
   for_each(Array_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
-    free(kv.key);
+    Mem_free(kv.key);
     DoubleContainer_free((DoubleContainer) kv.value);
   });
   Array_free(pt->data);
 
-  free(pt);
+  Mem_free(pt);
 }
 
 double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {

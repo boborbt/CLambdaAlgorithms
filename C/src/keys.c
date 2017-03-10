@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "keys.h"
+#include "mem.h"
 
 struct _KeyInfo {
   KIComparator comparator;
@@ -9,7 +10,7 @@ struct _KeyInfo {
 };
 
 KeyInfo KeyInfo_new( KIComparator c, KIHash h) {
-  KeyInfo result = (KeyInfo) malloc(sizeof(struct _KeyInfo));
+  KeyInfo result = (KeyInfo) Mem_alloc(sizeof(struct _KeyInfo));
   result->comparator = c;
   result->hash = h;
   return result;
@@ -24,7 +25,7 @@ KIHash KeyInfo_hash(KeyInfo keyInfo) {
 }
 
 void KeyInfo_free(KeyInfo keyInfo) {
-  free(keyInfo);
+  Mem_free(keyInfo);
 }
 
 int Key_string_compare(const void* e1, const void* e2) {

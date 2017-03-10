@@ -1,11 +1,14 @@
 #include "string_utils.h"
 #include <string.h>
 
+#include "mem.h"
+#include "iterator_functions.h"
+
 Array String_split(char* string, char delim) {
   Array result = Array_new(10, sizeof(char*));
   size_t len = strlen(string);
 
-  char* buf = (char*) malloc(sizeof(char) * len + 1);
+  char* buf = (char*) Mem_alloc(sizeof(char) * len + 1);
   size_t pos = 0;
   size_t buf_pos = 0;
 
@@ -28,7 +31,7 @@ Array String_split(char* string, char delim) {
     Array_add(result, &piece);
   }
 
-  free(buf);
+  Mem_free(buf);
   return result;
 }
 
@@ -36,7 +39,7 @@ Array String_split(char* string, char delim) {
 
 char* String_join(Array array, char delim) {
   __block size_t total_len = 0;
-  char* delim_str = (char*) malloc(sizeof(char)*2);
+  char* delim_str = (char*) Mem_alloc(sizeof(char)*2);
   delim_str[0] = delim;
   delim_str[1] = '\0';
 
@@ -48,7 +51,7 @@ char* String_join(Array array, char delim) {
   // we will be wasting one character. We keep this way
   // for clarity of implementation (in this way we can simply
   // add "," to each piece and remove the last one at the end)
-  char* buf = (char*) malloc(sizeof(char) * (total_len + 1));
+  char* buf = (char*) Mem_alloc(sizeof(char) * (total_len + 1));
   buf[0] = '\0';
 
   for_each(Array_it(array), ^(void* elem) {
@@ -59,7 +62,7 @@ char* String_join(Array array, char delim) {
 
   buf[total_len-1] = '\0';
 
-  free(delim_str);
+  Mem_free(delim_str);
 
   return buf;
 }

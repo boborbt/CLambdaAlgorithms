@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include "array_g.h"
 
+#include "mem.h"
+
 static void merge(void** array, size_t start, size_t mid, size_t end, KIComparator compare) {
-  void** buf = (void**) malloc(sizeof(const void*)*(end-start+1));
+  void** buf = (void**) Mem_alloc(sizeof(const void*)*(end-start+1));
   size_t i = start;
   size_t j = mid+1;
   size_t k = 0;
@@ -29,11 +31,11 @@ static void merge(void** array, size_t start, size_t mid, size_t end, KIComparat
     array[start+k] = buf[k];
   }
 
-  free(buf);
+  Mem_free(buf);
 }
 
 static void merge_g(void* array, size_t start, size_t mid, size_t end, size_t size, KIComparator compare) {
-  void* buf = (void*) malloc(size*(end-start+1));
+  void* buf = (void*) Mem_alloc(size*(end-start+1));
   size_t i = start;
   size_t j = mid+1;
   size_t k = 0;
@@ -59,7 +61,7 @@ static void merge_g(void* array, size_t start, size_t mid, size_t end, size_t si
     cp_g(at_g(array, start+k, size), at_g(buf, k, size), size);
   }
 
-  free(buf);
+  Mem_free(buf);
 }
 
 static void merge_sort_(void** array, size_t start, size_t end, KIComparator compare) {
