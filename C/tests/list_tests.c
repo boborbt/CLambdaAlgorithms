@@ -23,6 +23,7 @@ static List build_fixtures() {
 static void test_list_creation() {
   List list = List_new();
   assert_equal((unsigned long)List_size(list), (long)0);
+  List_free(list, NULL);
 }
 
 static void test_list_insertion() {
@@ -43,6 +44,8 @@ static void test_list_insertion() {
   ListIterator_next(it);
 
   assert_true(ListIterator_end(it));
+  ListIterator_free(it);
+  List_free(list, NULL);
 }
 
 static void test_list_find_wb() {
@@ -55,6 +58,7 @@ static void test_list_find_wb() {
   assert_not_null(list_elem);
 
   assert_true(strcmp(ListNode_get(list_elem), "4")==0);
+  List_free(list, NULL);
 }
 
 static int select_str(const char* str) {
@@ -69,7 +73,7 @@ static void test_list_find() {
   assert_not_null(list_elem);
 
   assert_true(strcmp(ListNode_get(list_elem), "4")==0);
-
+  List_free(list, NULL);
 }
 
 static long delete_elem(void* elem) {
@@ -92,6 +96,9 @@ static void test_list_delete_node() {
 
   assert_true(!strcmp(ListIterator_get(it), "21") );
   assert_equal(7l, List_size(list));
+
+  ListIterator_free(it);
+  List_free(list, NULL);
 }
 
 static void test_list_free_with_delete_elem() {

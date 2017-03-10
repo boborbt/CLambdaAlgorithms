@@ -52,6 +52,10 @@ Error Error_new(ErrorCode code, const char* formatted_message, ...) {
   return error;
 }
 
+void Error_free(Error error)  {
+  Mem_free(error);
+}
+
 ErrorCode Error_error_code(Error error) {
   return error->code;
 }

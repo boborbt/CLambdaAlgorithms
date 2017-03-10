@@ -17,6 +17,8 @@ static void test_enqueue_and_dequeue() {
 
   assert_string_equal("b", Queue_dequeue(q));
   assert_equal(0l, Queue_size(q));
+
+  Queue_free(q);
 }
 
 int main() {

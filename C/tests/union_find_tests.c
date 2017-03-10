@@ -13,6 +13,9 @@ static void test_union() {
   assert_false(UnionFindSet_same(s1, s2));
   UnionFindSet_union(s1,s2);
   assert_true(UnionFindSet_same(s1, s2));
+
+  UnionFindSet_free(s1);
+  UnionFindSet_free(s2);
 }
 
 static void test_find() {
@@ -26,6 +29,10 @@ static void test_find() {
   assert_true(UnionFindSet_find(s2) == s1 || UnionFindSet_find(s2) == s2);
   assert_false(UnionFindSet_find(s3) == s1 || UnionFindSet_find(s3) == s2);
   assert_true(UnionFindSet_find(s3) == s3);
+
+  UnionFindSet_free(s1);
+  UnionFindSet_free(s2);
+  UnionFindSet_free(s3);
 }
 
 static void test_same() {
@@ -40,6 +47,10 @@ static void test_same() {
   assert_false(UnionFindSet_same(s3,s1));
   assert_false(UnionFindSet_same(s3,s2));
   assert_true(UnionFindSet_same(s3,s3));
+
+  UnionFindSet_free(s1);
+  UnionFindSet_free(s2);
+  UnionFindSet_free(s3);
 }
 
 

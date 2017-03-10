@@ -244,12 +244,13 @@ static void test_dictionary_foreach_dictionary_key_value() {
   assert_true(find_key_value(found_elems, 7, (void*) 11l, (void*) -11l));
   assert_true(find_key_value(found_elems, 7, (void*) 18l, (void*) -18l));
 
-   Mem_free(found_elems);
-  Dictionary_free(dictionary);
+  Mem_free(found_elems);
+  free_fixture_dictionary(dictionary);
 }
 
 int main() {
   start_tests("search dictionarys");
+
   test(test_dictionary_creation);
   test(test_dictionary_insert_on_empty_dictionary);
   test(test_dictionary_insert_on_full_dictionary);

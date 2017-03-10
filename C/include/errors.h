@@ -15,6 +15,9 @@ typedef enum {
 // Creates a new error with the given code and error message
 Error Error_new(ErrorCode code, const char* formatted_message, ...);
 
+// Frees memory alloced by Error_new
+void Error_free(Error);
+
 // Raises the error. It prints the error message on stderr and exits with
 // the error code provided by "error".
 __attribute__((noreturn)) void Error_raise(Error error);

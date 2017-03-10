@@ -68,7 +68,9 @@ static void free_graph_fixture(Graph graph) {
   }
   VertexIterator_free(v_it);
 
+  KeyInfo keyInfo = Graph_keyInfo(graph);
   Graph_free(graph);
+  KeyInfo_free(keyInfo);
 }
 
 static void test_priority_queue_creation() {
@@ -249,7 +251,7 @@ static void test_graph_foreach_edge() {
   });
 
   assert_equal(8l, count);
-  Graph_free(graph);
+  free_graph_fixture(graph);
 }
 
 static void test_graph_foreach_vertex() {
@@ -261,6 +263,7 @@ static void test_graph_foreach_vertex() {
   });
 
   assert_equal(6l, count);
+  free_graph_fixture(graph);
 }
 
 
@@ -295,8 +298,13 @@ static void test_dfs_visit() {
       visited_vertices_count += 1;
     });
   }
+
+  VisitingInfo_free(info);
   assert_equal(3l, num_components);
   assert_equal(6l, visited_vertices_count);
+
+  Graph_free(graph);
+  KeyInfo_free(keys);
 }
 
 
@@ -331,11 +339,18 @@ static void test_bfs_visit() {
       visited_vertices_count += 1;
     });
   }
+  VisitingInfo_free(info);
+
   assert_equal(3l, num_components);
   assert_equal(6l, visited_vertices_count);
+
+  Graph_free(graph);
+  KeyInfo_free(keys);
 }
 
 int main() {
+  test_focus(test_bfs_visit);
+
   start_tests("priority queue");
   test(test_priority_queue_creation);
   test(test_priority_queue_push_min_element);

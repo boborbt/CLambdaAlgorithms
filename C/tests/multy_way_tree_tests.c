@@ -34,11 +34,13 @@ static void test_multywaytree_add_child_empty_tree() {
   assert_string_equal("child1", (char*)MultyWayTree_get(child));
 
   Array_free(children);
+  MultyWayTree_free(tree);
 }
 
 static void test_multywaytree_get() {
   MultyWayTree tree = MultyWayTree_new("root");
   assert_string_equal("root", MultyWayTree_get(tree));
+  MultyWayTree_free(tree);
 }
 
 static void test_multywaytree_add_child_middle() {
@@ -56,6 +58,7 @@ static void test_multywaytree_add_child_middle() {
   c2 = *(MultyWayTree*)Array_at(children, 1);
   Array c2_children = MultyWayTree_children(c2);
   assert_equal(1l, Array_size(c2_children));
+  Array_free(children);
 
   MultyWayTree c8 = *(MultyWayTree*)Array_at(c2_children, 0);
   assert_string_equal("c8", MultyWayTree_get(c8));

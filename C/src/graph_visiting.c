@@ -139,4 +139,6 @@ void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^vi
       }
     });
   }
+
+  Queue_free(queue);
 }

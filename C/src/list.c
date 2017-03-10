@@ -141,8 +141,11 @@ ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
   }
 
   if(!ListIterator_end(it)) {
-    return ListIterator_get_node(it);
+    ListNode result =  ListIterator_get_node(it);
+    ListIterator_free(it);
+    return result;
   } else {
+    ListIterator_free(it);
     return NULL;
   }
 }

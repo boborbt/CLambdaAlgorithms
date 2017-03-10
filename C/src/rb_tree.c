@@ -199,6 +199,7 @@ static void Node_move_key_value(Node* dst, Node* src) {
     return;
   }
 
+  Mem_free(dst->kv);
   dst->kv = src->kv;
   src->kv = NULL;
 }
@@ -277,7 +278,10 @@ KeyInfo Dictionary_key_info(Dictionary dictionary) {
 
 
 void Dictionary_free(Dictionary dictionary) {
-  Node_tree_free(dictionary->root);
+  if(dictionary->root != _nil) {
+    Node_tree_free(dictionary->root);
+  }
+
   Mem_free(dictionary);
 }
 
@@ -462,6 +466,7 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   if(*node_ptr == _nil) {
     return;
   }
+
 
   Node* node = Node_delete(node_ptr);
   if(node) {

@@ -93,6 +93,7 @@ static void test_array_iterator() {
     count += 1;
     ArrayIterator_next(it);
   }
+  ArrayIterator_free(it);
 
   Array_free(array);
 }

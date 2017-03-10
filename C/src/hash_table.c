@@ -228,6 +228,8 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   }
 
   dictionary->size -= 1;
+
+  KeyValue_free(ListNode_get(list_ptr));
   List_delete_node(dictionary->table[index], list_ptr);
 
   if(dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
