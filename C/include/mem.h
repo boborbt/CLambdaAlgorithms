@@ -21,5 +21,6 @@ void  Mem_free_ext(void*, char* file, size_t lineno);
 
 char* Mem_strdup_ext(const char*, char* file, size_t lineno);
 
+void Mem_check_and_report(void);
 MemStats Mem_stats(void);
 int Mem_all_freed(void);

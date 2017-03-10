@@ -250,12 +250,7 @@ int main(int argc, char* argv[]) {
   PrintTime_save(pt);
   PrintTime_free(pt);
 
-  if( !Mem_all_freed() ) {
-    MemStats stats = Mem_stats();
-    printf("\nLeaked memory");
-    printf("alloced: %ld\n", stats.alloced_memory);
-    printf("freed: %ld\n", stats.freed_memory);
-  }
+  Mem_check_and_report();
 
   return 0;
 }

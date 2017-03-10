@@ -9,6 +9,7 @@
 #include "errors.h"
 #include "macros.h"
 #include "iterator_functions.h"
+#include "mem.h"
 
 static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
   Record** records = Dataset_get_records(dataset);
@@ -181,6 +182,8 @@ int main(int argc, char* argv[]) {
 
   PrintTime_save(pt);
   PrintTime_free(pt);
+
+  Mem_check_and_report();
 
   return 0;
 }

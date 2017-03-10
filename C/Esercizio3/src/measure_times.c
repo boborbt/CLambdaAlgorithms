@@ -347,5 +347,7 @@ int main(int argc, char *argv[]) {
 
   PrintTime_save(pt);
   PrintTime_free(pt);
+
+  Mem_check_and_report();
   return 0;
 }

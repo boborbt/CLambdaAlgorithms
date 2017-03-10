@@ -129,3 +129,13 @@ int Mem_all_freed(void) {
 MemStats Mem_stats(void) {
   return mem_stats;
 }
+
+void Mem_check_and_report(void) {
+  MemStats stats = Mem_stats();
+  if(!Mem_all_freed()) {
+    printf("\nLeaked memory detected\n");
+    printf("alloced: %ld\n", stats.alloced_memory);
+    printf("freed: %ld\n", stats.freed_memory);
+    printf("difference: %ld\n", stats.alloced_memory - stats.freed_memory);
+  }
+}
