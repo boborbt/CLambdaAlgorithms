@@ -6,7 +6,7 @@
 #include <errno.h>
 
 #include "double_container.h"
-#include "array.h"
+#include "array_alt.h"
 #include "iterator_functions.h"
 #include "errors.h"
 #include "mem.h"
@@ -14,12 +14,12 @@
 struct _PrintTime {
   const char* file_name;
   FILE* file;
-  Array header;
-  Array data;
+  ArrayAlt header;
+  ArrayAlt data;
 };
 
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
-  for_each(Array_it(pt->data), ^(void* elem) {
+  for_each(ArrayAlt_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
     fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer)kv.value));
   });
@@ -27,7 +27,7 @@ static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
 
 static void PrintTime_save_header(PrintTime pt) {
   fprintf(pt->file, "-\n");
-  for_each(Array_it(pt->header), ^(void* elem) {
+  for_each(ArrayAlt_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
     fprintf(pt->file, "  %s: %s\n", kv.key, (const char*) kv.value);
   });
@@ -61,8 +61,8 @@ PrintTime PrintTime_new(const char* out_file) {
   pt->file_name = out_file;
   pt->file = NULL;
 
-  pt->header = Array_new(20, sizeof(KeyValue));
-  pt->data = Array_new(20, sizeof(KeyValue));
+  pt->header = ArrayAlt_new(20, sizeof(KeyValue));
+  pt->data = ArrayAlt_new(20, sizeof(KeyValue));
 
   PrintTime_add_header(pt, "date", get_date_string());
 
@@ -73,23 +73,23 @@ PrintTime PrintTime_new(const char* out_file) {
 
 void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
   KeyValue kv = { .key = Mem_strdup(key), .value = Mem_strdup(value) };
-  Array_add(pt->header, &kv);
+  ArrayAlt_add(pt->header, &kv);
 }
 
 void PrintTime_free(PrintTime pt) {
-  for_each(Array_it(pt->header), ^(void* elem) {
+  for_each(ArrayAlt_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     Mem_free(kv.key);
     Mem_free(kv.value);
   });
-  Array_free(pt->header);
+  ArrayAlt_free(pt->header);
 
-  for_each(Array_it(pt->data), ^(void* elem) {
+  for_each(ArrayAlt_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     Mem_free(kv.key);
     DoubleContainer_free((DoubleContainer) kv.value);
   });
-  Array_free(pt->data);
+  ArrayAlt_free(pt->data);
 
   Mem_free(pt);
 }
@@ -108,7 +108,7 @@ double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  printf("======================\n\n");
 
  KeyValue kv = { .key = Mem_strdup(label), .value = DoubleContainer_new(result) };
- Array_add(pt->data, &kv);
+ ArrayAlt_add(pt->data, &kv);
 
  return result;
 }

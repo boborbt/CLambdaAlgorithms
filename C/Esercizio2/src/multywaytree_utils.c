@@ -28,7 +28,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
   }
 
   for_each(Array_it(array), ^(void* elem) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree child = elem;
     char* childValue = (char*) MultyWayTree_get(child);
     if(childValue == NULL) {
       childValue = NULL_STR;
@@ -39,7 +39,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
   fprintf(file, "\n");
 
   for_each(Array_it(array), ^(void* elem) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree child =  elem;
     save_tree(child, file);
   });
 }
@@ -76,7 +76,7 @@ MultyWayTree load_tree(FILE* file) {
   while( ( linelen = getline(&buf, &bufsize, file)) > 0) {
     buf[linelen-1] = '\0'; // substituting last character with
     Array pieces = String_split(buf, ',');
-    char* nodeId = *(char**) Array_at(pieces, 0);
+    char* nodeId = Array_at(pieces, 0);
     assert(strcmp(nodeId, NULL_STR) != 0);
 
     MultyWayTree node;
@@ -88,7 +88,7 @@ MultyWayTree load_tree(FILE* file) {
     assert(node != NULL);
 
     for(size_t i=1; i<Array_size(pieces); ++i) {
-      char* childId = *(char**) Array_at(pieces, i);
+      char* childId = Array_at(pieces, i);
       if(strcmp(childId, NULL_STR) == 0) {
         childId = NULL;
       }

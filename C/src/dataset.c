@@ -129,7 +129,7 @@ Dataset* Dataset_load(const char* filename) {
   Dataset* dataset = (Dataset*) Mem_alloc(sizeof(Dataset));
   assert(dataset!=NULL);
 
-  dataset->records = Array_new(10000, sizeof(Record*));
+  dataset->records = Array_new(10000);
   assert(dataset->records != NULL);
 
   // field1 is usually small, much smaller than the alloced 2048 characters.
@@ -153,7 +153,7 @@ Dataset* Dataset_load(const char* filename) {
       break;
     }
     Record* tmp = parse_record(buf);
-    Array_add(dataset->records, &tmp);
+    Array_add(dataset->records, tmp);
   }
   fclose(file);
   Mem_free(buf);
@@ -181,7 +181,7 @@ size_t Dataset_size(Dataset* dataset) {
 
 void Dataset_free(Dataset* dataset) {
   for_each(Array_it(dataset->records), ^(void* elem) {
-    Record* record = *(Record**) elem;
+    Record* record = elem;
     Mem_free(record->field1);
     Mem_free(record);
   });
@@ -193,7 +193,7 @@ void Dataset_free(Dataset* dataset) {
 void Dataset_print_storage(Array dataset, size_t num_records) {
   assert(num_records < Array_size(dataset));
   for(size_t i=0; i<num_records; ++i) {
-    Record* rec = *(Record**) Array_at(dataset,i);
+    Record* rec = Array_at(dataset,i);
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   }
 }
@@ -201,7 +201,7 @@ void Dataset_print_storage(Array dataset, size_t num_records) {
 void Dataset_print(Dataset* dataset, size_t num_records) {
   assert(num_records < Dataset_size(dataset));
   for(size_t i=0; i<num_records; ++i) {
-    Record* rec = *(Record**) Array_at(dataset->records,i);
+    Record* rec = Array_at(dataset->records,i);
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   }
 }

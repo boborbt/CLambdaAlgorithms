@@ -13,7 +13,7 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 void* find_first(Iterator, int(^condition)(void* elem));
 
 // FIXME: TO BE IMPLEMENTED
-Array map(Iterator, size_t, void* (^)(void*));
+Array map(Iterator, void* (^)(void*));
 void* reduce(Iterator, void* zero, void* (^)(void* accumulator, void* element) );
 
 Array filter(Iterator, size_t, int (^)(void*));

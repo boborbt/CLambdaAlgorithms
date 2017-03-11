@@ -10,8 +10,8 @@
 
 
 static int String_ref_compare(const void* v1, const void* v2) {
-  const char* s1 = *( char* const*) v1;
-  const char* s2 = *( char* const*) v2;
+  const char* s1 =  v1;
+  const char* s2 =  v2;
 
   return strcmp(s1, s2);
 }
@@ -23,7 +23,7 @@ static MultyWayTree build_binary_search_tree_from_array(Array values, size_t sta
 
   size_t len = end_index - start_index;
   size_t root_pos = start_index + (len / 2);
-  char* root_value = *(char**) Array_at(values, root_pos);
+  char* root_value = Array_at(values, root_pos);
 
   MultyWayTree root = MultyWayTree_new(root_value);
 
@@ -51,7 +51,7 @@ static MultyWayTree build_binary_search_tree_from_array(Array values, size_t sta
 }
 
 static MultyWayTree build_binary_search_tree(MultyWayTree tree) {
-  Array values = Array_new(2000, sizeof(MultyWayTree));
+  Array values = Array_new(2000);
   for_each(MultyWayTree_it(tree), ^(void* elem) {
     Array_add(values, elem);
   });

@@ -227,7 +227,7 @@ static void test_kruskal() {
   __block double treesize = 0.0;
 
   for_each(Edge_it(mintree), ^(void* obj) {
-    EdgeInfo* ei = (EdgeInfo*) obj;
+    EdgeInfo* ei = obj;
     treesize += DoubleContainer_get(ei->info);
   });
 

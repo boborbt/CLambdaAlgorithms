@@ -69,9 +69,9 @@ Array MultyWayTree_children(MultyWayTree root) {
     return NULL;
   }
 
-  Array children = Array_new(10, sizeof(MultyWayTree));
+  Array children = Array_new(10);
   while(node != NULL) {
-    Array_add(children, &node);
+    Array_add(children, node);
     node = node->sibling;
   }
 
@@ -95,7 +95,7 @@ MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(
 
   ArrayIterator it = ArrayIterator_new(children);
   while( !ArrayIterator_end(it) && solution == NULL ) {
-    MultyWayTree node = *(MultyWayTree*) ArrayIterator_get(it);
+    MultyWayTree node = ArrayIterator_get(it);
     solution = MultyWayTree_find(node, content, compare);
     ArrayIterator_next(it);
   }
@@ -119,7 +119,7 @@ size_t MultyWayTree_size(MultyWayTree tree) {
   }
 
   for_each(Array_it(children), ^(void* elem) {
-    MultyWayTree node = *(MultyWayTree*) elem;
+    MultyWayTree node = elem;
 
     count += MultyWayTree_size(node);
   });

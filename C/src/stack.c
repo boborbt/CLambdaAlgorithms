@@ -20,7 +20,7 @@ void* Stack_top(Stack stack) {
     return NULL;
   }
 
-  return *(void**)Array_at(stack->array, Array_size(stack->array)-1);
+  return Array_at(stack->array, Array_size(stack->array)-1);
 }
 
 void* Stack_pop(Stack stack) {
@@ -29,13 +29,13 @@ void* Stack_pop(Stack stack) {
   }
 
   size_t last_index = Array_size(stack->array)-1;
-  void* tmp = *(void**)Array_at(stack->array, last_index);
+  void* tmp = Array_at(stack->array, last_index);
   Array_remove(stack->array, last_index);
   return tmp;
 }
 
 void Stack_push(Stack stack, void* node) {
-  Array_add(stack->array, &node);
+  Array_add(stack->array, node);
 }
 
 int Stack_empty(Stack stack) {
@@ -44,7 +44,7 @@ int Stack_empty(Stack stack) {
 
 Stack Stack_new(size_t capacity) {
   Stack result = (Stack) Mem_alloc(sizeof(struct _Stack));
-  result->array = Array_new(capacity, sizeof(void*));
+  result->array = Array_new(capacity);
   return result;
 }
 

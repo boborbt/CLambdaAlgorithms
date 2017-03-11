@@ -13,9 +13,9 @@ struct _TestRecord{
 
 
 static void* from_int(int elem) {
-  static int elem_p;
-  elem_p = elem;
-  return &elem_p;
+  int* elem_ptr = Mem_alloc(sizeof(int));
+  *elem_ptr = elem;
+  return elem_ptr;
 }
 
 
@@ -24,7 +24,7 @@ static int to_int(const void* p) {
 }
 
 static Array build_fixtures() {
-  Array array = Array_new(10, sizeof(int));
+  Array array = Array_new(10);
   Array_set_size(array, 5);
   Array_set(array, 0, from_int(1));
   Array_set(array, 1, from_int(2));
@@ -36,7 +36,7 @@ static Array build_fixtures() {
 }
 
 static Array build_fixtures2() {
-  Array array = Array_new(10, sizeof(int));
+  Array array = Array_new(10);
   Array_set_size(array, 5);
   Array_set(array, 0, from_int(5));
   Array_set(array, 1, from_int(2));
@@ -47,20 +47,28 @@ static Array build_fixtures2() {
   return array;
 }
 
-
-static void test_array_creation() {
-  Array array = Array_new(10, sizeof(int));
-  assert_equal( Array_size(array), 0l);
-  assert_equal( Array_capacity(array), 10l);
-  assert_not_null( Array_carray(array) );
+static void free_fixtures(Array array) {
+  for_each(Array_it(array), ^(void* obj) {
+    Mem_free(obj);
+  });
 
   Array_free(array);
 }
 
 
+static void test_array_creation() {
+  Array array = Array_new(10);
+  assert_equal( Array_size(array), 0l);
+  assert_equal( Array_capacity(array), 10l);
+  assert_not_null( Array_carray(array) );
+
+  free_fixtures(array);
+}
+
+
 
 static void test_array_set_and_at() {
-  Array array = Array_new(10, sizeof(int));
+  Array array = Array_new(10);
   Array_set_size(array, 10);
 
   Array_set(array, 2, from_int(3));
@@ -72,13 +80,17 @@ static void test_array_set_and_at() {
   assert_equal(4l, (long) to_int(Array_at(array, 3l)));
   assert_equal(5l, (long) to_int(Array_at(array, 4l)));
 
+  Mem_free( Array_at(array, 2));
+  Mem_free( Array_at(array, 3));
+  Mem_free( Array_at(array, 4));
+
   Array_free(array);
 }
 
 static void test_array_set_out_of_bound_index() {
   Array array = build_fixtures();
   assert_exits_with_code(Array_set(array, 11, from_int(3)), ERROR_INDEX_OUT_OF_BOUND);
-  Array_free(array);
+  free_fixtures(array);
 }
 
 
@@ -95,7 +107,7 @@ static void test_array_iterator() {
   }
   ArrayIterator_free(it);
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_add() {
@@ -105,7 +117,7 @@ static void test_array_add() {
   assert_equal(6l, Array_size(array));
   assert_equal(10l, Array_capacity(array));
   assert_equal(11l,  (long)to_int(Array_at(array, 5)));
-  Array_free(array);
+  free_fixtures(array);
 }
 
 
@@ -121,7 +133,7 @@ static void test_array_add_with_new_capacity() {
   assert_equal(11l, Array_size(array));
   assert_equal(20l, Array_capacity(array));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_insert_at_0() {
@@ -137,7 +149,7 @@ static void test_array_insert_at_0() {
   assert_equal(4l,  (long)to_int(Array_at(array, 4l)));
   assert_equal(5l,  (long)to_int(Array_at(array, 5l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 
@@ -151,7 +163,7 @@ static void test_array_insert_at_middle() {
   assert_equal(3l,  (long)to_int(Array_at(array, 2l)));
   assert_equal(4l,  (long)to_int(Array_at(array, 4l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_insert_at_end() {
@@ -164,13 +176,15 @@ static void test_array_insert_at_end() {
   assert_equal(11l,  (long)to_int(Array_at(array, 5l)));
   assert_equal(5l,  (long)to_int(Array_at(array, 4l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_remove_at_0() {
   Array array = build_fixtures();
 
+  void* obj = Array_at(array, 0);
   Array_remove(array, 0l);
+  Mem_free(obj);
 
   assert_equal(4l, Array_size(array));
   assert_equal(10l, Array_capacity(array));
@@ -180,12 +194,15 @@ static void test_array_remove_at_0() {
   assert_equal(4l,  (long)to_int(Array_at(array, 2l)));
   assert_equal(5l,  (long)to_int(Array_at(array, 3l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_remove_at_middle() {
   Array array = build_fixtures();
+
+  void* obj = Array_at(array, 3);
   Array_remove(array, 3l);
+  Mem_free(obj);
 
   assert_equal(4l, Array_size(array));
   assert_equal(10l, Array_capacity(array));
@@ -193,19 +210,22 @@ static void test_array_remove_at_middle() {
   assert_equal(3l,  (long)to_int(Array_at(array, 2l)));
   assert_equal(5l,  (long)to_int(Array_at(array, 3l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_remove_at_end() {
   Array array = build_fixtures();
+
+  void* obj = Array_at(array, 4);
   Array_remove(array, 4l);
+  Mem_free(obj);
 
   assert_equal(4l, Array_size(array));
   assert_equal(10l, Array_capacity(array));
 
   assert_equal(4l,  (long)to_int(Array_at(array, 3l)));
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 
@@ -218,7 +238,7 @@ static void test_array_foreach() {
     count+=1;
   });
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_foreach_with_index() {
@@ -228,7 +248,7 @@ static void test_array_foreach_with_index() {
     assert_equal( index+1, (unsigned long) to_int(elem));
   });
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static int compare_ints(const void* e1, const void* e2) {
@@ -244,7 +264,7 @@ static void test_array_sort() {
     assert_equal( (unsigned long) to_int(elem), index + 1);
   });
 
-  Array_free(array);
+  free_fixtures(array);
 }
 
 static void test_array_dup() {
@@ -257,13 +277,13 @@ static void test_array_dup() {
 
   assert_pointers_not_equal( Array_carray(array), Array_carray(array_dup) );
 
-  Array_free(array);
   Array_free(array_dup);
+  free_fixtures(array);
 }
 
 
 static void test_array_add_records() {
-  Array array = Array_new(10, sizeof(TestRecord));
+  Array array = Array_new(10);
 
   TestRecord tr1 = (TestRecord) Mem_alloc(sizeof(struct _TestRecord));
   tr1->field1 = 1;
@@ -277,31 +297,26 @@ static void test_array_add_records() {
   tr3->field1 = 5;
   tr3->field2 = 6;
 
-  Array_add(array, &tr1);
-  Array_add(array, &tr2);
-  Array_add(array, &tr3);
+  Array_add(array, tr1);
+  Array_add(array, tr2);
+  Array_add(array, tr3);
 
-  TestRecord tr = *(TestRecord*)Array_at(array, 0);
+  TestRecord tr = Array_at(array, 0);
   assert_pointers_equal((void*)tr, (void*)tr1);
   assert_equal32(tr->field1, 1);
   assert_equal32(tr->field2, 2);
 
-  tr = *(TestRecord*) Array_at(array, 1);
+  tr = Array_at(array, 1);
   assert_pointers_equal((void*)tr, (void*)tr2);
   assert_equal32(tr->field1, 3);
   assert_equal32(tr->field2, 4);
 
-  tr = *(TestRecord*) Array_at(array, 2);
+  tr = Array_at(array, 2);
   assert_pointers_equal((void*)tr, (void*)tr3);
   assert_equal32(tr->field1, 5);
   assert_equal32(tr->field2, 6);
 
-  for_each(Array_it(array), ^(void* elem) {
-    TestRecord tmp = *(TestRecord*) elem;
-    Mem_free(tmp);
-  });
-
-  Array_free(array);
+  free_fixtures(array);
 }
 
 

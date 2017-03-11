@@ -96,7 +96,7 @@ static void build_multyway_tree(MultyWayTree node, size_t num_nodes, size_t (*ra
   __block size_t children_count = 0;
 
   for_each_with_index( Array_it(children),  ^(void* elem, size_t index) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree child = elem;
 
     if(index == num_children - 1) {
       build_multyway_tree(child, num_nodes - children_count, random_int );

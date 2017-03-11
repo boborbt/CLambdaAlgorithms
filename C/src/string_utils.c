@@ -5,7 +5,7 @@
 #include "iterator_functions.h"
 
 Array String_split(char* string, char delim) {
-  Array result = Array_new(10, sizeof(char*));
+  Array result = Array_new(10);
   size_t len = strlen(string);
 
   char* buf = (char*) Mem_alloc(sizeof(char) * len + 1);
@@ -16,7 +16,7 @@ Array String_split(char* string, char delim) {
     if(string[pos] == delim) {
       buf[buf_pos] = '\0';
       char* piece = Mem_strdup(buf);
-      Array_add(result, &piece);
+      Array_add(result, piece);
       buf_pos = 0;
       pos += 1;
       continue;
@@ -28,7 +28,7 @@ Array String_split(char* string, char delim) {
   if(buf_pos!=0) {
     buf[buf_pos] = '\0';
     char* piece = Mem_strdup(buf);
-    Array_add(result, &piece);
+    Array_add(result, piece);
   }
 
   Mem_free(buf);
@@ -44,7 +44,7 @@ char* String_join(Array array, char delim) {
   delim_str[1] = '\0';
 
   for_each(Array_it(array), ^(void* elem) {
-    char* piece = *(char**) elem;
+    char* piece = elem;
     total_len += strlen(piece)+1;
   });
 
@@ -55,7 +55,7 @@ char* String_join(Array array, char delim) {
   buf[0] = '\0';
 
   for_each(Array_it(array), ^(void* elem) {
-    char* piece = *(char**) elem;
+    char* piece = elem;
     strcat(buf, piece);
     strcat(buf, delim_str);
   });

@@ -27,7 +27,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/iterator.o build/mem.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/iterator.o build/mem.o build/array_alt.o
 
 build:
 	mkdir build
@@ -83,6 +83,7 @@ tests: test_binaries
 	$(call exec, bin/dictionary_tests_rb)
 	$(call exec, bin/graph_tests)
 	$(call exec, bin/list_tests)
+	$(call exec, bin/array_alt_tests)
 	$(call exec, bin/array_tests)
 	$(call exec, bin/errors_tests)
 	$(call exec, bin/union_find_tests)
@@ -90,7 +91,7 @@ tests: test_binaries
 	$(call exec, bin/priority_queue_tests)
 	$(call exec, bin/multy_way_tree_tests)
 
-test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
 
 bin/iterator_tests: tests/iterator_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/iterator_tests.c -o bin/iterator_tests -lcontainers_st $(LDFLAGS)
@@ -115,6 +116,9 @@ bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash
 
 bin/array_tests: tests/array_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/array_tests.c -o bin/array_tests -lcontainers_st $(LDFLAGS)
+
+bin/array_alt_tests: tests/array_alt_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
+	$(CC) $(CFLAGS) tests/array_alt_tests.c -o bin/array_alt_tests -lcontainers_st $(LDFLAGS)
 
 bin/errors_tests: tests/errors_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/errors_tests.c -o bin/errors_tests -lcontainers_st $(LDFLAGS)
