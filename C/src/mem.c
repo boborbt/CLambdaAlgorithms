@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MEM_VERBOSE 0
 
 static MemStats mem_stats = { 0, 0 };
 
