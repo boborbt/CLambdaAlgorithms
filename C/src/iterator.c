@@ -60,3 +60,14 @@ void* find_first(Iterator it, int(^condition)(void* elem)) {
   it.free(iterator);
   return result;
 }
+
+
+Array map(Iterator it, size_t size, void* (^mapping_function)(void*)) {
+  Array result = Array_new(10, size);
+  for_each(it, ^(void* obj) {
+    void* elem = mapping_function(obj);
+    Array_add(result, &elem);
+  });
+
+  return result;
+}

@@ -91,12 +91,32 @@ static void test_find_first() {
   free_fixtures(array);
 }
 
+static void test_map() {
+  Array array = build_fixtures();
+  Array mapped = map(Array_it(array), sizeof(DoubleContainer), ^(void* obj) {
+    DoubleContainer dbl = *(DoubleContainer*) obj;
+    return (void*) DoubleContainer_new( DoubleContainer_get(dbl) * 2);
+  });
+
+  for_each_with_index(Array_it(array), ^(void* obj, size_t index) {
+    DoubleContainer elem = *(DoubleContainer*) obj;
+    DoubleContainer other = *(DoubleContainer*) Array_at(mapped, index);
+
+    assert_double_equal( DoubleContainer_get(elem) * 2, DoubleContainer_get(other), 0.0001);
+  });
+
+  free_fixtures(array);
+  free_fixtures(mapped);
+}
+
 int main() {
   start_tests("iterators");
   test(test_for_each);
   test(test_for_each_with_index);
   test(test_find_first);
-  // test(test_error_raise);
+  test(test_map);
+
+
   end_tests();
   return 0;
 }
