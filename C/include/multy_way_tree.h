@@ -2,32 +2,32 @@
 
 #include "array.h"
 
-typedef struct _MultyWayTree* MultyWayTree;
+typedef struct _MultyWayTree MultyWayTree;
 typedef struct _MultyWayTreeIterator* MultyWayTreeIterator;
 
 // constructor
-MultyWayTree MultyWayTree_new(void* root_content);
+MultyWayTree* MultyWayTree_new(void* root_content);
 // Frees the memory alloced by the given tree
-void MultyWayTree_free(MultyWayTree);
+void MultyWayTree_free(MultyWayTree*);
 
 
 // Add a child to the given MultyWayTree
-void MultyWayTree_add_child(MultyWayTree, void* content);
+void MultyWayTree_add_child(MultyWayTree*, void* content);
 
 // Add the given subtree as a child of the given tree
-void MultyWayTree_add_subtree(MultyWayTree tree, MultyWayTree subtree);
+void MultyWayTree_add_subtree(MultyWayTree* tree, MultyWayTree* subtree);
 
 // returns the content of the root node of the given tree
-void* MultyWayTree_get(MultyWayTree);
+void* MultyWayTree_get(MultyWayTree*);
 
 // Returns a list of the children of the root of the given tree.
-// Each children is itself MultyWayTree and can be updated or queried
-// using MultyWayTree operations.
+// Each children is itself MultyWayTree* and can be updated or queried
+// using MultyWayTree* operations.
 //
 // Calling this method on a leaf returns null
 // The array (but not its contents) needs to be dealloced by the user
 // when it is no longer useful.
-Array* MultyWayTree_children(MultyWayTree);
+Array* MultyWayTree_children(MultyWayTree*);
 
 // Returns the first node (i.e. the root of the first subtree) encountered that satisfies that its
 // content equals the given content as predicated by the compare function. Returns NULL if such node
@@ -35,22 +35,22 @@ Array* MultyWayTree_children(MultyWayTree);
 //
 // The compare function needs to respect the "strcmp" protocol, i.e., it needs to return
 // 0 if the elements are equal, -1 if the first is smaller than the second and 1 otherwise.
-MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(void*, void*));
+MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, int (*compare)(void*, void*));
 
 // Returns the size (number of nodes) in the tree
-size_t MultyWayTree_size(MultyWayTree);
+size_t MultyWayTree_size(MultyWayTree*);
 
 // Returns the height (size of the longest path from root to a lief) in the tree
 // A tree with only the root has, by definition, height 0;
 // A NULL tree has, by definition, height -1
-long int MultyWayTree_height(MultyWayTree);
+long int MultyWayTree_height(MultyWayTree*);
 
 // Returns the width (size of the level with the highest number of nodes) in the tree
-size_t MultyWayTree_max_branching_factor(MultyWayTree);
+size_t MultyWayTree_max_branching_factor(MultyWayTree*);
 
 // -- ITERATOR --
 // Iterator
-MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree);
+MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree*);
 void MultyWayTreeIterator_free(MultyWayTreeIterator);
 
 // Move the iterator to the next element. Do nothing if it is already past the
@@ -66,4 +66,4 @@ void* MultyWayTreeIterator_get(MultyWayTreeIterator it);
 
 // iterator
 
-Iterator MultyWayTree_it(MultyWayTree);
+Iterator MultyWayTree_it(MultyWayTree*);

@@ -9,7 +9,7 @@
 
 #define NULL_STR "__NULL__"
 
-void save_tree(MultyWayTree tree, FILE* file) {
+void save_tree(MultyWayTree* tree, FILE* file) {
   if(tree == NULL) {
     return;
   }
@@ -28,7 +28,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
   }
 
   for_each(Array_it(array), ^(void* elem) {
-    MultyWayTree child = elem;
+    MultyWayTree* child = elem;
     char* childValue = (char*) MultyWayTree_get(child);
     if(childValue == NULL) {
       childValue = NULL_STR;
@@ -39,7 +39,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
   fprintf(file, "\n");
 
   for_each(Array_it(array), ^(void* elem) {
-    MultyWayTree child =  elem;
+    MultyWayTree* child =  elem;
     save_tree(child, file);
   });
 }
@@ -59,7 +59,7 @@ static int String_compare(void* s1, void* s2) {
 }
 
 
-void print_multy_way_tree_stats(char* msg, MultyWayTree tree) {
+void print_multy_way_tree_stats(char* msg, MultyWayTree* tree) {
   printf("%s:\n", msg);
   printf("\ttree height :%ld\n", MultyWayTree_height(tree));
   printf("\ttree max bf :%ld\n", MultyWayTree_max_branching_factor(tree));
@@ -67,8 +67,8 @@ void print_multy_way_tree_stats(char* msg, MultyWayTree tree) {
 }
 
 
-MultyWayTree load_tree(FILE* file) {
-  MultyWayTree tree=NULL;
+MultyWayTree* load_tree(FILE* file) {
+  MultyWayTree* tree=NULL;
 
   char* buf = NULL;
   size_t bufsize = 0;
@@ -79,7 +79,7 @@ MultyWayTree load_tree(FILE* file) {
     char* nodeId = Array_at(pieces, 0);
     assert(strcmp(nodeId, NULL_STR) != 0);
 
-    MultyWayTree node;
+    MultyWayTree* node;
     if(tree==NULL) {
       tree = MultyWayTree_new(nodeId);
     }

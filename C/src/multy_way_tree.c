@@ -7,19 +7,19 @@
 
 struct _MultyWayTree {
   void* content;
-  MultyWayTree child;
-  MultyWayTree sibling;
+  MultyWayTree* child;
+  MultyWayTree* sibling;
 };
 
 struct _MultyWayTreeIterator {
-  MultyWayTree node;
+  MultyWayTree* node;
   Stack state;
 };
 
 
 // constructor
-MultyWayTree MultyWayTree_new(void* root_content) {
-  MultyWayTree result = (MultyWayTree) Mem_alloc(sizeof(struct _MultyWayTree));
+MultyWayTree* MultyWayTree_new(void* root_content) {
+  MultyWayTree* result = (MultyWayTree*) Mem_alloc(sizeof(struct _MultyWayTree));
   result->content = root_content;
   result->child = NULL;
   result->sibling = NULL;
@@ -27,8 +27,8 @@ MultyWayTree MultyWayTree_new(void* root_content) {
   return result;
 }
 
-static MultyWayTree* MultyWayTree_anchor_to_first_free_sybling(MultyWayTree* node) {
-  MultyWayTree* anchor = node;
+static MultyWayTree** MultyWayTree_anchor_to_first_free_sybling(MultyWayTree** node) {
+  MultyWayTree** anchor = node;
 
   while(*anchor != NULL) {
     anchor = &(*anchor)->sibling;
@@ -38,32 +38,32 @@ static MultyWayTree* MultyWayTree_anchor_to_first_free_sybling(MultyWayTree* nod
 }
 
 // Add a child to the given MultyWayTree
-void MultyWayTree_add_child(MultyWayTree root, void* content) {
-  MultyWayTree child = MultyWayTree_new(content);
-  MultyWayTree* anchor = MultyWayTree_anchor_to_first_free_sybling(&root->child);
+void MultyWayTree_add_child(MultyWayTree* root, void* content) {
+  MultyWayTree* child = MultyWayTree_new(content);
+  MultyWayTree** anchor = MultyWayTree_anchor_to_first_free_sybling(&root->child);
 
   *anchor = child;
 }
 
-void MultyWayTree_add_subtree(MultyWayTree tree, MultyWayTree subtree) {
-  MultyWayTree* anchor = MultyWayTree_anchor_to_first_free_sybling(&tree->child);
+void MultyWayTree_add_subtree(MultyWayTree* tree, MultyWayTree* subtree) {
+  MultyWayTree** anchor = MultyWayTree_anchor_to_first_free_sybling(&tree->child);
   *anchor = subtree;
 }
 
 // returns the content of the root node of the given tree
-void* MultyWayTree_get(MultyWayTree root) {
+void* MultyWayTree_get(MultyWayTree* root) {
   return root->content;
 }
 
 // Returns a list of the children of the root of the given tree.
-// Each children is itself MultyWayTree and can be updated or queried
-// using MultyWayTree operations.
+// Each children is itself MultyWayTree* and can be updated or queried
+// using MultyWayTree* operations.
 //
 // Calling this method on a leaf returns null
 // The array (but not its contents) needs to be dealloced by the user
 // when it is no longer useful.
-Array* MultyWayTree_children(MultyWayTree root) {
-  MultyWayTree node = root->child;
+Array* MultyWayTree_children(MultyWayTree* root) {
+  MultyWayTree* node = root->child;
 
   if(node == NULL) {
     return NULL;
@@ -78,7 +78,7 @@ Array* MultyWayTree_children(MultyWayTree root) {
   return children;
 }
 
-MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(void*, void*)) {
+MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, int (*compare)(void*, void*)) {
   if(tree == NULL) {
     return NULL;
   }
@@ -87,7 +87,7 @@ MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(
     return tree;
   }
 
-  MultyWayTree solution = NULL;
+  MultyWayTree* solution = NULL;
   Array* children = MultyWayTree_children(tree);
   if(children == NULL) {
     return NULL;
@@ -95,7 +95,7 @@ MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(
 
   ArrayIterator* it = ArrayIterator_new(children);
   while( !ArrayIterator_end(it) && solution == NULL ) {
-    MultyWayTree node = ArrayIterator_get(it);
+    MultyWayTree* node = ArrayIterator_get(it);
     solution = MultyWayTree_find(node, content, compare);
     ArrayIterator_next(it);
   }
@@ -107,7 +107,7 @@ MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(
 }
 
 // Returns the size (number of nodes) in the tree
-size_t MultyWayTree_size(MultyWayTree tree) {
+size_t MultyWayTree_size(MultyWayTree* tree) {
   if(tree == NULL) {
     return 0;
   }
@@ -119,7 +119,7 @@ size_t MultyWayTree_size(MultyWayTree tree) {
   }
 
   for_each(Array_it(children), ^(void* elem) {
-    MultyWayTree node = elem;
+    MultyWayTree* node = elem;
 
     count += MultyWayTree_size(node);
   });
@@ -129,7 +129,7 @@ size_t MultyWayTree_size(MultyWayTree tree) {
 }
 
 // Returns the height (size of the longest path from root to a lief) in the tree
-long int MultyWayTree_height(MultyWayTree tree) {
+long int MultyWayTree_height(MultyWayTree* tree) {
   if(tree == NULL) {
     return -1;
   }
@@ -141,7 +141,7 @@ long int MultyWayTree_height(MultyWayTree tree) {
   }
 
   for_each(Array_it(children), ^(void* elem) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree* child = elem;
 
     long int child_height = MultyWayTree_height(child);
     result =  child_height > result ? child_height : result;
@@ -153,7 +153,7 @@ long int MultyWayTree_height(MultyWayTree tree) {
 }
 
 // Returns the width (size of the level with the highest number of nodes) in the tree
-size_t MultyWayTree_max_branching_factor(MultyWayTree tree) {
+size_t MultyWayTree_max_branching_factor(MultyWayTree* tree) {
   if(tree == NULL) {
     return 0;
   }
@@ -166,7 +166,7 @@ size_t MultyWayTree_max_branching_factor(MultyWayTree tree) {
   __block size_t max_bf = Array_size(children);
 
   for_each(Array_it(children), ^(void* elem) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree* child = elem;
 
     size_t child_max_bf = MultyWayTree_max_branching_factor(child);
     max_bf =  max_bf > child_max_bf ? max_bf : child_max_bf;
@@ -179,7 +179,7 @@ size_t MultyWayTree_max_branching_factor(MultyWayTree tree) {
 
 
 
-void MultyWayTree_free(MultyWayTree root) {
+void MultyWayTree_free(MultyWayTree* root) {
   if(root==NULL) {
     return;
   }
@@ -197,7 +197,7 @@ void MultyWayTree_free(MultyWayTree root) {
 // --- Iterator
 
 // Iterator
-MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree tree) {
+MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree* tree) {
   MultyWayTreeIterator iterator = (MultyWayTreeIterator) Mem_alloc(sizeof(struct _MultyWayTreeIterator));
   iterator->state = Stack_new(100);
   Stack_push(iterator->state, tree);
@@ -224,7 +224,7 @@ void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
     return;
   }
 
-  it->node = (MultyWayTree) Stack_pop(it->state);
+  it->node = (MultyWayTree*) Stack_pop(it->state);
   Array* children = MultyWayTree_children(it->node);
 
   if(children == NULL) {
@@ -232,7 +232,7 @@ void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
   }
 
   for_each(Array_it(children), ^(void* elem) {
-    MultyWayTree child = *(MultyWayTree*) elem;
+    MultyWayTree* child = elem;
     Stack_push(it->state, child);
   });
 
@@ -246,7 +246,7 @@ int MultyWayTreeIterator_end(MultyWayTreeIterator it) {
 }
 
 
-Iterator MultyWayTree_it(MultyWayTree tree) {
+Iterator MultyWayTree_it(MultyWayTree* tree) {
 
   return Iterator_make(
     tree,

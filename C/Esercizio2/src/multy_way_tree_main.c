@@ -16,7 +16,7 @@ static int String_ref_compare(const void* v1, const void* v2) {
   return strcmp(s1, s2);
 }
 
-static MultyWayTree build_binary_search_tree_from_array(Array* values, size_t start_index, size_t end_index) {
+static MultyWayTree* build_binary_search_tree_from_array(Array* values, size_t start_index, size_t end_index) {
   if(start_index > end_index) {
     return NULL;
   }
@@ -25,15 +25,15 @@ static MultyWayTree build_binary_search_tree_from_array(Array* values, size_t st
   size_t root_pos = start_index + (len / 2);
   char* root_value = Array_at(values, root_pos);
 
-  MultyWayTree root = MultyWayTree_new(root_value);
+  MultyWayTree* root = MultyWayTree_new(root_value);
 
-  MultyWayTree left;
+  MultyWayTree* left;
   if(root_pos != 0) {
     left = build_binary_search_tree_from_array(values, start_index, root_pos - 1);
   } else {
     left = NULL;
   }
-  MultyWayTree right = build_binary_search_tree_from_array(values, root_pos+1, end_index);
+  MultyWayTree* right = build_binary_search_tree_from_array(values, root_pos+1, end_index);
 
   if(left != NULL) {
     MultyWayTree_add_subtree(root, left);
@@ -50,7 +50,7 @@ static MultyWayTree build_binary_search_tree_from_array(Array* values, size_t st
   return root;
 }
 
-static MultyWayTree build_binary_search_tree(MultyWayTree tree) {
+static MultyWayTree* build_binary_search_tree(MultyWayTree* tree) {
   Array* values = Array_new(2000);
   for_each(MultyWayTree_it(tree), ^(void* elem) {
     Array_add(values, elem);
@@ -64,10 +64,10 @@ static MultyWayTree build_binary_search_tree(MultyWayTree tree) {
 
 int main() {
   FILE* file = fopen("multywaytree_2.csv", "r");
-  MultyWayTree tree = load_tree(file);
+  MultyWayTree* tree = load_tree(file);
   fclose(file);
 
-  MultyWayTree searchTree = build_binary_search_tree(tree);
+  MultyWayTree* searchTree = build_binary_search_tree(tree);
   print_multy_way_tree_stats("binary search tree:", searchTree);
 
   FILE* outfile = fopen("binsearchtree.csv", "w");
@@ -78,7 +78,7 @@ int main() {
   printf("done\n");
 
   file = fopen("binsearchtree.csv", "r");
-  MultyWayTree st = load_tree(file);
+  MultyWayTree* st = load_tree(file);
   print_multy_way_tree_stats("reloaded search tree stats:",st);
   MultyWayTree_free(st);
 

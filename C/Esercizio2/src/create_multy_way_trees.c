@@ -76,7 +76,7 @@ static char* new_node_name() {
   return NODENAMES->names[NODENAMES->current++];
 }
 
-static void build_multyway_tree(MultyWayTree node, size_t num_nodes, size_t (*random_int)()) {
+static void build_multyway_tree(MultyWayTree* node, size_t num_nodes, size_t (*random_int)()) {
   if(num_nodes == 0) {
     return;
   }
@@ -96,7 +96,7 @@ static void build_multyway_tree(MultyWayTree node, size_t num_nodes, size_t (*ra
   __block size_t children_count = 0;
 
   for_each_with_index( Array_it(children),  ^(void* elem, size_t index) {
-    MultyWayTree child = elem;
+    MultyWayTree* child = elem;
 
     if(index == num_children - 1) {
       build_multyway_tree(child, num_nodes - children_count, random_int );
@@ -112,7 +112,7 @@ static void build_multyway_tree(MultyWayTree node, size_t num_nodes, size_t (*ra
 
 int main() {
 
-  MultyWayTree root = MultyWayTree_new(new_node_name());
+  MultyWayTree* root = MultyWayTree_new(new_node_name());
   build_multyway_tree(root, NUM_NODES, random_int3);
 
   FILE* file = fopen("multywaytree_1.csv", "w");
