@@ -18,14 +18,14 @@ struct _PrintTime {
   ArrayAlt* data;
 };
 
-static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
+static void PrintTime_save_dictionary(PrintTime* pt, const char* padding) {
   for_each(ArrayAlt_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
     fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer*)kv.value));
   });
 }
 
-static void PrintTime_save_header(PrintTime pt) {
+static void PrintTime_save_header(PrintTime* pt) {
   fprintf(pt->file, "-\n");
   for_each(ArrayAlt_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
@@ -52,12 +52,12 @@ static char* get_date_string() {
   return buf;
 }
 
-PrintTime PrintTime_new(const char* out_file) {
+PrintTime* PrintTime_new(const char* out_file) {
   if(out_file==NULL) {
     out_file = "timings.yml";
   }
 
-  PrintTime pt = (PrintTime) Mem_alloc(sizeof(struct _PrintTime));
+  PrintTime* pt = (PrintTime*) Mem_alloc(sizeof(struct _PrintTime));
   pt->file_name = out_file;
   pt->file = NULL;
 
@@ -71,12 +71,12 @@ PrintTime PrintTime_new(const char* out_file) {
 
 
 
-void PrintTime_add_header(PrintTime pt, const char* key, const char* value) {
+void PrintTime_add_header(PrintTime* pt, const char* key, const char* value) {
   KeyValue kv = { .key = Mem_strdup(key), .value = Mem_strdup(value) };
   ArrayAlt_add(pt->header, &kv);
 }
 
-void PrintTime_free(PrintTime pt) {
+void PrintTime_free(PrintTime* pt) {
   for_each(ArrayAlt_it(pt->header), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     Mem_free(kv.key);
@@ -94,7 +94,7 @@ void PrintTime_free(PrintTime pt) {
   Mem_free(pt);
 }
 
-double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
+double PrintTime_print(PrintTime* pt, char* label, void(^fun)()) {
  double result;
  printf("\n======================\n");
  clock_t start = clock();
@@ -113,7 +113,7 @@ double PrintTime_print(PrintTime pt, char* label, void(^fun)()) {
  return result;
 }
 
-void PrintTime_save(PrintTime pt) {
+void PrintTime_save(PrintTime* pt) {
 
   pt->file = fopen(pt->file_name, "a");
   if(!pt->file) {

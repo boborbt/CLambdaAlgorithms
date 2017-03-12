@@ -290,8 +290,8 @@ static char* get_compilation_flags() {
   return buf;
 }
 
-static PrintTime init_print_time(char* argv[]) {
-  PrintTime pt = PrintTime_new(NULL);
+static PrintTime* init_print_time(char* argv[]) {
+  PrintTime* pt = PrintTime_new(NULL);
 
   PrintTime_add_header(pt,"esercizio", "3");
   PrintTime_add_header(pt, "task", flag_to_task_name(argv[1][1]));
@@ -303,7 +303,7 @@ static PrintTime init_print_time(char* argv[]) {
 
 int main(int argc, char *argv[]) {
   check_arguments(argc, argv);
-  PrintTime pt = init_print_time(argv);
+  PrintTime* pt = init_print_time(argv);
 
 
   __block Graph* graph;

@@ -71,8 +71,8 @@ static char* get_compilation_flags() {
   return buf;
 }
 
-static PrintTime init_print_time(char* argv[]) {
-  PrintTime pt = PrintTime_new(NULL);
+static PrintTime* init_print_time(char* argv[]) {
+  PrintTime* pt = PrintTime_new(NULL);
 
   PrintTime_add_header(pt,"esercizio", "2");
   PrintTime_add_header(pt, "field", argv[1]);
@@ -85,7 +85,7 @@ static PrintTime init_print_time(char* argv[]) {
 int main(int argc, char* argv[]) {
   check_arguments(argc, argv);
 
-  PrintTime pt = init_print_time(argv);
+  PrintTime* pt = init_print_time(argv);
 
   __block Dataset* dataset;
   PrintTime_print(pt, "Dataset_load", ^{

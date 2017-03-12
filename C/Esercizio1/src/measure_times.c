@@ -37,7 +37,7 @@ static void exec_and_print_with_dup_storage(Dataset* dataset, void (^callback)(A
 }
 
 
-static void test_qsort(Dataset* input_dataset, PrintTime pt) {
+static void test_qsort(Dataset* input_dataset, PrintTime* pt) {
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
@@ -65,7 +65,7 @@ static void test_qsort(Dataset* input_dataset, PrintTime pt) {
 }
 
 
-static void test_algorithm_g(Dataset* input_dataset, PrintTime pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
+static void test_algorithm_g(Dataset* input_dataset, PrintTime* pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
@@ -89,7 +89,7 @@ static void test_algorithm_g(Dataset* input_dataset, PrintTime pt, void (*sort)(
   });
 }
 
-static void test_algorithm(Dataset* input_dataset, PrintTime pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
+static void test_algorithm(Dataset* input_dataset, PrintTime* pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
@@ -189,8 +189,8 @@ static char* get_compilation_flags() {
   return buf;
 }
 
-static PrintTime init_print_time(char* argv[]) {
-  PrintTime pt = PrintTime_new(NULL);
+static PrintTime* init_print_time(char* argv[]) {
+  PrintTime* pt = PrintTime_new(NULL);
 
   PrintTime_add_header(pt, "esercizio", "1");
   PrintTime_add_header(pt, "invocation", argv[0]);
@@ -203,7 +203,7 @@ static PrintTime init_print_time(char* argv[]) {
 
 int main(int argc, char* argv[]) {
   check_arguments(argc, argv);
-  PrintTime pt = init_print_time(argv);
+  PrintTime* pt = init_print_time(argv);
 
 
   __block Dataset* dataset;
