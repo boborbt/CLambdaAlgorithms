@@ -27,8 +27,8 @@ typedef struct _KruskalEdge {
 typedef const struct _KruskalEdge* ConstKruskalEdge;
 
 // Creates and initializes the data structures used by the Dijkstra* algorithm
-Kruskal Kruskal_new(Graph* graph, double (*graph_info_to_double)(const void*)) {
-  Kruskal result = (Kruskal) Mem_alloc(sizeof(struct _Kruskal));
+Kruskal* Kruskal_new(Graph* graph, double (*graph_info_to_double)(const void*)) {
+  Kruskal* result = (Kruskal*) Mem_alloc(sizeof(struct _Kruskal));
   result->graph = graph;
   result->graph_info_to_double = graph_info_to_double;
   result->sets = Dictionary_new(Graph_keyInfo(graph));
@@ -72,7 +72,7 @@ static void KruskalEdge_free(KruskalEdge edge) {
   Mem_free(edge);
 }
 
-static void Kruskal_initializeSets(Kruskal k) {
+static void Kruskal_initializeSets(Kruskal* k) {
   for_each(Vertex_it(k->graph), ^(void* vertex) {
     Dictionary_set(k->sets, vertex, UnionFindSet_new(vertex));
   });
@@ -93,7 +93,7 @@ static int Kruskal_compare_edges(const void* obj1, const void* obj2) {
   return 0;
 }
 
-static Array* Kruskal_initEdgesArray(Kruskal k) {
+static Array* Kruskal_initEdgesArray(Kruskal* k) {
   Array* result =  Array_new(Graph_size(k->graph)*10);
 
   for_each(Edge_it(k->graph), ^(void* obj){
@@ -105,7 +105,7 @@ static Array* Kruskal_initEdgesArray(Kruskal k) {
     Dictionary_get(k->sets, ei->destination, (void**) &set2);
 
     if(set1 == NULL || set2 == NULL) {
-      Error_raise(Error_new(ERROR_GENERIC, "Cannot find vertices in Kruskal sets dictionary"));
+      Error_raise(Error_new(ERROR_GENERIC, "Cannot find vertices in Kruskal* sets dictionary"));
     }
 
     KruskalEdge ke = KruskalEdge_new(set1, set2, k->graph_info_to_double(ei->info), ei->info );
@@ -117,11 +117,11 @@ static Array* Kruskal_initEdgesArray(Kruskal k) {
   return result;
 }
 
-// Runs Kruskal and returns the found minimal spanning tree
+// Runs Kruskal* and returns the found minimal spanning tree
 // The minimal path is returned as a newly alloced graph
 // The user needs to dealloc the graph when finished with it.
 // The returned graph uses the say keyinfo as the source graph
-Graph* Kruskal_mintree(Kruskal k) {
+Graph* Kruskal_mintree(Kruskal* k) {
   KeyInfo* ki = Graph_keyInfo(k->graph);
 
   Graph* result = Graph_new(ki);
@@ -158,8 +158,8 @@ Graph* Kruskal_mintree(Kruskal k) {
   return result;
 }
 
-// Frees the datastructures used by the Kruskal algorithm
-void Kruskal_free(Kruskal k) {
+// Frees the datastructures used by the Kruskal* algorithm
+void Kruskal_free(Kruskal* k) {
   for_each(Dictionary_it(k->sets),  ^(void* kv) {
     UnionFindSet_free(((KeyValue*)kv)->value);
   });

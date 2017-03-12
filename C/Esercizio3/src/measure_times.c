@@ -191,7 +191,7 @@ static void find_connected_components(Graph* graph, void (*graph_visit)(Visiting
 // }
 
 static void execute_kruskal(Graph* graph) {
-  Kruskal kruskal = Kruskal_new(graph, (double (*)(const void*)) DoubleContainer_get);
+  Kruskal* kruskal = Kruskal_new(graph, (double (*)(const void*)) DoubleContainer_get);
   Graph* result = Kruskal_mintree(kruskal);
 
   __block double tree_size = 0.0;

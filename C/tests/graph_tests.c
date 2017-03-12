@@ -222,7 +222,7 @@ static void test_kruskal() {
   double (*info_to_double)(const void*);
   info_to_double = (double (*)(const void*)) DoubleContainer_get;
 
-  Kruskal k = Kruskal_new(graph, info_to_double);
+  Kruskal* k = Kruskal_new(graph, info_to_double);
   Graph* mintree = Kruskal_mintree(k);
   __block double treesize = 0.0;
 
