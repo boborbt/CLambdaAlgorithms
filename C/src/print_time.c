@@ -14,8 +14,8 @@
 struct _PrintTime {
   const char* file_name;
   FILE* file;
-  ArrayAlt header;
-  ArrayAlt data;
+  ArrayAlt* header;
+  ArrayAlt* data;
 };
 
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {

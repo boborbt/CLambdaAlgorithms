@@ -139,32 +139,32 @@ void Array_sort(Array* array, KIComparator compare) {
 }
 
 // Iterator
-ArrayIterator ArrayIterator_new(Array* array) {
-  ArrayIterator iterator = (ArrayIterator) Mem_alloc(sizeof(struct _ArrayIterator));
+ArrayIterator* ArrayIterator_new(Array* array) {
+  ArrayIterator* iterator = (ArrayIterator*) Mem_alloc(sizeof(struct _ArrayIterator*));
   iterator->array = array;
   iterator->current_index = 0;
 
   return iterator;
 }
 
-void ArrayIterator_free(ArrayIterator iterator) {
+void ArrayIterator_free(ArrayIterator* iterator) {
   Mem_free(iterator);
 }
 
 // Move the iterator to the next element. Do nothing if it is already past the
 // end of the container.
-void ArrayIterator_next(ArrayIterator it) {
+void ArrayIterator_next(ArrayIterator* it) {
   it->current_index += 1;
 }
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // ArrayIterator_get would return a sensible result), 0 otherwise.
-int ArrayIterator_end(ArrayIterator it) {
+int ArrayIterator_end(ArrayIterator* it) {
   return it->current_index >= it->array->size;
 }
 
 // Returns the element currently pointed by the iterator
-void* ArrayIterator_get(ArrayIterator it) {
+void* ArrayIterator_get(ArrayIterator* it) {
   return Array_at(it->array, it->current_index);
 }
 
@@ -181,7 +181,7 @@ Iterator Array_it(Array* array)
 }
 //
 // void for_each_with_index( Array_it(Array* array),  void (^callback)(void*, size_t)) {
-//   ArrayIterator it = ArrayIterator_new(array);
+//   ArrayIterator* it = ArrayIterator_new(array);
 //   size_t count = 0;
 //   while(!ArrayIterator_end(it)) {
 //     callback(ArrayIterator_get(it), count++);
