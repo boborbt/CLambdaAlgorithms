@@ -14,7 +14,7 @@
 struct _Kruskal {
   Graph graph;
   double (*graph_info_to_double)(const void*);
-  Dictionary sets;
+  Dictionary* sets;
 };
 
 typedef struct _KruskalEdge {

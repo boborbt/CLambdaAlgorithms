@@ -10,9 +10,9 @@
 struct _VisitingInfo {
   Graph graph;
 
-  Dictionary vertex_set;
+  Dictionary* vertex_set;
   UnionFindSet visited_set;
-  DictionaryIterator current;
+ DictionaryIterator* current;
 };
 
 

@@ -15,11 +15,11 @@ struct _Dijkstra {
   double (*graph_info_to_double)(const void*);
   KIComparator comparator;
   PriorityQueue pq;
-  Dictionary parents;
-  Dictionary distances;
+  Dictionary* parents;
+  Dictionary* distances;
 };
 
-static size_t path_len(Dictionary parents, const void* dest) {
+static size_t path_len(Dictionary* parents, const void* dest) {
   size_t count = 1;
   const void* current = dest;
   void* next;
@@ -40,7 +40,7 @@ static size_t path_len(Dictionary parents, const void* dest) {
   return count;
 }
 
-static void** build_path(Dictionary parents, void* dest) {
+static void** build_path(Dictionary* parents, void* dest) {
   size_t len = path_len(parents, dest);
   void** result = (void**) Mem_alloc(sizeof(void*)*(len+1));
   result[len] = NULL;
@@ -60,7 +60,7 @@ static void** build_path(Dictionary parents, void* dest) {
   return result;
 }
 
-static void cleanup_distances_values(Dictionary distances) {
+static void cleanup_distances_values(Dictionary* distances) {
   for_each(Dictionary_it(distances),  ^(void* kv) {
     DoubleContainer_free((DoubleContainer) ((KeyValue*)kv)->value);
   });

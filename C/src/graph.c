@@ -12,21 +12,21 @@
 // values are the edge info.
 struct _Graph {
   KeyInfo vertexInfo;
-  Dictionary adjacency_matrix;
+  Dictionary* adjacency_matrix;
   size_t size;
 };
 
 struct _EdgeIterator {
   Graph graph;
   VertexIterator vertex_it;
-  DictionaryIterator dic_it;
+ DictionaryIterator* dic_it;
   void* current_source;
 
   EdgeInfo result;
 };
 
 struct _VertexIterator {
-  DictionaryIterator dic_it;
+ DictionaryIterator* dic_it;
 };
 
 
@@ -40,7 +40,7 @@ Graph Graph_new(KeyInfo vertexInfo) {
 
 void Graph_free(Graph graph) {
   for_each(Dictionary_it(graph->adjacency_matrix),  ^(void* kv) {
-    Dictionary_free((Dictionary) ((KeyValue*)kv)->value);
+    Dictionary_free((Dictionary*) ((KeyValue*)kv)->value);
   });
 
   Dictionary_free(graph->adjacency_matrix);
@@ -60,8 +60,8 @@ void Graph_add_vertex(Graph graph, void* vertex) {
   graph->size += 1;
 }
 
-static Dictionary Graph_adjacents_dictionary(Graph graph, const void* source) {
-  Dictionary adj_list;
+static Dictionary* Graph_adjacents_dictionary(Graph graph, const void* source) {
+  Dictionary* adj_list;
   if(Dictionary_get(graph->adjacency_matrix, source, (void**)&adj_list) == 0) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
   }
@@ -74,7 +74,7 @@ void Graph_add_edge(Graph graph, void* source, void* dest,  void* info) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the source vertex in the graph"));
   }
 
-  Dictionary adj_list = Graph_adjacents_dictionary(graph, source);
+  Dictionary* adj_list = Graph_adjacents_dictionary(graph, source);
   Dictionary_set(adj_list, dest, info);
 }
 
@@ -83,7 +83,7 @@ size_t Graph_size(Graph graph) {
 }
 
 void* Graph_edge_info(Graph graph, const void* v1, const void* v2) {
-  Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, v1);
+  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, v1);
   if(v1_adj_list==NULL) {
     Error_raise(Error_new(ERROR_GENERIC, "Cannot find given vertex"));
   }
@@ -99,7 +99,7 @@ int Graph_has_vertex(Graph graph, const void* v) {
 }
 
 int Graph_has_edge(Graph graph, const void* source, const void* dest) {
-  Dictionary v1_adj_list = Graph_adjacents_dictionary(graph, source);
+  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, source);
   void* info = NULL;
   if(Dictionary_get(v1_adj_list, dest, &info)==0) {
     return 0;
@@ -109,7 +109,7 @@ int Graph_has_edge(Graph graph, const void* source, const void* dest) {
 
 
 EdgeIterator Graph_adjacents(Graph graph, void* vertex) {
-  Dictionary adj_list = Graph_adjacents_dictionary(graph, vertex);
+  Dictionary* adj_list = Graph_adjacents_dictionary(graph, vertex);
 
   EdgeIterator it = (EdgeIterator) Mem_alloc(sizeof(struct _EdgeIterator));
   it->dic_it = DictionaryIterator_new(adj_list);
@@ -126,9 +126,9 @@ VertexIterator Graph_vertices(Graph graph) {
 }
 
 static void* Graph_first_vertex_with_adjacents(Graph graph, VertexIterator vertex_it) {
-  DictionaryIterator dic_it = NULL;
+ DictionaryIterator* dic_it = NULL;
   while(!VertexIterator_end(vertex_it) && dic_it == NULL) {
-    Dictionary adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
+    Dictionary* adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
     if(!Dictionary_empty(adj_list)) {
       return VertexIterator_get(vertex_it);
     } else {

@@ -1,7 +1,7 @@
 #include "dictionary.h"
 #include "string.h"
 
-Iterator Dictionary_it(Dictionary dictionary) {
+Iterator Dictionary_it(Dictionary* dictionary) {
  return Iterator_make(
    dictionary,
    (void* (*)(void*)) DictionaryIterator_new,
@@ -13,6 +13,6 @@ Iterator Dictionary_it(Dictionary dictionary) {
 }
 
 
-int Dictionary_empty(Dictionary dictionary) {
+int Dictionary_empty(Dictionary* dictionary) {
   return Dictionary_size(dictionary) == 0;
 }

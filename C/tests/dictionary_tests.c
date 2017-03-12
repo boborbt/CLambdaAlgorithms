@@ -23,9 +23,9 @@ static size_t hash(const void* elem) {
   return (size_t)(k*(k+3));
 }
 
-static Dictionary build_fixture_dictionary() {
+static Dictionary* build_fixture_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
-  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
   Dictionary_set(dictionary, (void*)  5l, (void*)  -5l);
   Dictionary_set(dictionary, (void*) 15l, (void*) -15l);
@@ -37,7 +37,7 @@ static Dictionary build_fixture_dictionary() {
   return dictionary;
 }
 
-static void free_fixture_dictionary(Dictionary dict) {
+static void free_fixture_dictionary(Dictionary* dict) {
   KeyInfo info = Dictionary_key_info(dict);
   Dictionary_free(dict);
   KeyInfo_free(info);
@@ -47,7 +47,7 @@ static void free_fixture_dictionary(Dictionary dict) {
 static void test_dictionary_creation() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
 
-  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
   assert(dictionary != NULL);
 
   assert_equal((long)Dictionary_size(dictionary), 0l);
@@ -58,7 +58,7 @@ static void test_dictionary_creation() {
 
 static void test_dictionary_insert_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
-  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
   assert_equal((long)Dictionary_size(dictionary), 1l);
 
@@ -71,7 +71,7 @@ static void test_dictionary_insert_on_empty_dictionary() {
 }
 
 static void test_dictionary_insert_on_full_dictionary() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_set(dictionary, (void*) 4l, (void*) -4l);
@@ -85,7 +85,7 @@ static void test_dictionary_insert_on_full_dictionary() {
 }
 
 static void test_dictionary_replace_on_full_dictionary() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_set(dictionary, (void*) 15l, (void*) -115l);
@@ -100,7 +100,7 @@ static void test_dictionary_replace_on_full_dictionary() {
 
 static void test_dictionary_delete_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
-  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_delete(dictionary, (void*) 1l);
 
   assert(TRUE);
@@ -109,7 +109,7 @@ static void test_dictionary_delete_on_empty_dictionary() {
 }
 
 static void test_dictionary_delete_root() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 10l);
@@ -122,7 +122,7 @@ static void test_dictionary_delete_root() {
 }
 
 static void test_dictionary_delete_mid_node() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 15l);
@@ -135,7 +135,7 @@ static void test_dictionary_delete_mid_node() {
 }
 
 static void test_dictionary_delete_leaf() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   assert_equal( (long) Dictionary_size(dictionary), 7l);
 
   Dictionary_delete(dictionary, (void*) 11l);
@@ -148,7 +148,7 @@ static void test_dictionary_delete_leaf() {
 }
 
 static void test_dictionary_delete_whole_dictionary() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   long int keys[] =  {10l, 5l, 15l, 7l, 13l, 11l, 18l};
 
   for(int i = 0; i < 7; ++i) {
@@ -160,7 +160,7 @@ static void test_dictionary_delete_whole_dictionary() {
 }
 
 static void test_dictionary_delete_element_twice() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   Dictionary_delete(dictionary, (void*)15l);
   assert_equal(6l, Dictionary_size(dictionary));
 
@@ -174,7 +174,7 @@ static void test_dictionary_delete_element_twice() {
 
 static void test_dictionary_get_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
-  Dictionary dictionary = Dictionary_new(keyInfo);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
 
   long int value = 0;
   assert_equal((long)Dictionary_get(dictionary, (void*) 10l, (void**)&value), 0l);
@@ -184,7 +184,7 @@ static void test_dictionary_get_on_empty_dictionary() {
 }
 
 static void test_dictionary_get_on_full_dictionary() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
 
   long int value = 0;
   assert_equal((long)Dictionary_get(dictionary, (void*) 13l, (void**)&value), 1l);
@@ -195,7 +195,7 @@ static void test_dictionary_get_on_full_dictionary() {
 
 
 static void test_dictionary_get_on_non_present_key() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
 
   long int value = 0;
   assert_equal((long)Dictionary_get(dictionary, (void*) 21l, (void**)&value), 0l);
@@ -205,8 +205,8 @@ static void test_dictionary_get_on_non_present_key() {
 
 static void test_dictionary_iterator_on_empty_dictionary() {
   KeyInfo keyInfo = KeyInfo_new(compare, hash);
-  Dictionary dictionary = Dictionary_new(keyInfo);
-  DictionaryIterator it = DictionaryIterator_new(dictionary);
+  Dictionary* dictionary = Dictionary_new(keyInfo);
+ DictionaryIterator* it = DictionaryIterator_new(dictionary);
   assert_true( DictionaryIterator_end(it) )
 
   DictionaryIterator_free(it);
@@ -225,7 +225,7 @@ static int find_key_value(KeyValue** elems, size_t size, void* key, void* value)
 }
 
 static void test_dictionary_foreach_dictionary_key_value() {
-  Dictionary dictionary = build_fixture_dictionary();
+  Dictionary* dictionary = build_fixture_dictionary();
   __block KeyValue** found_elems = (KeyValue**) Mem_alloc(sizeof(KeyValue*)*7);
   __block size_t count = 0;
 

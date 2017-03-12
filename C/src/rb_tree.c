@@ -33,10 +33,10 @@ static Node _nilNode = { .kv = NULL, .left = NULL, .right = NULL, .parent = NULL
 static Node* _nil = &_nilNode;
 
 /* --------------------------
- * DictionaryIterator implementation
+ *DictionaryIterator* implementation
  * -------------------------- */
 
-void DictionaryIterator_next(DictionaryIterator it) {
+void DictionaryIterator_next(DictionaryIterator* it) {
   if(Stack_empty(it->stack)) {
     return;
   }
@@ -50,9 +50,8 @@ void DictionaryIterator_next(DictionaryIterator it) {
     Stack_push(it->stack, cur->right);
   }
 }
-
-DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
+DictionaryIterator* DictionaryIterator_new(Dictionary* dictionary) {
+ DictionaryIterator* it = (DictionaryIterator*) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->stack = Stack_new(MAX_STACK_SIZE);
 
   if(!Dictionary_empty(dictionary)) {
@@ -61,16 +60,16 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   return it;
 }
 
-void DictionaryIterator_free(DictionaryIterator it) {
+void DictionaryIterator_free(DictionaryIterator* it) {
   Stack_free(it->stack);
   Mem_free(it);
 }
 
-int DictionaryIterator_end(DictionaryIterator it) {
+int DictionaryIterator_end(DictionaryIterator* it) {
   return Stack_empty(it->stack);
 }
 
-KeyValue* DictionaryIterator_get(DictionaryIterator it) {
+KeyValue* DictionaryIterator_get(DictionaryIterator* it) {
   return ((Node*)Stack_top(it->stack))->kv;
 }
 
@@ -78,11 +77,11 @@ KeyValue* DictionaryIterator_get(DictionaryIterator it) {
  * Fwd declaration of test utility methods
  * -------------------------- */
 
-int Dictionary_check_parents_structure(Dictionary dictionary);
+int Dictionary_check_parents_structure(Dictionary* dictionary);
 int Node_check_parents_structure(Node* node);
 void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* indent);
-void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*));
-int Dictionary_check_integrity(Dictionary dictionary);
+void Dictionary_dump(Dictionary* dictionary, void (*print_key_value)(void*, void*));
+int Dictionary_check_integrity(Dictionary* dictionary);
 
 
 /* --------------------------
@@ -260,11 +259,11 @@ static int Node_height(Node* node) {
 
 
 /* --------------------------
- * Dictionary implementation
+ * Dictionary* implementation
  * -------------------------- */
 
-Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) Mem_alloc(sizeof(struct _Dictionary));
+Dictionary* Dictionary_new(KeyInfo keyInfo) {
+  Dictionary* result = (Dictionary*) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = _nil;
   result->size = 0;
@@ -272,12 +271,12 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
   return result;
 }
 
-KeyInfo Dictionary_key_info(Dictionary dictionary) {
+KeyInfo Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 
 
-void Dictionary_free(Dictionary dictionary) {
+void Dictionary_free(Dictionary* dictionary) {
   if(dictionary->root != _nil) {
     Node_tree_free(dictionary->root);
   }
@@ -285,7 +284,7 @@ void Dictionary_free(Dictionary dictionary) {
   Mem_free(dictionary);
 }
 
-static void Dictionary_rb_left_rotate(Dictionary dictionary, Node* node) {
+static void Dictionary_rb_left_rotate(Dictionary* dictionary, Node* node) {
   Node* x = node;
   Node* y = x->right;
   Node* a = x->left;
@@ -302,7 +301,7 @@ static void Dictionary_rb_left_rotate(Dictionary dictionary, Node* node) {
   }
 }
 
-static void Dictionary_rb_right_rotate(Dictionary dictionary, Node* node) {
+static void Dictionary_rb_right_rotate(Dictionary* dictionary, Node* node) {
   Node* y = node;
   Node* x = y->left;
   Node* a = x->left;
@@ -336,12 +335,12 @@ static int Dictionary_rb_delete_fixup_cases(Node* w, Node* (*right)(Node*)) {
 }
 
 static Node* Dictionary_rb_delete_fixup_local(
-          Dictionary dictionary,
+          Dictionary* dictionary,
           Node* x,
           Node* (*left)(Node*),
           Node* (*right)(Node*),
-          void (*left_rotate)(Dictionary, Node*),
-          void (*right_rotate)(Dictionary, Node*)) {
+          void (*left_rotate)(Dictionary*, Node*),
+          void (*right_rotate)(Dictionary*, Node*)) {
   Node* w;
   // x->parent may change after rotations even when the rotation should not have
   // this effect.
@@ -382,7 +381,7 @@ static Node* Dictionary_rb_delete_fixup_local(
   return x;
 }
 
-static void Dictionary_rb_delete_fixup(Dictionary dictionary, Node* x) {
+static void Dictionary_rb_delete_fixup(Dictionary* dictionary, Node* x) {
   while( x != dictionary->root && x->color != RED ) {
     if(x==x->parent->left) {
       x = Dictionary_rb_delete_fixup_local(dictionary, x, Node_left, Node_right, Dictionary_rb_left_rotate, Dictionary_rb_right_rotate);
@@ -396,10 +395,10 @@ static void Dictionary_rb_delete_fixup(Dictionary dictionary, Node* x) {
 
 
 static Node* Dictionary_rb_insert_fixup_local(
-            Dictionary dictionary, Node* z,
+            Dictionary* dictionary, Node* z,
             Node* (*child)(Node*),
-            void (*left_rotate)(Dictionary,
-            Node*), void (*right_rotate)(Dictionary, Node*)) {
+            void (*left_rotate)(Dictionary*,
+            Node*), void (*right_rotate)(Dictionary*, Node*)) {
 
   Node* y = child(z->parent->parent);
   if(y->color == RED) {
@@ -421,7 +420,7 @@ static Node* Dictionary_rb_insert_fixup_local(
   return z;
 }
 
-static void Dictionary_rb_insert_fixup(Dictionary dictionary, Node* z) {
+static void Dictionary_rb_insert_fixup(Dictionary* dictionary, Node* z) {
   while(z->parent->color == RED) {
     if(z->parent == z->parent->parent->left) {
       z = Dictionary_rb_insert_fixup_local(dictionary, z, Node_right, Dictionary_rb_left_rotate, Dictionary_rb_right_rotate);
@@ -433,7 +432,7 @@ static void Dictionary_rb_insert_fixup(Dictionary dictionary, Node* z) {
   Node_set_color(dictionary->root, BLACK);
 }
 
-void Dictionary_set(Dictionary dictionary, void* key, void* value) {
+void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
   Node* parent;
   Node** node_ptr = Node_find_with_parent(&dictionary->root, key, dictionary->keyInfo, &parent);
 
@@ -448,7 +447,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   }
 }
 
-int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
+int Dictionary_get(Dictionary* dictionary, const void* key, void** value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == _nil) {
     return 0;
@@ -461,7 +460,7 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
   return 1;
 }
 
-void Dictionary_delete(Dictionary dictionary, const void* key) {
+void Dictionary_delete(Dictionary* dictionary, const void* key) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == _nil) {
     return;
@@ -475,22 +474,22 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   dictionary->size -= 1;
 }
 
-size_t Dictionary_size(Dictionary dictionary) {
+size_t Dictionary_size(Dictionary* dictionary) {
   return dictionary->size;
 }
 
 
-double Dictionary_efficiency_score(Dictionary dictionary) {
+double Dictionary_efficiency_score(Dictionary* dictionary) {
   return Node_height(dictionary->root);
 }
 
 static int Dictionary_check_black_path_lengths(Node* node);
 static int Dictionary_check_red_nodes_children_color(Node* node);
 static int Dictionary_check_leaves_are_black(Node* node);
-static int Dictionary_check_root_is_black(Dictionary dictionary);
+static int Dictionary_check_root_is_black(Dictionary* dictionary);
 
 
-int Dictionary_check_integrity(Dictionary dictionary) {
+int Dictionary_check_integrity(Dictionary* dictionary) {
   if(Dictionary_empty(dictionary)) {
     return 1;
   }
@@ -513,7 +512,7 @@ void Node_dump_colors(Node* node, char* node_name);
 void Node_dump_colors_elem(Node* x, char* node_name);
 
 
-static int Dictionary_check_root_is_black(Dictionary dictionary) {
+static int Dictionary_check_root_is_black(Dictionary* dictionary) {
   if(dictionary->root->color != BLACK) {
     printf("CHK FAILED: root color is %d\n", dictionary->root->color);
     return 0;
@@ -570,7 +569,7 @@ static int Dictionary_check_black_path_lengths(Node* node) {
 }
 
 
-int Dictionary_check_parents_structure(Dictionary dictionary) {
+int Dictionary_check_parents_structure(Dictionary* dictionary) {
   if(dictionary->root == _nil) {
     return 1;
   }
@@ -735,7 +734,7 @@ void Node_dump_tree(Node* node, void (*print_key_value)(void*, void*), char* ind
 }
 
 
-void Dictionary_dump(Dictionary dictionary, void (*print_key_value)(void*, void*)) {
+void Dictionary_dump(Dictionary* dictionary, void (*print_key_value)(void*, void*)) {
   char* indent = (char*) Mem_alloc(INDENT_MAX_SIZE);
   Node_dump_tree(dictionary->root, print_key_value, indent);
 }

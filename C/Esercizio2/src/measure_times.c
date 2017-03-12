@@ -11,7 +11,7 @@
 #include "iterator_functions.h"
 #include "mem.h"
 
-static void load_dictionary(Dataset* dataset, Dictionary dictionary) {
+static void load_dictionary(Dataset* dataset, Dictionary* dictionary) {
   Record** records = Dataset_get_records(dataset);
   size_t size = Dataset_size(dataset);
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
   Dataset_print(dataset, 10);
 
 
-  Dictionary dictionary;
+  Dictionary* dictionary;
   KeyInfo keyInfo;
   switch(argv[1][0]) {
     case '1':

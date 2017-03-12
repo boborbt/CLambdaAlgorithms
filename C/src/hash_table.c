@@ -19,7 +19,7 @@ struct _Dictionary {
 };
 
 struct _DictionaryIterator {
-  Dictionary dictionary;
+  Dictionary* dictionary;
   size_t cur_index;
   ListIterator cur_list_element;
 };
@@ -45,8 +45,8 @@ static void KeyValue_free(KeyValue* kv) {
  * DictionaryIterator implementation
  *  -------------------------- */
 
-DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
+DictionaryIterator* DictionaryIterator_new(Dictionary* dictionary) {
+  DictionaryIterator* it = (DictionaryIterator*) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->dictionary = dictionary;
   it->cur_index = 0;
   it->cur_list_element = ListIterator_new(it->dictionary->table[0]);
@@ -57,20 +57,20 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   return it;
 }
 
-void DictionaryIterator_free(DictionaryIterator it) {
+void DictionaryIterator_free(DictionaryIterator* it) {
   ListIterator_free(it->cur_list_element);
   Mem_free(it);
 }
 
-int DictionaryIterator_end(DictionaryIterator it)  {
+int DictionaryIterator_end(DictionaryIterator* it)  {
   return ListIterator_end(it->cur_list_element);
 }
 
-KeyValue* DictionaryIterator_get(DictionaryIterator it) {
+KeyValue* DictionaryIterator_get(DictionaryIterator* it) {
   return ListIterator_get(it->cur_list_element);
 }
 
-void DictionaryIterator_next(DictionaryIterator it) {
+void DictionaryIterator_next(DictionaryIterator* it) {
   if(!ListIterator_end(it->cur_list_element)) {
     ListIterator_next(it->cur_list_element);
     if(!ListIterator_end(it->cur_list_element)) {
@@ -88,10 +88,10 @@ void DictionaryIterator_next(DictionaryIterator it) {
 
 
 /* --------------------------
- * Dictionary implementation
+ * Dictionary* implementation
  * -------------------------- */
 
-static void Dictionary_free_lists(Dictionary dictionary, void (*elem_free)(void*)) {
+static void Dictionary_free_lists(Dictionary* dictionary, void (*elem_free)(void*)) {
   size_t capacity = dictionary->capacity;
   for(size_t i=0; i<capacity; ++i) {
     if(dictionary->table[i]!=NULL) {
@@ -100,8 +100,8 @@ static void Dictionary_free_lists(Dictionary dictionary, void (*elem_free)(void*
   }
 }
 
-Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) Mem_alloc( sizeof(struct _Dictionary) );
+Dictionary* Dictionary_new(KeyInfo keyInfo) {
+  Dictionary* result = (Dictionary*) Mem_alloc( sizeof(struct _Dictionary) );
   result->table = (List*)Mem_calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List));
   result->capacity = HASH_TABLE_INITIAL_CAPACITY;
   result->size = 0;
@@ -110,23 +110,23 @@ Dictionary Dictionary_new(KeyInfo keyInfo) {
   return result;
 }
 
-void Dictionary_free(Dictionary dictionary) {
+void Dictionary_free(Dictionary* dictionary) {
   Dictionary_free_lists(dictionary, (void (*)(void*)) KeyValue_free);
   Mem_free(dictionary->table);
   Mem_free(dictionary);
 }
 
-KeyInfo Dictionary_key_info(Dictionary dictionary) {
+KeyInfo Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 
 // Reallocate the items in the current dictionary doubling the number of
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
-static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
+static void Dictionary_realloc(Dictionary* dictionary, size_t new_capacity) {
   List* new_table = (List*)Mem_calloc(new_capacity, sizeof(List));
 
-  DictionaryIterator it = DictionaryIterator_new(dictionary);
+  DictionaryIterator* it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
     KeyValue* current = DictionaryIterator_get(it);
     size_t index = KeyInfo_hash(dictionary->keyInfo)(current->key) % new_capacity;
@@ -149,7 +149,7 @@ static void Dictionary_realloc(Dictionary dictionary, size_t new_capacity) {
 // insert into dictionary the given key/value pair. If key is already
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
-void Dictionary_set(Dictionary dictionary, void* key, void* value) {
+void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
   if(dictionary->capacity < dictionary->size * HASH_TABLE_CAPACITY_MIN_MULTIPLIER) {
     Dictionary_realloc(dictionary, dictionary->capacity * HASH_TABLE_CAPACITY_MULTIPLIER);
   }
@@ -176,7 +176,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
 }
 
 
-static KeyValue* Dictionary_get_key_value(Dictionary dictionary, const void* key) {
+static KeyValue* Dictionary_get_key_value(Dictionary* dictionary, const void* key) {
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return 0;
@@ -198,7 +198,7 @@ static KeyValue* Dictionary_get_key_value(Dictionary dictionary, const void* key
 // is put into *result unless result==NULL.
 // If the key is not found, the function returns 0 and leave result untouched.
 // Otherwise it returns 1 and, if result!=NULL, sets *results to point to the found KeyValue.
-int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
+int Dictionary_get(Dictionary* dictionary, const void* key,  void** result) {
   KeyValue* kv = Dictionary_get_key_value(dictionary, key);
 
   if(kv == NULL) {
@@ -213,7 +213,7 @@ int Dictionary_get(Dictionary dictionary, const void* key,  void** result) {
 }
 
 
-void Dictionary_delete(Dictionary dictionary, const void* key) {
+void Dictionary_delete(Dictionary* dictionary, const void* key) {
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
   if(dictionary->table[index] == NULL) {
     return;
@@ -238,11 +238,11 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   }
 }
 
-size_t Dictionary_size(Dictionary dictionary) {
+size_t Dictionary_size(Dictionary* dictionary) {
   return dictionary->size;
 }
 
-double Dictionary_efficiency_score(Dictionary dictionary) {
+double Dictionary_efficiency_score(Dictionary* dictionary) {
   size_t sum_len = 0;
   size_t buckets_count = 0;
   for(size_t i=0; i<dictionary->capacity; ++i) {
@@ -255,7 +255,7 @@ double Dictionary_efficiency_score(Dictionary dictionary) {
   return (double) sum_len / buckets_count;
 }
 
-int Dictionary_check_integrity(Dictionary dictionary) {
+int Dictionary_check_integrity(Dictionary* dictionary) {
   // to be implemented. The following test is just to avoid param unused warning.
   return dictionary->table != NULL;
 }

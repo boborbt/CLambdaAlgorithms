@@ -16,7 +16,7 @@
 
 #define BUF_SIZE 1024
 
-static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, const char* v2, double len) {
+static void add_edge(Graph graph, Dictionary* known_vertices,  const char* v1, const char* v2, double len) {
   void* vertex1 = NULL;
   void* vertex2 = NULL;
 
@@ -40,7 +40,7 @@ static void add_edge(Graph graph, Dictionary known_vertices,  const char* v1, co
 
 static Graph load_graph(const char* filename) {
   KeyInfo keyInfo = KeyInfo_new( Key_string_compare, Key_string_hash );
-  Dictionary known_vertices = Dictionary_new(keyInfo);
+  Dictionary* known_vertices = Dictionary_new(keyInfo);
   Graph graph = Graph_new(keyInfo);
   FILE* infile = fopen(filename, "r");
   if(infile==NULL) {

@@ -24,10 +24,10 @@ struct _DictionaryIterator {
 #define MAX_STACK_SIZE 1024
 
 /* --------------------------
- * DictionaryIterator implementation
+ *DictionaryIterator* implementation
  * -------------------------- */
 
-void DictionaryIterator_next(DictionaryIterator it) {
+void DictionaryIterator_next(DictionaryIterator* it) {
   if(Stack_empty(it->stack)) {
     return;
   }
@@ -41,9 +41,8 @@ void DictionaryIterator_next(DictionaryIterator it) {
     Stack_push(it->stack, cur->right);
   }
 }
-
-DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
-  DictionaryIterator it = (DictionaryIterator) Mem_alloc(sizeof(struct _DictionaryIterator));
+DictionaryIterator* DictionaryIterator_new(Dictionary* dictionary) {
+ DictionaryIterator* it = (DictionaryIterator*) Mem_alloc(sizeof(struct _DictionaryIterator));
   it->stack = Stack_new(MAX_STACK_SIZE);
 
   if(!Dictionary_empty(dictionary)) {
@@ -52,16 +51,16 @@ DictionaryIterator DictionaryIterator_new(Dictionary dictionary) {
   return it;
 }
 
-void DictionaryIterator_free(DictionaryIterator it) {
+void DictionaryIterator_free(DictionaryIterator* it) {
   Stack_free(it->stack);
   Mem_free(it);
 }
 
-int DictionaryIterator_end(DictionaryIterator it) {
+int DictionaryIterator_end(DictionaryIterator* it) {
   return Stack_empty(it->stack);
 }
 
-KeyValue* DictionaryIterator_get(DictionaryIterator it) {
+KeyValue* DictionaryIterator_get(DictionaryIterator* it) {
   return &((Node*)Stack_top(it->stack))->kv;
 }
 
@@ -180,28 +179,28 @@ static int Node_height(Node* node) {
 }
 
 /* --------------------------
- * Dictionary implementation
+ * Dictionary* implementation
  * -------------------------- */
 
-Dictionary Dictionary_new(KeyInfo keyInfo) {
-  Dictionary result = (Dictionary) Mem_alloc(sizeof(struct _Dictionary));
+Dictionary* Dictionary_new(KeyInfo keyInfo) {
+  Dictionary* result = (Dictionary*) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = NULL;
   result->size = 0;
   return result;
 }
 
-KeyInfo Dictionary_key_info(Dictionary dictionary) {
+KeyInfo Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 
 
-void Dictionary_free(Dictionary dictionary) {
+void Dictionary_free(Dictionary* dictionary) {
   Node_tree_free(dictionary->root);
   Mem_free(dictionary);
 }
 
-void Dictionary_set(Dictionary dictionary, void* key, void* value) {
+void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
 
   if((*node_ptr) != NULL) {
@@ -213,7 +212,7 @@ void Dictionary_set(Dictionary dictionary, void* key, void* value) {
   }
 }
 
-int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
+int Dictionary_get(Dictionary* dictionary, const void* key, void** value) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return 0;
@@ -226,7 +225,7 @@ int Dictionary_get(Dictionary dictionary, const void* key, void** value) {
   return 1;
 }
 
-void Dictionary_delete(Dictionary dictionary, const void* key) {
+void Dictionary_delete(Dictionary* dictionary, const void* key) {
   Node** node_ptr = Node_find(&dictionary->root, key, dictionary->keyInfo);
   if(*node_ptr == NULL) {
     return;
@@ -236,15 +235,15 @@ void Dictionary_delete(Dictionary dictionary, const void* key) {
   dictionary->size -= 1;
 }
 
-size_t Dictionary_size(Dictionary dictionary) {
+size_t Dictionary_size(Dictionary* dictionary) {
   return dictionary->size;
 }
 
 
-double Dictionary_efficiency_score(Dictionary dictionary) {
+double Dictionary_efficiency_score(Dictionary* dictionary) {
   return Node_height(dictionary->root);
 }
 
-int Dictionary_check_integrity(Dictionary dictionary) {
+int Dictionary_check_integrity(Dictionary* dictionary) {
   return dictionary->size == 0 || dictionary->root != NULL;
 }
