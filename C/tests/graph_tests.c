@@ -16,8 +16,8 @@
 #include "mem.h"
 
 
-static PriorityQueue build_pq_fixtures() {
-  PriorityQueue pq = PriorityQueue_new(PQOrder_ascending);
+static PriorityQueue* build_pq_fixtures() {
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
 
   PriorityQueue_push(pq, "10", 10.0);
   PriorityQueue_push(pq, "2", 2.0);
@@ -74,21 +74,21 @@ static void free_graph_fixture(Graph* graph) {
 }
 
 static void test_priority_queue_creation() {
-  PriorityQueue pq = PriorityQueue_new(PQOrder_ascending);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
   assert_equal( 0l, (long) PriorityQueue_size(pq) );
   assert(PriorityQueue_empty(pq));
   PriorityQueue_free(pq);
 }
 
 static void test_priority_queue_decrease_priority() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   PriorityQueue_decrease_priority(pq, "10", 1.0);
   assert_string_equal(PriorityQueue_top_value(pq), "10");
   PriorityQueue_free(pq);
 }
 
 static void test_priority_queue_push_min_element() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   PriorityQueue_push(pq, "test", 1.0);
   assert_string_equal((const char*) PriorityQueue_top_value(pq), "test");
   assert_double_equal(PriorityQueue_top_priority(pq), 1.0, 0.00001);
@@ -96,19 +96,19 @@ static void test_priority_queue_push_min_element() {
 }
 
 static void test_priority_queue_top_value() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   assert_string_equal((const char*)PriorityQueue_top_value(pq), "2");
   PriorityQueue_free(pq);
 }
 
 static void test_priority_queue_top_priority() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.00001);
   PriorityQueue_free(pq);
 }
 
 static void test_priority_queue_pop() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.0001);
 
   assert_equal(5l, (long)PriorityQueue_size(pq));
@@ -121,7 +121,7 @@ static void test_priority_queue_pop() {
 }
 
 static void test_priority_queue_pop_order() {
-  PriorityQueue pq = build_pq_fixtures();
+  PriorityQueue* pq = build_pq_fixtures();
   double priority_order[] = {2.0, 3.0, 4.0, 6.0, 10.0};
   int count = 0;
   while(!PriorityQueue_empty(pq) && count < 5) {

@@ -14,7 +14,7 @@ struct _Dijkstra {
   Graph* graph;
   double (*graph_info_to_double)(const void*);
   KIComparator comparator;
-  PriorityQueue pq;
+  PriorityQueue* pq;
   Dictionary* parents;
   Dictionary* distances;
 };

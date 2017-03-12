@@ -1,8 +1,8 @@
 #include "unit_testing.h"
 #include "priority_queue.h"
 
-static PriorityQueue fixtures() {
-  PriorityQueue pq = PriorityQueue_new(PQOrder_ascending);
+static PriorityQueue* fixtures() {
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -15,8 +15,8 @@ static PriorityQueue fixtures() {
   return pq;
 }
 
-static PriorityQueue fixtures_descending() {
-  PriorityQueue pq = PriorityQueue_new(PQOrder_descending);
+static PriorityQueue* fixtures_descending() {
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_descending);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -30,7 +30,7 @@ static PriorityQueue fixtures_descending() {
 }
 
 static void test_priority_queue_push() {
-  PriorityQueue pq = fixtures();
+  PriorityQueue* pq = fixtures();
   size_t size = PriorityQueue_size(pq);
 
   PriorityQueue_push(pq, "test", 4.0);
@@ -40,7 +40,7 @@ static void test_priority_queue_push() {
 }
 
 static void test_priority_queue_pop() {
-  PriorityQueue pq = fixtures();
+  PriorityQueue* pq = fixtures();
   char* strings[] = {"p1", "p5", "p2", "p4", "p3"};
 
   for(int i=0; i<5; ++i) {
@@ -55,7 +55,7 @@ static void test_priority_queue_pop() {
 }
 
 static void test_priority_queue_top_value() {
-  PriorityQueue pq = fixtures();
+  PriorityQueue* pq = fixtures();
 
   assert_string_equal("p1", PriorityQueue_top_value(pq));
 
@@ -70,7 +70,7 @@ static void test_priority_queue_top_value() {
 }
 
 static void test_priority_queue_top_priority() {
-  PriorityQueue pq = fixtures();
+  PriorityQueue* pq = fixtures();
 
   assert_double_equal(1.0, PriorityQueue_top_priority(pq),0.001);
 
@@ -85,7 +85,7 @@ static void test_priority_queue_top_priority() {
 }
 
 static void test_priority_queue_decrease_priority() {
-  PriorityQueue pq = fixtures();
+  PriorityQueue* pq = fixtures();
 
   assert_string_equal("p1", PriorityQueue_top_value(pq));
   PriorityQueue_decrease_priority(pq, "p4", 0.0);
@@ -95,7 +95,7 @@ static void test_priority_queue_decrease_priority() {
 }
 
 static void test_priority_queue_pop_descending() {
-  PriorityQueue pq = fixtures_descending();
+  PriorityQueue* pq = fixtures_descending();
   char* strings[] = {"p3", "p4", "p2", "p1", "p5"};
 
   for(int i=0; i<5; ++i) {

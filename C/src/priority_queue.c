@@ -37,8 +37,8 @@ static size_t PriorityQueue_right_child(size_t pos) {
   return pos * 2 + 2;
 }
 
-PriorityQueue PriorityQueue_new(PQOrder order) {
-  PriorityQueue result = (PriorityQueue) Mem_alloc(sizeof(struct _PriorityQueue));
+PriorityQueue* PriorityQueue_new(PQOrder order) {
+  PriorityQueue* result = (PriorityQueue*) Mem_alloc(sizeof(struct _PriorityQueue));
   result->array = (PQElem*) Mem_alloc(sizeof(PQElem*) * PRIORITY_QUEUE_INITIAL_CAPACITY);
   result->size = 0;
   result->capacity = PRIORITY_QUEUE_INITIAL_CAPACITY;
@@ -47,16 +47,16 @@ PriorityQueue PriorityQueue_new(PQOrder order) {
   return result;
 }
 
-void PriorityQueue_free(PriorityQueue pq) {
+void PriorityQueue_free(PriorityQueue* pq) {
   Mem_free(pq->array);
   Mem_free(pq);
 }
 
-size_t PriorityQueue_size(PriorityQueue pq) {
+size_t PriorityQueue_size(PriorityQueue* pq) {
   return pq->size;
 }
 
-static int pq_key_cmp(PriorityQueue pq, double p1, double p2) {
+static int pq_key_cmp(PriorityQueue* pq, double p1, double p2) {
   if(pq->order == PQOrder_ascending) {
     return p1 > p2;
   } else {
@@ -64,7 +64,7 @@ static int pq_key_cmp(PriorityQueue pq, double p1, double p2) {
   }
 }
 
-static void PriorityQueue_try_realloc(PriorityQueue pq) {
+static void PriorityQueue_try_realloc(PriorityQueue* pq) {
   if(pq->capacity > pq->size) {
     return;
   }
@@ -72,7 +72,7 @@ static void PriorityQueue_try_realloc(PriorityQueue pq) {
   pq->array = (PQElem*)Mem_realloc(pq->array, sizeof(PQElem*) * pq->capacity );
 }
 
-static void PriorityQueue_moveup(PriorityQueue pq, size_t pos) {
+static void PriorityQueue_moveup(PriorityQueue* pq, size_t pos) {
   size_t parent = PriorityQueue_parent(pos);
   while(pos != 0 && pq_key_cmp(pq, pq->array[parent].priority, pq->array[pos].priority)) {
     PQElem_swap(&pq->array[parent], &pq->array[pos]);
@@ -81,7 +81,7 @@ static void PriorityQueue_moveup(PriorityQueue pq, size_t pos) {
   }
 }
 
-static void PriorityQueue_movedown(PriorityQueue pq, size_t pos) {
+static void PriorityQueue_movedown(PriorityQueue* pq, size_t pos) {
   size_t left = PriorityQueue_left_child(pos);
   size_t right = PriorityQueue_right_child(pos);
   if(left >= pq->size && right >= pq->size) {
@@ -103,7 +103,7 @@ static void PriorityQueue_movedown(PriorityQueue pq, size_t pos) {
   }
 }
 
-void PriorityQueue_push(PriorityQueue pq, void* elem, double priority) {
+void PriorityQueue_push(PriorityQueue* pq, void* elem, double priority) {
   PriorityQueue_try_realloc(pq);
 
   pq->array[pq->size].elem = elem;
@@ -112,26 +112,26 @@ void PriorityQueue_push(PriorityQueue pq, void* elem, double priority) {
   pq->size += 1;
 }
 
-int PriorityQueue_empty(PriorityQueue pq)  {
+int PriorityQueue_empty(PriorityQueue* pq)  {
   return pq->size == 0;
 }
 
-void*  PriorityQueue_top_value(PriorityQueue pq) {
+void*  PriorityQueue_top_value(PriorityQueue* pq) {
   return pq->array[0].elem;
 }
 
-double PriorityQueue_top_priority(PriorityQueue pq) {
+double PriorityQueue_top_priority(PriorityQueue* pq) {
   return pq->array[0].priority;
 }
 
-void PriorityQueue_pop(PriorityQueue pq) {
+void PriorityQueue_pop(PriorityQueue* pq) {
   pq->array[0] = pq->array[pq->size-1];
   pq->size -= 1;
   PriorityQueue_movedown(pq, 0);
 }
 
 
-void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priority) {
+void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
   size_t i;
   for(i=0; i<pq->size; ++i) {
     if(pq->array[i].elem == elem) {
@@ -148,7 +148,7 @@ void PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double priori
 }
 
 
-void PriorityQueue_foreach(PriorityQueue pq, void (^callback)(void* elem, double priority)) {
+void PriorityQueue_foreach(PriorityQueue* pq, void (^callback)(void* elem, double priority)) {
   for(size_t i=0; i<pq->size; ++i) {
     callback(pq->array[i].elem, pq->array[i].priority);
   }

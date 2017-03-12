@@ -6,8 +6,8 @@
 // Implementation of a priority queue (smaller values first)
 //
 
-// PriorityQueue opaque type
-typedef struct _PriorityQueue* PriorityQueue;
+// PriorityQueue* opaque type
+typedef struct _PriorityQueue PriorityQueue;
 
 typedef enum {
   PQOrder_ascending = 1,
@@ -15,30 +15,30 @@ typedef enum {
 } PQOrder;
 
 // Alloc the priority queue
-PriorityQueue PriorityQueue_new(PQOrder);
+PriorityQueue* PriorityQueue_new(PQOrder);
 
 // Dealloc the priority queue
-void PriorityQueue_free(PriorityQueue);
+void PriorityQueue_free(PriorityQueue*);
 
 // Pushes a new element with the given priority into the queue
-void PriorityQueue_push(PriorityQueue pq, void* elem, double priority);
+void PriorityQueue_push(PriorityQueue* pq, void* elem, double priority);
 
 // return 1 if the queue is empty. 0 otherwise.
-int PriorityQueue_empty(PriorityQueue);
+int PriorityQueue_empty(PriorityQueue*);
 
 // Returns the number of elements in the queue.
-size_t PriorityQueue_size(PriorityQueue);
+size_t PriorityQueue_size(PriorityQueue*);
 
 // Pops the top element from the queue.
-void PriorityQueue_pop(PriorityQueue);
+void PriorityQueue_pop(PriorityQueue*);
 
 // Returns the top value in the priority queue
-void*  PriorityQueue_top_value(PriorityQueue);
+void*  PriorityQueue_top_value(PriorityQueue*);
 
 // Returns the priority of the top element
-double PriorityQueue_top_priority(PriorityQueue);
+double PriorityQueue_top_priority(PriorityQueue*);
 
 // Decreases the priority of the given element
-void   PriorityQueue_decrease_priority(PriorityQueue pq, void* elem, double new_priority);
+void   PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double new_priority);
 
-void PriorityQueue_foreach(PriorityQueue pq, void (^callback)(void* elem, double priority));
+void PriorityQueue_foreach(PriorityQueue* pq, void (^callback)(void* elem, double priority));
