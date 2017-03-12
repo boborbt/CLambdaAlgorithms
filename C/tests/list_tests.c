@@ -35,7 +35,7 @@ static void test_list_insertion() {
 
   List_insert(list, "2");
   assert_equal(2l, List_size(list));
-  ListIterator it = ListIterator_new(list);
+  ListIterator* it = ListIterator_new(list);
 
   assert_true(strcmp(ListIterator_get(it), "2")==0);
   ListIterator_next(it);
@@ -88,7 +88,7 @@ static long delete_elem(void* elem) {
 
 static void test_list_delete_node() {
   List* list = build_fixtures();
-  ListIterator it = ListIterator_new(list);
+  ListIterator* it = ListIterator_new(list);
 
   ListNode* elem = ListIterator_get_node(it);
   ListIterator_next(it);

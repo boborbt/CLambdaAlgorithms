@@ -55,34 +55,34 @@ void* ListNode_get(ListNode*);
 //
 // Iterators
 //
-typedef struct _ListIterator* ListIterator;
+typedef struct _ListIterator ListIterator;
 
 // Creates a new list iterator over the given list. If list is NULL, NULL is
 // returned. Note that ListIterator_end(NULL) returns true, all other Iterators
 // functions, instead will produce undefined result on NULL values.
-ListIterator ListIterator_new(List* list);
+ListIterator* ListIterator_new(List* list);
 
 // Creates a new list iterator from the given node. If node is NULL, NULL is
 // returned. Note that ListIterator_end(NULL) returns true and ListIterator_free(NULL),
 // will do nothing, all other iterators functions, instead, will produce undefined
 // result when called on NULL values.
-ListIterator ListIterator_new_from_node(ListNode*);
+ListIterator* ListIterator_new_from_node(ListNode*);
 
 // Frees the given iterator. Does nothing if the iterator is NULL
-void ListIterator_free(ListIterator);
+void ListIterator_free(ListIterator*);
 
 // Returns the object pointed by the given iterator
-void* ListIterator_get(ListIterator);
+void* ListIterator_get(ListIterator*);
 
 // Returns the node pointed by the given iterator
-ListNode* ListIterator_get_node(ListIterator);
+ListNode* ListIterator_get_node(ListIterator*);
 
 // Moves the iterator on the next element
-void ListIterator_next(ListIterator);
+void ListIterator_next(ListIterator*);
 
 // Returns true if either the iterator is null or if it moved after the last
 // element
-int ListIterator_end(ListIterator);
+int ListIterator_end(ListIterator*);
 
 // Iterator interface
 Iterator List_it(List* list);

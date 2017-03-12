@@ -21,7 +21,7 @@ struct _Dictionary {
 struct _DictionaryIterator {
   Dictionary* dictionary;
   size_t cur_index;
-  ListIterator cur_list_element;
+  ListIterator* cur_list_element;
 };
 
 /* KeyValue* constructor and destructor */

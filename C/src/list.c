@@ -134,7 +134,7 @@ void List_free(List* list, void (*elem_free)(void*)) {
 }
 
 ListNode* List_find_wb(List* list,  int (^elem_selector)(const void*)) {
-  ListIterator it = ListIterator_new(list);
+  ListIterator* it = ListIterator_new(list);
 
   while( !ListIterator_end(it) && elem_selector(ListIterator_get(it)) != 0 ) {
     ListIterator_next(it);
@@ -188,45 +188,45 @@ void List_delete_node(List* list, ListNode* node) {
 }
 
 
-ListIterator ListIterator_new(List* list) {
+ListIterator* ListIterator_new(List* list) {
   if(list == NULL) {
     return NULL;
   }
 
-  ListIterator result = (ListIterator) Mem_alloc(sizeof(struct _ListIterator));
+  ListIterator* result = (ListIterator*) Mem_alloc(sizeof(struct _ListIterator));
   result->current = list->head;
   return result;
 }
 
-ListIterator ListIterator_new_from_node(ListNode* node) {
+ListIterator* ListIterator_new_from_node(ListNode* node) {
   if(node == NULL) {
     return NULL;
   }
 
-  ListIterator result = (ListIterator) Mem_alloc(sizeof(struct _ListIterator));
+  ListIterator* result = (ListIterator*) Mem_alloc(sizeof(struct _ListIterator));
   result->current = node;
   return result;
 }
 
-void ListIterator_free(ListIterator it) {
+void ListIterator_free(ListIterator* it) {
   if(it!=NULL) {
     Mem_free(it);
   }
 }
 
-void* ListIterator_get(ListIterator it) {
+void* ListIterator_get(ListIterator* it) {
   return it->current->elem;
 }
 
-ListNode* ListIterator_get_node(ListIterator it) {
+ListNode* ListIterator_get_node(ListIterator* it) {
   return it->current;
 }
 
-void ListIterator_next(ListIterator it) {
+void ListIterator_next(ListIterator* it) {
   it->current = it->current->succ;
 }
 
-int ListIterator_end(ListIterator it) {
+int ListIterator_end(ListIterator* it) {
   return it==NULL || it->current == NULL;
 }
 
