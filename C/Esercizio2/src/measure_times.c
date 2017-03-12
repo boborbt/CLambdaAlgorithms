@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
 
   Dictionary* dictionary;
-  KeyInfo keyInfo;
+  KeyInfo* keyInfo;
   switch(argv[1][0]) {
     case '1':
       keyInfo = KeyInfo_new(Dataset_compare_field1, Dataset_hash_field1);

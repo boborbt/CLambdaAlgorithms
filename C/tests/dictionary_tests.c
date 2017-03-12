@@ -24,7 +24,7 @@ static size_t hash(const void* elem) {
 }
 
 static Dictionary* build_fixture_dictionary() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
   Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
   Dictionary_set(dictionary, (void*)  5l, (void*)  -5l);
@@ -38,14 +38,14 @@ static Dictionary* build_fixture_dictionary() {
 }
 
 static void free_fixture_dictionary(Dictionary* dict) {
-  KeyInfo info = Dictionary_key_info(dict);
+  KeyInfo* info = Dictionary_key_info(dict);
   Dictionary_free(dict);
   KeyInfo_free(info);
 }
 
 
 static void test_dictionary_creation() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
 
   Dictionary* dictionary = Dictionary_new(keyInfo);
   assert(dictionary != NULL);
@@ -57,7 +57,7 @@ static void test_dictionary_creation() {
 }
 
 static void test_dictionary_insert_on_empty_dictionary() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
   Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_set(dictionary, (void*) 10l, (void*) -10l);
   assert_equal((long)Dictionary_size(dictionary), 1l);
@@ -99,7 +99,7 @@ static void test_dictionary_replace_on_full_dictionary() {
 }
 
 static void test_dictionary_delete_on_empty_dictionary() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
   Dictionary* dictionary = Dictionary_new(keyInfo);
   Dictionary_delete(dictionary, (void*) 1l);
 
@@ -173,7 +173,7 @@ static void test_dictionary_delete_element_twice() {
 
 
 static void test_dictionary_get_on_empty_dictionary() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
   Dictionary* dictionary = Dictionary_new(keyInfo);
 
   long int value = 0;
@@ -204,7 +204,7 @@ static void test_dictionary_get_on_non_present_key() {
 }
 
 static void test_dictionary_iterator_on_empty_dictionary() {
-  KeyInfo keyInfo = KeyInfo_new(compare, hash);
+  KeyInfo* keyInfo = KeyInfo_new(compare, hash);
   Dictionary* dictionary = Dictionary_new(keyInfo);
  DictionaryIterator* it = DictionaryIterator_new(dictionary);
   assert_true( DictionaryIterator_end(it) )

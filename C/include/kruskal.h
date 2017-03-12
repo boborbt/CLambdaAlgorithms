@@ -11,7 +11,7 @@ Kruskal Kruskal_new(Graph* graph, double (*graph_info_to_double)(const void*));
 
 // Runs Kruskal and returns the found minimal spanning tree
 // The minimal path is returned as a newly alloced graph having the same
-// KeyInfo as the source graph
+// KeyInfo* as the source graph
 // The user needs to dealloc the graph when finished with it.
 Graph* Kruskal_mintree(Kruskal);
 

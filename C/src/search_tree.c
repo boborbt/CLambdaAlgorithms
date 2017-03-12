@@ -12,7 +12,7 @@ typedef struct _Node {
 } Node;
 
 struct _Dictionary  {
-  KeyInfo keyInfo;
+  KeyInfo* keyInfo;
   Node* root;
   size_t size;
 };
@@ -86,7 +86,7 @@ static Node* Node_new(void* key, void* value) {
 // If no node is found with the given key, returns a pointer to the variable
 // that would point to a node with that key.
 
-static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
+static Node** Node_find(Node** root, const void* key, KeyInfo* keyInfo) {
   Node** node_ptr = root;
   while(*node_ptr != NULL) {
     int comp = KeyInfo_comparator(keyInfo)(key, (*node_ptr)->kv.key);
@@ -182,7 +182,7 @@ static int Node_height(Node* node) {
  * Dictionary* implementation
  * -------------------------- */
 
-Dictionary* Dictionary_new(KeyInfo keyInfo) {
+Dictionary* Dictionary_new(KeyInfo* keyInfo) {
   Dictionary* result = (Dictionary*) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = NULL;
@@ -190,7 +190,7 @@ Dictionary* Dictionary_new(KeyInfo keyInfo) {
   return result;
 }
 
-KeyInfo Dictionary_key_info(Dictionary* dictionary) {
+KeyInfo* Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 

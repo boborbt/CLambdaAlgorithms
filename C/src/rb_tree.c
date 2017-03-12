@@ -18,7 +18,7 @@ typedef struct _Node {
 } Node;
 
 struct _Dictionary  {
-  KeyInfo keyInfo;
+  KeyInfo* keyInfo;
   Node* root;
   size_t size;
 };
@@ -144,7 +144,7 @@ static Node** Node_parent_ptr_to(Node* x) {
 }
 
 // Just like Node_find, but fills parent with a pointer to the parent of the found node.
-static Node** Node_find_with_parent(Node** root, const void* key, KeyInfo keyInfo, Node** parent) {
+static Node** Node_find_with_parent(Node** root, const void* key, KeyInfo* keyInfo, Node** parent) {
   (*parent) = _nil;
   Node** node_ptr = root;
 
@@ -176,7 +176,7 @@ static Node** Node_find_with_parent(Node** root, const void* key, KeyInfo keyInf
 // If no node is found with the given key, returns a pointer to the variable
 // that would point to a node with that key.
 
-static Node** Node_find(Node** root, const void* key, KeyInfo keyInfo) {
+static Node** Node_find(Node** root, const void* key, KeyInfo* keyInfo) {
   Node* parent;
   return Node_find_with_parent(root, key, keyInfo, &parent);
 }
@@ -262,7 +262,7 @@ static int Node_height(Node* node) {
  * Dictionary* implementation
  * -------------------------- */
 
-Dictionary* Dictionary_new(KeyInfo keyInfo) {
+Dictionary* Dictionary_new(KeyInfo* keyInfo) {
   Dictionary* result = (Dictionary*) Mem_alloc(sizeof(struct _Dictionary));
   result->keyInfo = keyInfo;
   result->root = _nil;
@@ -271,7 +271,7 @@ Dictionary* Dictionary_new(KeyInfo keyInfo) {
   return result;
 }
 
-KeyInfo Dictionary_key_info(Dictionary* dictionary) {
+KeyInfo* Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 

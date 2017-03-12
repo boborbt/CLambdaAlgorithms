@@ -9,22 +9,22 @@ struct _KeyInfo {
   KIHash hash;
 };
 
-KeyInfo KeyInfo_new( KIComparator c, KIHash h) {
-  KeyInfo result = (KeyInfo) Mem_alloc(sizeof(struct _KeyInfo));
+KeyInfo* KeyInfo_new( KIComparator c, KIHash h) {
+  KeyInfo* result = (KeyInfo*) Mem_alloc(sizeof(struct _KeyInfo));
   result->comparator = c;
   result->hash = h;
   return result;
 }
 
-KIComparator KeyInfo_comparator(KeyInfo keyInfo) {
+KIComparator KeyInfo_comparator(KeyInfo* keyInfo) {
   return keyInfo->comparator;
 }
 
-KIHash KeyInfo_hash(KeyInfo keyInfo) {
+KIHash KeyInfo_hash(KeyInfo* keyInfo) {
   return keyInfo->hash;
 }
 
-void KeyInfo_free(KeyInfo keyInfo) {
+void KeyInfo_free(KeyInfo* keyInfo) {
   Mem_free(keyInfo);
 }
 

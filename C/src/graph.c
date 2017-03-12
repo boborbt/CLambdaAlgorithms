@@ -11,7 +11,7 @@
 // are dictionaries themselves in which keys are the adjacent vertex and
 // values are the edge info.
 struct _Graph {
-  KeyInfo vertexInfo;
+  KeyInfo* vertexInfo;
   Dictionary* adjacency_matrix;
   size_t size;
 };
@@ -30,7 +30,7 @@ struct _VertexIterator {
 };
 
 
-Graph* Graph_new(KeyInfo vertexInfo) {
+Graph* Graph_new(KeyInfo* vertexInfo) {
   Graph* result = (Graph*) Mem_alloc(sizeof(struct _Graph));
   result->vertexInfo = vertexInfo;
   result->adjacency_matrix = Dictionary_new(vertexInfo);
@@ -47,7 +47,7 @@ void Graph_free(Graph* graph) {
   Mem_free(graph);
 }
 
-KeyInfo Graph_keyInfo(Graph* graph) {
+KeyInfo* Graph_keyInfo(Graph* graph) {
   return graph->vertexInfo;
 }
 

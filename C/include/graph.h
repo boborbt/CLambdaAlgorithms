@@ -25,14 +25,14 @@ typedef struct {
 } EdgeInfo;
 
 // Creates a new graph. Vertices in the graph will be compared and hashed
-// using the functions provided by the vertexInfo KeyInfo structure.
-Graph* Graph_new(KeyInfo vertexInfo);
+// using the functions provided by the vertexInfo KeyInfo* structure.
+Graph* Graph_new(KeyInfo* vertexInfo);
 
 // Frees the memory alloced by the graph
 void Graph_free(Graph* graph);
 
-// Returns the KeyInfo with which vertices are compared
-KeyInfo Graph_keyInfo(Graph* graph);
+// Returns the KeyInfo* with which vertices are compared
+KeyInfo* Graph_keyInfo(Graph* graph);
 
 // Adds the given vertex to the graph (if it does not already belong to it).
 // Raises an ERROR_GENERIC if the vertex already belongs to the graph.

@@ -11,9 +11,9 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 // `condition` must evaluate to 1 if the given elem is the one sought.
 // it must evaluate to 0 otherwise.
 void* find_first(Iterator, int(^condition)(void* elem));
+Array* map(Iterator, void* (^)(void*));
 
 // FIXME: TO BE IMPLEMENTED
-Array* map(Iterator, void* (^)(void*));
 void* reduce(Iterator, void* zero, void* (^)(void* accumulator, void* element) );
 
 Array* filter(Iterator, size_t, int (^)(void*));

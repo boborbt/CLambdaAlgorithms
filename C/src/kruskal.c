@@ -122,7 +122,7 @@ static Array* Kruskal_initEdgesArray(Kruskal k) {
 // The user needs to dealloc the graph when finished with it.
 // The returned graph uses the say keyinfo as the source graph
 Graph* Kruskal_mintree(Kruskal k) {
-  KeyInfo ki = Graph_keyInfo(k->graph);
+  KeyInfo* ki = Graph_keyInfo(k->graph);
 
   Graph* result = Graph_new(ki);
   for_each(Vertex_it(k->graph), ^(void* vertex) {

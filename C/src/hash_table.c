@@ -15,7 +15,7 @@ struct _Dictionary {
   List* table;
   size_t capacity;
   size_t size;
-  KeyInfo keyInfo;
+  KeyInfo* keyInfo;
 };
 
 struct _DictionaryIterator {
@@ -100,7 +100,7 @@ static void Dictionary_free_lists(Dictionary* dictionary, void (*elem_free)(void
   }
 }
 
-Dictionary* Dictionary_new(KeyInfo keyInfo) {
+Dictionary* Dictionary_new(KeyInfo* keyInfo) {
   Dictionary* result = (Dictionary*) Mem_alloc( sizeof(struct _Dictionary) );
   result->table = (List*)Mem_calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List));
   result->capacity = HASH_TABLE_INITIAL_CAPACITY;
@@ -116,7 +116,7 @@ void Dictionary_free(Dictionary* dictionary) {
   Mem_free(dictionary);
 }
 
-KeyInfo Dictionary_key_info(Dictionary* dictionary) {
+KeyInfo* Dictionary_key_info(Dictionary* dictionary) {
   return dictionary->keyInfo;
 }
 

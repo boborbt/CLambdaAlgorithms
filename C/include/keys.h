@@ -3,11 +3,11 @@
 #include <stdlib.h>
 
 /*
- * KeyInfo maintains a pair of functions to compare and
+ * KeyInfo* maintains a pair of functions to compare and
  * create hashes of keys.
  */
 
-typedef struct _KeyInfo* KeyInfo;
+typedef struct _KeyInfo KeyInfo;
 typedef int (*KIComparator)(const void*, const void*);
 typedef size_t (*KIHash)(const void*);
 
@@ -23,16 +23,16 @@ typedef struct _KeyValue {
 
 
 //
-// KeyInfo definitions
+// KeyInfo* definitions
 //
 
 /* Constructor and destructor*/
-KeyInfo KeyInfo_new( KIComparator, KIHash );
-void KeyInfo_free(KeyInfo);
+KeyInfo* KeyInfo_new( KIComparator, KIHash );
+void KeyInfo_free(KeyInfo*);
 
 /* Accessors */
-KIComparator KeyInfo_comparator(KeyInfo);
-KIHash KeyInfo_hash(KeyInfo);
+KIComparator KeyInfo_comparator(KeyInfo*);
+KIHash KeyInfo_hash(KeyInfo*);
 
 
 // ----------------------------------------------

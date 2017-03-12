@@ -30,7 +30,7 @@ static PriorityQueue build_pq_fixtures() {
 
 
 static Graph* build_graph_fixtures() {
-  KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
+  KeyInfo* keys = KeyInfo_new(Key_string_compare, Key_string_hash);
   Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
@@ -68,7 +68,7 @@ static void free_graph_fixture(Graph* graph) {
   }
   VertexIterator_free(v_it);
 
-  KeyInfo keyInfo = Graph_keyInfo(graph);
+  KeyInfo* keyInfo = Graph_keyInfo(graph);
   Graph_free(graph);
   KeyInfo_free(keyInfo);
 }
@@ -272,7 +272,7 @@ static void test_graph_foreach_vertex() {
 // v4
 // v5->v6
 static void test_dfs_visit() {
-  KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
+  KeyInfo* keys = KeyInfo_new(Key_string_compare, Key_string_hash);
   Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
@@ -313,7 +313,7 @@ static void test_dfs_visit() {
 // v4
 // v5->v6
 static void test_bfs_visit() {
-  KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
+  KeyInfo* keys = KeyInfo_new(Key_string_compare, Key_string_hash);
   Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");

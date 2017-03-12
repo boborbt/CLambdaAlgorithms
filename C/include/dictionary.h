@@ -10,7 +10,7 @@ typedef struct _Dictionary Dictionary;
 /*
  * Constructor and destructor
  */
-Dictionary* Dictionary_new(KeyInfo keyInfo);
+Dictionary* Dictionary_new(KeyInfo* keyInfo);
 void Dictionary_free(Dictionary* dictionary);
 
 // insert into dictionary the given key/value pair. If key is already
@@ -41,7 +41,7 @@ double Dictionary_efficiency_score(Dictionary*);
 int Dictionary_check_integrity(Dictionary*);
 
 // Returns the key infos used to create the dictionary
-KeyInfo Dictionary_key_info(Dictionary*);
+KeyInfo* Dictionary_key_info(Dictionary*);
 
 // -------------------------------------
 // Iterator interface to the dictionary
