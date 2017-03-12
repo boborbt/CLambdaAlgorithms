@@ -7,8 +7,8 @@
 #include "unit_testing.h"
 
 static void test_union() {
-  UnionFindSet s1 = UnionFindSet_new("x1");
-  UnionFindSet s2 = UnionFindSet_new("x2");
+  UnionFindSet* s1 = UnionFindSet_new("x1");
+  UnionFindSet* s2 = UnionFindSet_new("x2");
 
   assert_false(UnionFindSet_same(s1, s2));
   UnionFindSet_union(s1,s2);
@@ -19,9 +19,9 @@ static void test_union() {
 }
 
 static void test_find() {
-  UnionFindSet s1 = UnionFindSet_new("x1");
-  UnionFindSet s2 = UnionFindSet_new("x2");
-  UnionFindSet s3 = UnionFindSet_new("x3");
+  UnionFindSet* s1 = UnionFindSet_new("x1");
+  UnionFindSet* s2 = UnionFindSet_new("x2");
+  UnionFindSet* s3 = UnionFindSet_new("x3");
 
   UnionFindSet_union(s1,s2);
 
@@ -36,9 +36,9 @@ static void test_find() {
 }
 
 static void test_same() {
-  UnionFindSet s1 = UnionFindSet_new("x1");
-  UnionFindSet s2 = UnionFindSet_new("x2");
-  UnionFindSet s3 = UnionFindSet_new("x3");
+  UnionFindSet* s1 = UnionFindSet_new("x1");
+  UnionFindSet* s2 = UnionFindSet_new("x2");
+  UnionFindSet* s3 = UnionFindSet_new("x3");
 
   UnionFindSet_union(s1,s2);
 

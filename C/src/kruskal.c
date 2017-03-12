@@ -18,8 +18,8 @@ struct _Kruskal {
 };
 
 typedef struct _KruskalEdge {
-  UnionFindSet source;
-  UnionFindSet destination;
+  UnionFindSet* source;
+  UnionFindSet* destination;
   void* info;
   double weight;
 }* KruskalEdge;
@@ -36,11 +36,11 @@ Kruskal* Kruskal_new(Graph* graph, double (*graph_info_to_double)(const void*)) 
   return result;
 }
 
-static UnionFindSet KruskalEdge_source(const ConstKruskalEdge edge) {
+static UnionFindSet* KruskalEdge_source(const ConstKruskalEdge edge) {
   return edge->source;
 }
 
-static UnionFindSet KruskalEdge_destination(const ConstKruskalEdge edge) {
+static UnionFindSet* KruskalEdge_destination(const ConstKruskalEdge edge) {
   return edge->destination;
 }
 
@@ -98,8 +98,8 @@ static Array* Kruskal_initEdgesArray(Kruskal* k) {
 
   for_each(Edge_it(k->graph), ^(void* obj){
     EdgeInfo* ei = (EdgeInfo*) obj;
-    UnionFindSet set1 = NULL;
-    UnionFindSet set2 = NULL;
+    UnionFindSet* set1 = NULL;
+    UnionFindSet* set2 = NULL;
 
     Dictionary_get(k->sets, ei->source,  (void**) &set1);
     Dictionary_get(k->sets, ei->destination, (void**) &set2);
@@ -135,8 +135,8 @@ Graph* Kruskal_mintree(Kruskal* k) {
   for_each(Array_it(edges), ^(void* obj) {
     KruskalEdge edge =  obj;
 
-    UnionFindSet source = KruskalEdge_source(edge);
-    UnionFindSet dest = KruskalEdge_destination(edge);
+    UnionFindSet* source = KruskalEdge_source(edge);
+    UnionFindSet* dest = KruskalEdge_destination(edge);
     void* info = KruskalEdge_info(edge);
 
     if( !UnionFindSet_same(source,dest) ) {
