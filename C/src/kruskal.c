@@ -12,7 +12,7 @@
 
 
 struct _Kruskal {
-  Graph graph;
+  Graph* graph;
   double (*graph_info_to_double)(const void*);
   Dictionary* sets;
 };
@@ -27,7 +27,7 @@ typedef struct _KruskalEdge {
 typedef const struct _KruskalEdge* ConstKruskalEdge;
 
 // Creates and initializes the data structures used by the Dijkstra* algorithm
-Kruskal Kruskal_new(Graph graph, double (*graph_info_to_double)(const void*)) {
+Kruskal Kruskal_new(Graph* graph, double (*graph_info_to_double)(const void*)) {
   Kruskal result = (Kruskal) Mem_alloc(sizeof(struct _Kruskal));
   result->graph = graph;
   result->graph_info_to_double = graph_info_to_double;
@@ -121,10 +121,10 @@ static Array* Kruskal_initEdgesArray(Kruskal k) {
 // The minimal path is returned as a newly alloced graph
 // The user needs to dealloc the graph when finished with it.
 // The returned graph uses the say keyinfo as the source graph
-Graph Kruskal_mintree(Kruskal k) {
+Graph* Kruskal_mintree(Kruskal k) {
   KeyInfo ki = Graph_keyInfo(k->graph);
 
-  Graph result = Graph_new(ki);
+  Graph* result = Graph_new(ki);
   for_each(Vertex_it(k->graph), ^(void* vertex) {
     Graph_add_vertex(result, vertex);
   });

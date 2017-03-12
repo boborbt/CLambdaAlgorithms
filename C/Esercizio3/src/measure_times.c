@@ -16,7 +16,7 @@
 
 #define BUF_SIZE 1024
 
-static void add_edge(Graph graph, Dictionary* known_vertices,  const char* v1, const char* v2, double len) {
+static void add_edge(Graph* graph, Dictionary* known_vertices,  const char* v1, const char* v2, double len) {
   void* vertex1 = NULL;
   void* vertex2 = NULL;
 
@@ -38,10 +38,10 @@ static void add_edge(Graph graph, Dictionary* known_vertices,  const char* v1, c
   }
 }
 
-static Graph load_graph(const char* filename) {
+static Graph* load_graph(const char* filename) {
   KeyInfo keyInfo = KeyInfo_new( Key_string_compare, Key_string_hash );
   Dictionary* known_vertices = Dictionary_new(keyInfo);
-  Graph graph = Graph_new(keyInfo);
+  Graph* graph = Graph_new(keyInfo);
   FILE* infile = fopen(filename, "r");
   if(infile==NULL) {
     Error_raise( Error_new( ERROR_FILE_OPENING, "Cannot open file %s for reading, reason: %s", filename, strerror(errno)));
@@ -68,9 +68,9 @@ static Graph load_graph(const char* filename) {
   return graph;
 }
 
-static void destroy_graph_double_containers(Graph graph) {
+static void destroy_graph_double_containers(Graph* graph) {
   int count = 0;
-  EdgeIterator it = Graph_edges(graph);
+  EdgeIterator* it = Graph_edges(graph);
   while(!EdgeIterator_end(it)) {
     count += 1;
     EdgeInfo info = *EdgeIterator_get(it);
@@ -81,7 +81,7 @@ static void destroy_graph_double_containers(Graph graph) {
 
   printf("destroy dc count:%d\n", count);
 
-  VertexIterator v_it = Graph_vertices(graph);
+  VertexIterator* v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
     Mem_free((void*)VertexIterator_get(v_it));
     VertexIterator_next(v_it);
@@ -89,7 +89,7 @@ static void destroy_graph_double_containers(Graph graph) {
   VertexIterator_free(v_it);
 }
 
-static void print_path(Graph graph, void** path) {
+static void print_path(Graph* graph, void** path) {
   if(path==NULL) {
     printf("Empty path!\n");
     return;
@@ -112,7 +112,7 @@ static void print_path(Graph graph, void** path) {
   printf("\nLen: %8.2lfKm\n", path_len/1000);
 }
 
-static void execute_dijkstra(Graph graph, char* source, char* dest) {
+static void execute_dijkstra(Graph* graph, char* source, char* dest) {
   void** min_path;
   Dijkstra* d = Dijkstra_new(graph,(double (*)(const void*)) DoubleContainer_get);
   min_path = Dijkstra_minpath(d, source, dest);
@@ -122,7 +122,7 @@ static void execute_dijkstra(Graph graph, char* source, char* dest) {
   Mem_free(min_path);
 }
 
-static void check_edge(Graph graph, const char* source, char* dest) {
+static void check_edge(Graph* graph, const char* source, char* dest) {
   if(!Graph_has_vertex(graph, source)) {
     printf("vertex %s not in the graph\n", source);
     return;
@@ -143,7 +143,7 @@ static void check_edge(Graph graph, const char* source, char* dest) {
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer*)edge_info)/1000);
 }
 
-static void find_connected_components(Graph graph, void (*graph_visit)(VisitingInfo*, void*, void(^)(void*))) {
+static void find_connected_components(Graph* graph, void (*graph_visit)(VisitingInfo*, void*, void(^)(void*))) {
   VisitingInfo* visit_info = VisitingInfo_new(graph);
   int count = 0;
   void* vertex;
@@ -177,7 +177,7 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 //   return 0;
 // }
 //
-// static void print_kruskal_edges(Graph graph) {
+// static void print_kruskal_edges(Graph* graph) {
 //   Array* edges_weights = Array_new(20000, sizeof(DoubleContainer*));
 //   for_each(Edge_it( graph), ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
 //     Array_add(edges_weights, &info);
@@ -190,9 +190,9 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 //   });
 // }
 
-static void execute_kruskal(Graph graph) {
+static void execute_kruskal(Graph* graph) {
   Kruskal kruskal = Kruskal_new(graph, (double (*)(const void*)) DoubleContainer_get);
-  Graph result = Kruskal_mintree(kruskal);
+  Graph* result = Kruskal_mintree(kruskal);
 
   __block double tree_size = 0.0;
   __block int num_edges = 0;
@@ -306,11 +306,11 @@ int main(int argc, char *argv[]) {
   PrintTime pt = init_print_time(argv);
 
 
-  __block Graph graph;
+  __block Graph* graph;
   PrintTime_print(pt, "Graph_load", ^{
     printf("Loading graph...\n");
     graph = load_graph(argv[2]);
-    printf("Graph size: %ld\n", Graph_size(graph));
+    printf("Graph* size: %ld\n", Graph_size(graph));
   });
 
   PrintTime_print(pt, "Algorithm_execution", ^{

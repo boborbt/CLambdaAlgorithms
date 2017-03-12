@@ -6,7 +6,7 @@ typedef struct _VisitingInfo VisitingInfo;
 // Creates a new visitor for the graph g. The visitors (currently only
 // depth_first_visit is implemented) will vist the graph and call the provided
 // visit function passint the visited node and the given user info to it).
-VisitingInfo* VisitingInfo_new(Graph g);
+VisitingInfo* VisitingInfo_new(Graph* g);
 
 // Releases the visiting info
 void VisitingInfo_free(VisitingInfo* info);

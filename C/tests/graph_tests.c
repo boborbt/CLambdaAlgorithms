@@ -29,9 +29,9 @@ static PriorityQueue build_pq_fixtures() {
 }
 
 
-static Graph build_graph_fixtures() {
+static Graph* build_graph_fixtures() {
   KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
-  Graph graph = Graph_new(keys);
+  Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
   Graph_add_vertex(graph, "v2");
@@ -52,12 +52,12 @@ static Graph build_graph_fixtures() {
   return graph;
 }
 
-static void free_graph_fixture(Graph graph) {
-  VertexIterator v_it = Graph_vertices(graph);
+static void free_graph_fixture(Graph* graph) {
+  VertexIterator* v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
     void* vertex = VertexIterator_get(v_it);
 
-    EdgeIterator e_it = Graph_adjacents(graph, vertex);
+    EdgeIterator* e_it = Graph_adjacents(graph, vertex);
     while(!EdgeIterator_end(e_it)) {
       DoubleContainer_free((DoubleContainer*) EdgeIterator_get(e_it)->info);
       EdgeIterator_next(e_it);
@@ -132,7 +132,7 @@ static void test_priority_queue_pop_order() {
 }
 
 static void test_graph_add_vertex() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   assert_equal( 6l, (long) Graph_size(graph) );
 
   Graph_add_vertex(graph, "v7");
@@ -142,9 +142,9 @@ static void test_graph_add_vertex() {
 }
 
 static void test_graph_add_edge() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   Graph_add_edge(graph, "v2", "v5", DoubleContainer_new(4.0));
-  EdgeIterator e_it = Graph_adjacents(graph, "v2");
+  EdgeIterator* e_it = Graph_adjacents(graph, "v2");
 
   int found = FALSE;
   while(!found && !EdgeIterator_end(e_it)) {
@@ -160,8 +160,8 @@ static void test_graph_add_edge() {
 }
 
 static void test_graph_vertices() {
-  Graph graph = build_graph_fixtures();
-  VertexIterator v_it = Graph_vertices(graph);
+  Graph* graph = build_graph_fixtures();
+  VertexIterator* v_it = Graph_vertices(graph);
   int count = 0;
   while(!VertexIterator_end(v_it)) {
     count+=1;
@@ -174,8 +174,8 @@ static void test_graph_vertices() {
 }
 
 static void test_graph_adjacencts() {
-  Graph graph = build_graph_fixtures();
-  EdgeIterator e_it = Graph_adjacents(graph, "v1");
+  Graph* graph = build_graph_fixtures();
+  EdgeIterator* e_it = Graph_adjacents(graph, "v1");
   int count = 0;
   while(!EdgeIterator_end(e_it)) {
     count+=1;
@@ -188,7 +188,7 @@ static void test_graph_adjacencts() {
 }
 
 static void test_dijkstra() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   double (*info_to_double)(const void*);
   info_to_double = (double (*)(const void*)) DoubleContainer_get;
 
@@ -213,7 +213,7 @@ static void test_dijkstra() {
 
 
 static void test_kruskal() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   Graph_add_vertex(graph, "v8");
   Graph_add_vertex(graph, "v9");
 
@@ -223,7 +223,7 @@ static void test_kruskal() {
   info_to_double = (double (*)(const void*)) DoubleContainer_get;
 
   Kruskal k = Kruskal_new(graph, info_to_double);
-  Graph mintree = Kruskal_mintree(k);
+  Graph* mintree = Kruskal_mintree(k);
   __block double treesize = 0.0;
 
   for_each(Edge_it(mintree), ^(void* obj) {
@@ -239,7 +239,7 @@ static void test_kruskal() {
 }
 
 static void test_graph_foreach_edge() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   __block size_t count = 0;
 
   for_each( Edge_it(graph), ^(void* obj) {
@@ -255,7 +255,7 @@ static void test_graph_foreach_edge() {
 }
 
 static void test_graph_foreach_vertex() {
-  Graph graph = build_graph_fixtures();
+  Graph* graph = build_graph_fixtures();
   __block size_t count = 0;
   for_each(Vertex_it(graph), ^(void* vertex) {
     assert_not_null(vertex);
@@ -273,7 +273,7 @@ static void test_graph_foreach_vertex() {
 // v5->v6
 static void test_dfs_visit() {
   KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
-  Graph graph = Graph_new(keys);
+  Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
   Graph_add_vertex(graph, "v2");
@@ -314,7 +314,7 @@ static void test_dfs_visit() {
 // v5->v6
 static void test_bfs_visit() {
   KeyInfo keys = KeyInfo_new(Key_string_compare, Key_string_hash);
-  Graph graph = Graph_new(keys);
+  Graph* graph = Graph_new(keys);
 
   Graph_add_vertex(graph, "v1");
   Graph_add_vertex(graph, "v2");

@@ -11,7 +11,7 @@
 
 
 struct _Dijkstra {
-  Graph graph;
+  Graph* graph;
   double (*graph_info_to_double)(const void*);
   KIComparator comparator;
   PriorityQueue pq;
@@ -81,7 +81,7 @@ static void** cleanup_and_build_path(Dijkstra* state, void* dest) {
 }
 
 
-Dijkstra* Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) {
+Dijkstra* Dijkstra_new(Graph* graph, double (*graph_info_to_double)(const void*)) {
   Dijkstra* result = (Dijkstra*) Mem_alloc(sizeof(struct _Dijkstra));
 
   result->graph = graph;

@@ -8,7 +8,7 @@
 #include "iterator_functions.h"
 
 struct _VisitingInfo {
-  Graph graph;
+  Graph* graph;
 
   Dictionary* vertex_set;
   UnionFindSet visited_set;
@@ -16,7 +16,7 @@ struct _VisitingInfo {
 };
 
 
-VisitingInfo* VisitingInfo_new(Graph graph) {
+VisitingInfo* VisitingInfo_new(Graph* graph) {
   VisitingInfo* result = (VisitingInfo*) Mem_alloc(sizeof(struct _VisitingInfo));
 
   result->graph = graph;
@@ -77,7 +77,7 @@ static void Graph_depth_first_visit_uf_set(VisitingInfo* info, UnionFindSet sour
   UnionFindSet_union(source, info->visited_set);
   visit(UnionFindSet_get(source));
 
-  EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(source));
+  EdgeIterator* adjacents = Graph_adjacents(info->graph, UnionFindSet_get(source));
   for_each(AdjacentsEdge_it(adjacents), ^(void* obj) {
     EdgeInfo* ei = (EdgeInfo*) obj;
     void* neighbour = ei->destination;
@@ -124,7 +124,7 @@ void Graph_breadth_first_visit(VisitingInfo* info, void* source_vertex, void (^v
     visit(UnionFindSet_get(current));
     UnionFindSet_union(current, info->visited_set);
 
-    EdgeIterator adjacents = Graph_adjacents(info->graph, UnionFindSet_get(current));
+    EdgeIterator* adjacents = Graph_adjacents(info->graph, UnionFindSet_get(current));
     for_each(AdjacentsEdge_it(adjacents), ^(void* obj) {
       EdgeInfo* ei = (EdgeInfo*) obj;
       void* neighbour = ei->destination;
