@@ -93,8 +93,8 @@ static int Kruskal_compare_edges(const void* obj1, const void* obj2) {
   return 0;
 }
 
-static Array Kruskal_initEdgesArray(Kruskal k) {
-  Array result =  Array_new(Graph_size(k->graph)*10);
+static Array* Kruskal_initEdgesArray(Kruskal k) {
+  Array* result =  Array_new(Graph_size(k->graph)*10);
 
   for_each(Edge_it(k->graph), ^(void* obj){
     EdgeInfo* ei = (EdgeInfo*) obj;
@@ -130,7 +130,7 @@ Graph Kruskal_mintree(Kruskal k) {
   });
 
   Kruskal_initializeSets(k);
-  Array edges = Kruskal_initEdgesArray(k);
+  Array* edges = Kruskal_initEdgesArray(k);
 
   for_each(Array_it(edges), ^(void* obj) {
     KruskalEdge edge =  obj;

@@ -20,7 +20,7 @@ struct _Record {
 };
 
 struct _Dataset {
-  Array records;
+  Array* records;
 };
 
 
@@ -171,7 +171,7 @@ Record** Dataset_get_records(Dataset* dataset) {
   return (Record**) Array_carray(dataset->records);
 }
 
-Array Dataset_get_storage(Dataset* dataset) {
+Array* Dataset_get_storage(Dataset* dataset) {
   return dataset->records;
 }
 
@@ -190,7 +190,7 @@ void Dataset_free(Dataset* dataset) {
   Mem_free(dataset);
 }
 
-void Dataset_print_storage(Array dataset, size_t num_records) {
+void Dataset_print_storage(Array* dataset, size_t num_records) {
   assert(num_records < Array_size(dataset));
   for(size_t i=0; i<num_records; ++i) {
     Record* rec = Array_at(dataset,i);

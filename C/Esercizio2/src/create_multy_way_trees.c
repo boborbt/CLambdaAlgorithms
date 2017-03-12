@@ -91,7 +91,7 @@ static void build_multyway_tree(MultyWayTree node, size_t num_nodes, size_t (*ra
 
   num_nodes -= num_children;
 
-  Array children = MultyWayTree_children(node);
+  Array* children = MultyWayTree_children(node);
   size_t children_per_child = num_nodes / num_children;
   __block size_t children_count = 0;
 

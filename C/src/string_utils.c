@@ -4,8 +4,8 @@
 #include "mem.h"
 #include "iterator_functions.h"
 
-Array String_split(char* string, char delim) {
-  Array result = Array_new(10);
+Array* String_split(char* string, char delim) {
+  Array* result = Array_new(10);
   size_t len = strlen(string);
 
   char* buf = (char*) Mem_alloc(sizeof(char) * len + 1);
@@ -37,7 +37,7 @@ Array String_split(char* string, char delim) {
 
 
 
-char* String_join(Array array, char delim) {
+char* String_join(Array* array, char delim) {
   __block size_t total_len = 0;
   char* delim_str = (char*) Mem_alloc(sizeof(char)*2);
   delim_str[0] = delim;

@@ -29,8 +29,8 @@ static int qsort_compare_field3(const void* e1, const void* e2) {
   return Dataset_compare_field3( *(void* const*)e1, *(void* const*)e2 );
 }
 
-static void exec_and_print_with_dup_storage(Dataset* dataset, void (^callback)(Array)) {
-  Array array = Array_dup(Dataset_get_storage(dataset));
+static void exec_and_print_with_dup_storage(Dataset* dataset, void (^callback)(Array*)) {
+  Array* array = Array_dup(Dataset_get_storage(dataset));
   callback(array);
   Dataset_print_storage(array, 10);
   Array_free(array);
@@ -38,7 +38,7 @@ static void exec_and_print_with_dup_storage(Dataset* dataset, void (^callback)(A
 
 
 static void test_qsort(Dataset* input_dataset, PrintTime pt) {
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
       qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field1);
@@ -46,7 +46,7 @@ static void test_qsort(Dataset* input_dataset, PrintTime pt) {
     });
   });
 
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field2", ^{
       printf("Sorting according to field2\n");
       qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field2);
@@ -54,7 +54,7 @@ static void test_qsort(Dataset* input_dataset, PrintTime pt) {
     });
   });
 
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field3", ^{
       printf("Sorting according to field3\n");
       qsort((void**) Array_carray(dataset), Array_size(dataset), sizeof(Record*), qsort_compare_field3);
@@ -66,21 +66,21 @@ static void test_qsort(Dataset* input_dataset, PrintTime pt) {
 
 
 static void test_algorithm_g(Dataset* input_dataset, PrintTime pt, void (*sort)(void*, size_t, size_t, int(*)(const void*, const void*))) {
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field1_g);
       printf("Done!\n");
     });
   });
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field2", ^{
       printf("Sorting according to field2\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field2_g);
       printf("Done!\n");
     });
   });
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field3", ^{
       printf("Sorting according to field3\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field3_g);
@@ -90,21 +90,21 @@ static void test_algorithm_g(Dataset* input_dataset, PrintTime pt, void (*sort)(
 }
 
 static void test_algorithm(Dataset* input_dataset, PrintTime pt, void (*sort)(void**, size_t, int(*)(const void*, const void*))) {
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field1);
       printf("Done!\n");
     });
   });
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field2", ^{
       printf("Sorting according to field2\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field2);
       printf("Done!\n");
     });
   });
-  exec_and_print_with_dup_storage(input_dataset, ^(Array dataset) {
+  exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field3", ^{
       printf("Sorting according to field3\n");
       sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field3);

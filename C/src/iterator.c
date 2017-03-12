@@ -62,8 +62,8 @@ void* find_first(Iterator it, int(^condition)(void* elem)) {
 }
 
 
-Array map(Iterator it, void* (^mapping_function)(void*)) {
-  Array result = Array_new(10);
+Array* map(Iterator it, void* (^mapping_function)(void*)) {
+  Array* result = Array_new(10);
   for_each(it, ^(void* obj) {
     void* elem = mapping_function(obj);
     Array_add(result, elem);

@@ -7,7 +7,7 @@
 #include "mem.h"
 
 struct _Stack {
-  Array array;
+  Array* array;
 };
 
 

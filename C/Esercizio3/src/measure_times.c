@@ -178,7 +178,7 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 // }
 //
 // static void print_kruskal_edges(Graph graph) {
-//   Array edges_weights = Array_new(20000, sizeof(DoubleContainer));
+//   Array* edges_weights = Array_new(20000, sizeof(DoubleContainer));
 //   for_each(Edge_it( graph), ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
 //     Array_add(edges_weights, &info);
 //   });

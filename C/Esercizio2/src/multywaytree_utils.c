@@ -21,7 +21,7 @@ void save_tree(MultyWayTree tree, FILE* file) {
 
   fprintf(file, "%s", value);
 
-  Array array = MultyWayTree_children(tree);
+  Array* array = MultyWayTree_children(tree);
   if(array == NULL) {
     fprintf(file, "\n");
     return;
@@ -75,7 +75,7 @@ MultyWayTree load_tree(FILE* file) {
   ssize_t linelen;
   while( ( linelen = getline(&buf, &bufsize, file)) > 0) {
     buf[linelen-1] = '\0'; // substituting last character with
-    Array pieces = String_split(buf, ',');
+    Array* pieces = String_split(buf, ',');
     char* nodeId = Array_at(pieces, 0);
     assert(strcmp(nodeId, NULL_STR) != 0);
 

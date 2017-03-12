@@ -16,7 +16,7 @@ static int String_ref_compare(const void* v1, const void* v2) {
   return strcmp(s1, s2);
 }
 
-static MultyWayTree build_binary_search_tree_from_array(Array values, size_t start_index, size_t end_index) {
+static MultyWayTree build_binary_search_tree_from_array(Array* values, size_t start_index, size_t end_index) {
   if(start_index > end_index) {
     return NULL;
   }
@@ -51,7 +51,7 @@ static MultyWayTree build_binary_search_tree_from_array(Array values, size_t sta
 }
 
 static MultyWayTree build_binary_search_tree(MultyWayTree tree) {
-  Array values = Array_new(2000);
+  Array* values = Array_new(2000);
   for_each(MultyWayTree_it(tree), ^(void* elem) {
     Array_add(values, elem);
   });

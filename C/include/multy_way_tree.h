@@ -27,7 +27,7 @@ void* MultyWayTree_get(MultyWayTree);
 // Calling this method on a leaf returns null
 // The array (but not its contents) needs to be dealloced by the user
 // when it is no longer useful.
-Array MultyWayTree_children(MultyWayTree);
+Array* MultyWayTree_children(MultyWayTree);
 
 // Returns the first node (i.e. the root of the first subtree) encountered that satisfies that its
 // content equals the given content as predicated by the compare function. Returns NULL if such node

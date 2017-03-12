@@ -62,14 +62,14 @@ void* MultyWayTree_get(MultyWayTree root) {
 // Calling this method on a leaf returns null
 // The array (but not its contents) needs to be dealloced by the user
 // when it is no longer useful.
-Array MultyWayTree_children(MultyWayTree root) {
+Array* MultyWayTree_children(MultyWayTree root) {
   MultyWayTree node = root->child;
 
   if(node == NULL) {
     return NULL;
   }
 
-  Array children = Array_new(10);
+  Array* children = Array_new(10);
   while(node != NULL) {
     Array_add(children, node);
     node = node->sibling;
@@ -88,12 +88,12 @@ MultyWayTree MultyWayTree_find(MultyWayTree tree, void* content, int (*compare)(
   }
 
   MultyWayTree solution = NULL;
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   if(children == NULL) {
     return NULL;
   }
 
-  ArrayIterator it = ArrayIterator_new(children);
+  ArrayIterator* it = ArrayIterator_new(children);
   while( !ArrayIterator_end(it) && solution == NULL ) {
     MultyWayTree node = ArrayIterator_get(it);
     solution = MultyWayTree_find(node, content, compare);
@@ -113,7 +113,7 @@ size_t MultyWayTree_size(MultyWayTree tree) {
   }
 
   __block size_t count = 1;
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   if(children == NULL) {
     return 1;
   }
@@ -135,7 +135,7 @@ long int MultyWayTree_height(MultyWayTree tree) {
   }
 
   __block long int result = -1;
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   if(children == NULL) {
     return 0;
   }
@@ -158,7 +158,7 @@ size_t MultyWayTree_max_branching_factor(MultyWayTree tree) {
     return 0;
   }
 
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   if(children == NULL) {
     return 0;
   }
@@ -225,7 +225,7 @@ void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
   }
 
   it->node = (MultyWayTree) Stack_pop(it->state);
-  Array children = MultyWayTree_children(it->node);
+  Array* children = MultyWayTree_children(it->node);
 
   if(children == NULL) {
     return;

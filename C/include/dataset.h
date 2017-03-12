@@ -40,13 +40,13 @@ void Dataset_free(Dataset* dataset);
 void Dataset_print(Dataset* dataset, size_t num_records);
 
 // Print on the stdout the first num_records of the given dataset storage
-void Dataset_print_storage(Array dataset, size_t num_records);
+void Dataset_print_storage(Array* dataset, size_t num_records);
 
 // Returns the array of records stored in dataset
 Record** Dataset_get_records(Dataset* dataset);
 
-// Returns the Array type storing the records in the dataset
-Array Dataset_get_storage(Dataset* dataset);
+// Returns the Array* type storing the records in the dataset
+Array* Dataset_get_storage(Dataset* dataset);
 
 // Returns the size of the dataset (i.e., the number of records stored in
 // this dataset)

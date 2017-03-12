@@ -13,14 +13,14 @@ struct _Array {
 };
 
 struct _ArrayIterator {
-  Array array;
+  Array* array;
   size_t current_index;
 };
 
 
 // Constructors
-Array Array_new(size_t capacity) {
-  Array array = (Array) Mem_alloc(sizeof(struct _Array));
+Array* Array_new(size_t capacity) {
+  Array* array = (Array*) Mem_alloc(sizeof(struct _Array));
   array->carray = (void*) Mem_alloc(sizeof(void*) * capacity);
   array->size = 0;
   array->capacity = capacity;
@@ -28,9 +28,9 @@ Array Array_new(size_t capacity) {
 }
 
 
-Array Array_new_by_copying_carray(void* src, size_t size) {
+Array* Array_new_by_copying_carray(void* src, size_t size) {
   size_t capacity = size + 100;
-  Array array = (Array) Mem_alloc(sizeof(struct _Array));
+  Array* array = (Array*) Mem_alloc(sizeof(struct _Array));
   array->carray = Mem_alloc(sizeof(void*) * capacity);
   array->capacity = capacity;
   array->size = size;
@@ -39,12 +39,12 @@ Array Array_new_by_copying_carray(void* src, size_t size) {
   return array;
 }
 
-Array Array_dup(Array array) {
+Array* Array_dup(Array* array) {
   return Array_new_by_copying_carray(Array_carray(array), Array_size(array));
 }
 
 // Destructor
-void Array_free(Array array) {
+void Array_free(Array* array) {
   if(array) {
     if(array->carray) {
       Mem_free(array->carray);
@@ -55,7 +55,7 @@ void Array_free(Array array) {
 }
 
 // Accessors
-void* Array_at(Array array, size_t index) {
+void* Array_at(Array* array, size_t index) {
   if(index >= Array_size(array)) {
     Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND, "Index %ld is out of bounds (0,%ld)", index, Array_size(array) ));
   }
@@ -63,31 +63,31 @@ void* Array_at(Array array, size_t index) {
   return array->carray[index];
 }
 
-void* Array_carray(Array array) {
+void* Array_carray(Array* array) {
   return array->carray;
 }
 
-size_t Array_size(Array array) {
+size_t Array_size(Array* array) {
   return array->size;
 }
 
-int Array_empty(Array array) {
+int Array_empty(Array* array) {
   return Array_size(array) == 0;
 }
 
-size_t Array_capacity(Array array) {
+size_t Array_capacity(Array* array) {
   return array->capacity;
 }
 
 
 // Setters
 
-static void Array_realloc(Array array) {
+static void Array_realloc(Array* array) {
   array->capacity *= 2;
   array->carray = Mem_realloc(array->carray, array->capacity * sizeof(void*));
 }
 
-void Array_set_size(Array array, size_t new_size) {
+void Array_set_size(Array* array, size_t new_size) {
   while(array->capacity < new_size) {
     Array_realloc(array);
   }
@@ -95,16 +95,16 @@ void Array_set_size(Array array, size_t new_size) {
   array->size = new_size;
 }
 
-void* Array_set(Array array, size_t index, void* elem) {
+void* Array_set(Array* array, size_t index, void* elem) {
   if(index >= array->size) {
-    Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND,"Array index (%ld) out of bound in array of size (%ld)\n", index, array->size));
+    Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND,"Array* index (%ld) out of bound in array of size (%ld)\n", index, array->size));
   }
 
   array->carray[index] = elem;
   return elem;
 }
 
-void Array_add(Array array, void* elem) {
+void Array_add(Array* array, void* elem) {
   if(array->size >= array->capacity) {
     Array_realloc(array);
   }
@@ -112,7 +112,7 @@ void Array_add(Array array, void* elem) {
   Array_set(array, array->size++, elem);
 }
 
-void Array_insert(Array array, size_t index, void* elem) {
+void Array_insert(Array* array, size_t index, void* elem) {
   if(array->size >= array->capacity) {
     Array_realloc(array);
   }
@@ -125,7 +125,7 @@ void Array_insert(Array array, size_t index, void* elem) {
   Array_set(array, index, elem);
 }
 
-void Array_remove(Array array, size_t index) {
+void Array_remove(Array* array, size_t index) {
   memmove(&array->carray[index],
           &array->carray[index+1],
           (array->size - (index+1)) * sizeof(void*));
@@ -134,12 +134,12 @@ void Array_remove(Array array, size_t index) {
   array->size -= 1;
 }
 
-void Array_sort(Array array, KIComparator compare) {
+void Array_sort(Array* array, KIComparator compare) {
   quick_sort(Array_carray(array), Array_size(array), compare);
 }
 
 // Iterator
-ArrayIterator ArrayIterator_new(Array array) {
+ArrayIterator ArrayIterator_new(Array* array) {
   ArrayIterator iterator = (ArrayIterator) Mem_alloc(sizeof(struct _ArrayIterator));
   iterator->array = array;
   iterator->current_index = 0;
@@ -168,7 +168,7 @@ void* ArrayIterator_get(ArrayIterator it) {
   return Array_at(it->array, it->current_index);
 }
 
-Iterator Array_it(Array array)
+Iterator Array_it(Array* array)
 {
  return Iterator_make(
    array,
@@ -180,7 +180,7 @@ Iterator Array_it(Array array)
  );
 }
 //
-// void for_each_with_index( Array_it(Array array),  void (^callback)(void*, size_t)) {
+// void for_each_with_index( Array_it(Array* array),  void (^callback)(void*, size_t)) {
 //   ArrayIterator it = ArrayIterator_new(array);
 //   size_t count = 0;
 //   while(!ArrayIterator_end(it)) {

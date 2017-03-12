@@ -9,7 +9,7 @@ static MultyWayTree build_fixtures() {
   MultyWayTree_add_child(tree, "c3");
   MultyWayTree_add_child(tree, "c4");
 
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   MultyWayTree c1 = Array_at(children, 0);
 
   MultyWayTree_add_child(c1, "c5");
@@ -27,7 +27,7 @@ static void test_multywaytree_add_child_empty_tree() {
   MultyWayTree tree = MultyWayTree_new("root");
   MultyWayTree_add_child(tree, "child1");
 
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   assert_equal( 1l, Array_size(children));
 
   MultyWayTree child = Array_at(children, 0);
@@ -46,7 +46,7 @@ static void test_multywaytree_get() {
 static void test_multywaytree_add_child_middle() {
   MultyWayTree tree = build_fixtures();
 
-  Array children = MultyWayTree_children(tree);
+  Array* children = MultyWayTree_children(tree);
   MultyWayTree c2 = Array_at(children, 1);
   Array_free(children);
 
@@ -56,7 +56,7 @@ static void test_multywaytree_add_child_middle() {
 
   children = MultyWayTree_children(tree);
   c2 = Array_at(children, 1);
-  Array c2_children = MultyWayTree_children(c2);
+  Array* c2_children = MultyWayTree_children(c2);
   assert_equal(1l, Array_size(c2_children));
   Array_free(children);
 

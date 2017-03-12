@@ -4,8 +4,8 @@
 #include "double_container.h"
 #include "iterator_functions.h"
 
-static Array build_fixtures() {
-  Array array = Array_new(10);
+static Array* build_fixtures() {
+  Array* array = Array_new(10);
   DoubleContainer val = DoubleContainer_new(1.0);
   Array_add(array, val);
 
@@ -27,7 +27,7 @@ static Array build_fixtures() {
   return array;
 }
 
-static void free_fixtures(Array array) {
+static void free_fixtures(Array* array) {
   for_each(Array_it(array), ^(void* obj) {
     DoubleContainer dbl = obj;
     DoubleContainer_free(dbl);
@@ -37,7 +37,7 @@ static void free_fixtures(Array array) {
 }
 
 static void test_for_each() {
-  Array array = build_fixtures();
+  Array* array = build_fixtures();
   __block size_t index = 0;
   __block size_t count = 0;
 
@@ -53,7 +53,7 @@ static void test_for_each() {
 }
 
 static void test_for_each_with_index() {
-  Array array = build_fixtures();
+  Array* array = build_fixtures();
   __block size_t cur_index = 0;
   __block size_t count = 0;
 
@@ -73,7 +73,7 @@ static void test_for_each_with_index() {
 
 
 static void test_find_first() {
-    Array array = build_fixtures();
+    Array* array = build_fixtures();
   __block size_t count = 0;
 
   void* elem = find_first(Array_it(array), ^(void* obj) {
@@ -91,8 +91,8 @@ static void test_find_first() {
 }
 
 static void test_map() {
-  Array array = build_fixtures();
-  Array mapped = map(Array_it(array), ^(void* obj) {
+  Array* array = build_fixtures();
+  Array* mapped = map(Array_it(array), ^(void* obj) {
     DoubleContainer dbl = obj;
     return (void*) DoubleContainer_new( DoubleContainer_get(dbl) * 2);
   });
