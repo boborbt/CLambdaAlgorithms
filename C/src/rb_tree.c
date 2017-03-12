@@ -24,7 +24,7 @@ struct _Dictionary  {
 };
 
 struct _DictionaryIterator {
-  Stack stack;
+  Stack* stack;
 };
 
 #define MAX_STACK_SIZE 1024

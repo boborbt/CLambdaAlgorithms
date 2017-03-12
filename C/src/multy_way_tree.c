@@ -13,7 +13,7 @@ struct _MultyWayTree {
 
 struct _MultyWayTreeIterator {
   MultyWayTree* node;
-  Stack state;
+  Stack* state;
 };
 
 

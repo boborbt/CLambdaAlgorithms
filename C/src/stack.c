@@ -12,10 +12,10 @@ struct _Stack {
 
 
 /* --------------------------
- * Stack implementation
+ * Stack* implementation
  * -------------------------- */
 
-void* Stack_top(Stack stack) {
+void* Stack_top(Stack* stack) {
   if(Array_size(stack->array)==0) {
     return NULL;
   }
@@ -23,7 +23,7 @@ void* Stack_top(Stack stack) {
   return Array_at(stack->array, Array_size(stack->array)-1);
 }
 
-void* Stack_pop(Stack stack) {
+void* Stack_pop(Stack* stack) {
   if(Array_size(stack->array)==0) {
     return NULL;
   }
@@ -34,21 +34,21 @@ void* Stack_pop(Stack stack) {
   return tmp;
 }
 
-void Stack_push(Stack stack, void* node) {
+void Stack_push(Stack* stack, void* node) {
   Array_add(stack->array, node);
 }
 
-int Stack_empty(Stack stack) {
+int Stack_empty(Stack* stack) {
   return Array_empty(stack->array);
 }
 
-Stack Stack_new(size_t capacity) {
-  Stack result = (Stack) Mem_alloc(sizeof(struct _Stack));
+Stack* Stack_new(size_t capacity) {
+  Stack* result = (Stack*) Mem_alloc(sizeof(struct _Stack));
   result->array = Array_new(capacity);
   return result;
 }
 
-void Stack_free(Stack stack) {
+void Stack_free(Stack* stack) {
   Array_free(stack->array);
   Mem_free(stack);
 }
