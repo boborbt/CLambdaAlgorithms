@@ -16,22 +16,22 @@ struct _ListNode {
 // Internal list implementation. It could be abstracted and moved into
 // a separate module (not done since currently used only in this module).
 struct _List {
-  ListNode head;
-  ListNode tail;
+  ListNode* head;
+  ListNode* tail;
   size_t size;
 };
 
 struct _ListIterator {
-  ListNode current;
+  ListNode* current;
 };
 
 
 /* --------------------------
- * List implementation
+ * List* implementation
  * -------------------------- */
 
-List List_new() {
-  List result = (List) Mem_alloc(sizeof(struct _List));
+List* List_new() {
+  List* result = (List*) Mem_alloc(sizeof(struct _List));
   result->head = NULL;
   result->tail = NULL;
   result->size = 0l;
@@ -40,21 +40,21 @@ List List_new() {
 }
 
 
-void* List_get_head(List list) {
+void* List_get_head(List* list) {
   return list->head->elem;
 }
 
-size_t List_size(List list) {
+size_t List_size(List* list) {
   return list->size;
 }
 
-int List_empty(List list) {
+int List_empty(List* list) {
   return list->head == NULL;
 }
 
-// static void list_check(List list) {
-//   ListNode last = NULL;
-//   ListNode cur = list->head;
+// static void list_check(List* list) {
+//   ListNode* last = NULL;
+//   ListNode* cur = list->head;
 //   size_t count = 0;
 //   while(cur != NULL) {
 //     last = cur;
@@ -77,8 +77,8 @@ int List_empty(List list) {
 //   assert( last == list->head );
 // }
 
-void List_insert(List list, void* elem) {
-  ListNode new_node = (ListNode) Mem_alloc(sizeof(struct _ListNode));
+void List_insert(List* list, void* elem) {
+  ListNode* new_node = (ListNode*) Mem_alloc(sizeof(struct _ListNode));
   new_node->elem = elem;
   new_node->succ = list->head;
   new_node->pred = NULL;
@@ -94,8 +94,8 @@ void List_insert(List list, void* elem) {
   list->size += 1;
 }
 
-void List_append(List list, void* elem) {
-  ListNode new_node = (ListNode) Mem_alloc(sizeof(struct _ListNode));
+void List_append(List* list, void* elem) {
+  ListNode* new_node = (ListNode*) Mem_alloc(sizeof(struct _ListNode));
   new_node->elem = elem;
   new_node->succ = NULL;
   new_node->pred = list->tail;
@@ -111,18 +111,18 @@ void List_append(List list, void* elem) {
   list->size += 1;
 }
 
-ListNode List_head(List list) {
+ListNode* List_head(List* list) {
   return list->head;
 }
 
-ListNode List_tail(List list) {
+ListNode* List_tail(List* list) {
   return list->tail;
 }
 
-void List_free(List list, void (*elem_free)(void*)) {
-  ListNode current = list->head;
+void List_free(List* list, void (*elem_free)(void*)) {
+  ListNode* current = list->head;
   while(current!=NULL) {
-    ListNode next = current->succ;
+    ListNode* next = current->succ;
     if(elem_free) {
       elem_free(current->elem);
     }
@@ -133,7 +133,7 @@ void List_free(List list, void (*elem_free)(void*)) {
   Mem_free(list);
 }
 
-ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
+ListNode* List_find_wb(List* list,  int (^elem_selector)(const void*)) {
   ListIterator it = ListIterator_new(list);
 
   while( !ListIterator_end(it) && elem_selector(ListIterator_get(it)) != 0 ) {
@@ -141,7 +141,7 @@ ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
   }
 
   if(!ListIterator_end(it)) {
-    ListNode result =  ListIterator_get_node(it);
+    ListNode* result =  ListIterator_get_node(it);
     ListIterator_free(it);
     return result;
   } else {
@@ -150,18 +150,18 @@ ListNode List_find_wb(List list,  int (^elem_selector)(const void*)) {
   }
 }
 
-ListNode List_find(List list, int (*elem_selector)(const void*)) {
+ListNode* List_find(List* list, int (*elem_selector)(const void*)) {
   return List_find_wb(list, ^int(const void* elem) {
       return elem_selector(elem);
   });
 }
 
-void* ListNode_get(ListNode node) {
+void* ListNode_get(ListNode* node) {
   return node->elem;
 }
 
 
-void List_delete_node(List list, ListNode node) {
+void List_delete_node(List* list, ListNode* node) {
   if(list->size == 0) {
     Error_raise( Error_new( ERROR_GENERIC, "Trying to delete from an empty list" ) );
   }
@@ -188,7 +188,7 @@ void List_delete_node(List list, ListNode node) {
 }
 
 
-ListIterator ListIterator_new(List list) {
+ListIterator ListIterator_new(List* list) {
   if(list == NULL) {
     return NULL;
   }
@@ -198,7 +198,7 @@ ListIterator ListIterator_new(List list) {
   return result;
 }
 
-ListIterator ListIterator_new_from_node(ListNode node) {
+ListIterator ListIterator_new_from_node(ListNode* node) {
   if(node == NULL) {
     return NULL;
   }
@@ -218,7 +218,7 @@ void* ListIterator_get(ListIterator it) {
   return it->current->elem;
 }
 
-ListNode ListIterator_get_node(ListIterator it) {
+ListNode* ListIterator_get_node(ListIterator it) {
   return it->current;
 }
 
@@ -230,7 +230,7 @@ int ListIterator_end(ListIterator it) {
   return it==NULL || it->current == NULL;
 }
 
-Iterator List_it(List list) {
+Iterator List_it(List* list) {
   return Iterator_make(
     list,
     (void* (*)(void*)) ListIterator_new,

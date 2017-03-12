@@ -7,50 +7,50 @@
 
 
 // Opaque type definition
-typedef struct _List* List;
-typedef struct _ListNode* ListNode;
+typedef struct _List List;
+typedef struct _ListNode ListNode;
 
 // Constructor
-List List_new(void);
+List* List_new(void);
 
 // Frees the list. If elem_free is not null each element is passed to
 // elem_free so to allow user clean-up of the element before deallocing the node.
-void List_free(List list, void (*elem_free)(void*));
+void List_free(List* list, void (*elem_free)(void*));
 
 // Returns the element at the head of the given list.
 // Semantically equivalent to List_iterator_get(ListIterator_new(list))
-void* List_get_head(List list);
+void* List_get_head(List* list);
 
 // Returns the length of the given list. This is a O(1) operation.
-size_t List_size(List list);
+size_t List_size(List* list);
 
 // Returns 1 iff the list is empty
-int List_empty(List list);
+int List_empty(List* list);
 
 // Inserts a new element at the head of the list.
-void List_insert(List list, void* elem);
+void List_insert(List* list, void* elem);
 
 // Insert a new element at the end of the list.
-void List_append(List list, void* elem);
+void List_append(List* list, void* elem);
 
-// Deletes the given ListNode from the list
-void List_delete_node(List list, ListNode node);
+// Deletes the given ListNode* from the list
+void List_delete_node(List* list, ListNode* node);
 
 // Returns the list node at the head of the list
-ListNode List_head(List list);
+ListNode* List_head(List* list);
 
 // Returns the list node at the end of the list
-ListNode List_tail(List list);
+ListNode* List_tail(List* list);
 
 
 // Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==1.
-ListNode List_find(List list, int (*elem_selector)(const void*));
+ListNode* List_find(List* list, int (*elem_selector)(const void*));
 
 // Identical to List_find, but accept a block instead of a function.
-ListNode List_find_wb(List list, int (^elem_comparator)(const void*));
+ListNode* List_find_wb(List* list, int (^elem_comparator)(const void*));
 
 // Returns the element stored in the given ListNode
-void* ListNode_get(ListNode);
+void* ListNode_get(ListNode*);
 
 //
 // Iterators
@@ -60,13 +60,13 @@ typedef struct _ListIterator* ListIterator;
 // Creates a new list iterator over the given list. If list is NULL, NULL is
 // returned. Note that ListIterator_end(NULL) returns true, all other Iterators
 // functions, instead will produce undefined result on NULL values.
-ListIterator ListIterator_new(List list);
+ListIterator ListIterator_new(List* list);
 
 // Creates a new list iterator from the given node. If node is NULL, NULL is
 // returned. Note that ListIterator_end(NULL) returns true and ListIterator_free(NULL),
 // will do nothing, all other iterators functions, instead, will produce undefined
 // result when called on NULL values.
-ListIterator ListIterator_new_from_node(ListNode);
+ListIterator ListIterator_new_from_node(ListNode*);
 
 // Frees the given iterator. Does nothing if the iterator is NULL
 void ListIterator_free(ListIterator);
@@ -75,7 +75,7 @@ void ListIterator_free(ListIterator);
 void* ListIterator_get(ListIterator);
 
 // Returns the node pointed by the given iterator
-ListNode ListIterator_get_node(ListIterator);
+ListNode* ListIterator_get_node(ListIterator);
 
 // Moves the iterator on the next element
 void ListIterator_next(ListIterator);
@@ -85,4 +85,4 @@ void ListIterator_next(ListIterator);
 int ListIterator_end(ListIterator);
 
 // Iterator interface
-Iterator List_it(List list);
+Iterator List_it(List* list);

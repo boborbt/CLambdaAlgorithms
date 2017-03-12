@@ -2,7 +2,7 @@
 
 #include "list.h"
 
-typedef List Queue;
+typedef List* Queue;
 
 
 // Creates a new queue and returns it

@@ -14,7 +14,7 @@ void Queue_enqueue(Queue queue, void* elem) {
 }
 
 void* Queue_dequeue(Queue queue) {
-  ListNode node = List_tail(queue);
+  ListNode* node = List_tail(queue);
   void* elem = ListNode_get(node);
   List_delete_node(queue, node);
   return elem;

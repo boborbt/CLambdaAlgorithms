@@ -6,8 +6,8 @@
 #include "list.h"
 #include "unit_testing.h"
 
-static List build_fixtures() {
-  List list = List_new();
+static List* build_fixtures() {
+  List* list = List_new();
   List_insert(list, "1");
   List_insert(list, "81");
   List_insert(list, "11");
@@ -21,13 +21,13 @@ static List build_fixtures() {
 }
 
 static void test_list_creation() {
-  List list = List_new();
+  List* list = List_new();
   assert_equal((unsigned long)List_size(list), (long)0);
   List_free(list, NULL);
 }
 
 static void test_list_insertion() {
-  List list = List_new();
+  List* list = List_new();
   List_insert(list, "1");
   assert_not_null(list);
   assert_equal(1l, List_size(list));
@@ -49,9 +49,9 @@ static void test_list_insertion() {
 }
 
 static void test_list_find_wb() {
-  List list = build_fixtures();
+  List* list = build_fixtures();
 
-  ListNode list_elem = List_find_wb(list,  ^int(const void* elem) {
+  ListNode* list_elem = List_find_wb(list,  ^int(const void* elem) {
     return strcmp(elem, "4");
   });
 
@@ -66,9 +66,9 @@ static int select_str(const char* str) {
 }
 
 static void test_list_find() {
-  List list = build_fixtures();
+  List* list = build_fixtures();
 
-  ListNode list_elem = List_find(list, (int (*)(const void*)) select_str);
+  ListNode* list_elem = List_find(list, (int (*)(const void*)) select_str);
 
   assert_not_null(list_elem);
 
@@ -87,10 +87,10 @@ static long delete_elem(void* elem) {
 }
 
 static void test_list_delete_node() {
-  List list = build_fixtures();
+  List* list = build_fixtures();
   ListIterator it = ListIterator_new(list);
 
-  ListNode elem = ListIterator_get_node(it);
+  ListNode* elem = ListIterator_get_node(it);
   ListIterator_next(it);
   List_delete_node(list, elem);
 
@@ -102,7 +102,7 @@ static void test_list_delete_node() {
 }
 
 static void test_list_free_with_delete_elem() {
-  List list = build_fixtures();
+  List* list = build_fixtures();
 
   List_free(list, (void (*)(void*)) delete_elem);
   assert_equal(delete_elem(NULL), 8l);

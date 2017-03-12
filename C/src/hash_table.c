@@ -12,7 +12,7 @@
  * Opaque structures definitions
  * -------------------------- */
 struct _Dictionary {
-  List* table;
+  List** table;
   size_t capacity;
   size_t size;
   KeyInfo* keyInfo;
@@ -102,7 +102,7 @@ static void Dictionary_free_lists(Dictionary* dictionary, void (*elem_free)(void
 
 Dictionary* Dictionary_new(KeyInfo* keyInfo) {
   Dictionary* result = (Dictionary*) Mem_alloc( sizeof(struct _Dictionary) );
-  result->table = (List*)Mem_calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List));
+  result->table = (List**)Mem_calloc(HASH_TABLE_INITIAL_CAPACITY, sizeof(List*));
   result->capacity = HASH_TABLE_INITIAL_CAPACITY;
   result->size = 0;
   result->keyInfo = keyInfo;
@@ -124,7 +124,7 @@ KeyInfo* Dictionary_key_info(Dictionary* dictionary) {
 // buckets. This is a costly operation since all bucket needs to be relocated
 // to new places.
 static void Dictionary_realloc(Dictionary* dictionary, size_t new_capacity) {
-  List* new_table = (List*)Mem_calloc(new_capacity, sizeof(List));
+  List** new_table = (List**)Mem_calloc(new_capacity, sizeof(List*));
 
   DictionaryIterator* it = DictionaryIterator_new(dictionary);
   while(!DictionaryIterator_end(it)) {
@@ -160,7 +160,7 @@ void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
     dictionary->table[index] = List_new();
   }
 
-  ListNode list_elem = List_find_wb(dictionary->table[index], ^int (const void* elem) {
+  ListNode* list_elem = List_find_wb(dictionary->table[index], ^int (const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
@@ -182,7 +182,7 @@ static KeyValue* Dictionary_get_key_value(Dictionary* dictionary, const void* ke
     return 0;
   }
 
-  ListNode list_elem = List_find_wb(dictionary->table[index], ^int(const void* elem) {
+  ListNode* list_elem = List_find_wb(dictionary->table[index], ^int(const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
     });
 
@@ -219,7 +219,7 @@ void Dictionary_delete(Dictionary* dictionary, const void* key) {
     return;
   }
 
-  ListNode list_ptr = List_find_wb(dictionary->table[index], ^int (const void* elem) {
+  ListNode* list_ptr = List_find_wb(dictionary->table[index], ^int (const void* elem) {
       return KeyInfo_comparator(dictionary->keyInfo)(key, KeyValue_key((const KeyValue*) elem));
   });
 
