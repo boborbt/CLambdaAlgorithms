@@ -71,3 +71,42 @@ Array* map(Iterator it, void* (^mapping_function)(void*)) {
 
   return result;
 }
+
+Array* filter(Iterator it, int (^keep)(void*)) {
+  Array* result = Array_new(10);
+  for_each(it, ^(void* elem) {
+    if(keep(elem)) {
+      Array_add(result, elem);
+    }
+  });
+
+  return result;
+}
+
+
+void* first(Iterator it) {
+  void* iterator = it.new(it.container);
+  void* result = NULL;
+
+  if(it.end(iterator)) {
+    return NULL;
+  }
+
+  result = it.get(iterator);
+
+  it.free(iterator);
+  return result;
+}
+
+void* last(Iterator it) {
+  void* iterator = it.new(it.container);
+  void* previous_elem = NULL;
+
+  while(!it.end(iterator)) {
+    previous_elem = it.get(iterator);
+    it.next(iterator);
+  }
+
+  it.free(iterator);
+  return previous_elem;
+}

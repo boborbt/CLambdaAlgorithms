@@ -16,3 +16,7 @@ void DoubleContainer_free(DoubleContainer* const dc) {
 double DoubleContainer_get(const DoubleContainer* dc) {
   return *(const double*) dc;
 }
+
+void DoubleContainer_set(DoubleContainer* dc, double value) {
+  *(double*) dc = value;
+}

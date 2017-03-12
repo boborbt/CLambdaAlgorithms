@@ -108,14 +108,45 @@ static void test_map() {
   free_fixtures(mapped);
 }
 
+static void test_filter() {
+  Array* array = build_fixtures();
+
+  Array* result = filter(Array_it(array), ^(void* elem) {
+    return DoubleContainer_get(elem) > 3.0;
+  });
+
+  assert_equal(3l, Array_size(result));
+  assert_double_equal(4.0, DoubleContainer_get(Array_at(result, 0)), 0.0001);
+  assert_double_equal(5.0, DoubleContainer_get(Array_at(result, 1)), 0.0001);
+  assert_double_equal(6.0, DoubleContainer_get(Array_at(result, 2)), 0.0001);
+
+  free_fixtures(array);
+  Array_free(result);
+}
+
+static void test_first() {
+  Array* array = build_fixtures();
+  assert_double_equal( 1.0, DoubleContainer_get(first(Array_it(array))), 0.00001);
+  free_fixtures(array);
+}
+
+static void test_last() {
+  Array* array = build_fixtures();
+  assert_double_equal( 6.0, DoubleContainer_get(last(Array_it(array))), 0.00001);
+  free_fixtures(array);
+}
+
+
 int main() {
   start_tests("iterators");
   test(test_for_each);
   test(test_for_each_with_index);
   test(test_find_first);
   test(test_map);
-
-
+  test(test_filter);
+  test(test_first);
+  test(test_last);
   end_tests();
+
   return 0;
 }

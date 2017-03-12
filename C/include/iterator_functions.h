@@ -13,7 +13,17 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 void* find_first(Iterator, int(^condition)(void* elem));
 Array* map(Iterator, void* (^)(void*));
 
-// FIXME: TO BE IMPLEMENTED
-void* reduce(Iterator, void* zero, void* (^)(void* accumulator, void* element) );
+// Builds a new array from the elements accessible through
+// the given iterator. In the results will be placed only those
+// elements for which the given callback returns 1.
+// Note: The elements are not duplicated so the elements contained
+//   in the result should *not* be freed (unless the user needs that
+//   for some reason).
+Array* filter(Iterator, int (^)(void*));
 
-Array* filter(Iterator, size_t, int (^)(void*));
+// Returns the first element returned by the iterator
+void* first(Iterator it);
+
+// Returns the last element returned by the iterator (note: this
+// is a O(n) operation)
+void* last(Iterator it);
