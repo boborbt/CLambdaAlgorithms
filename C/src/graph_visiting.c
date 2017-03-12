@@ -112,7 +112,7 @@ void Graph_breadth_first_visit(VisitingInfo* info, void* source_vertex, void (^v
     Error_raise( Error_new(ERROR_GENERIC, "BFS: cannot find given vertex") );
   }
 
-  Queue queue = Queue_new();
+  Queue* queue = Queue_new();
   Queue_enqueue(queue, source);
 
   while(!Queue_empty(queue)) {

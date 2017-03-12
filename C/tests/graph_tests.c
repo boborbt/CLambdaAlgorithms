@@ -207,7 +207,7 @@ static void test_dijkstra() {
   assert_string_equal(min_path[2], "v5");
   assert_string_equal(min_path[3], "v6");
 
-   Mem_free(min_path);
+  Mem_free(min_path);
   free_graph_fixture(graph);
 }
 
