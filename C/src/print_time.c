@@ -121,7 +121,7 @@ void PrintTime_save(PrintTime pt) {
   }
 
   if(flock(fileno(pt->file), LOCK_EX) != 0) {
-    Error error = Error_new(ERROR_FILE_LOCKING, "Unable to lock file %s -- %s", pt->file_name, strerror(errno));
+    Error* error = Error_new(ERROR_FILE_LOCKING, "Unable to lock file %s -- %s", pt->file_name, strerror(errno));
     fclose(pt->file);
     Error_raise(error);
   }
@@ -130,7 +130,7 @@ void PrintTime_save(PrintTime pt) {
   PrintTime_save_dictionary(pt, "    ");
 
   if(flock(fileno(pt->file), LOCK_UN) != 0) {
-    Error error = Error_new(ERROR_FILE_LOCKING, "Cannot unlock file %s -- %s", pt->file_name, strerror(errno));
+    Error* error = Error_new(ERROR_FILE_LOCKING, "Cannot unlock file %s -- %s", pt->file_name, strerror(errno));
     fclose(pt->file);
     Error_raise(error);
   }

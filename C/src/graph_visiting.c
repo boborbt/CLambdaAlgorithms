@@ -16,8 +16,8 @@ struct _VisitingInfo {
 };
 
 
-VisitingInfo VisitingInfo_new(Graph graph) {
-  VisitingInfo result = (VisitingInfo) Mem_alloc(sizeof(struct _VisitingInfo));
+VisitingInfo* VisitingInfo_new(Graph graph) {
+  VisitingInfo* result = (VisitingInfo*) Mem_alloc(sizeof(struct _VisitingInfo));
 
   result->graph = graph;
   result->vertex_set = Dictionary_new(Graph_keyInfo(graph));
@@ -30,7 +30,7 @@ VisitingInfo VisitingInfo_new(Graph graph) {
   return result;
 }
 
-void VisitingInfo_free(VisitingInfo info) {
+void VisitingInfo_free(VisitingInfo* info) {
   UnionFindSet_free(info->visited_set);
   DictionaryIterator_free(info->current);
   for_each(Dictionary_it(info->vertex_set),  ^(void* kv) {
@@ -49,7 +49,7 @@ void VisitingInfo_free(VisitingInfo info) {
 // assuming O(1) Dictionary_get. A naive implementation not using the union set
 // and traversing each time the dictionary in the search of the next unvisited
 // node would require O(n) time in the best case, and O(n^2) in the worst.
-void* VisitingInfo_next_unvisited(VisitingInfo info) {
+void* VisitingInfo_next_unvisited(VisitingInfo* info) {
   if(DictionaryIterator_end(info->current)) {
     return NULL;
   }
@@ -73,7 +73,7 @@ void* VisitingInfo_next_unvisited(VisitingInfo info) {
 // wrapped nodes, assumes that the source is this kind of node, and calls itself
 // recursively on this kind of nodes. The outer visit only serves as a wrapper
 // which recover the UnionFindSet node corresponding to the given vertex.
-static void Graph_depth_first_visit_uf_set(VisitingInfo info, UnionFindSet source, void (^visit)(void*)) {
+static void Graph_depth_first_visit_uf_set(VisitingInfo* info, UnionFindSet source, void (^visit)(void*)) {
   UnionFindSet_union(source, info->visited_set);
   visit(UnionFindSet_get(source));
 
@@ -95,7 +95,7 @@ static void Graph_depth_first_visit_uf_set(VisitingInfo info, UnionFindSet sourc
 
 // Finds the UnionFindSet corresponding a source_vertex and calls the
 // DFS based on UnionFindSet nodes.
-void Graph_depth_first_visit(VisitingInfo info, void* source_vertex, void (^visit)(void*)) {
+void Graph_depth_first_visit(VisitingInfo* info, void* source_vertex, void (^visit)(void*)) {
   UnionFindSet source;
 
   if(!Dictionary_get(info->vertex_set, source_vertex, (void**)&source)) {
@@ -105,7 +105,7 @@ void Graph_depth_first_visit(VisitingInfo info, void* source_vertex, void (^visi
   Graph_depth_first_visit_uf_set(info, source, visit);
 }
 
-void Graph_breadth_first_visit(VisitingInfo info, void* source_vertex, void (^visit)(void*)) {
+void Graph_breadth_first_visit(VisitingInfo* info, void* source_vertex, void (^visit)(void*)) {
   UnionFindSet source;
 
   if(!Dictionary_get(info->vertex_set, source_vertex, (void**)&source)) {

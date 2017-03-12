@@ -143,8 +143,8 @@ static void check_edge(Graph graph, const char* source, char* dest) {
   printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer*)edge_info)/1000);
 }
 
-static void find_connected_components(Graph graph, void (*graph_visit)(VisitingInfo, void*, void(^)(void*))) {
-  VisitingInfo visit_info = VisitingInfo_new(graph);
+static void find_connected_components(Graph graph, void (*graph_visit)(VisitingInfo*, void*, void(^)(void*))) {
+  VisitingInfo* visit_info = VisitingInfo_new(graph);
   int count = 0;
   void* vertex;
 

@@ -289,7 +289,7 @@ static void test_dfs_visit() {
   Graph_add_edge(graph, "v5", "v6", NULL);
 
   void* vertex;
-  VisitingInfo info = VisitingInfo_new(graph);
+  VisitingInfo* info = VisitingInfo_new(graph);
   __block size_t visited_vertices_count = 0;
   size_t num_components = 0;
   while( (vertex = VisitingInfo_next_unvisited(info)) != NULL ) {
@@ -330,7 +330,7 @@ static void test_bfs_visit() {
   Graph_add_edge(graph, "v5", "v6", NULL);
 
   void* vertex;
-  VisitingInfo info = VisitingInfo_new(graph);
+  VisitingInfo* info = VisitingInfo_new(graph);
   __block size_t visited_vertices_count = 0;
   size_t num_components = 0;
   while( (vertex = VisitingInfo_next_unvisited(info)) != NULL ) {

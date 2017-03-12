@@ -24,7 +24,7 @@ static size_t path_len(Dictionary* parents, const void* dest) {
   const void* current = dest;
   void* next;
   if(Dictionary_get(parents, dest, &next) == 0) {
-    printf("Error in retrieving parents");
+    printf("Error* in retrieving parents");
     assert(0==1);
   }
   while(current != next) {
@@ -32,7 +32,7 @@ static size_t path_len(Dictionary* parents, const void* dest) {
     current = next;
 
     if(Dictionary_get(parents, current, &next) == 0) {
-      printf("Error in retrieving parents");
+      printf("Error* in retrieving parents");
       assert(0==1);
     }
   }
