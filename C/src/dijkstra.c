@@ -66,7 +66,7 @@ static void cleanup_distances_values(Dictionary* distances) {
   });
 }
 
-static void** cleanup_and_build_path(Dijkstra state, void* dest) {
+static void** cleanup_and_build_path(Dijkstra* state, void* dest) {
   void** result = NULL;
   if(dest != NULL) {
     result = build_path(state->parents, dest);
@@ -81,8 +81,8 @@ static void** cleanup_and_build_path(Dijkstra state, void* dest) {
 }
 
 
-Dijkstra Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) {
-  Dijkstra result = (Dijkstra) Mem_alloc(sizeof(struct _Dijkstra));
+Dijkstra* Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) {
+  Dijkstra* result = (Dijkstra*) Mem_alloc(sizeof(struct _Dijkstra));
 
   result->graph = graph;
   result->graph_info_to_double = graph_info_to_double;
@@ -90,11 +90,11 @@ Dijkstra Dijkstra_new(Graph graph, double (*graph_info_to_double)(const void*)) 
   return result;
 }
 
-void Dijkstra_free(Dijkstra d) {
+void Dijkstra_free(Dijkstra* d) {
   Mem_free(d);
 }
 
-static void Dijkstra_init_state(Dijkstra state) {
+static void Dijkstra_init_state(Dijkstra* state) {
   state->comparator = KeyInfo_comparator(Graph_keyInfo(state->graph));
   state->pq = PriorityQueue_new(PQOrder_ascending);
   state->parents = Dictionary_new(Graph_keyInfo(state->graph));
@@ -102,7 +102,7 @@ static void Dijkstra_init_state(Dijkstra state) {
 }
 
 
-static void examine_neighbours(Dijkstra state, void* current, double current_dist) {
+static void examine_neighbours(Dijkstra* state, void* current, double current_dist) {
   for_each(AdjacentsEdge_it(Graph_adjacents(state->graph, current)), ^(void* obj) {
     EdgeInfo* edge = (EdgeInfo*) obj;
     void* child = edge->destination;
@@ -130,7 +130,7 @@ static void examine_neighbours(Dijkstra state, void* current, double current_dis
   });
 }
 
-void** Dijkstra_minpath(Dijkstra state, void* source, void* dest) {
+void** Dijkstra_minpath(Dijkstra* state, void* source, void* dest) {
   Dijkstra_init_state(state);
 
   Dictionary_set(state->parents, source, source);

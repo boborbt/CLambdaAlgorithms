@@ -3,10 +3,10 @@
 #include "graph.h"
 
 
-// Opaque type to support the Dijkstra algorithm
+// Opaque type to support the Dijkstra* algorithm
 typedef struct _Kruskal* Kruskal;
 
-// Creates and initializes the data structures used by the Dijkstra algorithm
+// Creates and initializes the data structures used by the Dijkstra* algorithm
 Kruskal Kruskal_new(Graph graph, double (*graph_info_to_double)(const void*));
 
 // Runs Kruskal and returns the found minimal spanning tree

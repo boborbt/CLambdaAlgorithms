@@ -114,7 +114,7 @@ static void print_path(Graph graph, void** path) {
 
 static void execute_dijkstra(Graph graph, char* source, char* dest) {
   void** min_path;
-  Dijkstra d = Dijkstra_new(graph,(double (*)(const void*)) DoubleContainer_get);
+  Dijkstra* d = Dijkstra_new(graph,(double (*)(const void*)) DoubleContainer_get);
   min_path = Dijkstra_minpath(d, source, dest);
   Dijkstra_free(d);
 
@@ -316,7 +316,7 @@ int main(int argc, char *argv[]) {
   PrintTime_print(pt, "Algorithm_execution", ^{
     switch(argv[1][1]) {
       case 'd':
-        printf("Executing Dijkstra algorithm...\n");
+        printf("Executing Dijkstra* algorithm...\n");
         execute_dijkstra(graph, argv[3], argv[4]);
         break;
       case 'e':

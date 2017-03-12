@@ -26,7 +26,7 @@ typedef struct _KruskalEdge {
 
 typedef const struct _KruskalEdge* ConstKruskalEdge;
 
-// Creates and initializes the data structures used by the Dijkstra algorithm
+// Creates and initializes the data structures used by the Dijkstra* algorithm
 Kruskal Kruskal_new(Graph graph, double (*graph_info_to_double)(const void*)) {
   Kruskal result = (Kruskal) Mem_alloc(sizeof(struct _Kruskal));
   result->graph = graph;
