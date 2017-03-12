@@ -62,7 +62,7 @@ static void** build_path(Dictionary* parents, void* dest) {
 
 static void cleanup_distances_values(Dictionary* distances) {
   for_each(Dictionary_it(distances),  ^(void* kv) {
-    DoubleContainer_free((DoubleContainer) ((KeyValue*)kv)->value);
+    DoubleContainer_free((DoubleContainer*) ((KeyValue*)kv)->value);
   });
 }
 
@@ -109,7 +109,7 @@ static void examine_neighbours(Dijkstra* state, void* current, double current_di
     double edge_distance = state->graph_info_to_double(edge->info);
 
     double new_distance = current_dist + edge_distance;
-    DoubleContainer child_distance;
+    DoubleContainer* child_distance;
     int child_found = Dictionary_get(state->distances, child, (void **)&child_distance);
     if(child_found && DoubleContainer_get(child_distance) <= new_distance ) {
       return; // -> next foreach iteration
@@ -124,7 +124,7 @@ static void examine_neighbours(Dijkstra* state, void* current, double current_di
 
     void* old_value = NULL;
     if(Dictionary_get(state->distances, child, (void **)&old_value)) {
-      DoubleContainer_free((DoubleContainer) old_value);
+      DoubleContainer_free((DoubleContainer*) old_value);
     }
     Dictionary_set(state->distances, child, DoubleContainer_new(new_distance));
   });

@@ -59,7 +59,7 @@ static void free_graph_fixture(Graph graph) {
 
     EdgeIterator e_it = Graph_adjacents(graph, vertex);
     while(!EdgeIterator_end(e_it)) {
-      DoubleContainer_free((DoubleContainer) EdgeIterator_get(e_it)->info);
+      DoubleContainer_free((DoubleContainer*) EdgeIterator_get(e_it)->info);
       EdgeIterator_next(e_it);
     }
     EdgeIterator_free(e_it);

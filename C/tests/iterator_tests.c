@@ -6,7 +6,7 @@
 
 static Array* build_fixtures() {
   Array* array = Array_new(10);
-  DoubleContainer val = DoubleContainer_new(1.0);
+  DoubleContainer* val = DoubleContainer_new(1.0);
   Array_add(array, val);
 
   val = DoubleContainer_new(2.0);
@@ -29,7 +29,7 @@ static Array* build_fixtures() {
 
 static void free_fixtures(Array* array) {
   for_each(Array_it(array), ^(void* obj) {
-    DoubleContainer dbl = obj;
+    DoubleContainer* dbl = obj;
     DoubleContainer_free(dbl);
   });
 
@@ -77,12 +77,12 @@ static void test_find_first() {
   __block size_t count = 0;
 
   void* elem = find_first(Array_it(array), ^(void* obj) {
-    DoubleContainer dbl = obj;
+    DoubleContainer* dbl = obj;
     count++;
     return DoubleContainer_get(dbl) > 3.5;
   });
 
-  DoubleContainer result = elem;
+  DoubleContainer* result = elem;
   assert_double_equal( 4.0, DoubleContainer_get(result), 0.01);
 
   assert_equal(4l, count);
@@ -93,13 +93,13 @@ static void test_find_first() {
 static void test_map() {
   Array* array = build_fixtures();
   Array* mapped = map(Array_it(array), ^(void* obj) {
-    DoubleContainer dbl = obj;
+    DoubleContainer* dbl = obj;
     return (void*) DoubleContainer_new( DoubleContainer_get(dbl) * 2);
   });
 
   for_each_with_index(Array_it(array), ^(void* obj, size_t index) {
-    DoubleContainer elem = obj;
-    DoubleContainer other = Array_at(mapped, index);
+    DoubleContainer* elem = obj;
+    DoubleContainer* other = Array_at(mapped, index);
 
     assert_double_equal( DoubleContainer_get(elem) * 2, DoubleContainer_get(other), 0.0001);
   });

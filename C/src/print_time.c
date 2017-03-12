@@ -21,7 +21,7 @@ struct _PrintTime {
 static void PrintTime_save_dictionary(PrintTime pt, const char* padding) {
   for_each(ArrayAlt_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*)elem;
-    fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer)kv.value));
+    fprintf(pt->file, "%s%s: %lf\n", padding, kv.key, DoubleContainer_get((DoubleContainer*)kv.value));
   });
 }
 
@@ -87,7 +87,7 @@ void PrintTime_free(PrintTime pt) {
   for_each(ArrayAlt_it(pt->data), ^(void* elem) {
     KeyValue kv = *(KeyValue*) elem;
     Mem_free(kv.key);
-    DoubleContainer_free((DoubleContainer) kv.value);
+    DoubleContainer_free((DoubleContainer*) kv.value);
   });
   ArrayAlt_free(pt->data);
 

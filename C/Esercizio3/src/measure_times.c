@@ -74,7 +74,7 @@ static void destroy_graph_double_containers(Graph graph) {
   while(!EdgeIterator_end(it)) {
     count += 1;
     EdgeInfo info = *EdgeIterator_get(it);
-    DoubleContainer_free((DoubleContainer)info.info);
+    DoubleContainer_free((DoubleContainer*)info.info);
     EdgeIterator_next(it);
   }
   EdgeIterator_free(it);
@@ -103,7 +103,7 @@ static void print_path(Graph graph, void** path) {
     prev = current;
     current = path[index++];
     if(current!=NULL) {
-      double len = DoubleContainer_get((DoubleContainer)Graph_edge_info(graph, prev, current));
+      double len = DoubleContainer_get((DoubleContainer*)Graph_edge_info(graph, prev, current));
       printf("%20s %20s %8.2lfKm\n", (char*) prev, current, len/1000.0);
       path_len += len;
     }
@@ -140,7 +140,7 @@ static void check_edge(Graph graph, const char* source, char* dest) {
 
   void* edge_info = Graph_edge_info(graph, source, dest);
 
-  printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer)edge_info)/1000);
+  printf("%s -> %s (%8.2lfKm)", source, dest, DoubleContainer_get((DoubleContainer*)edge_info)/1000);
 }
 
 static void find_connected_components(Graph graph, void (*graph_visit)(VisitingInfo, void*, void(^)(void*))) {
@@ -178,7 +178,7 @@ static void find_connected_components(Graph graph, void (*graph_visit)(VisitingI
 // }
 //
 // static void print_kruskal_edges(Graph graph) {
-//   Array* edges_weights = Array_new(20000, sizeof(DoubleContainer));
+//   Array* edges_weights = Array_new(20000, sizeof(DoubleContainer*));
 //   for_each(Edge_it( graph), ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
 //     Array_add(edges_weights, &info);
 //   });
