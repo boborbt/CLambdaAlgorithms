@@ -3,6 +3,18 @@
 #include <stdlib.h>
 #include "iterator.h"
 
+// ArrayAlt implements a slightly modified interface of the Array
+// library. ArrayAlt is almost never a better choice than Array.
+// In fact, it is more inconvenient to use and more error prone.
+// The difference between Array and ArrayAlt is that ArrayAlt stores
+// objects in a continuous region of memory. This has two advantages:
+// 1. It allows for faster performances when you need to iterate over a
+//    huge list of value types objects, since it has better locality
+//    properties than the Array implementation.
+// 2. It allows to store value types and handles memory for them.
+// If you are not in much need of either point 1 or 2, then it is almost
+// always the case that you are better served by Array.
+
 typedef struct _ArrayAlt ArrayAlt;
 typedef struct _ArrayAltIterator ArrayAltIterator;
 
