@@ -47,6 +47,6 @@ func quicksort<T>(_ array: inout [T], start:Int, end:Int, lessThan: (T,T) -> Boo
   quicksort(&array, start:pivotIndex+1, end:end, lessThan:lessThan)
 }
 
-func quicksort<T>(_ array: inout [T], lessThan: (T,T) -> Bool) {
+public func quicksort<T>(_ array: inout [T], lessThan: (T,T) -> Bool) {
   quicksort(&array, start:0, end: array.count - 1, lessThan: lessThan)
 }

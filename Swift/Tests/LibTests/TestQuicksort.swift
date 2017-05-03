@@ -1,5 +1,5 @@
 import XCTest
-@testable import LabAlgoritmi
+@testable import Lib
 
 class TestQuicksort : XCTestCase {
   func testPartitionOnFullArray1() {
