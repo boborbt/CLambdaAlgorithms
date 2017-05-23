@@ -136,7 +136,8 @@ static int char_included(char ch, char chars[], size_t size) {
 
 static void check_arguments(int argc, char** argv) {
   if(argc <= 2) {
-    printf("Expected more than 2 arguments, got %d", argc);
+    printf("Error: Expected more than 2 arguments, got %d\n\n", argc);
+    print_usage();
     exit(ERROR_ARGUMENT_PARSING);
   }
 
