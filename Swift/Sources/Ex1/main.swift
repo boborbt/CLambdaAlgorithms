@@ -1,15 +1,17 @@
 import Lib
 import ExpLib
-import FileKit
 import Darwin
+import CoreFoundation
 
 var lineCap:Int = 1024
 var line:UnsafeMutablePointer<CChar>? = UnsafeMutablePointer<CChar>.allocate(capacity: lineCap)
 
-func lineGenerator(file:UnsafeMutablePointer<FILE>) -> AnyIterator<String>
+defer { free(line) }
+
+func lineGenerator(file:UnsafeMutablePointer<FILE>) -> AnyIterator<UnsafeMutablePointer<CChar>>
 {
-  return AnyIterator { () -> String? in
-    return getline(&line, &lineCap, file) > 0 ? String(cString:line!) : nil
+  return AnyIterator { () -> UnsafeMutablePointer<CChar>? in
+    return getline(&line, &lineCap, file) > 0 ? line : nil
   }
 }
 
@@ -26,7 +28,7 @@ var count = 0
 var array:[Record] = []
 
 for line in fileLines {
-  if count % 100000 == 0 {
+  if count % 1000000 == 0 {
     print(count)
   }
 
@@ -34,28 +36,24 @@ for line in fileLines {
 
   count += 1
 
-  if count % 500000 == 0 {
-    break
-  }
-
+  //  if count % 1000000 == 0 {
+  //      break
+  //  }
 }
 
-free(line)
+print("Sorting...")
 
-// let file = TextFile(path: Path(fileName))
-// let reader = file.streamReader("\n")!
-//
-// var count = 0
-// var array:[Record] = []
-//
-// for line in reader {
-//   if count % 100000 == 0 {
-//     print(count)
-//   }
-//   array.append(parse(line))
-//   count += 1
-//
-//   if count % 500000 == 0 {
-//     break
-//   }
-// }
+let startTime = CFAbsoluteTimeGetCurrent()
+quicksort(&array, compare: { (r1:Record, r2:Record) -> Int in
+  return r1.field2 - r2.field2
+})
+// array.sort(by:{ (r1:Record, r2:Record) -> Bool in
+//   return r1.field2 < r2.field2
+// })
+let endTime = CFAbsoluteTimeGetCurrent()
+
+print("Elapsed: \(endTime - startTime)s")
+
+for record in array[0...9] {
+    print(record)
+}

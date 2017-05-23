@@ -1,20 +1,52 @@
 import Foundation
 
-public struct Record: Equatable {
-  var id: Int
-  var field1:String
-  var field2:Int
-  var field3:Double
+public struct Record {
+  public var id: Int
+  public var field1:UnsafeMutablePointer<CChar>
+  public var field2:Int
+  public var field3:Double
+
+    init(id: Int, field1:UnsafeMutablePointer<CChar>, field2:Int, field3:Double) {
+        self.id = id
+        self.field1 = field1
+        self.field2 = field2
+        self.field3 = field3
+    }
 }
 
-public func parse(_ string:String) -> Record {
-  let fields = string.components(separatedBy:",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-  return Record(
-    id: Int(fields[0])!,
-    field1: fields[1],
-    field2: Int(fields[2])!,
-    field3: Double(fields[3])!
-  )
+public func parse(_ string:UnsafeMutablePointer<CChar>) -> Record {
+  // let fields = string.components(separatedBy:",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+  // let fields = ["1", "test", "2", "10.4"]
+  //
+  var numFields: Int!
+  var buf = UnsafeMutablePointer<CChar>.allocate(capacity:200)
+  defer { free(buf) }
+
+  var id:Int = 0
+  var field2:Int = 0
+  var field3:Double = 0.0
+  var result:Record!
+
+  withUnsafeMutablePointer(to:&id) { idPtr in
+    withUnsafeMutablePointer(to:&field2) { field2Ptr in
+      withUnsafeMutablePointer(to:&field3) { field3Ptr in
+           let args: [CVarArg] = [idPtr, buf, field2Ptr, field3Ptr]
+
+           if vsscanf(string, "%d,%[^,],%d,%lf", getVaList(args)) < 3 {
+              print("Something went wrong!")
+           } else {
+              result = Record(
+                id:id,
+                field1: strdup(buf),
+                field2:field2,
+                field3:field3
+              )
+           }
+      }
+    }
+  }
+
+  return result
 }
 
 public func ==(lhs:Record, rhs:Record) -> Bool {
