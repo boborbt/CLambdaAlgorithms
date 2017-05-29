@@ -27,6 +27,8 @@ let fileLines = lineGenerator(file:file!)
 var count = 0
 var array:[Record] = []
 
+print(MemoryLayout<Record>.stride)
+
 for line in fileLines {
   if count % 1000000 == 0 {
     print(count)
@@ -35,17 +37,13 @@ for line in fileLines {
   array.append(parse(line))
 
   count += 1
-
-  //  if count % 1000000 == 0 {
-  //      break
-  //  }
 }
 
 print("Sorting...")
 
 let startTime = CFAbsoluteTimeGetCurrent()
 quicksort(&array, compare: { (r1:Record, r2:Record) -> Int in
-  return r1.field2 - r2.field2
+  return Int(r1.field2 - r2.field2)
 })
 // array.sort(by:{ (r1:Record, r2:Record) -> Bool in
 //   return r1.field2 < r2.field2

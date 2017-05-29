@@ -15,27 +15,6 @@ func selectPivotIndex(hint pivotHint:Int?, start:Int, end:Int) -> Int {
   return start + Int(arc4random_uniform(UInt32(end - start)))
 }
 
-// func partition<T>(array: inout [T], start:Int, end: Int, pivotHint:Int? = nil, lessThan: (T,T) -> Bool) -> Int {
-//   let pivotIndex = selectPivotIndex(hint:pivotHint, start:start, end:end)
-//   let pivot = array[pivotIndex]
-//
-//   arraySwap(&array, pivotIndex, end)
-//   var leftBound = start - 1
-//   var rightBound = start
-//
-//   while rightBound < end {
-//     if !lessThan(pivot, array[rightBound]) {
-//       leftBound += 1
-//       arraySwap(&array,leftBound,rightBound)
-//     }
-//     rightBound += 1
-//   }
-//
-//   arraySwap(&array, leftBound+1, end)
-//
-//   return leftBound+1
-// }
-
 func partition<T>(array: inout UnsafeMutableBufferPointer<T>, start first:Int, end last:Int, pivotHint:Int? = nil, compare: (T,T) -> Int) -> Int{
   let pivotIndex = selectPivotIndex(hint:pivotHint, start:first, end:last)
   let pivot = array[pivotIndex]

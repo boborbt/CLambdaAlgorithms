@@ -1,12 +1,12 @@
 import Foundation
 
 public struct Record {
-  public var id: Int
+  public var id: Int32
   public var field1:UnsafeMutablePointer<CChar>
-  public var field2:Int
-  public var field3:Double
+  public var field2:Int32
+  public var field3:Float
 
-    init(id: Int, field1:UnsafeMutablePointer<CChar>, field2:Int, field3:Double) {
+    init(id: Int32, field1:UnsafeMutablePointer<CChar>, field2:Int32, field3:Float) {
         self.id = id
         self.field1 = field1
         self.field2 = field2
@@ -22,9 +22,9 @@ public func parse(_ string:UnsafeMutablePointer<CChar>) -> Record {
   var buf = UnsafeMutablePointer<CChar>.allocate(capacity:200)
   defer { free(buf) }
 
-  var id:Int = 0
-  var field2:Int = 0
-  var field3:Double = 0.0
+  var id:Int32 = 0
+  var field2:Int32 = 0
+  var field3:Float = 0.0
   var result:Record!
 
   withUnsafeMutablePointer(to:&id) { idPtr in
