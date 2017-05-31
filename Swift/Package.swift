@@ -3,9 +3,9 @@ import PackageDescription
 let package = Package(
     name: "SwiftSorting",
     targets: [
-      Target( name: "Lib", dependencies: []),
-      Target( name: "Ex1", dependencies: ["Lib", "ExpLib"]),
-      Target( name: "ExpLib", dependencies: [])
+      Target( name: "Algorithms", dependencies: []),
+      Target( name: "Experiments", dependencies: ["Algorithms", "ExperimentsLib"]),
+      Target( name: "ExperimentsLib", dependencies: [])
     ],
     dependencies: []
 )
