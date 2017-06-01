@@ -42,6 +42,8 @@ void save_tree(MultyWayTree* tree, FILE* file) {
     MultyWayTree* child =  elem;
     save_tree(child, file);
   });
+
+  Array_free(array);
 }
 
 

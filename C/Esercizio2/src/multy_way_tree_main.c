@@ -8,14 +8,6 @@
 #include "multywaytree_utils.h"
 
 
-
-static int String_ref_compare(const void* v1, const void* v2) {
-  const char* s1 =  v1;
-  const char* s2 =  v2;
-
-  return strcmp(s1, s2);
-}
-
 static MultyWayTree* build_binary_search_tree_from_array(Array* values, size_t start_index, size_t end_index) {
   if(start_index > end_index) {
     return NULL;
@@ -57,9 +49,12 @@ static MultyWayTree* build_binary_search_tree(MultyWayTree* tree) {
     Array_add(values, MultyWayTree_get(node));
   });
 
-  Array_sort(values, String_ref_compare);
+  Array_sort(values, (int(*)(const void*, const void*))strcmp);
 
-  return build_binary_search_tree_from_array(values, 0, Array_size(values)-1);
+  MultyWayTree* result = build_binary_search_tree_from_array(values, 0, Array_size(values)-1);
+  Array_free(values);
+
+  return result;
 }
 
 
