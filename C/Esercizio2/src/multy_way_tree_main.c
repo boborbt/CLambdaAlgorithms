@@ -53,7 +53,8 @@ static MultyWayTree* build_binary_search_tree_from_array(Array* values, size_t s
 static MultyWayTree* build_binary_search_tree(MultyWayTree* tree) {
   Array* values = Array_new(2000);
   for_each(MultyWayTree_it(tree), ^(void* elem) {
-    Array_add(values, elem);
+    MultyWayTree* node = (MultyWayTree*) elem;
+    Array_add(values, MultyWayTree_get(node));
   });
 
   Array_sort(values, String_ref_compare);
@@ -63,9 +64,10 @@ static MultyWayTree* build_binary_search_tree(MultyWayTree* tree) {
 
 
 int main() {
-  FILE* file = fopen("multywaytree_2.csv", "r");
+  FILE* file = fopen("multywaytree_1.csv", "r");
   MultyWayTree* tree = load_tree(file);
   fclose(file);
+  print_multy_way_tree_stats("original tree:", tree);
 
   MultyWayTree* searchTree = build_binary_search_tree(tree);
   print_multy_way_tree_stats("binary search tree:", searchTree);
@@ -74,6 +76,7 @@ int main() {
   save_tree(searchTree, outfile);
   fclose(outfile);
 
+  MultyWayTree_free(searchTree);
   MultyWayTree_free(tree);
   printf("done\n");
 
