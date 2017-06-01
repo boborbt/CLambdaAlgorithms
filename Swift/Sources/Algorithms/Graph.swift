@@ -36,13 +36,13 @@ struct VertexIterator<V:Hashable>: Sequence, IteratorProtocol {
 }
 
 // Graph data structure definition
-class DirectedGraph<V:Hashable, E> {
+class Graph<V:Hashable, E> {
   typealias Vertex = V
   typealias Edge = E
 
   var adjacencies:[Vertex:[Vertex:Edge]] = [:]
 
-  static func +=( g:inout DirectedGraph, edge:(source:Vertex, dest:Vertex, info:Edge)) {
+  static func +=( g:inout Graph, edge:(source:Vertex, dest:Vertex, info:Edge)) {
     if g.adjacencies[edge.source] == nil {
       g.adjacencies[edge.source] = [:]
     }
@@ -74,39 +74,24 @@ class DirectedGraph<V:Hashable, E> {
   }
 }
 
-class UndirectedGraph<V:Hashable, E>: DirectedGraph<V,E> {
-  static func +=( g:inout UndirectedGraph<V,E>, edge:(source:Vertex, dest:Vertex, info:Edge)) {
-    if g.adjacencies[edge.source] == nil {
-      g.adjacencies[edge.source] = [:]
-    }
-
-    if g.adjacencies[edge.dest] == nil {
-      g.adjacencies[edge.dest] = [:]
-    }
-
-    g.adjacencies[edge.source]![edge.dest] = edge.info
-    g.adjacencies[edge.dest]![edge.source] = edge.info
-  }
-}
-
 // Mark: Operators for edge constructors
 
-infix operator -- : AdditionPrecedence
-func --<V,E>(_ vertex:V, _ info:E) -> (vertex:V,info:E) {
+infix operator -| : AdditionPrecedence
+func -|<V,E>(_ vertex:V, _ info:E) -> (vertex:V,info:E) {
   return (vertex:vertex, info:info)
 }
 
 // Allows one to create a weighed edge using the syntax v1 -- weight --> v2
 
-infix operator -->: AdditionPrecedence
-func --><V,E>(_ vw:(vertex:V, info:E), _ vertex: V) -> (source:V, dest:V, info:E) {
+infix operator |->: AdditionPrecedence
+func |-><V,E>(_ vw:(vertex:V, info:E), _ vertex: V) -> (source:V, dest:V, info:E) {
     return (source: vw.vertex, dest:vertex, info: vw.info)
 }
 
 // Mark: algorithms
 
-// func mst<V:Hashable, E>(graph:UndirectedGraph<V,E>, lessThan: (E,E) -> Bool) -> UndirectedGraph<V,E> {
-//   var result = UndirectedGraph<V,E>()
+// func mst<V:Hashable, E>(graph:Graph<V,E>, lessThan: (E,E) -> Bool) -> Graph<V,E> {
+//   var result = Graph<V,E>()
 //   var edgeList = Array<(V,V,E)>()
 //
 // }
