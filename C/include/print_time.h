@@ -29,7 +29,7 @@ void PrintTime_add_header(PrintTime* pt, const char* key, const char* value);
 
 // Adds a timing of the given block with a key given by "label". The block can
 // itself print necessary information to stdout.
-double PrintTime_print(PrintTime* pt, char* label, void(^fun)());
+double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void));
 
 // Saves the printing information on disk. The writing is performed atomically.
 void PrintTime_save(PrintTime* pt);

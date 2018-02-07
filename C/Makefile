@@ -13,14 +13,14 @@ define exec
 	@$(1)
 endef
 
-.PHONY: Esercizio1 Esercizio2 Esercizio3 libs clean experiment1 experiment2 experiment3 tests
+.PHONY: ExSorting ExDictionaries ExGraphs libs clean experiment1 experiment2 experiment3 tests
 
-all: build lib bin libs Esercizio1 Esercizio2 Esercizio3
+all: build lib bin libs ExSorting ExDictionaries ExGraphs
 
 clean:
-	$(MAKE) -C Esercizio1 clean
-	$(MAKE) -C Esercizio2 clean
-	$(MAKE) -C Esercizio3 clean
+	$(MAKE) -C ExSorting clean
+	$(MAKE) -C ExDictionaries clean
+	$(MAKE) -C ExGraphs clean
 	$(RM) -rf lib
 	$(RM) -rf build
 	$(RM) -rf bin
@@ -62,17 +62,17 @@ build/%.o: src/%.c   Makefile Makefile.vars
 
 # Experiments
 
-Esercizio1:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; tput setaf 2; echo "Making all in Esercizio 1"; tput sgr 0
-	$(MAKE) -C Esercizio1
+ExSorting:  lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; tput setaf 2; echo "Making all in ExSorting"; tput sgr 0
+	$(MAKE) -C ExSorting
 
-Esercizio2: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; tput setaf 2; echo "Making all in Esercizio 2"; tput sgr 0
-	$(MAKE) -C Esercizio2
+ExDictionaries: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; tput setaf 2; echo "Making all in ExDictionaries"; tput sgr 0
+	$(MAKE) -C ExDictionaries
 
-Esercizio3: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
-	tput bold; tput setaf 2; echo "Making all in Esercizio 3"; tput sgr 0
-	$(MAKE) -C Esercizio3
+ExGraphs: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
+	tput bold; tput setaf 2; echo "Making all in ExGraphs"; tput sgr 0
+	$(MAKE) -C ExGraphs
 
 
 tests: test_binaries

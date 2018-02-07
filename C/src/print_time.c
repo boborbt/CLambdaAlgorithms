@@ -94,7 +94,7 @@ void PrintTime_free(PrintTime* pt) {
   Mem_free(pt);
 }
 
-double PrintTime_print(PrintTime* pt, char* label, void(^fun)()) {
+double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
  printf("\n======================\n");
  clock_t start = clock();

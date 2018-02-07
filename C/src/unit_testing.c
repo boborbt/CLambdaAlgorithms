@@ -10,7 +10,7 @@
 static clock_t start_time;
 static size_t num_tests;
 
-static void(*focus)() = NULL;
+static void(*focus)(void) = NULL;
 
 void start_tests(const char* msg) {
   start_time = clock();
@@ -24,13 +24,13 @@ void end_tests() {
   printf("\n%ld tests passed in %4.5f seconds\n\n", num_tests, elapsed_time);
 }
 
-void test_focus(void (*test_fun)()) {
+void test_focus(void (*test_fun)(void)) {
   focus = test_fun;
 }
 
 // Calls a testing function. The given test function should
 // exit the program with an error if the test does not succeed.
-void test_ext(void (*test_fun)(), char* test_name, char* file, size_t lineno) {
+void test_ext(void (*test_fun)(void), char* test_name, char* file, size_t lineno) {
   if(focus!= NULL && focus!=test_fun) {
       return;
   }
