@@ -2,7 +2,7 @@ include Makefile.vars
 
 MAKEFLAGS += --silent
 
-CFLAGS+=-Iinclude
+CFLAGS+=-Iinclude -g
 LDFLAGS+=-Llib
 
 define exec
@@ -27,7 +27,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/iterator.o build/mem.o build/array_alt.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o
 
 build:
 	mkdir build
@@ -90,8 +90,12 @@ tests: test_binaries
 	$(call exec, bin/queue_tests)
 	$(call exec, bin/priority_queue_tests)
 	$(call exec, bin/multy_way_tree_tests)
+	$(call exec, bin/editing_distance_tests)
 
-test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests bin/editing_distance_tests
+
+bin/editing_distance_tests: tests/editing_distance_tests.c include/editing_distance.h lib/libcontainers_st.a $(HEADERS)
+	$(CC) $(CFLAGS) tests/editing_distance_tests.c -o bin/editing_distance_tests -lcontainers_st $(LDFLAGS)
 
 bin/iterator_tests: tests/iterator_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/iterator_tests.c -o bin/iterator_tests -lcontainers_st $(LDFLAGS)
