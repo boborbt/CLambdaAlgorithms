@@ -67,6 +67,7 @@ static char* get_compilation_flags() {
     Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
   }
 
+  fclose(file);
   buf[strlen(buf)-1] = '\0'; // removing trailing \n
   return buf;
 }

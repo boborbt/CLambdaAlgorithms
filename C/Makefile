@@ -15,12 +15,13 @@ endef
 
 .PHONY: ExSorting ExDictionaries ExGraphs libs clean experiment1 experiment2 experiment3 tests
 
-all: build lib bin libs ExSorting ExDictionaries ExGraphs
+all: build lib bin libs ExSorting ExDictionaries ExGraphs ExDynamicProgramming
 
 clean:
 	$(MAKE) -C ExSorting clean
 	$(MAKE) -C ExDictionaries clean
 	$(MAKE) -C ExGraphs clean
+	$(MAKE) -C ExDynamicProgramming
 	$(RM) -rf lib
 	$(RM) -rf build
 	$(RM) -rf bin
@@ -73,6 +74,10 @@ ExDictionaries: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainer
 ExGraphs: lib/libcontainers_hash.a lib/libcontainers_rb.a lib/libcontainers_st.a
 	tput bold; tput setaf 2; echo "Making all in ExGraphs"; tput sgr 0
 	$(MAKE) -C ExGraphs
+
+ExDynamicProgramming: lib/libcontainers_hash.a
+	tput bold; tput setaf 2; echo "Making all in ExDynamicProgramming"; tput sgr 0
+	$(MAKE) -C ExDynamicProgramming
 
 
 tests: test_binaries
