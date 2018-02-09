@@ -90,6 +90,22 @@ static void test_find_first() {
   free_fixtures(array);
 }
 
+static void test_find_first_with_no_match() {
+    Array* array = build_fixtures();
+  __block size_t count = 0;
+
+  void* elem = find_first(Array_it(array), ^(__attribute__((unused)) void* obj) {
+    count += 1;
+    return 0;
+  });
+
+  assert_pointers_equal( NULL, elem);
+
+  assert_equal(6l, count);
+
+  free_fixtures(array);
+}
+
 static void test_map() {
   Array* array = build_fixtures();
   Array* mapped = map(Array_it(array), ^(void* obj) {
@@ -142,6 +158,7 @@ int main() {
   test(test_for_each);
   test(test_for_each_with_index);
   test(test_find_first);
+  test(test_find_first_with_no_match);
   test(test_map);
   test(test_filter);
   test(test_first);

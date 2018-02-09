@@ -54,8 +54,11 @@ void* find_first(Iterator it, int(^condition)(void* elem)) {
   while(!it.end(iterator) && condition(it.get(iterator)) == 0) {
     it.next(iterator);
   }
+  void* result = NULL;
 
-  void* result = it.get(iterator);
+  if(!it.end(iterator)) {
+    result = it.get(iterator);
+  }
 
   it.free(iterator);
   return result;
