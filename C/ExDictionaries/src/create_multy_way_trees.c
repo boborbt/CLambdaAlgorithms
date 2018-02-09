@@ -76,7 +76,7 @@ static char* new_node_name() {
   return NODENAMES->names[NODENAMES->current++];
 }
 
-static void build_multyway_tree(MultyWayTree* node, size_t num_nodes, size_t (*random_int)()) {
+static void build_multyway_tree(MultyWayTree* node, size_t num_nodes, size_t (*random_int)(void)) {
   if(num_nodes == 0) {
     return;
   }
