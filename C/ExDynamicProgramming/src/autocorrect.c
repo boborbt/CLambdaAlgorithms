@@ -43,6 +43,15 @@ static EDResult find_closest_match(const char* word, Array* word_list) {
   result.distance = ULONG_MAX;
   result.closest_match = NULL;
 
+  if(Array_binsearch(word_list, ^(const void* obj) {
+    const char* str = (const char*) obj;
+    return strcmp(word, str);
+  }) != ULONG_MAX) {
+    result.distance = 0;
+    return result;
+  }
+
+
   find_first(Array_it(word_list), ^(void* obj) {
     const char* match_candidate = (char*) obj;
     unsigned long distance = editing_distance(word, match_candidate);
