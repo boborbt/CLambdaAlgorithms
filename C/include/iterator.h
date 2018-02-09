@@ -6,7 +6,7 @@ typedef struct _Iterator Iterator;
 
 struct _Iterator {
   void* container;
-  void*  (*new)(void*);
+  void* (*new)(void*);
   void  (*next)(void*);
   void* (*get)(void*);
   int   (*end)(void* it);
@@ -21,7 +21,7 @@ struct _Iterator {
 // not a "new" function and hence the Iterator needs not to be freed
 Iterator Iterator_make(
   void* container,
-  void*  (*new)(void*),
+  void* (*new)(void*),
   void  (*next)(void*),
   void* (*get)(void*),
   int   (*end)(void* it),

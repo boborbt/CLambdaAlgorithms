@@ -1,3 +1,5 @@
+#include <limits.h>
+
 #include "array.h"
 #include "unit_testing.h"
 #include "errors.h"
@@ -267,6 +269,36 @@ static void test_array_sort() {
   free_fixtures(array);
 }
 
+static void test_array_binsearch_success() {
+  Array* array = build_fixtures2();
+  Array_sort(array, compare_ints);
+  int searched_elem = 3;
+
+  size_t index = Array_binsearch(array, ^(const void* elem) {
+    return compare_ints(elem, (const void*)&searched_elem);
+  });
+
+  assert_equal(index, 2l);
+  free_fixtures(array);
+}
+
+static void test_array_binsearch_fail() {
+  Array* array = build_fixtures2();
+  Array_sort(array, compare_ints);
+
+  int searched_elem = 8;
+
+  size_t index = Array_binsearch(array, ^(const void* elem) {
+    return compare_ints(elem, (const void*)&searched_elem);
+  });
+
+  assert_equal(index, ULONG_MAX);
+
+
+  free_fixtures(array);
+}
+
+
 static void test_array_dup() {
   Array* array = build_fixtures();
   Array* array_dup = Array_dup(array);
@@ -335,6 +367,8 @@ int main() {
   test(test_array_remove_at_middle);
   test(test_array_remove_at_end);
   test(test_array_sort);
+  test(test_array_binsearch_success);
+  test(test_array_binsearch_fail);
   test(test_array_iterator);
   test(test_array_foreach);
   test(test_array_foreach_with_index);

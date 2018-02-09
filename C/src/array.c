@@ -5,6 +5,7 @@
 #include "quick_sort.h"
 #include "errors.h"
 #include "mem.h"
+#include "limits.h"
 
 struct _Array {
   void** carray;
@@ -136,6 +137,37 @@ void Array_remove(Array* array, size_t index) {
 
 void Array_sort(Array* array, KIComparator compare) {
   quick_sort(Array_carray(array), Array_size(array), compare);
+}
+
+size_t Array_binsearch(Array* array, int(^compare)(const void*)) {
+  if(Array_size(array) > ULONG_MAX / 2 - 1) {
+    Error_raise( Error_new(ERROR_GENERIC, "Array size too big to be used by this implementation of binsearch") );
+  }
+
+  long i = 0;
+  long j = (long) Array_size(array) - 1;
+  int found = 0;
+  long mid = -1;
+
+  while(i <= j && !found) {
+    mid = (i + j) / 2;
+    int comparison = compare(Array_at(array, (size_t) mid));
+
+    if(comparison < 0) {
+      j = mid - 1;
+    } else if( comparison > 0) {
+      i = mid + 1;
+    } else {
+      found = 1;
+    }
+  }
+
+
+  if(found) {
+    return (size_t) mid;
+  }
+
+  return ULONG_MAX;
 }
 
 // Iterator
