@@ -8,10 +8,10 @@
 //
 // Implementation of the EditingDistance measure
 //
-// The starting point on which the implementation is based is the following
-// recursive function. Which works, but unfortunately it has an exponential cost.
-// The implementation adds memoization to this algorithm bringing the cost to linear.
-//
+// The starting point on which the implementation is based is the
+// recursive function `editing_distance_dummy`. Which works, but unfortunately
+// it has an exponential cost. The implementation adds memoization to this
+// algorithm bringing the cost to linear.
 //
 
 
@@ -24,7 +24,7 @@ static unsigned long min(unsigned long x, unsigned long y) {
   }
 }
 
-
+// Recursive function to compute the editing distance between string1 and string2.
 __attribute__((unused)) static unsigned long editing_distance_dummy(const char* string1, const char* string2) {
   if(string1[0] == '\0') {
     return strlen(string2);
