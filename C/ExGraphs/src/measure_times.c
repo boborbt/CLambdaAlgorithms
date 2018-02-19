@@ -9,6 +9,7 @@
 #include "errors.h"
 #include "macros.h"
 #include "kruskal.h"
+#include "prim.h"
 #include "array.h"
 #include "iterator_functions.h"
 #include "mem.h"
@@ -217,6 +218,35 @@ static void execute_kruskal(Graph* graph) {
 
   printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
   Graph_free(result);
+  Kruskal_free(kruskal);
+}
+
+static void execute_prim(Graph* graph) {
+  void* start = first(Vertex_it(graph));
+  Prim* kruskal = Prim_new(graph, (double (*)(const void*)) DoubleContainer_get);
+  Graph* result = Prim_mintree(kruskal, start);
+
+  __block double tree_size = 0.0;
+  __block int num_edges = 0;
+  __block double min_edge = 10000000;
+  for_each(Edge_it(result), ^(void* obj) {
+    EdgeInfo* ei = (EdgeInfo*) obj;
+    double edge_weight = DoubleContainer_get(ei->info);
+    tree_size += DoubleContainer_get(ei->info);
+    num_edges += 1.0;
+
+    if( edge_weight < min_edge ) {
+      min_edge = edge_weight;
+    }
+  });
+
+  printf("Original graph size:%ld\n", Graph_size(graph));
+  printf("Result graph size:%ld\n", Graph_size(result));
+  printf("Result graph num edges:%d\n", num_edges / 2);
+  printf("Result graph min edge:%f\n", min_edge);
+
+  printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
+  Graph_free(result);
 }
 
 static void print_usage(const char* msg) {
@@ -228,6 +258,7 @@ static void print_usage(const char* msg) {
   printf("  -c: to find connected components using dfs\n");
   printf("  -b: to find connected components using bfs\n");
   printf("  -k: to invoke kruskal\n");
+  printf("  -p: to invoke prim\n");
 }
 
 static void check_arguments(int argc, char* argv[]) {
@@ -241,19 +272,30 @@ static void check_arguments(int argc, char* argv[]) {
     exit(ERROR_ARGUMENT_PARSING);
   }
   char op = argv[1][1];
-  if(op!='d' && op!='e' && op!='c' && op!='b' && op!='k') {
-    print_usage("Op specifier needs to be one of {-d,-e,-c,-b,-k}");
+  if(op!='d' && op!='e' && op!='c' && op!='b' && op!='k' && op!='p') {
+    print_usage("Op specifier needs to be one of {-d,-e,-c,-b,-k,-p}");
     exit(ERROR_ARGUMENT_PARSING);
   }
 
-  if(op!='c' && op!='b' && argc != 5)  {
-    print_usage("Wrong number of arguments - expected 5");
-    exit(ERROR_ARGUMENT_PARSING);
-  }
-
-  if((op=='c' || op=='b') && argc != 3) {
-    print_usage("Wrong number of arguments - expected 3");
-    exit(ERROR_ARGUMENT_PARSING);
+  switch(op) {
+    case 'c':
+    case 'b':
+    case 'k':
+    case 'p':
+      if(argc != 3) {
+        print_usage("Wrong number of arguments - expected 3");
+        exit(ERROR_ARGUMENT_PARSING);
+      }
+      break;
+    case 'd':
+    case 'e':
+      if(argc != 5) {
+        print_usage("Wrong number of arguments - expected 5");
+        exit(ERROR_ARGUMENT_PARSING);
+      }
+      break;
+    default:
+      break;
   }
 }
 
@@ -264,6 +306,7 @@ static char* flag_to_task_name(char ch) {
     case 'b': return "connected_components_bfs";
     case 'e': return "edge_check";
     case 'k': return "kruskal";
+    case 'p': return "prim";
     default:
       printf("Unknown flag");
       exit(ERROR_ARGUMENT_PARSING);
@@ -334,6 +377,10 @@ int main(int argc, char *argv[]) {
       case 'k':
         printf("Executing kruskal...\n");
         execute_kruskal(graph);
+        break;
+      case 'p':
+        printf("Executing prim...\n");
+        execute_prim(graph);
         break;
     }
   });
