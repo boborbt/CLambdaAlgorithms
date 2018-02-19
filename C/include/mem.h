@@ -29,9 +29,13 @@ typedef struct {
   size_t freed_memory;
 } MemStats;
 
+#ifdef DEBUG
 // Macro controlling the behavior of the library. If it is set to
 // 0 all functions revert to the POSIX standard ones.
 #define MEM_DEBUG_ON 1
+#else
+#define MEM_DEBUG_ON 0
+#endif
 
 // Macro controlling the level of verbosity. Set it to 1 to make each
 // function to report information about their callings.

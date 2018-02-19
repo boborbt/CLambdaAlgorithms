@@ -2,7 +2,7 @@ include Makefile.vars
 
 MAKEFLAGS += --silent
 
-CFLAGS+=-Iinclude -g
+CFLAGS+=-Iinclude -g -DDEBUG
 LDFLAGS+=-Llib
 
 define exec
