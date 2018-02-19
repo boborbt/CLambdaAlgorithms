@@ -223,8 +223,8 @@ static void execute_kruskal(Graph* graph) {
 
 static void execute_prim(Graph* graph) {
   void* start = first(Vertex_it(graph));
-  Prim* kruskal = Prim_new(graph, (double (*)(const void*)) DoubleContainer_get);
-  Graph* result = Prim_mintree(kruskal, start);
+  Prim* prim = Prim_new(graph, (double (*)(const void*)) DoubleContainer_get);
+  Graph* result = Prim_mintree(prim, start);
 
   __block double tree_size = 0.0;
   __block int num_edges = 0;
@@ -247,6 +247,7 @@ static void execute_prim(Graph* graph) {
 
   printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
   Graph_free(result);
+  Prim_free(prim);
 }
 
 static void print_usage(const char* msg) {
