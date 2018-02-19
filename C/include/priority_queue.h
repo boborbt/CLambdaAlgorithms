@@ -38,7 +38,15 @@ void*  PriorityQueue_top_value(PriorityQueue*);
 // Returns the priority of the top element
 double PriorityQueue_top_priority(PriorityQueue*);
 
-// Decreases the priority of the given element
+// Decreases the priority of the given element. The element *must* belong to the priority
+// queue AND new_priority *must* be lower than the previous one.
+// If elem does not belong to the priority queue or new_priority > old_priority,
+// an error is raised.
 void   PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double new_priority);
+
+// Try to decrease the priority of the given element. If either the element does not belong
+// to the priority queue or if the new priority is not lower than the old one, nothing is done.
+int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority);
+
 
 void PriorityQueue_foreach(PriorityQueue* pq, void (^callback)(void* elem, double priority));

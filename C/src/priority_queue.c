@@ -6,6 +6,7 @@
 
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
+#define PRIORITY_QUEUE_INITIAL_CAPACITY 25000
 
 typedef struct {
   void* elem;
@@ -143,8 +144,33 @@ void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double prior
     Error_raise(Error_new(ERROR_GENERIC, "Priority queues: cannot find element while decreasing its priority"));
   }
 
+  if(pq->array[i].priority < priority) {
+    Error_raise(Error_new(ERROR_GENERIC, "Priority queues: the new priority is larger than the previous one in call to `decrease priority`"));
+  }
+
   pq->array[i].priority = priority;
   PriorityQueue_moveup(pq, i);
+}
+
+int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
+  size_t i;
+  for(i=0; i<pq->size; ++i) {
+    if(pq->array[i].elem == elem) {
+      break;
+    }
+  }
+
+  if(i==pq->size) {
+    return 0;
+  }
+
+  if(priority < pq->array[i].priority) {
+    pq->array[i].priority = priority;
+    PriorityQueue_moveup(pq, i);
+    return 1;
+  }
+
+  return 0;
 }
 
 
