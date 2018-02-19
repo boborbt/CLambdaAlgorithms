@@ -46,7 +46,7 @@ static Graph* Prim_build_result(Prim* prim) {
     if(kv->value == NULL) {
       return;
     }
-    
+
     if(!Graph_has_vertex(result, kv->key)) {
       Graph_add_vertex(result, kv->key);
     }
@@ -69,8 +69,6 @@ static Graph* Prim_build_result(Prim* prim) {
 // The user needs to dealloc the graph when he is finished with it.
 Graph* Prim_mintree(Prim* prim, void* root) {
   Prim_init(prim);
-
-  Dictionary_set(prim->parents, root, NULL);
   PriorityQueue_try_decrease_priority(prim->pq, root, 0.0);
 
   while( !PriorityQueue_empty(prim->pq)) {
