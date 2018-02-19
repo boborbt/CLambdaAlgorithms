@@ -6,7 +6,6 @@
 #include "graph.h"
 #include "graph_visiting.h"
 #include "dijkstra.h"
-#include "priority_queue.h"
 #include "unit_testing.h"
 #include "dictionary.h"
 #include "double_container.h"
@@ -15,19 +14,6 @@
 #include "iterator_functions.h"
 #include "mem.h"
 #include "prim.h"
-
-
-static PriorityQueue* build_pq_fixtures() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
-
-  PriorityQueue_push(pq, "10", 10.0);
-  PriorityQueue_push(pq, "2", 2.0);
-  PriorityQueue_push(pq, "4", 4.0);
-  PriorityQueue_push(pq, "3", 3.0);
-  PriorityQueue_push(pq, "6", 6.0);
-
-  return pq;
-}
 
 
 static Graph* build_graph_fixtures() {
@@ -74,63 +60,7 @@ static void free_graph_fixture(Graph* graph) {
   KeyInfo_free(keyInfo);
 }
 
-static void test_priority_queue_creation() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
-  assert_equal( 0l, (long) PriorityQueue_size(pq) );
-  assert(PriorityQueue_empty(pq));
-  PriorityQueue_free(pq);
-}
 
-static void test_priority_queue_decrease_priority() {
-  PriorityQueue* pq = build_pq_fixtures();
-  PriorityQueue_decrease_priority(pq, "10", 1.0);
-  assert_string_equal(PriorityQueue_top_value(pq), "10");
-  PriorityQueue_free(pq);
-}
-
-static void test_priority_queue_push_min_element() {
-  PriorityQueue* pq = build_pq_fixtures();
-  PriorityQueue_push(pq, "test", 1.0);
-  assert_string_equal((const char*) PriorityQueue_top_value(pq), "test");
-  assert_double_equal(PriorityQueue_top_priority(pq), 1.0, 0.00001);
-  PriorityQueue_free(pq);
-}
-
-static void test_priority_queue_top_value() {
-  PriorityQueue* pq = build_pq_fixtures();
-  assert_string_equal((const char*)PriorityQueue_top_value(pq), "2");
-  PriorityQueue_free(pq);
-}
-
-static void test_priority_queue_top_priority() {
-  PriorityQueue* pq = build_pq_fixtures();
-  assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.00001);
-  PriorityQueue_free(pq);
-}
-
-static void test_priority_queue_pop() {
-  PriorityQueue* pq = build_pq_fixtures();
-  assert_double_equal(PriorityQueue_top_priority(pq), 2.0, 0.0001);
-
-  assert_equal(5l, (long)PriorityQueue_size(pq));
-  PriorityQueue_pop(pq);
-
-  assert_equal(4l, (long) PriorityQueue_size(pq));
-  assert(PriorityQueue_top_priority(pq) == 3.0);
-
-  PriorityQueue_free(pq);
-}
-
-static void test_priority_queue_pop_order() {
-  PriorityQueue* pq = build_pq_fixtures();
-  double priority_order[] = {2.0, 3.0, 4.0, 6.0, 10.0};
-  int count = 0;
-  while(!PriorityQueue_empty(pq) && count < 5) {
-    assert_double_equal( PriorityQueue_top_priority(pq), priority_order[count++], 0.00001);
-    PriorityQueue_pop(pq);
-  }
-  PriorityQueue_free(pq);
-}
 
 static void test_graph_add_vertex() {
   Graph* graph = build_graph_fixtures();
@@ -405,16 +335,6 @@ static void test_bfs_visit() {
 }
 
 int main() {
-  start_tests("priority queue");
-  test(test_priority_queue_creation);
-  test(test_priority_queue_push_min_element);
-  test(test_priority_queue_top_value);
-  test(test_priority_queue_top_priority);
-  test(test_priority_queue_pop);
-  test(test_priority_queue_pop_order);
-  test(test_priority_queue_decrease_priority);
-  end_tests();
-
   start_tests("graph");
   test(test_graph_add_vertex);
   test(test_graph_add_edge);
