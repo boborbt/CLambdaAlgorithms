@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <limits.h>
 #include <assert.h>
+
+#include "mem.h"
 #include "editing_distance.h"
 
 //
@@ -114,10 +116,10 @@ static unsigned long EDMemo_memoize(EDMemo* memo, unsigned long i, unsigned long
 // Note: the given len1 and len2 will not be the same as memo->len1 and memo->len2
 //    use EDMemo_len1() and EDMemo_len2() to retrieve the lengths passed to this function.
 static EDMemo* EDMemo_new(unsigned long len1, unsigned long len2) {
-  __block EDMemo* memo = (EDMemo*) malloc(sizeof(EDMemo));
+  __block EDMemo* memo = (EDMemo*) Mem_alloc(sizeof(EDMemo));
   memo->len1 = len1 + 1;
   memo->len2 = len2 + 1;
-  memo->matrix = (unsigned long*) malloc( memo->len1 * memo->len2 * sizeof(unsigned long) );
+  memo->matrix = (unsigned long*) Mem_alloc( memo->len1 * memo->len2 * sizeof(unsigned long) );
 
   for(unsigned long i=0; i < memo->len1; ++i) {
     for(unsigned long j=0; j < memo->len2; ++j) {
@@ -130,8 +132,8 @@ static EDMemo* EDMemo_new(unsigned long len1, unsigned long len2) {
 
 // Free the memoization structure
 static void EDMemo_free(EDMemo* memo) {
-  free(memo->matrix);
-  free(memo);
+  Mem_free(memo->matrix);
+  Mem_free(memo);
 }
 
 // Uses memoization to compute the editing distance between string1 and string2 assuming
