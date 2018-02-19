@@ -132,6 +132,19 @@ void PriorityQueue_pop(PriorityQueue* pq) {
   PriorityQueue_movedown(pq, 0);
 }
 
+int PriorityQueue_get_priority(PriorityQueue* pq, void* elem, double* result) {
+  size_t i;
+  for(i=0; i<pq->size; ++i) {
+    if(pq->array[i].elem == elem) {
+      *result = pq->array[i].priority;
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+
 
 void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
   size_t i;
@@ -152,6 +165,8 @@ void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double prior
   pq->array[i].priority = priority;
   PriorityQueue_moveup(pq, i);
 }
+
+
 
 int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
   size_t i;

@@ -38,6 +38,12 @@ void*  PriorityQueue_top_value(PriorityQueue*);
 // Returns the priority of the top element
 double PriorityQueue_top_priority(PriorityQueue*);
 
+// Retrieves the priority of the given element. Note that this is a O(n) operation.
+// It returns 1 and stores the result into "result" if elem is found in the priority queue
+// It returns 0 otherwise.
+// Note: the comparison between elements is performed using pointer equality.
+int PriorityQueue_get_priority(PriorityQueue* pq, void* elem, double* result);
+
 // Decreases the priority of the given element. The element *must* belong to the priority
 // queue AND new_priority *must* be lower than the previous one.
 // If elem does not belong to the priority queue or new_priority > old_priority,
