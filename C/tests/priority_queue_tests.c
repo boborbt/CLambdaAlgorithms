@@ -1,5 +1,6 @@
 #include "unit_testing.h"
 #include "priority_queue.h"
+#include "double_container.h"
 
 static PriorityQueue* fixtures() {
   PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
@@ -109,6 +110,26 @@ static void test_priority_queue_pop_descending() {
   PriorityQueue_free(pq);
 }
 
+static void test_priority_queue_large_queue() {
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
+  unsigned int num_insertions = 1024 * 4;
+  for(unsigned int i=0; i <= num_insertions; ++i) {
+    DoubleContainer* dbl = DoubleContainer_new((double)i);
+    assert_not_null(dbl);
+    PriorityQueue_push(pq, dbl, (double) i);
+  }
+
+  for(unsigned int i=0; i <= num_insertions; ++i) {
+    DoubleContainer* dbl = PriorityQueue_top_value(pq);
+    assert_double_equal((double) i, DoubleContainer_get(dbl), 0.0001);
+    PriorityQueue_pop(pq);
+
+    DoubleContainer_free(dbl);
+  }
+
+  PriorityQueue_free(pq);
+}
+
 
 int main() {
   start_tests("Priority Queue");
@@ -119,6 +140,7 @@ int main() {
   test(test_priority_queue_top_priority);
   test(test_priority_queue_decrease_priority);
   test(test_priority_queue_pop_descending);
+  test(test_priority_queue_large_queue);
 
   end_tests();
   return 0;

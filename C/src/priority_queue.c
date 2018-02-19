@@ -1,12 +1,12 @@
 #include "priority_queue.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "errors.h"
 #include "mem.h"
 
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
-#define PRIORITY_QUEUE_INITIAL_CAPACITY 25000
 
 typedef struct {
   void* elem;
@@ -40,7 +40,7 @@ static size_t PriorityQueue_right_child(size_t pos) {
 
 PriorityQueue* PriorityQueue_new(PQOrder order) {
   PriorityQueue* result = (PriorityQueue*) Mem_alloc(sizeof(struct _PriorityQueue));
-  result->array = (PQElem*) Mem_alloc(sizeof(PQElem*) * PRIORITY_QUEUE_INITIAL_CAPACITY);
+  result->array = (PQElem*) Mem_alloc(sizeof(PQElem) * PRIORITY_QUEUE_INITIAL_CAPACITY);
   result->size = 0;
   result->capacity = PRIORITY_QUEUE_INITIAL_CAPACITY;
   result->order = order;
@@ -69,8 +69,9 @@ static void PriorityQueue_try_realloc(PriorityQueue* pq) {
   if(pq->capacity > pq->size) {
     return;
   }
+
   pq->capacity *= 2;
-  pq->array = (PQElem*)Mem_realloc(pq->array, sizeof(PQElem*) * pq->capacity );
+  pq->array = (PQElem*)Mem_realloc(pq->array, sizeof(PQElem) * pq->capacity );
 }
 
 static void PriorityQueue_moveup(PriorityQueue* pq, size_t pos) {
