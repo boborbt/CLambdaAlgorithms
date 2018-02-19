@@ -266,6 +266,24 @@ static void test_graph_foreach_vertex() {
   free_graph_fixture(graph);
 }
 
+static void test_iterate_over_unconnected_graph() {
+  KeyInfo* keys = KeyInfo_new(Key_string_compare, Key_string_hash);
+  Graph* graph = Graph_new(keys);
+
+  Graph_add_vertex(graph, "v1");
+  Graph_add_vertex(graph, "v2");
+  Graph_add_vertex(graph, "v3");
+  Graph_add_vertex(graph, "v4");
+  Graph_add_vertex(graph, "v5");
+  Graph_add_vertex(graph, "v6");
+
+  for_each(Edge_it(graph), ^(UNUSED(void* info)) {
+    assert_not_reached();
+  });
+
+  free_graph_fixture(graph);
+}
+
 
 // dfs visit on:
 // v1->v2->v3->(v1)
@@ -364,6 +382,7 @@ int main() {
   test(test_graph_add_edge);
   test(test_graph_vertices);
   test(test_graph_adjacencts);
+  test(test_iterate_over_unconnected_graph);
   end_tests();
 
   start_tests("iterators");
