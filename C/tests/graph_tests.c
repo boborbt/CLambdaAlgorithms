@@ -14,6 +14,7 @@
 #include "kruskal.h"
 #include "iterator_functions.h"
 #include "mem.h"
+#include "prim.h"
 
 
 static PriorityQueue* build_pq_fixtures() {
@@ -238,6 +239,43 @@ static void test_kruskal() {
   free_graph_fixture(graph);
 }
 
+static void test_prim() {
+  Graph* graph = build_graph_fixtures();
+
+  Graph_add_edge(graph, "v2", "v1", DoubleContainer_new(1.0));
+  Graph_add_edge(graph, "v4", "v1", DoubleContainer_new(3.0));
+  Graph_add_edge(graph, "v3", "v2", DoubleContainer_new(4.0));
+  Graph_add_edge(graph, "v2", "v4", DoubleContainer_new(1.0));
+  Graph_add_edge(graph, "v5", "v3", DoubleContainer_new(1.0));
+  Graph_add_edge(graph, "v5", "v4", DoubleContainer_new(0.0));
+  Graph_add_edge(graph, "v6", "v4", DoubleContainer_new(3.0));
+  Graph_add_edge(graph, "v6", "v5", DoubleContainer_new(2.0));
+
+  Graph_add_vertex(graph, "v8");
+  Graph_add_vertex(graph, "v9");
+
+  Graph_add_edge(graph, "v8", "v9", DoubleContainer_new(3.0));
+  Graph_add_edge(graph, "v9", "v8", DoubleContainer_new(3.0));
+
+  double (*info_to_double)(const void*);
+  info_to_double = (double (*)(const void*)) DoubleContainer_get;
+
+  Prim* k = Prim_new(graph, info_to_double);
+  Graph* mintree = Prim_mintree(k, "v1");
+  __block double treesize = 0.0;
+
+  for_each(Edge_it(mintree), ^(void* obj) {
+    EdgeInfo* ei = obj;
+    treesize += DoubleContainer_get(ei->info);
+  });
+
+  assert_equal32( (int)treesize/2, 8);
+
+  Prim_free(k);
+  Graph_free(mintree);
+  free_graph_fixture(graph);
+}
+
 static void test_graph_foreach_edge() {
   Graph* graph = build_graph_fixtures();
   __block size_t count = 0;
@@ -397,6 +435,11 @@ int main() {
   start_tests("kruskal");
   test(test_kruskal);
   end_tests();
+
+  start_tests("prim");
+  test(test_prim);
+  end_tests();
+
 
   start_tests("visits");
   test(test_dfs_visit);
