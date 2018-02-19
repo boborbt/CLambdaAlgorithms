@@ -67,6 +67,10 @@ EdgeIterator* Graph_adjacents(Graph* graph, void* vertex);
 // prints a message and exit(1);
 void* Graph_edge_info(Graph* graph, const void* v1, const void* v2);
 
+// Substitute the edge info in an edge. If the edge is not present in the
+// graph it raises an error.
+void Graph_set_edge(Graph* graph, void* source, void* dest, void* info);
+
 // Returns 1 if the given vertex belongs to the graph. 0 otherwise.
 int Graph_has_vertex(Graph* graph, const void* v);
 

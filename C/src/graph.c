@@ -113,6 +113,14 @@ int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
   return 1;
 }
 
+// Substitute the edge info in an edge. If the edge is not present in the
+// graph it raises an error.
+void Graph_set_edge(Graph* graph, void* source, void* dest, void* info) {
+  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, source);
+  Dictionary_set(v1_adj_list, dest, info);
+}
+
+
 
 EdgeIterator* Graph_adjacents(Graph* graph, void* vertex) {
   Dictionary* adj_list = Graph_adjacents_dictionary(graph, vertex);
