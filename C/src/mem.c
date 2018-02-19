@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-
 static MemStats mem_stats = { 0, 0 };
+
+#if MEM_DEBUG_ON == 1
 
 #if MEM_VERBOSE == 1
 
@@ -117,6 +118,8 @@ char* Mem_strdup_ext(const char* str, char* UNUSED(file), size_t UNUSED(line)) {
   mem_stats.alloced_memory += malloc_size(tmp);
   return tmp;
 }
+
+#endif
 
 #endif
 
