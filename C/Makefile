@@ -2,7 +2,13 @@ include Makefile.vars
 
 MAKEFLAGS += --silent
 
-CFLAGS+=-Iinclude -g -DDEBUG
+CFLAGS+=-Iinclude
+
+# Debug levels
+CFLAGS+=-g
+# CFLAGS+=-DDEBUG
+# CFLAGS+=-DMEM_VERBOSE=1
+
 LDFLAGS+=-Llib
 
 define exec
@@ -56,7 +62,7 @@ lib/libcontainers_rb.a: build lib build/rb_tree.o $(COMMON_OBJECTS) $(HEADERS)
 
 # Source compilation
 
-build/%.o: src/%.c   Makefile Makefile.vars
+build/%.o: src/%.c   Makefile Makefile.vars $(HEADERS)
 	tput dim; echo Making $<; tput sgr 0
 	$(CC) $(CFLAGS) -c $< -o $@
 

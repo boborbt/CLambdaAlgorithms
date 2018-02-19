@@ -37,10 +37,11 @@ typedef struct {
 #define MEM_DEBUG_ON 0
 #endif
 
+#ifndef MEM_VERBOSE
 // Macro controlling the level of verbosity. Set it to 1 to make each
 // function to report information about their callings.
 #define MEM_VERBOSE 0
-
+#endif
 
 #if MEM_DEBUG_ON==1
   // These macros define the main interface to the library.
