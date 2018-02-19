@@ -62,6 +62,10 @@
    printf("\nassertion failed at file:%s line:%d. %d was expected to be false\n",\
     __FILE__, __LINE__, (a)); exit(1); }
 
+#define assert_not_reached() \
+    printf("\assertion failed at file:%s line:%d. program should never get to that point\n", \
+    __FILE__, __LINE__); exit(1);
+
 
 #define assert_exits_with_code(fun, code) do {\
     pid_t __ut_child_pid = fork(); \
