@@ -16,9 +16,10 @@ typedef enum {
 
 typedef struct {
   const char* parse_error;
-  const char* input_file;
+  const char* int_file;
+  const char* sum_file;
+
   PrintTime* pt;
-  long int desired_sum;
 
   Operation operation;
   int check_ok;
@@ -45,7 +46,7 @@ static Options parse_args(int argc, const char* argv[]) {
     return result;
   }
 
-  result.input_file = argv[2];
+  result.int_file = argv[2];
 
   const char* op_str = argv[1];
 
@@ -60,19 +61,12 @@ static Options parse_args(int argc, const char* argv[]) {
       break;
     case 'f':
       if(argc < 4) {
-        result.parse_error = "Option '-f' requires both a filename and a sum value";
+        result.parse_error = "Option '-f' requires both a data file name and a sum file name";
         return result;
       }
-
-      errno = 0;
 
       result.operation = OP_FIND_SUM;
-      result.desired_sum = strtol(argv[3], NULL, 0);
-
-      if(errno != 0) {
-        result.parse_error = "Error parsing the given sum value";
-        return result;
-      }
+      result.sum_file = argv[3];
 
       break;
   }
@@ -89,13 +83,13 @@ static void free_options(Options options) {
 
 static void print_usage() {
   printf("Usage:\n");
-  printf("   sorting-17-18 -s <filename>\n");
-  printf("or sorting-17-18 -f <filename> <sumvalue>\n");
+  printf("   sorting-17-18 -s <file name>\n");
+  printf("or sorting-17-18 -f <data file name> <sum file name>\n");
   printf("\n");
   printf("\nOptions:\n");
   printf(" -s: sorts the given file\n");
-  printf(" -f: find two values in the given file such that their sum is equal\n");
-  printf("     to the specified value\n");
+  printf(" -f: find pair of values in the given file such that their sum is equal\n");
+  printf("     to the sums provided in the 'sum file'\n");
 }
 
 static Array* load_dataset(Options options) {
@@ -103,16 +97,14 @@ static Array* load_dataset(Options options) {
 
   PrintTime_print(options.pt, "Dataset load", ^{
     printf("Dataset load...\n");
-    FILE* infile = fopen(options.input_file, "r");
+    FILE* infile = fopen(options.int_file, "r");
 
     while(!feof(infile)) {
       long int* number = (long int*) Mem_alloc(sizeof(long int));
-      fscanf(infile, "%ld", number);
-
-      if(feof(infile)) {
-        Mem_free(number);
-      } else {
+      if(fscanf(infile, "%ld", number) == 1) {;
         Array_add(result, number);
+      } else {
+        Mem_free(number);
       }
     }
 
@@ -144,47 +136,80 @@ static void sort_file(Options options) {
   Array_free(array);
 }
 
+static int find_sum(Array* array, long int sum, long int* first, long int* second) {
+  size_t start = 0;
+  size_t end = Array_size(array) - 1;
+  int found = 0;
 
-static void find_sum(Options options) {
+  while( start < end && !found ) {
+    long int low = *(long int*) Array_at(array, start);
+    long int high = *(long int*) Array_at(array, end);
+    if(low + high == sum) {
+      found = 1;
+    } else if(low + high < sum) {
+      start+=1;
+    } else {
+      end-=1;
+    }
+  }
+
+  if(found) {
+    *first = *(long int*) Array_at(array, start);
+    *second = *(long int*) Array_at(array, end);
+  }
+
+  return found;
+}
+
+static Array* load_sums(Options options) {
+  FILE* infile = fopen(options.sum_file, "r");
+  Array* sums = Array_new(100);
+
+  while(!feof(infile)) {
+    long int* sum = Mem_alloc(sizeof(long int));
+
+    if(fscanf(infile, "%ld", sum) == 1) {
+      Array_add(sums, sum);
+    } else {
+      Mem_free(sum);
+    }
+  }
+
+  return sums;
+}
+
+
+static void find_sums(Options options) {
 
   Array* array = load_dataset(options);
-
+  Array* sums = load_sums(options);
 
   PrintTime_print(options.pt, "Sorting...", ^{
     printf("Sorting...\n");
     Array_sort(array, Key_long_compare);
   });
 
+
   PrintTime_print(options.pt, "Searching...", ^{
+    printf("Searching sums...\n");
 
-    printf("Searching sum...\n");
-    size_t start = 0;
-    size_t end = Array_size(array) - 1;
-    int found = 0;
+    for_each(Array_it(sums), ^(void* sum_obj) {
+      long int sum = *(long int*) sum_obj;
+      long int first, second;
+      int found = find_sum(array, sum, &first, &second);
 
-    while( start < end && !found ) {
-      long int low = *(long int*) Array_at(array, start);
-      long int high = *(long int*) Array_at(array, end);
-      if(low + high == options.desired_sum) {
-        found = 1;
-      } else if(low + high < options.desired_sum) {
-        start+=1;
+      if(found) {
+        printf("Found values %ld, %ld whose sum is exactly %ld\n",
+            first, second, sum);
       } else {
-        end-=1;
+        printf("Could not find any pair of integers whose sum is %ld\n", sum);
       }
-    }
-
-    if(found) {
-      printf("Found values %ld, %ld whose sum is exactly %ld\n",
-          *(long int*)Array_at(array, start),
-          *(long int*)Array_at(array, end),
-          options.desired_sum);
-    } else {
-      printf("Could not find any pair of integers whose sum is %ld\n", options.desired_sum);
-    }
+    });
   });
 
   free_dataset_contents(array);
+  free_dataset_contents(sums);
+  Array_free(sums);
   Array_free(array);
 }
 
@@ -193,6 +218,7 @@ int main(int argc, char const *argv[]) {
   Options options = parse_args(argc, argv);
 
   if(!options.check_ok) {
+    printf("Error while parsing options: %s\n", options.parse_error);
     print_usage();
     exit(1);
   }
@@ -202,7 +228,7 @@ int main(int argc, char const *argv[]) {
       sort_file(options);
       break;
     case OP_FIND_SUM:
-      find_sum(options);
+      find_sums(options);
       break;
   }
 
