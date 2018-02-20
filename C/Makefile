@@ -3,13 +3,10 @@ include Makefile.vars
 MAKEFLAGS += --silent
 
 CFLAGS+=-Iinclude
-
-# Debug levels
-CFLAGS+=-g
-# CFLAGS+=-DDEBUG
-# CFLAGS+=-DMEM_VERBOSE=1
-
 LDFLAGS+=-Llib
+
+export CFLAGS
+export LDFLAGS
 
 define exec
 	@tput bold
