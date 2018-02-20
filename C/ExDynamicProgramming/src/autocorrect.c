@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
@@ -12,8 +13,41 @@
 
 typedef struct {
   unsigned long distance;
-  const char* closest_match;
+  Array* closest_matches;
 } EDResult;
+
+
+static int in_bad_char_set(char ch) {
+  switch(ch) {
+    case ',':
+    case '.':
+    case '\'':
+    case '\n':
+    case ':':
+    case ';':
+      return 1;
+    default:
+      return 0;
+  }
+}
+
+static void str_strip_chars(char* buf) {
+  int index = 0;
+
+  for(int i=0; buf[i]!='\0'; ++i) {
+    if(!in_bad_char_set(buf[i])) {
+      buf[index++] = buf[i];
+    }
+  }
+
+  buf[index] = '\0';
+}
+
+static void str_tolower(char* buf) {
+  for(int i=0; buf[i] != '\0'; ++i) {
+    buf[i] = (char) tolower(buf[i]);
+  }
+}
 
 static Array* load_strings(const char* filename) {
   FILE* file = fopen(filename, "r");
@@ -26,9 +60,9 @@ static Array* load_strings(const char* filename) {
 
   while(!feof(file)) {
     char buf[2048];
-    fscanf(file, "%s", buf);
-
-    if(!feof(file)) {
+    if(fscanf(file, "%s", buf)==1) {
+      str_strip_chars(buf);
+      str_tolower(buf);
       Array_add(array, strdup(buf));
     }
   }
@@ -41,7 +75,7 @@ static Array* load_strings(const char* filename) {
 static EDResult find_closest_match(const char* word, Array* word_list) {
   __block EDResult result;
   result.distance = ULONG_MAX;
-  result.closest_match = NULL;
+  result.closest_matches = NULL;
 
   if(Array_binsearch(word_list, ^(const void* obj) {
     const char* str = (const char*) obj;
@@ -51,21 +85,23 @@ static EDResult find_closest_match(const char* word, Array* word_list) {
     return result;
   }
 
+  result.closest_matches = Array_new(10);
 
-  find_first(Array_it(word_list), ^(void* obj) {
+  for_each(Array_it(word_list), ^(void* obj) {
     const char* match_candidate = (char*) obj;
     unsigned long distance = editing_distance(word, match_candidate);
 
+    if(distance == result.distance) {
+      Array_add(result.closest_matches, obj);
+      return;
+    }
+
     if(distance < result.distance) {
+      Array_free(result.closest_matches);
+      result.closest_matches = Array_new(10);
+      Array_add(result.closest_matches, obj);
       result.distance = distance;
-      result.closest_match = match_candidate;
     }
-
-    if(result.distance == 0) {
-      return 1;
-    }
-
-    return 0;
   });
 
   return result;
@@ -129,7 +165,14 @@ int main(int argc, char const *argv[]) {
 
       EDResult result = find_closest_match(word, word_list);
       if(result.distance != 0) {
-        printf("word %s is mispelled, the closest match is %s\n", word, result.closest_match);
+        printf("word %s is mispelled, the closest matches are:\n", word);
+        for_each(Array_it(result.closest_matches), ^(void* correction) {
+          printf("   %s\n", (const char*) correction);
+        });
+      }
+
+      if(result.closest_matches!=NULL) {
+        Array_free(result.closest_matches);
       }
     });
     printf("Done!\n");
