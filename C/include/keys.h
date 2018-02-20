@@ -41,6 +41,7 @@ KIHash KeyInfo_hash(KeyInfo*);
 
 int Key_string_compare(const void* e1, const void* e2);
 int Key_int_compare(const void* e1, const void* e2);
+int Key_long_compare(const void* e1, const void* e2);
 int Key_double_compare(const void* e1, const void* e2);
 size_t Key_string_hash(const void* e1);
 size_t Key_int_hash(const void* e);

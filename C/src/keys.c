@@ -41,6 +41,15 @@ int Key_int_compare(const void* e1, const void* e2) {
   return 0;
 }
 
+int Key_long_compare(const void* e1, const void* e2) {
+  long int i1 = *(const long int*) e1;
+  long int i2 = *(const long int*) e2;
+
+  if( i1 < i2 ) return -1;
+  if( i1 > i2 ) return 1;
+  return 0;
+}
+
 int Key_double_compare(const void* e1, const void* e2) {
   double d1 = *(const double*) e1;
   double d2 = *(const double*) e2;
