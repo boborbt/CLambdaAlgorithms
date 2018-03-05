@@ -62,10 +62,10 @@ void Array_remove(Array* array, size_t index);
 // sorts in-place the given array. The parameters to the compare function
 // are pointers to the objects inserted into the array. This implies that
 // it is usually necessary cast and a dereference to get the actual value:
-// e.g., if the array contains Record objects then the compare function
+// e.g., if the array contains Record objects then the compare block
 //   should be something like:
 //
-// int compare(const void* o1, const void* o2) {
+// int (^compare)(const void* o1, const void* o2) {
 //   Record rec1 =  o1;
 //   Record rec2 =  o2;
 //
