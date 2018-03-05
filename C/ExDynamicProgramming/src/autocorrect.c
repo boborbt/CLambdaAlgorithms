@@ -72,32 +72,32 @@ static Array* load_strings(const char* filename) {
   return array;
 }
 
-static unsigned long min(unsigned long v1, unsigned long v2) {
-  if(v1 < v2) {
-    return v1;
-  } else {
-    return v2;
-  }
-}
+// static unsigned long min(unsigned long v1, unsigned long v2) {
+//   if(v1 < v2) {
+//     return v1;
+//   } else {
+//     return v2;
+//   }
+// }
 
-// Recursive function to compute the editing distance between string1 and string2.
-static unsigned long editing_distance_dummy(const char* string1, const char* string2) {
-  if(string1[0] == '\0') {
-    return strlen(string2);
-  }
-
-  if(string2[0] == '\0') {
-    return strlen(string1);
-  }
-
-  unsigned long del_c = editing_distance_dummy(string1, string2+1) + 1;
-  unsigned long copy_c = editing_distance_dummy(string1+1, string2) + 1;
-  if(string1[0] == string2[0]) {
-    return min(del_c, min(copy_c, editing_distance_dummy(string1+1, string2+1)));
-  } else {
-    return min(del_c, copy_c);
-  }
-}
+// // Recursive function to compute the editing distance between string1 and string2.
+// static unsigned long editing_distance_dummy(const char* string1, const char* string2) {
+//   if(string1[0] == '\0') {
+//     return strlen(string2);
+//   }
+//
+//   if(string2[0] == '\0') {
+//     return strlen(string1);
+//   }
+//
+//   unsigned long del_c = editing_distance_dummy(string1, string2+1) + 1;
+//   unsigned long copy_c = editing_distance_dummy(string1+1, string2) + 1;
+//   if(string1[0] == string2[0]) {
+//     return min(del_c, min(copy_c, editing_distance_dummy(string1+1, string2+1)));
+//   } else {
+//     return min(del_c, copy_c);
+//   }
+// }
 
 static EDResult find_closest_match(const char* word, Array* word_list, unsigned long (editing_distance)(const char*, const char*)) {
   __block EDResult result;
@@ -192,7 +192,7 @@ int main(int argc, char const *argv[]) {
       const char* word = (char*) obj;
       printf("analyzing word: %s\n", word);
 
-      EDResult result = find_closest_match(word, word_list, editing_distance_dummy);
+      EDResult result = find_closest_match(word, word_list, editing_distance);
       if(result.distance != 0) {
         printf("word %s is mispelled, the closest matches are:\n", word);
         for_each(Array_it(result.closest_matches), ^(void* correction) {

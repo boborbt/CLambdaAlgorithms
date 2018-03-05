@@ -135,8 +135,8 @@ void Array_remove(Array* array, size_t index) {
   array->size -= 1;
 }
 
-void Array_sort(Array* array, KIComparator compare) {
-  quick_sort(Array_carray(array), Array_size(array), compare);
+void Array_sort(Array* array, int (^compare)(const void*, const void*)) {
+  quick_sort_wb(Array_carray(array), Array_size(array), compare);
 }
 
 size_t Array_binsearch(Array* array, int(^compare)(const void*)) {

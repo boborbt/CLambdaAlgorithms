@@ -73,8 +73,7 @@ void Array_remove(Array* array, size_t index);
 // }
 //
 //
-void Array_sort(Array* array, int (*compare)(const void*, const void*));
-// void Array_sort_f(Array* array, void (*compare)(void*,void*));
+void Array_sort(Array* array, int (^compare)(const void*, const void*));
 
 // Perform  a binary search into the array. The array is assumed to be sorted,
 // the compare function needs to return 0 if the given element is the one being

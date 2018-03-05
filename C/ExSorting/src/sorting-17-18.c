@@ -125,7 +125,9 @@ static void sort_file(Options options) {
 
   PrintTime_print(options.pt, "Sorting...", ^{
     printf("Sorting\n");
-    Array_sort(array, Key_long_compare);
+    Array_sort(array, ^(const void* lhs, const void* rhs) {
+      return Key_long_compare(lhs, rhs);
+    });
   });
 
   for(unsigned int i=0; i<10; ++i) {
@@ -186,7 +188,9 @@ static void find_sums(Options options) {
 
   PrintTime_print(options.pt, "Sorting...", ^{
     printf("Sorting...\n");
-    Array_sort(array, Key_long_compare);
+    Array_sort(array, ^(const void* lhs, const void* rhs) {
+      return Key_long_compare(lhs, rhs);
+    });
   });
 
 

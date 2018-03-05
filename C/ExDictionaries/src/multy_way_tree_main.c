@@ -49,7 +49,9 @@ static MultyWayTree* build_binary_search_tree(MultyWayTree* tree) {
     Array_add(values, MultyWayTree_get(node));
   });
 
-  Array_sort(values, (int(*)(const void*, const void*))strcmp);
+  Array_sort(values, ^(const void* lhs, const void* rhs) {
+    return strcmp(lhs, rhs);
+  });
 
   MultyWayTree* result = build_binary_search_tree_from_array(values, 0, Array_size(values)-1);
   Array_free(values);

@@ -8,7 +8,7 @@
 #include "array_g.h"
 #include <stdio.h>
 
-void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  KIComparator compare);
+void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  int (^compare)(const void*, const void*));
 
 static int compare(const void* elem1, const void* elem2) {
   long int e1 = (long int) elem1;
@@ -19,6 +19,10 @@ static int compare(const void* elem1, const void* elem2) {
 
   return 0;
 }
+
+static int (^compare_wb)(const void*, const void*) = ^(const void* lhs, const void* rhs) {
+  return compare(lhs, rhs);
+};
 
 static int compare_g(const void* elem1, const void* elem2) {
   int e1 = *(const int*) elem1;
@@ -168,7 +172,7 @@ static void test_partition_3_way_case1() {
 
   size_t p1;
   size_t p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
+  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare_wb);
   assert_equal( (long)4, (long)p1);
   assert_equal( (long)11, (long)p2);
   for(int i=0; i<14; ++i) {
@@ -182,7 +186,7 @@ static void test_partition_3_way_case2() {
 
   size_t p1;
   size_t p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
+  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare_wb);
   assert_equal( (long)4, (long)p1);
   assert_equal( (long)8, (long)p2);
   for(int i=0; i<14; ++i) {
@@ -196,7 +200,7 @@ static void test_partition_3_way_1_pivot() {
 
   size_t p1;
   size_t p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
+  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare_wb);
   assert_equal( (long)5, (long)p1);
   assert_equal( (long)7, (long)p2);
   for(size_t i=0; i<14; ++i) {
@@ -210,7 +214,7 @@ static void test_partition_3_way_all_pivots() {
 
   size_t p1;
   size_t p2;
-  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare);
+  partition_3_way((void**)a, 0, 13, 1, &p1, &p2, compare_wb);
   assert_equal( (long)0, (long)p1);
   assert_equal( (long)14, (long)p2);
   for(int i=0; i<14; ++i) {

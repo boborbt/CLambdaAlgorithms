@@ -3,8 +3,8 @@
 #include "quick_sort.h"
 #include "array_g.h"
 
-void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  KIComparator compare);
-void quick_sort_3_way(void** array, size_t start, size_t end, KIComparator compare);
+void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,int (^compare)(const void*, const void*) );
+void quick_sort_3_way(void** array, size_t start, size_t end, int (^compare)(const void*, const void*));
 void quick_sort_3_way_g(void* array, size_t start, size_t end, size_t size, KIComparator compare);
 void quick_sort_standard(void** array, size_t start, size_t end, KIComparator compare);
 
@@ -66,7 +66,7 @@ static void dump_status(const void** array, size_t start, size_t end, int i, int
 // at the end of the array. Last step in the procedure swap those values
 // with the first elements larger than the pivot.
 
-void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  KIComparator compare) {
+void partition_3_way(void** array, size_t start, size_t end, size_t pivot_pos, size_t* p1, size_t* p2,  int (^compare)(const void*, const void*)) {
   swap(&array[end], &array[pivot_pos]);
   const void* pivot = array[end];
 
@@ -188,7 +188,7 @@ void quick_sort_standard(void** array, size_t start, size_t end, KIComparator co
   quick_sort_standard(array, pivot_pos+1, end, compare );
 }
 
-void quick_sort_3_way(void** array, size_t start, size_t end, KIComparator compare) {
+void quick_sort_3_way(void** array, size_t start, size_t end, int (^compare)(const void*, const void*)) {
   if(end <= start ) {
     return;
   }
@@ -215,12 +215,18 @@ void quick_sort_3_way_g(void* array, size_t start, size_t end, size_t size, KICo
 }
 
 
-void quick_sort(void** array, size_t count, KIComparator compare) {
+void quick_sort_wb(void** array, size_t count, int (^compare)(const void*, const void*)) {
   if(count == 0) {
     return;
   }
   // quick_sort_standard(array, 0, count-1, compare);
   quick_sort_3_way(array, 0, count-1, compare);
+}
+
+void quick_sort(void** array, size_t count, KIComparator fun) {
+  quick_sort_wb(array, count, ^(const void* lhs, const void* rhs) {
+    return fun(lhs, rhs);
+  });
 }
 
 void quick_sort_g(void* array, size_t count, size_t size, KIComparator fun) {

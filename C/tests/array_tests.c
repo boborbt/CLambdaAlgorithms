@@ -261,7 +261,9 @@ static int compare_ints(const void* e1, const void* e2) {
 
 static void test_array_sort() {
   Array* array = build_fixtures2();
-  Array_sort(array, compare_ints);
+  Array_sort(array, ^(const void* lhs, const void* rhs) {
+    return compare_ints(lhs, rhs);
+  });
   for_each_with_index( Array_it(array),  ^(void* elem, size_t index) {
     assert_equal( (unsigned long) to_int(elem), index + 1);
   });
@@ -271,7 +273,9 @@ static void test_array_sort() {
 
 static void test_array_binsearch_success() {
   Array* array = build_fixtures2();
-  Array_sort(array, compare_ints);
+  Array_sort(array, ^(const void* lhs, const void* rhs) {
+    return compare_ints(lhs, rhs);
+  });
   int searched_elem = 3;
 
   size_t index = Array_binsearch(array, ^(const void* elem) {
@@ -284,7 +288,9 @@ static void test_array_binsearch_success() {
 
 static void test_array_binsearch_fail() {
   Array* array = build_fixtures2();
-  Array_sort(array, compare_ints);
+  Array_sort(array, ^(const void* lhs, const void* rhs) {
+    return compare_ints(lhs, rhs);
+  });
 
   int searched_elem = 8;
 

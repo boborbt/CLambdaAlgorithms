@@ -112,7 +112,9 @@ static Array* Kruskal_initEdgesArray(Kruskal* k) {
     Array_add( result,  ke);
   });
 
-  Array_sort(result, Kruskal_compare_edges);
+  Array_sort(result, ^(const void* lhs, const void* rhs) {
+    return Kruskal_compare_edges(lhs, rhs);
+  });
 
   return result;
 }
