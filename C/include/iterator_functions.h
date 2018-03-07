@@ -14,6 +14,14 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 // `condition` must evaluate to 1 if the given elem is the one sought.
 // it must evaluate to 0 otherwise.
 void* find_first(Iterator, int(^condition)(void* elem));
+
+// Finds an occurrence of the given elem. The iterator is assumed to be a random access iterator
+// on a sorted container. It returns the index of the found element or (size_t) -1.
+size_t binsearch(Iterator it, void* elem, int (^compare)(void* lhs, void* rhs));
+
+// Use the given function pointer to map into a new object each object in the container iterated by
+// the given iterator. It returns the array containing the mapped objects. The memory of the
+// returned Array needs to be freed by the user.
 Array* map(Iterator, void* (^)(void*));
 
 // Builds a new array from the elements accessible through
@@ -27,6 +35,7 @@ Array* filter(Iterator, int (^)(void*));
 // Returns the first element returned by the iterator
 void* first(Iterator it);
 
-// Returns the last element returned by the iterator (note: this
-// is a O(n) operation)
+// Returns the last element returned by the iterator
+// note: this is a O(n) operation unless the iterator implements the bidirectional iterator APIs,
+//     (in such case it is a O(1) operation).
 void* last(Iterator it);

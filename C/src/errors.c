@@ -23,6 +23,8 @@ const char* Error_code_to_string(ErrorCode code) {
       return "INDEX OUT OF BOUND ERROR";
     case ERROR_ARGUMENT_PARSING:
       return "PARSING ARGUMENT ERROR";
+    case ERROR_ITERATOR_MISUSE:
+      return "ITERATOR MISUSE ERROR";
   }
 }
 

@@ -183,16 +183,36 @@ void ArrayIterator_free(ArrayIterator* iterator) {
   Mem_free(iterator);
 }
 
+size_t ArrayIterator_size(ArrayIterator* it) {
+  return Array_size(it->array);
+}
+
 // Move the iterator to the next element. Do nothing if it is already past the
 // end of the container.
 void ArrayIterator_next(ArrayIterator* it) {
-  it->current_index += 1;
+  if(!ArrayIterator_end(it)) {
+    it->current_index += 1;
+  }
+}
+
+void ArrayIterator_prev(ArrayIterator* it) {
+  if(!ArrayIterator_end(it)) {
+    it->current_index -= 1;
+  }
+}
+
+void ArrayIterator_move_to(ArrayIterator* it, size_t new_position) {
+  it->current_index = new_position;
 }
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // ArrayIterator_get would return a sensible result), 0 otherwise.
 int ArrayIterator_end(ArrayIterator* it) {
-  return it->current_index >= it->array->size;
+  return it->current_index >= it->array->size || it->current_index == (size_t) -1;
+}
+
+void ArrayIterator_to_end(ArrayIterator* it) {
+  it->current_index = Array_size(it->array) - 1;
 }
 
 // Returns the element currently pointed by the iterator
@@ -200,9 +220,11 @@ void* ArrayIterator_get(ArrayIterator* it) {
   return Array_at(it->array, it->current_index);
 }
 
+
+
 Iterator Array_it(Array* array)
 {
- return Iterator_make(
+ Iterator iterator =  Iterator_make(
    array,
    (void* (*)(void*)) ArrayIterator_new,
    (void (*)(void*))  ArrayIterator_next,
@@ -210,14 +232,18 @@ Iterator Array_it(Array* array)
    (int (*)(void*))   ArrayIterator_end,
    (void (*)(void*))  ArrayIterator_free
  );
+
+ iterator = BidirectionalIterator_make(
+   iterator,
+   (void (*)(void*)) ArrayIterator_prev,
+   (void (*)(void*)) ArrayIterator_to_end
+ );
+
+ iterator = RandomAccessIterator_make(
+   iterator,
+   (void (*)(void*, size_t)) ArrayIterator_move_to,
+   (size_t (*)(void*)) ArrayIterator_size
+ );
+
+ return iterator;
 }
-//
-// void for_each_with_index( Array_it(Array* array),  void (^callback)(void*, size_t)) {
-//   ArrayIterator* it = ArrayIterator_new(array);
-//   size_t count = 0;
-//   while(!ArrayIterator_end(it)) {
-//     callback(ArrayIterator_get(it), count++);
-//     ArrayIterator_next(it);
-//   }
-//   ArrayIterator_free(it);
-// }

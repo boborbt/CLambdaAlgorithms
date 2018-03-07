@@ -112,6 +112,25 @@ static void test_array_iterator() {
   free_fixtures(array);
 }
 
+static void test_array_reverse_iterator() {
+  Array* array = build_fixtures();
+
+  ArrayIterator* it = ArrayIterator_new(array);
+  ArrayIterator_to_end(it);
+
+  int count = 5;
+
+  while(!ArrayIterator_end(it)) {
+    int elem = to_int(ArrayIterator_get(it));
+    assert_equal((long) count, (long) elem);
+    count -= 1;
+    ArrayIterator_prev(it);
+  }
+  ArrayIterator_free(it);
+
+  free_fixtures(array);
+}
+
 static void test_array_add() {
   Array* array = build_fixtures();
   Array_add(array, from_int(11));
@@ -376,6 +395,7 @@ int main() {
   test(test_array_binsearch_success);
   test(test_array_binsearch_fail);
   test(test_array_iterator);
+  test(test_array_reverse_iterator);
   test(test_array_foreach);
   test(test_array_foreach_with_index);
   test(test_array_dup);

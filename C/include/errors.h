@@ -9,7 +9,8 @@ typedef enum {
   ERROR_FILE_READING,
   ERROR_FILE_WRITING,
   ERROR_FILE_LOCKING,
-  ERROR_INDEX_OUT_OF_BOUND
+  ERROR_INDEX_OUT_OF_BOUND,
+  ERROR_ITERATOR_MISUSE
 } ErrorCode;
 
 // Creates a new error with the given code and error message

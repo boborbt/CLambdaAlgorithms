@@ -16,12 +16,21 @@
 typedef struct _Iterator Iterator;
 
 struct _Iterator {
+  // all iterators
   void* container;
   void* (*new)(void*);
   void  (*next)(void*);
   void* (*get)(void*);
   int   (*end)(void* it);
   void  (*free)(void*);
+
+  // random access iterators
+  void   (*move_to)(void*, size_t);
+  size_t (*size)(void*);
+
+  // bidirectional iterators
+  void   (*prev)(void*);
+  void   (*to_end)(void*);
 };
 
 
@@ -53,4 +62,17 @@ Iterator Iterator_make(
   void* (*get)(void*),
   int   (*end)(void* it),
   void  (*free)(void*)
+);
+
+
+Iterator RandomAccessIterator_make(
+  Iterator iterator,
+  void   (*move_to)(void*, size_t),
+  size_t (*size)(void*)
+);
+
+Iterator BidirectionalIterator_make(
+  Iterator iterator,
+  void  (*prev)(void*),
+  void  (*to_end)(void*)
 );

@@ -87,9 +87,25 @@ size_t Array_binsearch(Array* array, int(^compare)(const void*));
 ArrayIterator* ArrayIterator_new(Array*);
 void ArrayIterator_free(ArrayIterator*);
 
+size_t ArrayIterator_size(ArrayIterator*);
+
 // Move the iterator to the next element. Do nothing if it is already past the
 // end of the container.
-void ArrayIterator_next(ArrayIterator* it);
+void ArrayIterator_next(ArrayIterator*);
+
+// Move the iterator to the next element. Do nothing if it is already past the
+// end of the container.
+void ArrayIterator_next(ArrayIterator*);
+
+// Move the iterator to the previous element. Do nothing if it is already past the
+// end (i.e., beginning) of the container.
+void ArrayIterator_prev(ArrayIterator*);
+
+void ArrayIterator_move_to(ArrayIterator*, size_t);
+
+// Moves the iterator to the end of the container (i.e., on the last element)
+void ArrayIterator_to_end(ArrayIterator*);
+
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // ArrayIterator_get would not return a sensible result), 0 otherwise.

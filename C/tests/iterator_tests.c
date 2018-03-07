@@ -4,6 +4,20 @@
 #include "double_container.h"
 #include "iterator_functions.h"
 
+
+
+static int (^compare_dbl)(void*, void*) = ^(void* lhs_obj, void* rhs_obj) {
+  double lhs = DoubleContainer_get(lhs_obj);
+  double rhs = DoubleContainer_get(rhs_obj);
+  if( fabs(lhs - rhs) < 0.0001 ) {
+    return 0;
+  } else if(lhs < rhs) {
+    return -1;
+  } else {
+    return 1;
+  }
+};
+
 static Array* build_fixtures() {
   Array* array = Array_new(10);
   DoubleContainer* val = DoubleContainer_new(1.0);
@@ -152,6 +166,40 @@ static void test_last() {
   free_fixtures(array);
 }
 
+static void test_binary_search() {
+  Array* array = build_fixtures();
+
+  for(double val = 1.0; val < 6.0; val += 1.0) {
+    void* obj = DoubleContainer_new(val);
+
+    size_t index = binsearch(Array_it(array), obj, compare_dbl);
+    assert_double_equal(val, DoubleContainer_get(Array_at(array, index)), 0.00001);
+
+    DoubleContainer_free(obj);
+  }
+
+  free_fixtures(array);
+}
+
+
+static void test_binary_search_elem_not_present() {
+  Array* array = build_fixtures();
+  void* obj;
+  size_t index;
+
+  obj = DoubleContainer_new(12.0);
+  index = binsearch(Array_it(array), obj, compare_dbl);
+  assert_equal((size_t) -1l, index);
+  DoubleContainer_free(obj);
+
+  obj = DoubleContainer_new(-1.0);
+  index = binsearch(Array_it(array), obj, compare_dbl);
+  assert_equal((size_t) -1l, index);
+  DoubleContainer_free(obj);
+
+  free_fixtures(array);
+}
+
 
 int main() {
   start_tests("iterators");
@@ -163,6 +211,8 @@ int main() {
   test(test_filter);
   test(test_first);
   test(test_last);
+  test(test_binary_search);
+  test(test_binary_search_elem_not_present);
   end_tests();
 
   return 0;
