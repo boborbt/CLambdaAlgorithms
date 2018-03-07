@@ -134,8 +134,11 @@ static void sort_file(Options options) {
     printf("%d: %ld\n", i, *(long int*)Array_at(array, i));
   }
 
-  free_dataset_contents(array);
-  Array_free(array);
+  PrintTime_print(options.pt, "Freeing memory...", ^{
+    printf("Freeing memory...\n");
+    free_dataset_contents(array);
+    Array_free(array);
+  });
 }
 
 static int find_sum(Array* array, long int sum, long int* first, long int* second) {
@@ -211,10 +214,12 @@ static void find_sums(Options options) {
     });
   });
 
-  free_dataset_contents(array);
-  free_dataset_contents(sums);
-  Array_free(sums);
-  Array_free(array);
+  PrintTime_print(options.pt, "Freeing memory...", ^{
+    free_dataset_contents(array);
+    free_dataset_contents(sums);
+    Array_free(sums);
+    Array_free(array);
+  });
 }
 
 
