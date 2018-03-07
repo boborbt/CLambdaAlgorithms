@@ -5,6 +5,9 @@
 
 // Calls callback on each element of the container iterated by the given Iterator
 void for_each(Iterator, void (^callback)(void* elem));
+
+// Calls callback on each element of the container iterated by the given Iterator
+// it passes to the callback the current element and the current index.
 void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 
 // Finds the first element matching the condition evaluated by the callback
