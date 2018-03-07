@@ -10,4 +10,6 @@ C/bin
 *.yml
 *.class
 *.csv
+C/*.txt
+.tags
 bin
