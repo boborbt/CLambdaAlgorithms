@@ -22,6 +22,7 @@ struct _Iterator {
   void  (*next)(void*);
   void* (*get)(void*);
   int   (*end)(void* it);
+  int   (*same)(void* it1, void* it2);
   void  (*free)(void*);
 
   // random access iterators
@@ -31,6 +32,9 @@ struct _Iterator {
   // bidirectional iterators
   void   (*prev)(void*);
   void   (*to_end)(void*);
+
+  // mutable iterators
+  void   (*set)(void*, void*);
 };
 
 
@@ -53,6 +57,8 @@ struct _Iterator {
 //        the iterator. It takes in input the iterator object.
 // - end: a pointer to a function that takes in input the iterator object and returns true if
 //        it has reached the end of the container and false otherwise.
+// - same: a pointer to a function that returns 1 if the given two iterators point to the same
+//        point in the container and 0 otherwise
 // - free: a pointer to a function that takes in input the iterator object and deallocates it.
 
 Iterator Iterator_make(
@@ -61,6 +67,7 @@ Iterator Iterator_make(
   void  (*_next)(void*),
   void* (*_get)(void*),
   int   (*_end)(void* it),
+  int   (*_same)(void* it1, void* it2),
   void  (*_free)(void*)
 );
 
@@ -101,4 +108,10 @@ Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),
   void  (*to_end)(void*)
+);
+
+
+Iterator MutableIterator_make(
+  Iterator iterator,
+  void  (*set)(void*, void*)
 );

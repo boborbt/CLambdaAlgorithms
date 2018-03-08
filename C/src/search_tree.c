@@ -64,6 +64,10 @@ KeyValue* DictionaryIterator_get(DictionaryIterator* it) {
   return &((Node*)Stack_top(it->stack))->kv;
 }
 
+int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2) {
+  return Stack_same(it1->stack, it2->stack);
+}
+
 
 /* --------------------------
  * Nodes implementation

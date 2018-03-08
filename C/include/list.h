@@ -86,9 +86,15 @@ void ListIterator_prev(ListIterator* it);
 // Moves the iterator to the end of the list
 void ListIterator_to_end(ListIterator* it);
 
+// Returns 1 if it1 and it2 points to the same element of the list or 0 otherwise.
+int ListIterator_same(ListIterator* it1, ListIterator* it2);
+
 // Returns true if either the iterator is null or if it moved after the last
 // element
 int ListIterator_end(ListIterator*);
+
+// Store obj into the element currently pointed by the iterator
+void ListIterator_set(ListIterator* it, void* obj);
 
 // Iterator interface
 Iterator List_it(List* list);

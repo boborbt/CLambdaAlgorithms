@@ -94,6 +94,9 @@ void EdgeIterator_next(EdgeIterator* it);
 EdgeInfo* EdgeIterator_get(EdgeIterator* it);
 
 
+int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2);
+
+
 //
 // VERTEX ITERATOR
 //
@@ -110,6 +113,8 @@ void VertexIterator_next(VertexIterator* it);
 
 // Returns the EdgeInfo currently pointed by the iterator.
 void* VertexIterator_get(VertexIterator* it);
+
+int  VertexIterator_same(VertexIterator* it1, VertexIterator* it2);
 
 //
 // FOREACH methods

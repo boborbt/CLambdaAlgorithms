@@ -10,7 +10,8 @@ Iterator Iterator_make(
   void*  (*new)(void*),
   void  (*next)(void*),
   void* (*get)(void*),
-  int   (*end)(void* it),
+  int   (*end)(void*),
+  int   (*same)(void*, void*),
   void  (*free)(void*)
 ) {
   Iterator it;
@@ -20,13 +21,19 @@ Iterator Iterator_make(
   it.next=next;
   it.get=get;
   it.end=end;
+  it.same=same;
   it.free=free;
 
+  // bidirectional
   it.move_to = NULL;
   it.size = NULL;
 
+  // random access
   it.prev = NULL;
   it.to_end = NULL;
+
+  // mutable
+  it.set = NULL;
 
   return it;
 }
@@ -50,6 +57,15 @@ Iterator BidirectionalIterator_make(
 ) {
   iterator.prev = prev;
   iterator.to_end = to_end;
+
+  return iterator;
+}
+
+Iterator MutableIterator_make(
+  Iterator iterator,
+  void  (*set)(void*, void*)
+) {
+  iterator.set = set;
 
   return iterator;
 }
@@ -125,7 +141,7 @@ void* find_last(Iterator it, int(^condition)(void* elem)) {
   }
   void* iterator = it.new_iterator(it.container);
   it.to_end(iterator);
-  
+
   void* result = find_first_(it, iterator, it.prev, condition);
 
   it.free(iterator);
@@ -207,6 +223,38 @@ void* first(Iterator it) {
 
   it.free(iterator);
   return result;
+}
+
+void reverse(Iterator it) {
+  if(it.set == NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a mutable iterator as required"));
+  }
+
+  if(it.to_end==NULL || it.prev==NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a bidirectional iterator as required"));    
+  }
+
+  void* fw_iterator = it.new_iterator(it.container);
+  void* bw_iterator = it.new_iterator(it.container);
+
+  it.to_end(bw_iterator);
+  int stop = it.same(fw_iterator, bw_iterator);
+
+  while(!stop) {
+    void* fw_obj = it.get(fw_iterator);
+    void* bw_obj = it.get(bw_iterator);
+    it.set(fw_iterator, bw_obj);
+    it.set(bw_iterator, fw_obj);
+
+    it.next(fw_iterator);
+    stop = it.same(fw_iterator, bw_iterator);
+
+    if(!stop) {
+      it.prev(bw_iterator);
+    }
+
+    stop = it.same(fw_iterator, bw_iterator);
+  }
 }
 
 void* last(Iterator it) {

@@ -56,6 +56,11 @@ void Array_free(Array* array) {
 }
 
 // Accessors
+
+int Array_same(Array* a1, Array* a2) {
+  return a1->size == a2->size && memcmp(a1->carray, a2->carray, sizeof(void*) * a1->size);
+}
+
 void* Array_at(Array* array, size_t index) {
   if(index >= Array_size(array)) {
     Error_raise(Error_new(ERROR_INDEX_OUT_OF_BOUND, "Index %ld is out of bounds (0,%ld)", index, Array_size(array) ));
@@ -189,6 +194,15 @@ void* ArrayIterator_get(ArrayIterator* it) {
   return Array_at(it->array, it->current_index);
 }
 
+// Returns the element currently pointed by the iterator
+void ArrayIterator_set(ArrayIterator* it, void* value) {
+  Array_set(it->array, it->current_index, value);
+}
+
+int ArrayIterator_same(ArrayIterator* it1, ArrayIterator* it2) {
+  return it1->array == it2->array && it1->current_index == it2->current_index;
+}
+
 
 
 Iterator Array_it(Array* array)
@@ -199,6 +213,7 @@ Iterator Array_it(Array* array)
    (void (*)(void*))  ArrayIterator_next,
    (void* (*)(void*)) ArrayIterator_get,
    (int (*)(void*))   ArrayIterator_end,
+   (int (*)(void*, void*)) ArrayIterator_same,
    (void (*)(void*))  ArrayIterator_free
  );
 
@@ -212,6 +227,11 @@ Iterator Array_it(Array* array)
    iterator,
    (void (*)(void*, size_t)) ArrayIterator_move_to,
    (size_t (*)(void*)) ArrayIterator_size
+ );
+
+ iterator = MutableIterator_make(
+   iterator,
+   (void (*)(void*, void*)) ArrayIterator_set
  );
 
  return iterator;

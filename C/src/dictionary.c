@@ -5,10 +5,11 @@ Iterator Dictionary_it(Dictionary* dictionary) {
  return Iterator_make(
    dictionary,
    (void* (*)(void*)) DictionaryIterator_new,
-   (void (*)(void*))  DictionaryIterator_next,
+   (void  (*)(void*))  DictionaryIterator_next,
    (void* (*)(void*)) DictionaryIterator_get,
-   (int (*)(void*))   DictionaryIterator_end,
-   (void (*)(void*))  DictionaryIterator_free
+   (int   (*)(void*))   DictionaryIterator_end,
+   (int   (*)(void*, void*)) DictionaryIterator_same,
+   (void  (*)(void*))  DictionaryIterator_free
  );
 }
 

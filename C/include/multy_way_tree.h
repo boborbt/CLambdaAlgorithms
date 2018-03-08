@@ -3,7 +3,7 @@
 #include "array.h"
 
 typedef struct _MultyWayTree MultyWayTree;
-typedef struct _MultyWayTreeIterator* MultyWayTreeIterator;
+typedef struct _MultyWayTreeIterator MultyWayTreeIterator;
 
 // constructor
 MultyWayTree* MultyWayTree_new(void* root_content);
@@ -50,19 +50,22 @@ size_t MultyWayTree_max_branching_factor(MultyWayTree*);
 
 // -- ITERATOR --
 // Iterator
-MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree*);
-void MultyWayTreeIterator_free(MultyWayTreeIterator);
+MultyWayTreeIterator* MultyWayTreeIterator_new(MultyWayTree*);
+void MultyWayTreeIterator_free(MultyWayTreeIterator*);
 
 // Move the iterator to the next element. Do nothing if it is already past the
 // end of the container.
-void MultyWayTreeIterator_next(MultyWayTreeIterator it);
+void MultyWayTreeIterator_next(MultyWayTreeIterator* it);
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // MultyWayTreeIterator_get would not return a sensible result), 0 otherwise.
-int MultyWayTreeIterator_end(MultyWayTreeIterator it);
+int MultyWayTreeIterator_end(MultyWayTreeIterator* it);
 
 // Returns the element currently pointed by the iterator
-void* MultyWayTreeIterator_get(MultyWayTreeIterator it);
+void* MultyWayTreeIterator_get(MultyWayTreeIterator* it);
+
+// Returns 1 if it1 and it2 points to the same position in the container, retunrs 0 otherwise.
+int MultyWayTreeIterator_same(MultyWayTreeIterator* it1, MultyWayTreeIterator* it2);
 
 // iterator
 

@@ -18,6 +18,10 @@ void Array_free(Array*);
 // Accessors
 //
 
+// Returns 1 if a1 and a2 contains the same objects, 0 otherwise.
+int Array_same(Array* a1, Array* a2);
+
+
 // Returns a pointer to the object at the given index. It raises an ERROR_INDEX_OUT_OF_BOUND
 // if index is not in bounds. Bounds are [0, Array_size(array)-1]
 void* Array_at(Array* array, size_t index);
@@ -105,6 +109,14 @@ int ArrayIterator_end(ArrayIterator* it);
 
 // Returns the element currently pointed by the iterator
 void* ArrayIterator_get(ArrayIterator* it);
+
+// Sets the current pointed element to the given value
+void ArrayIterator_set(ArrayIterator* it, void* value);
+
+// Returns 1 if it1 and it2 points to the same element in the array, 0 otherwise.
+int ArrayIterator_same(ArrayIterator* it1, ArrayIterator* it2);
+
+
 
 //
 // Iterator maker

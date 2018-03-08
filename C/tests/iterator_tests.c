@@ -1,6 +1,7 @@
 #include "unit_testing.h"
 #include "iterator.h"
 #include "array.h"
+#include "list.h"
 #include "double_container.h"
 #include "iterator_functions.h"
 
@@ -39,6 +40,29 @@ static Array* build_fixtures() {
   Array_add(array, val);
 
   return array;
+}
+
+static List* build_fixtures_lists() {
+  List* list = List_new();
+  DoubleContainer* val = DoubleContainer_new(1.0);
+  List_append(list, val);
+
+  val = DoubleContainer_new(2.0);
+  List_append(list, val);
+
+  val = DoubleContainer_new(3.0);
+  List_append(list, val);
+
+  val = DoubleContainer_new(4.0);
+  List_append(list, val);
+
+  val = DoubleContainer_new(5.0);
+  List_append(list, val);
+
+  val = DoubleContainer_new(6.0);
+  List_append(list, val);
+
+  return list;
 }
 
 static void free_fixtures(Array* array) {
@@ -218,6 +242,23 @@ static void test_binary_search_elem_not_present() {
   free_fixtures(array);
 }
 
+static void test_reverse() {
+  Array* reversed = build_fixtures();
+  reverse(Array_it(reversed));
+
+  for_each_with_index(Array_it(reversed), ^(void* obj, size_t index) {
+    assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
+  });
+}
+
+static void test_reverse_lists() {
+  List* reversed = build_fixtures_lists();
+  reverse(List_it(reversed));
+
+  for_each_with_index(List_it(reversed), ^(void* obj, size_t index) {
+    assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
+  });
+}
 
 int main() {
   start_tests("iterators");
@@ -232,6 +273,8 @@ int main() {
   test(test_last);
   test(test_binary_search);
   test(test_binary_search_elem_not_present);
+  test(test_reverse);
+  test(test_reverse_lists);
   end_tests();
 
   return 0;

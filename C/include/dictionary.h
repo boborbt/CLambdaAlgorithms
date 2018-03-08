@@ -64,6 +64,9 @@ int DictionaryIterator_end(DictionaryIterator* it);
 // Returns the element currently pointed by the iterator
 KeyValue* DictionaryIterator_get(DictionaryIterator* it);
 
+// Returns 1 if it1 and it2 points to the same place in the container, retunrs 0 otherwise.
+int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2);
+
 
 // Important notice: the iterator will return KeyValue* objects.
 // so a tipical for_each will be something like:

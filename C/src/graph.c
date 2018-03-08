@@ -19,7 +19,7 @@ struct _Graph {
 struct _EdgeIterator {
   Graph* graph;
   VertexIterator* vertex_it;
- DictionaryIterator* dic_it;
+  DictionaryIterator* dic_it;
   void* current_source;
 
   EdgeInfo result;
@@ -215,6 +215,15 @@ EdgeInfo* EdgeIterator_get(EdgeIterator* it) {
   return &it->result;
 }
 
+int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2) {
+  return
+    it1->graph           ==  it2->graph &&
+    VertexIterator_same(it1->vertex_it,it2->vertex_it) &&
+    DictionaryIterator_same(it1->dic_it,it2->dic_it) &&
+    it1->current_source  ==  it2->current_source;
+}
+
+
 void VertexIterator_free(VertexIterator* it) {
   DictionaryIterator_free(it->dic_it);
   Mem_free(it);
@@ -232,13 +241,19 @@ void* VertexIterator_get(VertexIterator* it) {
   return (void*) DictionaryIterator_get(it->dic_it)->key;
 }
 
+int VertexIterator_same(VertexIterator* it1, VertexIterator* it2) {
+  return DictionaryIterator_same(it1->dic_it, it2->dic_it);
+}
+
+
 Iterator Vertex_it(Graph* graph) {
  return Iterator_make(
    graph,
-   (void* (*)(void*)) Graph_vertices,
+   (void*(*)(void*)) Graph_vertices,
    (void (*)(void*))  VertexIterator_next,
-   (void* (*)(void*)) VertexIterator_get,
-   (int (*)(void*))   VertexIterator_end,
+   (void*(*)(void*)) VertexIterator_get,
+   (int  (*)(void*))   VertexIterator_end,
+   (int  (*)(void*, void*)) VertexIterator_same,
    (void (*)(void*))  VertexIterator_free
  );
 }
@@ -251,6 +266,7 @@ Iterator Edge_it(Graph* graph) {
     (void (*)(void*))  EdgeIterator_next,
     (void* (*)(void*)) EdgeIterator_get,
     (int (*)(void*))   EdgeIterator_end,
+    (int  (*)(void*, void*)) EdgeIterator_same,
     (void (*)(void*))  EdgeIterator_free
   );
 }
@@ -267,6 +283,7 @@ Iterator AdjacentsEdge_it(EdgeIterator* it) {
   (void (*)(void*))  EdgeIterator_next,
   (void* (*)(void*)) EdgeIterator_get,
   (int (*)(void*))   EdgeIterator_end,
+  (int  (*)(void*, void*)) EdgeIterator_same,
   (void (*)(void*))  EdgeIterator_free
 );
 }

@@ -171,6 +171,10 @@ void* ArrayAltIterator_get(ArrayAltIterator* it) {
   return ArrayAlt_at(it->array, it->current_index);
 }
 
+int ArrayAltIterator_same(ArrayAltIterator* it1, ArrayAltIterator* it2) {
+  return  it1->array == it2->array && it1->current_index == it2->current_index;
+}
+
 Iterator ArrayAlt_it(ArrayAlt* array)
 {
  return Iterator_make(
@@ -179,6 +183,7 @@ Iterator ArrayAlt_it(ArrayAlt* array)
    (void (*)(void*))  ArrayAltIterator_next,
    (void* (*)(void*)) ArrayAltIterator_get,
    (int (*)(void*))   ArrayAltIterator_end,
+   (int (*)(void*, void*)) ArrayAltIterator_same,
    (void (*)(void*))  ArrayAltIterator_free
  );
 }

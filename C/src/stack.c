@@ -52,3 +52,7 @@ void Stack_free(Stack* stack) {
   Array_free(stack->array);
   Mem_free(stack);
 }
+
+int Stack_same(Stack* s1, Stack* s2) {
+  return Array_same(s1->array, s2->array);
+}

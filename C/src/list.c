@@ -240,6 +240,15 @@ int ListIterator_end(ListIterator* it) {
   return it==NULL || it->current == NULL;
 }
 
+int ListIterator_same(ListIterator* it1, ListIterator* it2) {
+  return  it1->current == it2->current &&
+          it1->tail == it2->tail;
+}
+
+void ListIterator_set(ListIterator* it, void* obj) {
+  it->current->elem = obj;
+}
+
 Iterator List_it(List* list) {
   Iterator iterator = Iterator_make(
     list,
@@ -247,12 +256,17 @@ Iterator List_it(List* list) {
     (void (*)(void*))  ListIterator_next,
     (void* (*)(void*)) ListIterator_get,
     (int (*)(void*))   ListIterator_end,
+    (int (*)(void*, void*)) ListIterator_same,
     (void (*)(void*))  ListIterator_free
   );
 
   iterator = BidirectionalIterator_make(iterator,
     (void  (*)(void*)) ListIterator_prev,
     (void  (*)(void*)) ListIterator_to_end
+  );
+
+  iterator = MutableIterator_make(iterator,
+    (void (*)(void*, void*)) ListIterator_set
   );
 
   return iterator;

@@ -85,6 +85,13 @@ void DictionaryIterator_next(DictionaryIterator* it) {
   }
 }
 
+int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2) {
+  return
+    it1->dictionary == it2->dictionary &&
+    it1->cur_index == it2->cur_index &&
+    it1->cur_list_element == it2->cur_list_element;
+}
+
 
 
 /* --------------------------

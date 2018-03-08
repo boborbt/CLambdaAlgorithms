@@ -26,3 +26,5 @@ void Stack_push(Stack* stack, void* node);
 
 // Returns 1 if the stack is empty, 0 otherwise.
 int Stack_empty(Stack* stack);
+
+int Stack_same(Stack* s1, Stack* s2);

@@ -197,28 +197,28 @@ void MultyWayTree_free(MultyWayTree* root) {
 // --- Iterator
 
 // Iterator
-MultyWayTreeIterator MultyWayTreeIterator_new(MultyWayTree* tree) {
-  MultyWayTreeIterator iterator = (MultyWayTreeIterator) Mem_alloc(sizeof(struct _MultyWayTreeIterator));
+MultyWayTreeIterator* MultyWayTreeIterator_new(MultyWayTree* tree) {
+  MultyWayTreeIterator* iterator = (MultyWayTreeIterator*) Mem_alloc(sizeof(struct _MultyWayTreeIterator));
   iterator->state = Stack_new(100);
   Stack_push(iterator->state, tree);
   MultyWayTreeIterator_next(iterator);
   return iterator;
 }
 
-void MultyWayTreeIterator_free(MultyWayTreeIterator iterator) {
+void MultyWayTreeIterator_free(MultyWayTreeIterator* iterator) {
   Stack_free(iterator->state);
   Mem_free(iterator);
 }
 
 // Returns the element currently pointed by the iterator
-void* MultyWayTreeIterator_get(MultyWayTreeIterator it) {
+void* MultyWayTreeIterator_get(MultyWayTreeIterator* it) {
   return it->node;
 }
 
 
 // Move the iterator to the next element. Do nothing if it is already past the
 // end of the container.
-void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
+void MultyWayTreeIterator_next(MultyWayTreeIterator* it) {
   if(Stack_empty(it->state)) {
     it->node = NULL;
     return;
@@ -241,8 +241,12 @@ void MultyWayTreeIterator_next(MultyWayTreeIterator it) {
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // MultyWayTreeIterator_get would not return a sensible result), 0 otherwise.
-int MultyWayTreeIterator_end(MultyWayTreeIterator it) {
+int MultyWayTreeIterator_end(MultyWayTreeIterator* it) {
   return it->node == NULL;
+}
+
+int MultyWayTreeIterator_same(MultyWayTreeIterator* it1, MultyWayTreeIterator* it2) {
+  return it1->node == it2->node;
 }
 
 
@@ -254,6 +258,7 @@ Iterator MultyWayTree_it(MultyWayTree* tree) {
     (void (*)(void*)) MultyWayTreeIterator_next,
     (void* (*)(void*)) MultyWayTreeIterator_get,
     (int (*)(void*)) MultyWayTreeIterator_end,
+    (int (*)(void*,void*)) MultyWayTreeIterator_same,
     (void (*)(void*)) MultyWayTreeIterator_free
   );
 }

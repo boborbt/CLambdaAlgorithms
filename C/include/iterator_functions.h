@@ -43,6 +43,11 @@ Array* map(Iterator, void* (^)(void*));
 //   for some reason).
 Array* filter(Iterator, int (^)(void*));
 
+
+// Reverses the content of the given iterator. The given iterator must be a bidirectional mutable
+// iterator.
+void reverse(Iterator it);
+
 // Returns the first element returned by the iterator
 void* first(Iterator it);
 
