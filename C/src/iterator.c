@@ -94,17 +94,39 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
 }
 
 
-void* find_first(Iterator it, int(^condition)(void* elem)) {
-  void* iterator = it.new_iterator(it.container);
-
+static void* find_first_(Iterator it, void* iterator, void (*next)(void*), int(^condition)(void* elem)) {
   while(!it.end(iterator) && condition(it.get(iterator)) == 0) {
-    it.next(iterator);
+    next(iterator);
   }
   void* result = NULL;
 
   if(!it.end(iterator)) {
     result = it.get(iterator);
   }
+
+  return result;
+}
+
+
+void* find_first(Iterator it, int(^condition)(void* elem)) {
+  void* iterator = it.new_iterator(it.container);
+
+  void* result = find_first_(it, iterator, it.next, condition);
+
+  it.free(iterator);
+  return result;
+}
+
+
+void* find_last(Iterator it, int(^condition)(void* elem)) {
+  if(it.to_end == NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE,
+      "The given iterator does not implement the BidirectionalIterator APIs as required"));
+  }
+  void* iterator = it.new_iterator(it.container);
+  it.to_end(iterator);
+  
+  void* result = find_first_(it, iterator, it.prev, condition);
 
   it.free(iterator);
   return result;

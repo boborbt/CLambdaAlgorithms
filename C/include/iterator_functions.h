@@ -19,6 +19,13 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 // it must evaluate to 0 otherwise.
 void* find_first(Iterator, int(^condition)(void* elem));
 
+// Finds the last element matching the condition evaluated by the callback
+// `condition` must evaluate to 1 if the given elem is the one sought.
+// it must evaluate to 0 otherwise.
+// The given Iterator must implement the BidirectionalIterator APIs
+
+void* find_last(Iterator, int(^condition)(void* elem));
+
 // Finds an occurrence of the given elem. The iterator is assumed to be a random access iterator
 // on a sorted container. It returns the index of the found element or (size_t) -1.
 size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs));

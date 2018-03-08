@@ -104,6 +104,24 @@ static void test_find_first() {
   free_fixtures(array);
 }
 
+static void test_find_last() {
+    Array* array = build_fixtures();
+  __block size_t count = 0;
+
+  void* elem = find_last(Array_it(array), ^(void* obj) {
+    DoubleContainer* dbl = obj;
+    count++;
+    return DoubleContainer_get(dbl) < 3.5;
+  });
+
+  DoubleContainer* result = elem;
+  assert_double_equal( 3.0, DoubleContainer_get(result), 0.01);
+
+  assert_equal(4l, count);
+
+  free_fixtures(array);
+}
+
 static void test_find_first_with_no_match() {
     Array* array = build_fixtures();
   __block size_t count = 0;
@@ -206,6 +224,7 @@ int main() {
   test(test_for_each);
   test(test_for_each_with_index);
   test(test_find_first);
+  test(test_find_last);
   test(test_find_first_with_no_match);
   test(test_map);
   test(test_filter);
