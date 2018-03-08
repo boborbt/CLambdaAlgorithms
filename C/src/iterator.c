@@ -1,9 +1,13 @@
+#include <assert.h>
+#include <stdio.h>
+
 #include "iterator.h"
 #include "iterator_functions.h"
 #include "mem.h"
 #include "errors.h"
+#include "list.h"
+#include "macros.h"
 
-#include <stdio.h>
 
 Iterator Iterator_make(
   void* container,
@@ -70,6 +74,26 @@ Iterator MutableIterator_make(
   return iterator;
 }
 
+
+static void require_bidirectional_iterator(Iterator it) {
+  if(it.to_end==NULL || it.prev==NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a bidirectional iterator as required"));
+  }
+}
+
+static void require_random_access_iterator(Iterator it) {
+  if(it.move_to == NULL || it.size == NULL) {
+      Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a random access iterator as required"));
+  }
+}
+
+static void require_mutable_iterator(Iterator it) {
+  if(it.set == NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a mutable iterator as required"));
+  }
+}
+
+
 static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^callback)(void*)) {
   while(!it.end(iterator)) {
     void* elem = it.get(iterator);
@@ -135,10 +159,8 @@ void* find_first(Iterator it, int(^condition)(void* elem)) {
 
 
 void* find_last(Iterator it, int(^condition)(void* elem)) {
-  if(it.to_end == NULL) {
-    Error_raise(Error_new(ERROR_ITERATOR_MISUSE,
-      "The given iterator does not implement the BidirectionalIterator APIs as required"));
-  }
+  require_bidirectional_iterator(it);
+
   void* iterator = it.new_iterator(it.container);
   it.to_end(iterator);
 
@@ -149,10 +171,7 @@ void* find_last(Iterator it, int(^condition)(void* elem)) {
 }
 
 size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs)) {
-  if(it.move_to == NULL || it.size == NULL) {
-    Error_raise(Error_new(ERROR_ITERATOR_MISUSE,
-       "The given iterator does not seem to implement the random access iterator APIs"));
-  }
+  require_random_access_iterator(it);
 
   void* iterator = it.new_iterator(it.container);
   size_t left = 0;
@@ -226,13 +245,8 @@ void* first(Iterator it) {
 }
 
 void reverse(Iterator it) {
-  if(it.set == NULL) {
-    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a mutable iterator as required"));
-  }
-
-  if(it.to_end==NULL || it.prev==NULL) {
-    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a bidirectional iterator as required"));    
-  }
+  require_bidirectional_iterator(it);
+  require_mutable_iterator(it);
 
   void* fw_iterator = it.new_iterator(it.container);
   void* bw_iterator = it.new_iterator(it.container);
@@ -255,6 +269,9 @@ void reverse(Iterator it) {
 
     stop = it.same(fw_iterator, bw_iterator);
   }
+
+  it.free(fw_iterator);
+  it.free(bw_iterator);
 }
 
 void* last(Iterator it) {
@@ -272,5 +289,115 @@ void* last(Iterator it) {
   }
 
   it.free(iterator);
+  return result;
+}
+
+static void split(Iterator it, void* iterator, List* list1, List* list2) {
+  while(!it.end(iterator)) {
+    List_append(list1, it.get(iterator));
+    it.next(iterator);
+
+    if(!it.end(iterator)) {
+      List_append(list2, it.get(iterator));
+      it.next(iterator);
+    }
+  }
+}
+
+static void merge(Iterator it, void* iterator, List* list1, List* list2, int (^compare)(void*, void*)) {
+  ListIterator* lit1 = ListIterator_new(list1);
+  ListIterator* lit2 = ListIterator_new(list2);
+
+  while(!ListIterator_end(lit1) && !ListIterator_end(lit2)) {
+    assert(!it.end(iterator));
+    void* obj1 = ListIterator_get(lit1);
+    void* obj2 = ListIterator_get(lit2);
+
+    if(compare(obj1, obj2) < 0) {
+      it.set(iterator, obj1);
+      it.next(iterator);
+      ListIterator_next(lit1);
+    } else {
+      it.set(iterator, obj2);
+      it.next(iterator);
+      ListIterator_next(lit2);
+    }
+  }
+
+  while(!ListIterator_end(lit1)) {
+    assert(!it.end(iterator));
+
+    void* obj1 = ListIterator_get(lit1);
+    it.set(iterator, obj1);
+    it.next(iterator);
+    ListIterator_next(lit1);
+  }
+
+  while(!ListIterator_end(lit2)) {
+    assert(!it.end(iterator));
+
+    void* obj2 = ListIterator_get(lit2);
+    it.set(iterator, obj2);
+    it.next(iterator);
+    ListIterator_next(lit2);
+  }
+
+  assert(it.end(iterator));
+  assert(ListIterator_end(lit1));
+  assert(ListIterator_end(lit2));
+
+  ListIterator_free(lit1);
+  ListIterator_free(lit2);
+}
+
+static int more_than_one_object(Iterator it) {
+  int result = 1;
+  void* iterator = it.new_iterator(it.container);
+  result = !it.end(iterator);
+
+  if(result) {
+    it.next(iterator);
+    result = !it.end(iterator);
+  }
+
+  it.free(iterator);
+  return result;
+}
+
+void sort(Iterator it, int (^compare)(void*, void*)) {
+  require_mutable_iterator(it);
+  require_bidirectional_iterator(it);
+
+  if(!more_than_one_object(it)) {
+    return;
+  }
+
+  void* iterator = it.new_iterator(it.container);
+
+  List* list1 = List_new();
+  List* list2 = List_new();
+
+  split(it, iterator, list1, list2);
+  it.free(iterator);
+  iterator = it.new_iterator(it.container);
+
+  sort(List_it(list1), compare);
+  sort(List_it(list2), compare);
+  merge(it, iterator, list1, list2, compare);
+
+  List_free(list1, NULL);
+  List_free(list2, NULL);
+
+  it.free(iterator);
+}
+
+
+size_t count(Iterator it) {
+  __block size_t result = 0;
+
+  for_each(it, ^( UNUSED(void* obj) ){
+    result+=1;
+  });
+
   return result;
 }

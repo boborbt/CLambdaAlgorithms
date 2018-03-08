@@ -3,6 +3,13 @@
 #include "iterator.h"
 #include "array.h"
 
+// Sorts the elements iterated by it according to the order induced by the compare function.
+// it is assumed to be a bidirectional mutable iterator.
+void sort(Iterator it, int (^compare)(void*, void*));
+
+// Return the number of elements on which it iterates
+size_t count(Iterator it);
+
 // Calls callback on each element of the container iterated by the given Iterator
 void for_each(Iterator, void (^callback)(void* elem));
 

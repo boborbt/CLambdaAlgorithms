@@ -65,6 +65,11 @@ static List* build_fixtures_lists() {
   return list;
 }
 
+static void free_fixtures_list(List* list) {
+  List_free(list, DoubleContainer_free);
+}
+
+
 static void free_fixtures(Array* array) {
   for_each(Array_it(array), ^(void* obj) {
     DoubleContainer* dbl = obj;
@@ -72,6 +77,49 @@ static void free_fixtures(Array* array) {
   });
 
   Array_free(array);
+}
+
+
+static void test_sort() {
+  Array* array = build_fixtures();
+
+  sort(Array_it(array), ^(void* v1_obj, void* v2_obj) {
+    double v1 = DoubleContainer_get(v1_obj);
+    double v2 = DoubleContainer_get(v2_obj);
+
+    if(v2 < v1) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
+
+  for_each_with_index(Array_it(array), ^(void* obj, size_t index) {
+    assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
+  });
+
+  free_fixtures(array);
+}
+
+static void test_sort_lists() {
+  List* list = build_fixtures_lists();
+
+  sort(List_it(list), ^(void* v1_obj, void* v2_obj) {
+    double v1 = DoubleContainer_get(v1_obj);
+    double v2 = DoubleContainer_get(v2_obj);
+
+    if(v2 < v1) {
+      return -1;
+    } else {
+      return 1;
+    }
+  });
+
+  for_each_with_index(List_it(list), ^(void* obj, size_t index) {
+    assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
+  });
+
+  free_fixtures_list(list);
 }
 
 static void test_for_each() {
@@ -249,6 +297,8 @@ static void test_reverse() {
   for_each_with_index(Array_it(reversed), ^(void* obj, size_t index) {
     assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
   });
+
+  free_fixtures(reversed);
 }
 
 static void test_reverse_lists() {
@@ -258,10 +308,14 @@ static void test_reverse_lists() {
   for_each_with_index(List_it(reversed), ^(void* obj, size_t index) {
     assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
   });
+
+  free_fixtures_list(reversed);
 }
 
 int main() {
   start_tests("iterators");
+  test(test_sort);
+  test(test_sort_lists);
   test(test_for_each);
   test(test_for_each_with_index);
   test(test_find_first);
