@@ -393,6 +393,12 @@ void sort(Iterator it, int (^compare)(void*, void*)) {
 
 
 size_t count(Iterator it) {
+  if(it.size != NULL) {
+    void* iterator = it.new_iterator(it.container);
+    size_t result = it.size(iterator);
+    it.free(iterator);
+    return result;
+  }
   __block size_t result = 0;
 
   for_each(it, ^( UNUSED(void* obj) ){
