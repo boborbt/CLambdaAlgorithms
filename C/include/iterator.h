@@ -18,7 +18,7 @@ typedef struct _Iterator Iterator;
 struct _Iterator {
   // all iterators
   void* container;
-  void* (*new)(void*);
+  void* (*new_iterator)(void*);
   void  (*next)(void*);
   void* (*get)(void*);
   int   (*end)(void* it);
@@ -57,13 +57,24 @@ struct _Iterator {
 
 Iterator Iterator_make(
   void* container,
-  void* (*new)(void*),
-  void  (*next)(void*),
-  void* (*get)(void*),
-  int   (*end)(void* it),
-  void  (*free)(void*)
+  void* (*_new)(void*),
+  void  (*_next)(void*),
+  void* (*_get)(void*),
+  int   (*_end)(void* it),
+  void  (*_free)(void*)
 );
 
+// RandomAccessIterator APIs
+// A RandomAccessIterator supports additional functions over containers (e.g., binsearch)
+// To build a RandomAccessIterator you are supposed to invoke Iterator_make to intialize the
+// "standard" part of the iterator and then use it with `RandomAccessIterator_make` to fill-in
+// the RandomAccessIterator APIs.
+//
+// Example:
+// ```C
+//  Iterator it = Iterator_make(...);
+//  it = RandomAccessIterator_make(it, _my_move_to_fun, _my_size_fun);
+// ```
 
 Iterator RandomAccessIterator_make(
   Iterator iterator,
