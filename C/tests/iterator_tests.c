@@ -6,7 +6,7 @@
 
 
 
-static int (^compare_dbl)(void*, void*) = ^(void* lhs_obj, void* rhs_obj) {
+static int (^compare_dbl)(const void*, const void*) = ^(const void* lhs_obj, const void* rhs_obj) {
   double lhs = DoubleContainer_get(lhs_obj);
   double rhs = DoubleContainer_get(rhs_obj);
   if( fabs(lhs - rhs) < 0.0001 ) {

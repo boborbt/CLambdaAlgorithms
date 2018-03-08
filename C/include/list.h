@@ -80,6 +80,12 @@ ListNode* ListIterator_get_node(ListIterator*);
 // Moves the iterator on the next element
 void ListIterator_next(ListIterator*);
 
+// Moves the iterator on the previous element
+void ListIterator_prev(ListIterator* it);
+
+// Moves the iterator to the end of the list
+void ListIterator_to_end(ListIterator* it);
+
 // Returns true if either the iterator is null or if it moved after the last
 // element
 int ListIterator_end(ListIterator*);

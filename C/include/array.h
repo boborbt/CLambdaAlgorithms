@@ -75,14 +75,6 @@ void Array_remove(Array* array, size_t index);
 //
 void Array_sort(Array* array, int (^compare)(const void*, const void*));
 
-// Perform  a binary search into the array. The array is assumed to be sorted,
-// the compare function needs to return 0 if the given element is the one being
-// searched, it needs to return -1 if it is smaller than the searched one, it needs
-// to return +1 otherwise.
-// In case of success, the method returns the index of the found element, otherwise
-// it returns ULONG_MAX;
-size_t Array_binsearch(Array* array, int(^compare)(const void*));
-
 // Iterator
 ArrayIterator* ArrayIterator_new(Array*);
 void ArrayIterator_free(ArrayIterator*);

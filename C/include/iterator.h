@@ -82,6 +82,21 @@ Iterator RandomAccessIterator_make(
   size_t (*size)(void*)
 );
 
+// BidirectionalIterator_make APIs
+// A BidirectionalIterator supports additional functions over containers (e.g., iterating in reverse)
+// order.
+//
+// To build a BidirectionalIterator you are supposed to invoke Iterator_make to intialize the
+// "standard" part of the iterator and then use it with `RandomAccessIterator_make` to fill-in
+// the RandomAccessIterator APIs.
+//
+// Example:
+// ```C
+//  Iterator it = Iterator_make(...);
+//  it = BidirectionalIterator(it, _my_prev_fun, _my_to_end_fun);
+// ```
+
+
 Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),

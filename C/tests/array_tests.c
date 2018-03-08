@@ -262,6 +262,18 @@ static void test_array_foreach() {
   free_fixtures(array);
 }
 
+static void test_array_foreach_reverse() {
+  Array* array = build_fixtures();
+  __block size_t count = 5;
+
+  for_each_reverse(Array_it(array), ^(void* elem) {
+    assert_equal( count, (unsigned long) to_int(elem));
+    count-=1;
+  });
+
+  free_fixtures(array);
+}
+
 static void test_array_foreach_with_index() {
   Array* array = build_fixtures();
 
@@ -297,8 +309,8 @@ static void test_array_binsearch_success() {
   });
   int searched_elem = 3;
 
-  size_t index = Array_binsearch(array, ^(const void* elem) {
-    return compare_ints(elem, (const void*)&searched_elem);
+  size_t index = binsearch(Array_it(array), (const void*)&searched_elem, ^(const void* lhs, const void* rhs) {
+    return compare_ints(lhs, rhs);
   });
 
   assert_equal(index, 2l);
@@ -313,8 +325,8 @@ static void test_array_binsearch_fail() {
 
   int searched_elem = 8;
 
-  size_t index = Array_binsearch(array, ^(const void* elem) {
-    return compare_ints(elem, (const void*)&searched_elem);
+  size_t index = binsearch(Array_it(array), (const void*)&searched_elem, ^(const void* lhs, const void* rhs) {
+    return compare_ints(lhs, rhs);
   });
 
   assert_equal(index, ULONG_MAX);
@@ -397,6 +409,7 @@ int main() {
   test(test_array_iterator);
   test(test_array_reverse_iterator);
   test(test_array_foreach);
+  test(test_array_foreach_reverse);
   test(test_array_foreach_with_index);
   test(test_array_dup);
 

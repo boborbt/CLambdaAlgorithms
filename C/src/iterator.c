@@ -16,7 +16,7 @@ Iterator Iterator_make(
   Iterator it;
 
   it.container=container;
-  it.new=new;
+  it.new_iterator=new;
   it.next=next;
   it.get=get;
   it.end=end;
@@ -54,21 +54,34 @@ Iterator BidirectionalIterator_make(
   return iterator;
 }
 
-
-void for_each(Iterator it, void (^callback)(void*)) {
-  void* iterator = it.new(it.container);
-
+static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^callback)(void*)) {
   while(!it.end(iterator)) {
     void* elem = it.get(iterator);
     callback(elem);
-    it.next(iterator);
+    next(iterator);
   }
+}
+
+
+void for_each(Iterator it, void (^callback)(void*)) {
+  void* iterator = it.new_iterator(it.container);
+
+  for_each_(it, iterator, it.next, callback);
+
+  it.free(iterator);
+}
+
+void for_each_reverse(Iterator it, void (^callback)(void*)) {
+  void* iterator = it.new_iterator(it.container);
+  it.to_end(iterator);
+
+  for_each_(it, iterator, it.prev, callback);
 
   it.free(iterator);
 }
 
 void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
-  void* iterator = it.new(it.container);
+  void* iterator = it.new_iterator(it.container);
   size_t index = 0;
 
   while(!it.end(iterator)) {
@@ -82,7 +95,7 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
 
 
 void* find_first(Iterator it, int(^condition)(void* elem)) {
-  void* iterator = it.new(it.container);
+  void* iterator = it.new_iterator(it.container);
 
   while(!it.end(iterator) && condition(it.get(iterator)) == 0) {
     it.next(iterator);
@@ -97,13 +110,13 @@ void* find_first(Iterator it, int(^condition)(void* elem)) {
   return result;
 }
 
-size_t binsearch(Iterator it, void* elem, int (^compare)(void* lhs, void* rhs)) {
+size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs)) {
   if(it.move_to == NULL || it.size == NULL) {
     Error_raise(Error_new(ERROR_ITERATOR_MISUSE,
        "The given iterator does not seem to implement the random access iterator APIs"));
   }
 
-  void* iterator = it.new(it.container);
+  void* iterator = it.new_iterator(it.container);
   size_t left = 0;
   size_t right = it.size(iterator) - 1;
   size_t current_index = (left + right) / 2;
@@ -161,7 +174,7 @@ Array* filter(Iterator it, int (^keep)(void*)) {
 }
 
 void* first(Iterator it) {
-  void* iterator = it.new(it.container);
+  void* iterator = it.new_iterator(it.container);
   void* result = NULL;
 
   if(it.end(iterator)) {
@@ -175,7 +188,7 @@ void* first(Iterator it) {
 }
 
 void* last(Iterator it) {
-  void* iterator = it.new(it.container);
+  void* iterator = it.new_iterator(it.container);
   void* result = NULL;
 
   if(it.to_end != NULL) {

@@ -6,6 +6,10 @@
 // Calls callback on each element of the container iterated by the given Iterator
 void for_each(Iterator, void (^callback)(void* elem));
 
+// Calls callback on each element of the container iterated by the given Iterator. The iterator
+// must support the BidirectionalIterator APIs. The iteration will proceed in reverse order.
+void for_each_reverse(Iterator, void (^callback)(void* elem));
+
 // Calls callback on each element of the container iterated by the given Iterator
 // it passes to the callback the current element and the current index.
 void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
@@ -17,7 +21,7 @@ void* find_first(Iterator, int(^condition)(void* elem));
 
 // Finds an occurrence of the given elem. The iterator is assumed to be a random access iterator
 // on a sorted container. It returns the index of the found element or (size_t) -1.
-size_t binsearch(Iterator it, void* elem, int (^compare)(void* lhs, void* rhs));
+size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs));
 
 // Use the given function pointer to map into a new object each object in the container iterated by
 // the given iterator. It returns the array containing the mapped objects. The memory of the

@@ -5,6 +5,8 @@
 
 #include "list.h"
 #include "unit_testing.h"
+#include "iterator_functions.h"
+#include "macros.h"
 
 static List* build_fixtures() {
   List* list = List_new();
@@ -108,6 +110,19 @@ static void test_list_free_with_delete_elem() {
   assert_equal(delete_elem(NULL), 8l);
 }
 
+static void test_list_foreach() {
+  List* list = build_fixtures();
+  __block size_t count = 0;
+
+  for_each(List_it(list), ^(UNUSED(void* elem)) {
+    count += 1;
+  });
+
+  assert_equal(count, List_size(list));
+
+  List_free(list, NULL);
+}
+
 int main() {
   start_tests("lists");
   test(test_list_creation);
@@ -116,6 +131,8 @@ int main() {
   test(test_list_find);
   test(test_list_delete_node);
   test(test_list_free_with_delete_elem);
+  test(test_list_foreach);
+  // test(test_list_foreach_reverse);
   end_tests();
 
   return 0;

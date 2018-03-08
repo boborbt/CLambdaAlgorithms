@@ -104,9 +104,8 @@ static EDResult find_closest_match(const char* word, Array* word_list, unsigned 
   result.distance = ULONG_MAX;
   result.closest_matches = NULL;
 
-  unsigned long binsearch_result = Array_binsearch(word_list, ^(const void* obj) {
-    const char* str = (const char*) obj;
-    return strcmp(word, str);
+  size_t binsearch_result = binsearch(Array_it(word_list), word, ^(const void* lhs, const void* rhs) {
+    return strcmp(lhs, rhs);
   });
 
   if( binsearch_result != ULONG_MAX) {
