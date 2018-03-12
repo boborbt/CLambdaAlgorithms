@@ -292,103 +292,27 @@ void* last(Iterator it) {
   return result;
 }
 
-static void split(Iterator it, void* iterator, List* list1, List* list2) {
-  while(!it.end(iterator)) {
-    List_append(list1, it.get(iterator));
-    it.next(iterator);
-
-    if(!it.end(iterator)) {
-      List_append(list2, it.get(iterator));
-      it.next(iterator);
-    }
-  }
-}
-
-static void merge(Iterator it, void* iterator, List* list1, List* list2, int (^compare)(void*, void*)) {
-  ListIterator* lit1 = ListIterator_new(list1);
-  ListIterator* lit2 = ListIterator_new(list2);
-
-  while(!ListIterator_end(lit1) && !ListIterator_end(lit2)) {
-    assert(!it.end(iterator));
-    void* obj1 = ListIterator_get(lit1);
-    void* obj2 = ListIterator_get(lit2);
-
-    if(compare(obj1, obj2) < 0) {
-      it.set(iterator, obj1);
-      it.next(iterator);
-      ListIterator_next(lit1);
-    } else {
-      it.set(iterator, obj2);
-      it.next(iterator);
-      ListIterator_next(lit2);
-    }
-  }
-
-  while(!ListIterator_end(lit1)) {
-    assert(!it.end(iterator));
-
-    void* obj1 = ListIterator_get(lit1);
-    it.set(iterator, obj1);
-    it.next(iterator);
-    ListIterator_next(lit1);
-  }
-
-  while(!ListIterator_end(lit2)) {
-    assert(!it.end(iterator));
-
-    void* obj2 = ListIterator_get(lit2);
-    it.set(iterator, obj2);
-    it.next(iterator);
-    ListIterator_next(lit2);
-  }
-
-  assert(it.end(iterator));
-  assert(ListIterator_end(lit1));
-  assert(ListIterator_end(lit2));
-
-  ListIterator_free(lit1);
-  ListIterator_free(lit2);
-}
-
-static int more_than_one_object(Iterator it) {
-  int result = 1;
-  void* iterator = it.new_iterator(it.container);
-  result = !it.end(iterator);
-
-  if(result) {
-    it.next(iterator);
-    result = !it.end(iterator);
-  }
-
-  it.free(iterator);
-  return result;
-}
-
-void sort(Iterator it, int (^compare)(void*, void*)) {
+void sort(Iterator it, int (^compare)(const void*, const void*)) {
   require_mutable_iterator(it);
-  require_bidirectional_iterator(it);
 
-  if(!more_than_one_object(it)) {
-    return;
-  }
+  Array* array = Array_new(1000);
+  for_each(it, ^(void* obj) {
+    Array_add(array, obj);
+  });
+
+  Array_sort(array, compare);
 
   void* iterator = it.new_iterator(it.container);
 
-  List* list1 = List_new();
-  List* list2 = List_new();
+  for_each(Array_it(array), ^(void* obj) {
+    assert(!it.end(iterator));
 
-  split(it, iterator, list1, list2);
-  it.free(iterator);
-  iterator = it.new_iterator(it.container);
-
-  sort(List_it(list1), compare);
-  sort(List_it(list2), compare);
-  merge(it, iterator, list1, list2, compare);
-
-  List_free(list1, NULL);
-  List_free(list2, NULL);
+    it.set(iterator, obj);
+    it.next(iterator);
+  });
 
   it.free(iterator);
+  Array_free(array);
 }
 
 

@@ -83,7 +83,7 @@ static void free_fixtures(Array* array) {
 static void test_sort() {
   Array* array = build_fixtures();
 
-  sort(Array_it(array), ^(void* v1_obj, void* v2_obj) {
+  sort(Array_it(array), ^(const void* v1_obj, const void* v2_obj) {
     double v1 = DoubleContainer_get(v1_obj);
     double v2 = DoubleContainer_get(v2_obj);
 
@@ -104,7 +104,7 @@ static void test_sort() {
 static void test_sort_lists() {
   List* list = build_fixtures_lists();
 
-  sort(List_it(list), ^(void* v1_obj, void* v2_obj) {
+  sort(List_it(list), ^(const void* v1_obj, const void* v2_obj) {
     double v1 = DoubleContainer_get(v1_obj);
     double v2 = DoubleContainer_get(v2_obj);
 

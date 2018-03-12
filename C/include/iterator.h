@@ -89,18 +89,18 @@ Iterator RandomAccessIterator_make(
   size_t (*size)(void*)
 );
 
-// BidirectionalIterator_make APIs
+// BidirectionalIterator APIs
 // A BidirectionalIterator supports additional functions over containers (e.g., iterating in reverse)
 // order.
 //
 // To build a BidirectionalIterator you are supposed to invoke Iterator_make to intialize the
-// "standard" part of the iterator and then use it with `RandomAccessIterator_make` to fill-in
-// the RandomAccessIterator APIs.
+// "standard" part of the iterator and then use it with `BidirectionalIterator_make` to fill-in
+// the BidirectionalIterator APIs.
 //
 // Example:
 // ```C
 //  Iterator it = Iterator_make(...);
-//  it = BidirectionalIterator(it, _my_prev_fun, _my_to_end_fun);
+//  it = BidirectionalIterator_make(it, _my_prev_fun, _my_to_end_fun);
 // ```
 
 
@@ -110,6 +110,19 @@ Iterator BidirectionalIterator_make(
   void  (*to_end)(void*)
 );
 
+
+// MutableIterator APIs
+// A mutable iterator supports the assignment of a new value to the iterated objects.
+//
+// To build a MutableIterator you are supposed to invoke Iterator_make to intialize the
+// "standard" part of the iterator and then use it with `MutableIterator_make` to fill-in
+// the MutableIterator APIs.
+//
+// Example:
+// ```C
+//  Iterator it = Iterator_make(...);
+//  it = MutableIterator_make(it, _my_set_fun);
+// ``
 
 Iterator MutableIterator_make(
   Iterator iterator,

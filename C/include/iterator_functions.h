@@ -4,17 +4,10 @@
 #include "array.h"
 
 // Sorts the elements iterated by it according to the order induced by the compare function.
-// it is assumed to be a bidirectional mutable iterator.
-//
-// *Note*: this is a very generic, but somewhat slowish sorting function (it implements a
-//   merge_sort). If you already have an Array it is better to use Array_sort. If you have
-//   a smallish list (i.e., no bigger than few hundred thousands objects) it is safe to use this
-//   function, for anything big it is likely to be a better strategy to put the objects into an
-//   array and to use the Array_sort method.
-//   The most likely reason for the worse performances is the inefficient use of memory used by
-//   this function (it creates a large number of lists to keep track of the splitting of the
-//   containers).
-void sort(Iterator it, int (^compare)(void*, void*));
+// `it` is assumed to be a mutable iterator. This function will make an in-memory copy of your
+// data into an Array. If your data is already in an array you might want to sort it using
+// the Array_sort method.
+void sort(Iterator it, int (^compare)(const void*, const void*));
 
 // Return the number of elements on which it iterates. On random access iterators this function
 // is O(1), otherwise it is O(n).
