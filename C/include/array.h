@@ -116,10 +116,8 @@ void ArrayIterator_set(ArrayIterator* it, void* value);
 // Returns 1 if it1 and it2 points to the same element in the array, 0 otherwise.
 int ArrayIterator_same(ArrayIterator* it1, ArrayIterator* it2);
 
-
-
 //
 // Iterator maker
-//
+// It returns a mutable bidirectional random iterator.
 
 Iterator Array_it(Array* array);

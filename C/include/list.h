@@ -97,4 +97,5 @@ int ListIterator_end(ListIterator*);
 void ListIterator_set(ListIterator* it, void* obj);
 
 // Iterator interface
+// It returns a bidirectional mutable iterator
 Iterator List_it(List* list);
