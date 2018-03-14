@@ -9,6 +9,7 @@
 #include "dictionary.h"
 #include "errors.h"
 #include "iterator_functions.h"
+#include "basic_iterators.h"
 #include "mem.h"
 
 
@@ -132,31 +133,15 @@ Dataset* Dataset_load(const char* filename) {
   dataset->records = Array_new(10000);
   assert(dataset->records != NULL);
 
-  // field1 is usually small, much smaller than the alloced 2048 characters.
-  char* buf = (char*) Mem_alloc(sizeof(char)*2048);
-  assert(buf != NULL);
-
-  size_t buf_len = 2048;
-  size_t count = 0;
-
-  FILE* file = fopen(filename, "r");
-  if(!file) {
-    Error_raise(Error_new(ERROR_FILE_READING, strerror(errno)));
-  }
-  while(!feof(file)) {
-    if(count++ % 1000000 == 0) {
-      printf(".");
-      fflush(stdout);
+  for_each_with_index(TextFile_it(filename), ^(void* obj, size_t count) {
+    if(count % 1000000 == 0) {
+          printf(".");
+          fflush(stdout);
     }
 
-    if( getline((char**)&buf, &buf_len, file) == -1 ) {
-      break;
-    }
-    Record* tmp = parse_record(buf);
+    Record* tmp = parse_record((char*) obj);
     Array_add(dataset->records, tmp);
-  }
-  fclose(file);
-  Mem_free(buf);
+  });
 
   printf("\n");
 
