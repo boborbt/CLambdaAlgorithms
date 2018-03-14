@@ -1,8 +1,12 @@
-#include "mem.h"
-#include "macros.h"
 #include <malloc/malloc.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+
+#include "mem.h"
+#include "macros.h"
+#include "errors.h"
+
 
 static MemStats mem_stats = { 0, 0 };
 
@@ -12,6 +16,10 @@ static MemStats mem_stats = { 0, 0 };
 
 void* Mem_alloc_ext(size_t size, char* file, size_t line) {
   void* tmp = malloc(size);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   printf("Mem_alloc ptr: %p file: %s line %ld\n", tmp, file, line);
 
@@ -23,6 +31,10 @@ void* Mem_alloc_ext(size_t size, char* file, size_t line) {
 
 void* Mem_alloc_ext(size_t size, char* UNUSED(file), size_t UNUSED(line)) {
   void* tmp = malloc(size);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
   mem_stats.alloced_memory += malloc_size(tmp);
   return tmp;
 }
@@ -36,6 +48,10 @@ void* Mem_alloc_ext(size_t size, char* UNUSED(file), size_t UNUSED(line)) {
 void* Mem_realloc_ext(void* ptr, size_t size, char* file, size_t line) {
   mem_stats.freed_memory += malloc_size(ptr);
   void* tmp = realloc(ptr, size);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   printf("Mem_alloc old ptr: %p new_ptr: %p file: %s line %ld\n", ptr, tmp, file, line);
 
@@ -48,7 +64,10 @@ void* Mem_realloc_ext(void* ptr, size_t size, char* file, size_t line) {
 void* Mem_realloc_ext(void* ptr, size_t size, char* UNUSED(file), size_t UNUSED(line)) {
   mem_stats.freed_memory += malloc_size(ptr);
   void* tmp = realloc(ptr, size);
-
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
   mem_stats.alloced_memory += malloc_size(tmp);
   return tmp;
 }
@@ -59,6 +78,10 @@ void* Mem_realloc_ext(void* ptr, size_t size, char* UNUSED(file), size_t UNUSED(
 
 void* Mem_calloc_ext(size_t count, size_t size, char* file, size_t line) {
   void* tmp = calloc(count, size);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   printf("Mem_clloc ptr: %p file: %s line %ld\n", tmp, file, line);
 
@@ -70,6 +93,10 @@ void* Mem_calloc_ext(size_t count, size_t size, char* file, size_t line) {
 
 void* Mem_calloc_ext(size_t count, size_t size, char* UNUSED(file), size_t UNUSED(line)) {
   void* tmp = calloc(count, size);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error allocing memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   mem_stats.alloced_memory += malloc_size(tmp);
   return tmp;
@@ -103,6 +130,10 @@ void  Mem_free_ext(void* ptr, char* UNUSED(file), size_t UNUSED(line)) {
 
 char* Mem_strdup_ext(const char* str, char* file, size_t line) {
   char* tmp = strdup(str);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error duplicating memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   printf("Mem_strdup ptr: %p file: %s line %ld\n", (void*)tmp, file, line);
 
@@ -114,6 +145,10 @@ char* Mem_strdup_ext(const char* str, char* file, size_t line) {
 
 char* Mem_strdup_ext(const char* str, char* UNUSED(file), size_t UNUSED(line)) {
   char* tmp = strdup(str);
+  if(tmp == NULL) {
+    fprintf(stderr, "Error duplicating memory. Reason: %s", strerror(errno));
+    exit(ERROR_GENERIC);
+  }
 
   mem_stats.alloced_memory += malloc_size(tmp);
   return tmp;
