@@ -133,7 +133,7 @@ Dataset* Dataset_load(const char* filename) {
   dataset->records = Array_new(10000);
   assert(dataset->records != NULL);
 
-  for_each_with_index(TextFile_it(filename), ^(void* obj, size_t count) {
+  for_each_with_index(TextFile_it(filename,'\n'), ^(void* obj, size_t count) {
     if(count % 1000000 == 0) {
           printf(".");
           fflush(stdout);
@@ -141,7 +141,7 @@ Dataset* Dataset_load(const char* filename) {
 
     Record* tmp = parse_record((char*) obj);
     Array_add(dataset->records, tmp);
-  });
+  });\
 
   printf("\n");
 

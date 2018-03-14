@@ -24,7 +24,7 @@ static void test_file_iterator() {
   fprintf(file, "test\nof\nfile iterator\n with for_each\n");
   fclose(file);
 
-  for_each_with_index(TextFile_it(fname), ^(void* obj, size_t index) {
+  for_each_with_index(TextFile_it(fname, '\n'), ^(void* obj, size_t index) {
     assert_string_equal(Array_at(array_with_fcontents, index), (const char*) obj);
   });
 

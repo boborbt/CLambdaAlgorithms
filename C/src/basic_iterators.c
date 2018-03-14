@@ -74,33 +74,62 @@ Iterator Number_it(unsigned long n) {
 
 typedef struct {
   char* filename;
+  char delimiter;
+} TFIFileInfo;  // Text File Iterator file info
+
+typedef struct {
+  TFIFileInfo* file_info;
   FILE* file;
   char* buf;
   size_t buf_len;
 } TextFileIterator;
 
 
+static TFIFileInfo* TFIFileInfo_new(const char* filename, char delimiter) {
+  TFIFileInfo* result = (TFIFileInfo*) Mem_alloc(sizeof(TFIFileInfo));
+  result->filename = (void*) Mem_strdup(filename);
+  result->delimiter = delimiter;
+
+  return result;
+}
+
 static void TextFileIterator_next(TextFileIterator* iterator) {
-  errno = 0;
-  long nchars_read = getline(&iterator->buf, &iterator->buf_len, iterator->file);
-  if(nchars_read == -1 && !feof(iterator->file)) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Error reading input file (reason:%s)", strerror(errno)));
+  int end_of_file = feof(iterator->file);
+
+  if(end_of_file && iterator->buf != NULL) {
+    free(iterator->buf);
+    iterator->buf = NULL;
+    return;
   }
 
-  if(nchars_read > 0 && iterator->buf[nchars_read-1] == '\n') {
+  errno = 0;
+  long nchars_read = getdelim(&iterator->buf, &iterator->buf_len, iterator->file_info->delimiter, iterator->file);
+  end_of_file = feof(iterator->file);
+
+  if(nchars_read < 0 && !end_of_file) {
+      Error_raise(Error_new(ERROR_FILE_READING, "Error reading input file (reason:%s)", strerror(errno)));
+  }
+
+  if(nchars_read <= 0 && end_of_file) {
+    free(iterator->buf);
+    iterator->buf = NULL;
+    return;
+  }
+
+  if(iterator->buf[nchars_read-1] == iterator->file_info->delimiter) {
     iterator->buf[nchars_read-1] = '\0';
   }
 }
 
-static TextFileIterator* TextFileIterator_new(char* filename) {
+static TextFileIterator* TextFileIterator_new(TFIFileInfo* file_info) {
   TextFileIterator* result = (TextFileIterator*) Mem_alloc(sizeof(TextFileIterator));
 
-  result->filename = filename;
+  result->file_info = file_info;
 
-  result->file = fopen(filename, "r");
+  result->file = fopen(file_info->filename, "r");
   if(result->file == NULL) {
     Error_raise(Error_new(ERROR_FILE_OPENING,
-      "Error opening file %s, reason: %s", filename, strerror(errno)));
+      "Error opening file %s, reason: %s", file_info->filename, strerror(errno)));
   }
 
   result->buf = NULL;
@@ -116,11 +145,11 @@ static void* TextFileIterator_get(TextFileIterator* iterator) {
 }
 
 static int TextFileIterator_end(TextFileIterator* iterator) {
-  return feof(iterator->file);
+  return iterator->buf == NULL;
 }
 
 static int TextFileIterator_same(TextFileIterator* it1, TextFileIterator* it2) {
-  return !strcmp(it1->filename, it2->filename) && ftell(it1->file) == ftell(it2->file);
+  return !strcmp(it1->file_info->filename, it2->file_info->filename) && ftell(it1->file) == ftell(it2->file);
 }
 
 static void TextFileIterator_free(TextFileIterator* iterator) {
@@ -132,21 +161,20 @@ static void TextFileIterator_free(TextFileIterator* iterator) {
 
   fclose(iterator->file);
 
-  Mem_free((void*) iterator->filename);
+  Mem_free(iterator->file_info->filename);
+  Mem_free(iterator->file_info);
   Mem_free(iterator);
 }
 
 
-Iterator TextFile_it(const char* filename) {
-  Iterator result;
-
-  result.container = (void*) Mem_strdup(filename);
-  result.new_iterator = (void* (*)(void*)) TextFileIterator_new;
-  result.next = (void (*)(void*)) TextFileIterator_next;
-  result.get = (void* (*)(void*)) TextFileIterator_get;
-  result.end = (int   (*)(void*)) TextFileIterator_end;
-  result.same =(int   (*)(void*, void*)) TextFileIterator_same;
-  result.free =(void  (*)(void*)) TextFileIterator_free;
-
-  return result;
+Iterator TextFile_it(const char* filename, char delimiter) {
+  return Iterator_make(
+    TFIFileInfo_new(filename, delimiter),
+    (void* (*)(void*)) TextFileIterator_new,
+    (void (*)(void*)) TextFileIterator_next,
+    (void* (*)(void*)) TextFileIterator_get,
+    (int   (*)(void*)) TextFileIterator_end,
+    (int   (*)(void*, void*)) TextFileIterator_same,
+    (void  (*)(void*)) TextFileIterator_free
+  );
 }
