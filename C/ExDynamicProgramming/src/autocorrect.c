@@ -7,6 +7,7 @@
 #include "editing_distance.h"
 #include "array.h"
 #include "iterator_functions.h"
+#include "basic_iterators.h"
 #include "print_time.h"
 #include "errors.h"
 
@@ -49,25 +50,24 @@ static void str_tolower(char* buf) {
   }
 }
 
-static Array* load_strings(const char* filename) {
-  FILE* file = fopen(filename, "r");
-  if(file==NULL) {
-    Error_raise( Error_new( ERROR_FILE_OPENING, "Cannot open file %s for reading, reason: %s", filename, strerror(errno)));
-  }
-
-
+static Array* load_strings(const char* filename, char delim) {
   Array* array = Array_new(1000);
 
-  while(!feof(file)) {
-    char buf[2048];
-    if(fscanf(file, "%s", buf)==1) {
-      str_strip_chars(buf);
-      str_tolower(buf);
-      Array_add(array, strdup(buf));
-    }
-  }
+  for_each(TextFile_it(filename, delim), ^(void* obj) {
+    char* buf = (char*) obj;
+    str_strip_chars(buf);
+    str_tolower(buf);
+    Array_add(array, strdup(buf));
+  });
 
-  fclose(file);
+
+  if(delim == ' ') {
+    printf("array:\n");
+    for_each(Array_it(array), ^(void* obj) {
+      printf("%s ", (char*) obj);
+    });
+    printf("\n");
+  }
 
   return array;
 }
@@ -180,8 +180,8 @@ int main(int argc, char const *argv[]) {
   __block Array* text;
   PrintTime_print(pt, "Dataset_load", ^() {
     printf("Loading datasets...\n");
-    word_list = load_strings(argv[1]);
-    text = load_strings(argv[2]);
+    word_list = load_strings(argv[1],'\n');
+    text = load_strings(argv[2], ' ');
     printf("Done!\n");
   });
 

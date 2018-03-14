@@ -148,7 +148,7 @@ bin/priority_queue_tests: tests/priority_queue_tests.c include/unit_testing.h li
 bin/multy_way_tree_tests: tests/multy_way_tree_tests.c include/unit_testing.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/multy_way_tree_tests.c -o bin/multy_way_tree_tests -lcontainers_st $(LDFLAGS)
 
-bin/basic_iterators_tests: tests/basic_iterators_tests.c include/unit_testing.h $(HEADERS)
+bin/basic_iterators_tests: lib/libcontainers_st.a tests/basic_iterators_tests.c $(HEADERS)
 	$(CC) $(CFLAGS) tests/basic_iterators_tests.c -o bin/basic_iterators_tests $(LDFLAGS) lib/libcontainers_st.a
 
 

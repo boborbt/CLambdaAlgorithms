@@ -12,7 +12,10 @@
 #include "prim.h"
 #include "array.h"
 #include "iterator_functions.h"
+#include "basic_iterators.h"
 #include "mem.h"
+
+
 #include <errno.h>
 
 #define BUF_SIZE 1024
@@ -43,28 +46,20 @@ static Graph* load_graph(const char* filename) {
   KeyInfo* keyInfo = KeyInfo_new( Key_string_compare, Key_string_hash );
   Dictionary* known_vertices = Dictionary_new(keyInfo);
   Graph* graph = Graph_new(keyInfo);
-  FILE* infile = fopen(filename, "r");
-  if(infile==NULL) {
-    Error_raise( Error_new( ERROR_FILE_OPENING, "Cannot open file %s for reading, reason: %s", filename, strerror(errno)));
-  }
 
+  __block int count = 0;
 
-  int count = 0;
-
-  while(!feof(infile)) {
+  for_each(TextFile_it(filename, '\n'), ^(void* obj) {
     char buf1[BUF_SIZE];
     char buf2[BUF_SIZE];
     double len;
 
-    fscanf(infile, "%[^,],%[^,],%lf\n", buf1, buf2, &len);
+    sscanf((char*) obj, "%[^,],%[^,],%lf\n", buf1, buf2, &len);
     add_edge(graph, known_vertices, buf1, buf2, len);
     count += 2;
-  }
+  });
 
   printf("dc creation count:%d\n", count);
-
-  fclose(infile);
-
   Dictionary_free(known_vertices);
   return graph;
 }
