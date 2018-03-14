@@ -120,13 +120,13 @@ static int TextFileIterator_end(TextFileIterator* iterator) {
 }
 
 static int TextFileIterator_same(TextFileIterator* it1, TextFileIterator* it2) {
-  return ftell(it1->file) == ftell(it2->file);
+  return !strcmp(it1->filename, it2->filename) && ftell(it1->file) == ftell(it2->file);
 }
 
 static void TextFileIterator_free(TextFileIterator* iterator) {
   if(iterator->buf!=NULL) {
-    // This should *not* be freed using Mem_free since it will
-    // be alloced by getline using the standard 'malloc' function.
+    // This should *not* be freed using Mem_free since it is
+    // alloced by getline using the standard 'malloc' function.
     free(iterator->buf);
   }
 
