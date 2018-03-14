@@ -9,19 +9,20 @@
 #include "errors.h"
 #include "macros.h"
 #include "iterator_functions.h"
+#include "basic_iterators.h"
 #include "mem.h"
 
 static void load_dictionary(Dataset* dataset, Dictionary* dictionary) {
   Record** records = Dataset_get_records(dataset);
   size_t size = Dataset_size(dataset);
 
-  for(size_t i=0; i < size; ++i) {
-    if(i%1000000 == 0) {
+  for_each(Number_it(size), ^(void* i) {
+    if(NUM(i)%1000000 == 0) {
       printf(".");
       fflush(stdout);
     }
-    Dictionary_set(dictionary, records[i], records[i]);
-  }
+    Dictionary_set(dictionary, records[NUM(i)], records[NUM(i)]);
+  });
 
   printf("\n");
 }
@@ -31,11 +32,9 @@ static void print_usage() {
 }
 
 static int char_included(char ch, char chars[], size_t size) {
-  for(size_t i=0; i<size; ++i) {
-    if(ch == chars[i]) return 1;
-  }
-
-  return 0;
+  return find_first(Number_it(size), ^(void* i) {
+    return ch == chars[NUM(i)];
+  }) != NULL;
 }
 
 static void check_arguments(int argc, char** argv) {
@@ -140,14 +139,14 @@ int main(int argc, char* argv[]) {
   PrintTime_print(pt, "Dictionary_elem_access", ^{
     printf("Making 1_000_000 accesses\n");
     size_t size = Dataset_size(dataset);
-    for(int i=0; i<1000000; ++i) {
+    for_each(Number_it(1000000), ^(UNUSED(void* _)) {
       size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
       Record* result = NULL;
       if(!Dictionary_get(dictionary, record, (void**)&result)) {
         printf("Cannot find record at index %ld\n", index);
-      };
-    }
+      }
+    });
   });
 
   PrintTime_print(pt, "Dictionary_elem_deletion", ^{
@@ -155,12 +154,12 @@ int main(int argc, char* argv[]) {
     assert(Dictionary_check_integrity(dictionary));
 
     size_t size = Dataset_size(dataset);
-    for(int i=0; i<1000000; ++i) {
+    for_each(Number_it(1000000), ^(UNUSED(void* _)) {
       size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
 
       Dictionary_delete(dictionary, record);
-    }
+    });
 
     assert(Dictionary_check_integrity(dictionary));
     printf("Dictionary size: %ld\n", Dictionary_size(dictionary));

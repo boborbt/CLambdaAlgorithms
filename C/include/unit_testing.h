@@ -46,11 +46,11 @@
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 #define assert_string_equal(a,b) if(strcmp((a),(b))) {\
-   printf("\nassertion failed at file:%s line:%d. %s was expected to be equal to %s\n",\
+   printf("\nassertion failed at file:%s line:%d. \"%s\" was expected to be equal to \"%s\"\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 #define assert_string_not_equal(a,b) if(!strcmp((a),(b))) {\
-   printf("\nassertion failed at file:%s line:%d. %s was expected not to be equal to %s\n",\
+   printf("\nassertion failed at file:%s line:%d. \"%s\" was expected not to be equal to \"%s\"\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 

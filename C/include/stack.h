@@ -27,4 +27,5 @@ void Stack_push(Stack* stack, void* node);
 // Returns 1 if the stack is empty, 0 otherwise.
 int Stack_empty(Stack* stack);
 
+// Returns 1 if s1 and s2 are the same stack (i.e., they contain the same objects)
 int Stack_same(Stack* s1, Stack* s2);

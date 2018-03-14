@@ -6,6 +6,8 @@
 
 #include "mem.h"
 #include "editing_distance.h"
+#include "iterator_functions.h"
+#include "basic_iterators.h"
 
 //
 // Implementation of the EditingDistance measure
@@ -87,14 +89,15 @@ static unsigned long EDMemo_len2(EDMemo* memo) {
 
 // Debugging function: it prints the content of the memoization matrix
 __attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
-  for(unsigned long i = 0; i < memo->len1; ++i) {
-    for(unsigned long j = 0; j < memo->len2; ++j) {
-      unsigned long value = EDMemo_get(memo, i, j);
+  for_each(Number_it(memo->len1), ^(void* i) {
+
+    for_each(Number_it(memo->len2), ^(void* j) {
+      unsigned long value = EDMemo_get(memo, NUM(i), NUM(j));
       printf("%2d\t", value == ULONG_MAX ? -1 : (int) value);
-    }
+    });
 
     printf("\n");
-  }
+  });
 }
 
 // Memoization operator
@@ -121,11 +124,11 @@ static EDMemo* EDMemo_new(unsigned long len1, unsigned long len2) {
   memo->len2 = len2 + 1;
   memo->matrix = (unsigned long*) Mem_alloc( memo->len1 * memo->len2 * sizeof(unsigned long) );
 
-  for(unsigned long i=0; i < memo->len1; ++i) {
-    for(unsigned long j=0; j < memo->len2; ++j) {
-      EDMemo_set(memo,i,j,ULONG_MAX);
-    }
-  }
+  for_each(Number_it(memo->len1), ^(void* i) {
+    for_each(Number_it(memo->len2), ^(void* j) {
+      EDMemo_set(memo, NUM(i), NUM(j),ULONG_MAX);
+    });
+  });
 
   return memo;
 }

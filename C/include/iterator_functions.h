@@ -27,6 +27,7 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t));
 // Finds the first element matching the condition evaluated by the callback
 // `condition` must evaluate to 1 if the given elem is the one sought.
 // it must evaluate to 0 otherwise.
+// It returns NULL if no element satisfying the given condition is found.
 void* find_first(Iterator, int(^condition)(void* elem));
 
 // Finds the last element matching the condition evaluated by the callback
