@@ -141,7 +141,7 @@ Dataset* Dataset_load(const char* filename) {
 
     Record* tmp = parse_record((char*) obj);
     Array_add(dataset->records, tmp);
-  });\
+  });
 
   printf("\n");
 
@@ -185,8 +185,8 @@ void Dataset_print_storage(Array* dataset, size_t num_records) {
 
 void Dataset_print(Dataset* dataset, size_t num_records) {
   assert(num_records < Dataset_size(dataset));
-  for(size_t i=0; i<num_records; ++i) {
-    Record* rec = Array_at(dataset->records,i);
+  for_each(Number_it(num_records), ^(void* index) {
+    Record* rec = Array_at(dataset->records, NUM(index));
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
-  }
+  });
 }
