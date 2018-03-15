@@ -69,8 +69,8 @@ static void destroy_graph_double_containers(Graph* graph) {
 
   for_each(Edge_it(graph), ^(void* obj) {
     count += 1;
-    EdgeInfo info = *(EdgeInfo*) obj;
-    DoubleContainer_free((DoubleContainer*)info.info);
+    EdgeInfo* info = (EdgeInfo*) obj;
+    DoubleContainer_free((DoubleContainer*)info->info);
   });
 
   printf("destroy dc count:%d\n", count);
