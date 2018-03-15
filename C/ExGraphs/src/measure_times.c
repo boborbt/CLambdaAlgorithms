@@ -1,10 +1,12 @@
-#include "dijkstra.h"
-#include "dictionary.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <errno.h>
+
+#include "dijkstra.h"
+#include "dictionary.h"
 #include "print_time.h"
 #include "graph_visiting.h"
-#include <assert.h>
 #include "double_container.h"
 #include "errors.h"
 #include "macros.h"
@@ -15,8 +17,6 @@
 #include "basic_iterators.h"
 #include "mem.h"
 
-
-#include <errno.h>
 
 #define BUF_SIZE 1024
 
@@ -65,24 +65,19 @@ static Graph* load_graph(const char* filename) {
 }
 
 static void destroy_graph_double_containers(Graph* graph) {
-  int count = 0;
-  EdgeIterator* it = Graph_edges(graph);
-  while(!EdgeIterator_end(it)) {
+  __block int count = 0;
+
+  for_each(Edge_it(graph), ^(void* obj) {
     count += 1;
-    EdgeInfo info = *EdgeIterator_get(it);
+    EdgeInfo info = *(EdgeInfo*) obj;
     DoubleContainer_free((DoubleContainer*)info.info);
-    EdgeIterator_next(it);
-  }
-  EdgeIterator_free(it);
+  });
 
   printf("destroy dc count:%d\n", count);
 
-  VertexIterator* v_it = Graph_vertices(graph);
-  while(!VertexIterator_end(v_it)) {
-    Mem_free((void*)VertexIterator_get(v_it));
-    VertexIterator_next(v_it);
-  }
-  VertexIterator_free(v_it);
+  for_each(Vertex_it(graph), ^(void* obj) {
+    Mem_free(obj);
+  });
 }
 
 static void print_path(Graph* graph, void** path) {
@@ -157,34 +152,6 @@ static void find_connected_components(Graph* graph, void (*graph_visit)(Visiting
   VisitingInfo_free(visit_info);
   printf("Number of connected components: %d\n", count);
 }
-
-// static int KCompare(const void* o1, const void* o2) {
-//   double w1 = DoubleContainer_get(*(const DoubleContainer*) o1);
-//   double w2 = DoubleContainer_get(*(const DoubleContainer*) o2);
-//
-//   if(w1 < w2) {
-//     return -1;
-//   }
-//
-//   if(w2 < w1) {
-//     return 1;
-//   }
-//
-//   return 0;
-// }
-//
-// static void print_kruskal_edges(Graph* graph) {
-//   Array* edges_weights = Array_new(20000, sizeof(DoubleContainer*));
-//   for_each(Edge_it( graph), ^(UNUSED(void* src), UNUSED(void* dst), void* info) {
-//     Array_add(edges_weights, &info);
-//   });
-//
-//   Array_sort(edges_weights, KCompare);
-//
-//   for_each_with_index( Array_it(edges_weights),  ^(void* elem, size_t index) {
-//     printf("%ld: %f\n", index, DoubleContainer_get(*(DoubleContainer*)elem));
-//   });
-// }
 
 static void execute_kruskal(Graph* graph) {
   Kruskal* kruskal = Kruskal_new(graph, (double (*)(const void*)) DoubleContainer_get);
