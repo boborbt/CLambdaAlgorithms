@@ -178,3 +178,87 @@ Iterator TextFile_it(const char* filename, char delimiter) {
     (void  (*)(void*))        TextFileIterator_free
   );
 }
+
+// --------------------------------------------------------------------------------
+// Char iterator
+// --------------------------------------------------------------------------------
+
+typedef struct {
+  char* string;
+  char   current_char;
+  size_t position;
+  size_t end;
+} CharIterator;
+
+static void* CharIterator_new(char* string) {
+  CharIterator* iterator = (CharIterator*) Mem_alloc(sizeof(CharIterator));
+  iterator->string = string;
+  iterator->position = 0;
+  iterator->end = strlen(string) - 1;
+
+  if(iterator->end != (size_t) -1) {
+    iterator->current_char = string[iterator->position];
+  }
+
+  return iterator;
+}
+
+static void CharIterator_next(CharIterator* iterator) {
+  iterator->current_char = iterator->string[++iterator->position];
+}
+
+static char* CharIterator_get(CharIterator* iterator) {
+  return &iterator->current_char;
+}
+
+static int CharIterator_end(CharIterator* iterator) {
+  return iterator->position != (size_t) -1 && iterator->position > iterator->end;
+}
+
+static int CharIterator_same(CharIterator* it1, CharIterator* it2) {
+  return it1->string == it2->string && it1->position == it2->position;
+}
+
+static void CharIterator_free(CharIterator* iterator) {
+  Mem_free(iterator);
+}
+
+static void CharIterator_prev(CharIterator* iterator) {
+  if(--iterator->position != (size_t) -1) {
+    iterator->current_char = iterator->string[iterator->position];
+  }
+}
+
+static void CharIterator_to_end(CharIterator* iterator) {
+  iterator->position = iterator->end;
+  iterator->current_char = iterator->string[iterator->position];
+}
+
+static void CharIterator_set(CharIterator* iterator, char* ch) {
+  iterator->string[iterator->position] = *ch;
+}
+
+Iterator Char_it(char* string) {
+  Iterator result = Iterator_make(
+    string,
+    (void* (*)(void*))        CharIterator_new,
+    (void  (*)(void*))        CharIterator_next,
+    (void* (*)(void*))        CharIterator_get,
+    (int   (*)(void*))        CharIterator_end,
+    (int   (*)(void*, void*)) CharIterator_same,
+    (void  (*)(void*))        CharIterator_free
+  );
+
+  result = BidirectionalIterator_make(
+    result,
+    (void  (*)(void*)) CharIterator_prev,
+    (void  (*)(void*)) CharIterator_to_end
+  );
+
+  result = MutableIterator_make(
+    result,
+    (void  (*)(void*, void*)) CharIterator_set
+  );
+
+  return result;
+}

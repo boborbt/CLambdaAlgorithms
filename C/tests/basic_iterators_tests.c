@@ -1,6 +1,7 @@
 #include "basic_iterators.h"
 #include "unit_testing.h"
 #include "iterator_functions.h"
+#include "mem.h"
 
 static void test_int_iterator() {
   __block unsigned long count = 10l;
@@ -31,11 +32,25 @@ static void test_file_iterator() {
   Array_free(array_with_fcontents);
 }
 
+static void test_char_iterator() {
+  char* string = Mem_strdup("boon");
+  char* reversed = "noob";
+
+  reverse(Char_it(string));
+
+  for_each_with_index(Char_it(string), ^(void* obj, size_t index) {
+    assert_char_equal(reversed[index], CH(obj));
+  });
+
+  Mem_free(string);
+}
+
 int main() {
   start_tests("basic iterators");
 
   test(test_int_iterator);
   test(test_file_iterator);
+  test(test_char_iterator);
 
   end_tests();
   return 0;
