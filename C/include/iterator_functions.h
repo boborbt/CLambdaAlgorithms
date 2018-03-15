@@ -59,6 +59,10 @@ Array* filter(Iterator, int (^)(void*));
 // iterator.
 void reverse(Iterator it);
 
+// Replaces the objects in the container with those returned by the given function.
+// Requires a mutable iterator.
+void replace(Iterator it, void* (^)(void*));
+
 // Returns the first element returned by the iterator
 void* first(Iterator it);
 

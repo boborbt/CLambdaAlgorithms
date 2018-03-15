@@ -38,7 +38,7 @@
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 #define assert_char_equal(a,b) if((a)!=(b)) {\
-   printf("\nassertion failed at file:%s line:%d. %c was expected to be equal to %c\n",\
+   printf("\nassertion failed at file:%s line:%d. '%c' was expected to be equal to '%c'\n",\
     __FILE__, __LINE__, (a), (b)); exit(1); }
 
 

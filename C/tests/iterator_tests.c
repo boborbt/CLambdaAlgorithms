@@ -4,7 +4,8 @@
 #include "list.h"
 #include "double_container.h"
 #include "iterator_functions.h"
-
+#include "basic_iterators.h"
+#include "mem.h"
 
 
 static int (^compare_dbl)(const void*, const void*) = ^(const void* lhs_obj, const void* rhs_obj) {
@@ -312,6 +313,27 @@ static void test_reverse_lists() {
   free_fixtures_list(reversed);
 }
 
+static void test_replace() {
+  char* string = Mem_strdup("I'll replace all spaces with a comma");
+  char* expected = "I'll,replace,all,spaces,with,a,comma";
+  char* ch = Mem_strdup(",");
+
+  replace(Char_it(string), ^(void* obj) {
+    if(CH(obj) == ' ') {
+      return (void*) ch;
+    } else {
+      return obj;
+    }
+  });
+
+  for_each_with_index(Char_it(string), ^(void* obj, size_t index) {
+    assert_char_equal(expected[index], CH(obj));
+  });
+
+  Mem_free(string);
+  Mem_free(ch);
+}
+
 int main() {
   start_tests("iterators");
   test(test_sort);
@@ -329,6 +351,7 @@ int main() {
   test(test_binary_search_elem_not_present);
   test(test_reverse);
   test(test_reverse_lists);
+  test(test_replace);
   end_tests();
 
   return 0;

@@ -274,6 +274,21 @@ void reverse(Iterator it) {
   it.free(bw_iterator);
 }
 
+void replace(Iterator it, void* (^callback)(void*)) {
+  require_mutable_iterator(it);
+  void* iterator = it.new_iterator(it.container);
+
+  while(!it.end(iterator)) {
+    void* elem = it.get(iterator);
+    void* obj = callback(elem);
+
+    it.set(iterator, obj);
+    it.next(iterator);
+  }
+
+  it.free(iterator);
+}
+
 void* last(Iterator it) {
   void* iterator = it.new_iterator(it.container);
   void* result = NULL;
