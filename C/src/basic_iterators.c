@@ -54,17 +54,15 @@ static void NumberIterator_free(NumberIterator* iterator) {
 }
 
 Iterator Number_it(unsigned long n) {
-  Iterator result;
-
-  result.container = Number_new(n);
-  result.new_iterator = (void* (*)(void*)) NumberIterator_new;
-  result.next = (void (*)(void*)) NumberIterator_next;
-  result.get = (void* (*)(void*)) NumberIterator_get;
-  result.end = (int   (*)(void*)) NumberIterator_end;
-  result.same =(int   (*)(void*, void*)) NumberIterator_same;
-  result.free =(void  (*)(void*)) NumberIterator_free;
-
-  return result;
+  return Iterator_make(
+    Number_new(n),
+    (void* (*)(void*))        NumberIterator_new,
+    (void  (*)(void*))        NumberIterator_next,
+    (void* (*)(void*))        NumberIterator_get,
+    (int   (*)(void*))        NumberIterator_end,
+    (int   (*)(void*, void*)) NumberIterator_same,
+    (void  (*)(void*))        NumberIterator_free
+  );
 }
 
 
@@ -96,9 +94,11 @@ static TFIFileInfo* TFIFileInfo_new(const char* filename, char delimiter) {
 static void TextFileIterator_next(TextFileIterator* iterator) {
   int end_of_file = feof(iterator->file);
 
-  if(end_of_file && iterator->buf != NULL) {
-    free(iterator->buf);
-    iterator->buf = NULL;
+  if(end_of_file) {
+    if(iterator->buf != NULL) {
+      free(iterator->buf);
+      iterator->buf = NULL;
+    }
     return;
   }
 
@@ -170,11 +170,11 @@ static void TextFileIterator_free(TextFileIterator* iterator) {
 Iterator TextFile_it(const char* filename, char delimiter) {
   return Iterator_make(
     TFIFileInfo_new(filename, delimiter),
-    (void* (*)(void*)) TextFileIterator_new,
-    (void (*)(void*)) TextFileIterator_next,
-    (void* (*)(void*)) TextFileIterator_get,
-    (int   (*)(void*)) TextFileIterator_end,
+    (void* (*)(void*))        TextFileIterator_new,
+    (void  (*)(void*))        TextFileIterator_next,
+    (void* (*)(void*))        TextFileIterator_get,
+    (int   (*)(void*))        TextFileIterator_end,
     (int   (*)(void*, void*)) TextFileIterator_same,
-    (void  (*)(void*)) TextFileIterator_free
+    (void  (*)(void*))        TextFileIterator_free
   );
 }
