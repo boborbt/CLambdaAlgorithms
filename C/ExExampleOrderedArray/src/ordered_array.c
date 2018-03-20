@@ -62,22 +62,23 @@ long OrderedArray_count(OrderedArray* ordered_array) {
 
 
 
-void OrderedArray_add(OrderedArray* ordered_array, void* obj) {
-  if(ordered_array->count == ordered_array->capacity) {
-    OrderedArray_resize(ordered_array);
+void OrderedArray_add(OrderedArray* array, void* obj) {
+  if(array->count == array->capacity) {
+    OrderedArray_resize(array);
   }
 
-  ordered_array->count += 1;
   long i;
 
-  // invariant: carray[i+1] is the spot to be filled in
-  for(i = ordered_array->count - 2;
-      i>=0 && ordered_array->compare(obj, ordered_array->carray[i]) < 0;
-      i--) {
-      ordered_array->carray[i+1] = ordered_array->carray[i];
+  array->count += 1;
+  CompareCallback cmp = array->compare;
+
+  // invariant: carray[i+1] is a 'free' spot and objects at indices > i+1 are
+  //            larger than obj
+  for(i = array->count - 2; i>=0 && cmp(obj, array->carray[i]) < 0; i--) {
+    array->carray[i+1] = array->carray[i];
   }
 
-  ordered_array->carray[i+1] = obj;
+  array->carray[i+1] = obj;
 }
 
 void OrderedArray_remove_at(OrderedArray* ordered_array, long index) {
