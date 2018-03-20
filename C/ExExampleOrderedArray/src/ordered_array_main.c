@@ -187,11 +187,10 @@ static void read_and_print_file(Options options) {
 // --------------------------------------------------------------------------------
 
 int main(int argc, char const *argv[]) {
-
+  
   Options options = parse_arguments(argc, argv);
 
   read_and_print_file(options);
-
 
   return 0;
 }

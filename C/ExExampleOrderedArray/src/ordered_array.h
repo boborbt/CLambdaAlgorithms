@@ -4,22 +4,23 @@
 // OrderedArray
 //
 // An ordered array is an ordered container based on arrays. All operations mutating
-// the array will preserve the order induced by the given compare function.
+// the array will preserve the order induced by a comparison function provided by
+// the user at construction time.
 // --------------------------------------------------------------------------------
 
 typedef struct _OrderedArray OrderedArray;
 
-// CompareCallback is the type of functions callbacks tha can be used with ordered arrays.
-// A compare function needs to accept two objects o1 and o2 and return:
-// -1 if o1 is strictly smaller than o2
-// 0 if o1 is equal to o2
-// +1 if o1 is strictly larger than o2
+// CompareCallback is the type describing callbacks tha can be used with ordered arrays.
+// A compare callback is a function accepting two objects o1 and o2 and returning:
+// -    -1   if o1 is strictly smaller than o2
+// -     0   if o1 is equal to o2
+// -    +1   if o1 is strictly larger than o2
 
 typedef int (*CompareCallback)(void*, void*);
 
 // OrderedArray constructor
 //
-// Parameters:
+// Paramseters:
 //  - compare: a comparison function. the data structure will keep the objects sorted according
 //    to the ordering induced by this function.
 // Returns: a newly built ordered array.
@@ -66,5 +67,5 @@ void OrderedArray_remove_at(OrderedArray* ordered_array, long index);
 //
 // Parameters:
 //  - ordered_array: the array to be queried
-//  - index: the index inside the array (starting from 0) of the desired object 
+//  - index: the index inside the array (starting from 0) of the desired object
 void* OrderedArray_at(OrderedArray* ordered_array, long index);
