@@ -51,6 +51,9 @@ long OrderedArray_count(OrderedArray* ordered_array);
 //  - obj: the object to be inserted
 // Memory:
 //  The method will automatically increment the memory associated with the array when needed.
+// Complexity:
+//  This is a O(n) operation due to operations needed to keep the array sorted.
+//  Note that this implies that filling the data structure with n objects is O(n^2).
 void OrderedArray_add(OrderedArray* ordered_array, void* obj);
 
 // Removes an object from the array

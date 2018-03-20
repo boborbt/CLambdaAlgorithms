@@ -8,7 +8,8 @@ tests: bin/ordered_array_tests
 
 #  compila (grazie alla dipendenza) e esegue ordered_array
 exec: bin/ordered_array
-	bin/ordered_array ../ordered_array_sample_file.csv
+	bin/ordered_array -s ../ordered_array_sample_file.csv
+	bin/ordered_array -i ../ordered_array_sample_file.csv
 
 # Flags per il compilatore -- su gcc -Weverything non esiste
 #    sostituire con -Wall -Wpedantic
