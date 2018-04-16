@@ -4,9 +4,9 @@
 #include "iterator.h"
 
 // BASIC ITERATORS
-// 
+//
 // basic iterators are iterators over a number of basic types. They are useful
-// to allow using the iterator functiosn (for_each, sort, reverse, ...) onto objects
+// to allow using the iterator functions (for_each, sort, reverse, ...) onto objects
 // that are not dealt with the provided containers. For intance:
 //
 //  -  Number_it: can be used to iterate a block a fixed number of times, e.g.
