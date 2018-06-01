@@ -35,6 +35,9 @@ struct _Iterator {
 
   // mutable iterators
   void   (*set)(void*, void*);
+
+  // cloning iterators
+  void* (*clone)(void*);
 };
 
 
@@ -128,3 +131,18 @@ Iterator MutableIterator_make(
   Iterator iterator,
   void  (*set)(void*, void*)
 );
+
+
+// CloningIterator
+// A cloning iterator supports cloning of iterated objects.
+
+Iterator CloningIterator_make(
+  Iterator iterator,
+  void* (*clone)(void*)
+);
+
+
+void require_bidirectional_iterator(Iterator it);
+void require_random_access_iterator(Iterator it);
+void require_mutable_iterator(Iterator it);
+void require_cloning_iterator(Iterator it);

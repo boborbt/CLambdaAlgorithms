@@ -39,6 +39,9 @@ Iterator Iterator_make(
   // mutable
   it.set = NULL;
 
+  // cloning
+  it.clone = NULL;
+
   return it;
 }
 
@@ -74,25 +77,39 @@ Iterator MutableIterator_make(
   return iterator;
 }
 
+Iterator CloningIterator_make(
+  Iterator iterator,
+  void*  (*clone)(void*)
+) {
+  iterator.clone = clone;
 
-static void require_bidirectional_iterator(Iterator it) {
+  return iterator;
+}
+
+
+void require_bidirectional_iterator(Iterator it) {
   if(it.to_end==NULL || it.prev==NULL) {
     Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a bidirectional iterator as required"));
   }
 }
 
-static void require_random_access_iterator(Iterator it) {
+void require_random_access_iterator(Iterator it) {
   if(it.move_to == NULL || it.size == NULL) {
       Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a random access iterator as required"));
   }
 }
 
-static void require_mutable_iterator(Iterator it) {
+void require_mutable_iterator(Iterator it) {
   if(it.set == NULL) {
     Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a mutable iterator as required"));
   }
 }
 
+void require_cloning_iterator(Iterator it) {
+  if(it.clone == NULL) {
+    Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a cloning iterator as required"));
+  }
+}
 
 static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^callback)(void*)) {
   while(!it.end(iterator)) {
@@ -309,6 +326,7 @@ void* last(Iterator it) {
 
 void sort(Iterator it, int (^compare)(const void*, const void*)) {
   require_mutable_iterator(it);
+  void* iterator = it.new_iterator(it.container);
 
   Array* array = Array_new(1000);
   for_each(it, ^(void* obj) {
@@ -316,8 +334,6 @@ void sort(Iterator it, int (^compare)(const void*, const void*)) {
   });
 
   Array_sort(array, compare);
-
-  void* iterator = it.new_iterator(it.container);
 
   for_each(Array_it(array), ^(void* obj) {
     assert(!it.end(iterator));

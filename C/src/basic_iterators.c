@@ -262,3 +262,134 @@ Iterator Char_it(char* string) {
 
   return result;
 }
+
+
+
+// --------------------------------------------------------------------------------
+// CArray Iterator
+// --------------------------------------------------------------------------------
+
+typedef struct {
+  unsigned char* carray;
+  size_t count;
+  size_t width;
+  size_t ref_count;
+} CArrayInfo;
+
+typedef struct  {
+  CArrayInfo* info;
+  size_t position;
+  unsigned char* current_elem;
+} CArrayIterator;
+
+static CArrayInfo* CArrayInfo_new(void* carray, size_t count, size_t width) {
+  CArrayInfo* result = (CArrayInfo*) Mem_alloc(sizeof(CArrayInfo));
+  result->carray = (unsigned char*) carray;
+  result->count = count;
+  result->width = width;
+  result->ref_count = 0;
+  return result;
+}
+
+
+static CArrayIterator* CArrayIterator_new(CArrayInfo* info) {
+  info->ref_count += 1;
+
+  CArrayIterator* result = (CArrayIterator*) Mem_alloc(sizeof(CArrayIterator));
+  result->info = info;
+  result->position = 0;
+  result->current_elem = (unsigned char*) Mem_alloc(info->width);
+
+  if(info->count > 0) {
+    memcpy(result->current_elem, result->info->carray + result->position * info->width, info->width );
+  }
+
+
+  return result;
+}
+
+static void CArrayIterator_next(CArrayIterator* iterator) {
+  iterator->position += 1;
+  memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
+}
+
+static void* CArrayIterator_get(CArrayIterator* iterator) {
+  return iterator->current_elem;
+  // return iterator->info->carray + iterator->position + iterator->info->width;
+}
+
+static int CArrayIterator_end(CArrayIterator* iterator) {
+  return iterator->position == (size_t) -1 || iterator->position >= iterator->info->count;
+}
+
+static int CArrayIterator_same(CArrayIterator* it1, CArrayIterator* it2) {
+  return it1->info == it2->info &&
+    memcmp(it1->current_elem, it2->current_elem, it1->info->width) == 0 &&
+    it1->position == it2->position;
+}
+
+static void CArrayIterator_free(CArrayIterator* iterator) {
+  iterator->info->ref_count -= 1;
+
+  if(iterator->info->ref_count == 0) {
+    Mem_free(iterator->info);
+  }
+
+  Mem_free(iterator->current_elem);
+  Mem_free(iterator);
+}
+
+static void CArrayIterator_prev(CArrayIterator* iterator) {
+  iterator->position -= 1;
+  if(iterator->position != (size_t) -1) {
+    memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
+  }
+}
+
+static void CArrayIterator_to_end(CArrayIterator* iterator) {
+  iterator->position = iterator->info->count - 1;
+
+  if(iterator->position != (size_t) - 1) {
+    memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
+  }
+}
+
+static void CArrayIterator_set(CArrayIterator* iterator, void* obj) {
+  memcpy( iterator->info->carray + iterator->position * iterator->info->width, obj, iterator->info->width );
+}
+
+static void* CArrayIterator_clone(CArrayIterator* iterator) {
+  void* result = Mem_alloc(iterator->info->width);
+  memcpy( result, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
+  return result;
+}
+
+Iterator CArray_it(void* carray, size_t count, size_t width) {
+  Iterator result = Iterator_make(
+    CArrayInfo_new(carray, count, width),
+    (void* (*)(void*))        CArrayIterator_new,
+    (void  (*)(void*))        CArrayIterator_next,
+    (void* (*)(void*))        CArrayIterator_get,
+    (int   (*)(void*))        CArrayIterator_end,
+    (int   (*)(void*, void*)) CArrayIterator_same,
+    (void  (*)(void*))        CArrayIterator_free
+  );
+
+  result = BidirectionalIterator_make(
+    result,
+    (void  (*)(void*)) CArrayIterator_prev,
+    (void  (*)(void*)) CArrayIterator_to_end
+  );
+
+  result = MutableIterator_make(
+    result,
+    (void  (*)(void*, void*)) CArrayIterator_set
+  );
+
+  result = CloningIterator_make(
+    result,
+    (void* (*)(void*)) CArrayIterator_clone
+  );
+
+  return result;
+}

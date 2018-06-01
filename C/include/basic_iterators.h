@@ -50,3 +50,6 @@ Iterator TextFile_it(const char* filename, char delimiter);
 // Creates a character iterator over the given string. The resulting iterator will be
 // a bidirectional, mutable iterator.
 Iterator Char_it(char* string);
+
+// Creates an iterator over a standard C array.
+Iterator CArray_it(void* carray, size_t count, size_t width);
