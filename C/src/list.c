@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "mem.h"
+#include "macros.h"
 
 
 struct _ListNode {
@@ -249,6 +250,14 @@ void ListIterator_set(ListIterator* it, void* obj) {
   it->current->elem = obj;
 }
 
+static void* ListIterator_clone_obj(ListIterator* it) {
+  return ListIterator_get(it);
+}
+
+static void ListIterator_free_obj(UNUSED(void* obj)) {
+  return;
+}
+
 Iterator List_it(List* list) {
   Iterator iterator = Iterator_make(
     list,
@@ -267,6 +276,11 @@ Iterator List_it(List* list) {
 
   iterator = MutableIterator_make(iterator,
     (void (*)(void*, void*)) ListIterator_set
+  );
+
+  iterator = CloningIterator_make(iterator,
+    (void* (*)(void*)) ListIterator_clone_obj,
+    (void (*)(void*)) ListIterator_free_obj
   );
 
   return iterator;

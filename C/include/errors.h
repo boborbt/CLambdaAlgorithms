@@ -27,7 +27,7 @@ __attribute__((noreturn)) void Error_raise(Error* error);
 // nothing on stderr.
 __attribute__((noreturn)) void Error_raise_silent(Error* error);
 
-// Givne and error returns the contained error message.
+// Given an error returns the contained error message.
 const char* Error_message(Error* error);
 
 // Given an error returns the contained error code.

@@ -185,7 +185,6 @@ Iterator TextFile_it(const char* filename, char delimiter) {
 
 typedef struct {
   char* string;
-  char   current_char;
   size_t position;
   size_t end;
 } CharIterator;
@@ -196,19 +195,15 @@ static void* CharIterator_new(char* string) {
   iterator->position = 0;
   iterator->end = strlen(string) - 1;
 
-  if(iterator->end != (size_t) -1) {
-    iterator->current_char = string[iterator->position];
-  }
-
   return iterator;
 }
 
 static void CharIterator_next(CharIterator* iterator) {
-  iterator->current_char = iterator->string[++iterator->position];
+  ++iterator->position;
 }
 
 static char* CharIterator_get(CharIterator* iterator) {
-  return &iterator->current_char;
+  return &iterator->string[iterator->position];
 }
 
 static int CharIterator_end(CharIterator* iterator) {
@@ -224,18 +219,26 @@ static void CharIterator_free(CharIterator* iterator) {
 }
 
 static void CharIterator_prev(CharIterator* iterator) {
-  if(--iterator->position != (size_t) -1) {
-    iterator->current_char = iterator->string[iterator->position];
-  }
+  --iterator->position;
 }
 
 static void CharIterator_to_end(CharIterator* iterator) {
   iterator->position = iterator->end;
-  iterator->current_char = iterator->string[iterator->position];
 }
 
 static void CharIterator_set(CharIterator* iterator, char* ch) {
   iterator->string[iterator->position] = *ch;
+}
+
+static void* CharIterator_clone_obj(CharIterator* iterator) {
+  char* result = Mem_alloc(sizeof(char));
+  *result = *CharIterator_get(iterator);
+
+  return result;
+}
+
+static void CharIterator_free_obj(void* obj) {
+  Mem_free(obj);
 }
 
 Iterator Char_it(char* string) {
@@ -260,6 +263,12 @@ Iterator Char_it(char* string) {
     (void  (*)(void*, void*)) CharIterator_set
   );
 
+  result = CloningIterator_make(
+    result,
+    (void* (*)(void*)) CharIterator_clone_obj,
+    (void (*)(void*)) CharIterator_free_obj
+  );
+
   return result;
 }
 
@@ -279,7 +288,6 @@ typedef struct {
 typedef struct  {
   CArrayInfo* info;
   size_t position;
-  unsigned char* current_elem;
 } CArrayIterator;
 
 static CArrayInfo* CArrayInfo_new(void* carray, size_t count, size_t width) {
@@ -291,6 +299,10 @@ static CArrayInfo* CArrayInfo_new(void* carray, size_t count, size_t width) {
   return result;
 }
 
+static void* cit_pos(CArrayIterator* iterator) {
+  return iterator->info->carray + iterator->position * iterator->info->width;
+}
+
 
 static CArrayIterator* CArrayIterator_new(CArrayInfo* info) {
   info->ref_count += 1;
@@ -298,24 +310,16 @@ static CArrayIterator* CArrayIterator_new(CArrayInfo* info) {
   CArrayIterator* result = (CArrayIterator*) Mem_alloc(sizeof(CArrayIterator));
   result->info = info;
   result->position = 0;
-  result->current_elem = (unsigned char*) Mem_alloc(info->width);
-
-  if(info->count > 0) {
-    memcpy(result->current_elem, result->info->carray + result->position * info->width, info->width );
-  }
-
 
   return result;
 }
 
 static void CArrayIterator_next(CArrayIterator* iterator) {
   iterator->position += 1;
-  memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
 }
 
 static void* CArrayIterator_get(CArrayIterator* iterator) {
-  return iterator->current_elem;
-  // return iterator->info->carray + iterator->position + iterator->info->width;
+  return cit_pos(iterator);
 }
 
 static int CArrayIterator_end(CArrayIterator* iterator) {
@@ -324,7 +328,7 @@ static int CArrayIterator_end(CArrayIterator* iterator) {
 
 static int CArrayIterator_same(CArrayIterator* it1, CArrayIterator* it2) {
   return it1->info == it2->info &&
-    memcmp(it1->current_elem, it2->current_elem, it1->info->width) == 0 &&
+    memcmp(cit_pos(it1), cit_pos(it2), it1->info->width) == 0 &&
     it1->position == it2->position;
 }
 
@@ -335,33 +339,29 @@ static void CArrayIterator_free(CArrayIterator* iterator) {
     Mem_free(iterator->info);
   }
 
-  Mem_free(iterator->current_elem);
   Mem_free(iterator);
 }
 
 static void CArrayIterator_prev(CArrayIterator* iterator) {
   iterator->position -= 1;
-  if(iterator->position != (size_t) -1) {
-    memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
-  }
 }
 
 static void CArrayIterator_to_end(CArrayIterator* iterator) {
   iterator->position = iterator->info->count - 1;
-
-  if(iterator->position != (size_t) - 1) {
-    memcpy(iterator->current_elem, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
-  }
 }
 
 static void CArrayIterator_set(CArrayIterator* iterator, void* obj) {
-  memcpy( iterator->info->carray + iterator->position * iterator->info->width, obj, iterator->info->width );
+  memcpy( cit_pos(iterator), obj, iterator->info->width );
 }
 
-static void* CArrayIterator_clone(CArrayIterator* iterator) {
+static void* CArrayIterator_clone_obj(CArrayIterator* iterator) {
   void* result = Mem_alloc(iterator->info->width);
-  memcpy( result, iterator->info->carray + iterator->position * iterator->info->width, iterator->info->width );
+  memcpy( result, cit_pos(iterator), iterator->info->width );
   return result;
+}
+
+static void CArrayIterator_free_obj(void* obj)  {
+  Mem_free(obj);
 }
 
 Iterator CArray_it(void* carray, size_t count, size_t width) {
@@ -388,7 +388,8 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
 
   result = CloningIterator_make(
     result,
-    (void* (*)(void*)) CArrayIterator_clone
+    (void* (*)(void*)) CArrayIterator_clone_obj,
+    (void (*)(void*)) CArrayIterator_free_obj
   );
 
   return result;

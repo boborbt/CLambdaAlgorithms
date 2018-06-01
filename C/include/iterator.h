@@ -37,7 +37,8 @@ struct _Iterator {
   void   (*set)(void*, void*);
 
   // cloning iterators
-  void* (*clone)(void*);
+  void* (*clone_obj)(void*);
+  void  (*free_obj)(void*);
 };
 
 
@@ -134,11 +135,18 @@ Iterator MutableIterator_make(
 
 
 // CloningIterator
-// A cloning iterator supports cloning of iterated objects.
+// A cloning iterator supports cloning of objects in the container being
+// iterated. Note that the cloning requirement is on the actual objects
+// in the container, not on the objects pointed by those. In particular
+// if the container contains pointers, then clone_obj can simply return the
+// pointers as they are and free_obj can simply return without doing nothing.
+// The requirement makes really only sense for containers that allow iterating
+// on value types.
 
 Iterator CloningIterator_make(
   Iterator iterator,
-  void* (*clone)(void*)
+  void* (*clone_obj)(void*),
+  void (*free_obj)(void*)
 );
 
 

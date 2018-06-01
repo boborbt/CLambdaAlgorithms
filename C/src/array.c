@@ -6,6 +6,7 @@
 #include "errors.h"
 #include "mem.h"
 #include "limits.h"
+#include "macros.h"
 
 struct _Array {
   void** carray;
@@ -203,7 +204,13 @@ int ArrayIterator_same(ArrayIterator* it1, ArrayIterator* it2) {
   return it1->array == it2->array && it1->current_index == it2->current_index;
 }
 
+static void* ArrayIterator_clone_obj(ArrayIterator* it) {
+  return ArrayIterator_get(it);
+}
 
+static void ArrayIterator_free_obj(void* UNUSED(obj)) {
+  return;
+}
 
 Iterator Array_it(Array* array)
 {
@@ -232,6 +239,12 @@ Iterator Array_it(Array* array)
  iterator = MutableIterator_make(
    iterator,
    (void (*)(void*, void*)) ArrayIterator_set
+ );
+
+ iterator = CloningIterator_make(
+   iterator,
+   (void* (*)(void*)) ArrayIterator_clone_obj,
+   (void  (*)(void*)) ArrayIterator_free_obj
  );
 
  return iterator;

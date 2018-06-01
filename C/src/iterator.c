@@ -40,7 +40,8 @@ Iterator Iterator_make(
   it.set = NULL;
 
   // cloning
-  it.clone = NULL;
+  it.clone_obj = NULL;
+  it.free_obj = NULL;
 
   return it;
 }
@@ -79,9 +80,11 @@ Iterator MutableIterator_make(
 
 Iterator CloningIterator_make(
   Iterator iterator,
-  void*  (*clone)(void*)
+  void*  (*clone_obj)(void*),
+  void   (*free_obj)(void*)
 ) {
-  iterator.clone = clone;
+  iterator.clone_obj = clone_obj;
+  iterator.free_obj = free_obj;
 
   return iterator;
 }
@@ -106,7 +109,7 @@ void require_mutable_iterator(Iterator it) {
 }
 
 void require_cloning_iterator(Iterator it) {
-  if(it.clone == NULL) {
+  if(it.clone_obj == NULL || it.free_obj == NULL) {
     Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a cloning iterator as required"));
   }
 }
@@ -144,6 +147,17 @@ void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
   while(!it.end(iterator)) {
     void* elem = it.get(iterator);
     callback(elem, index++);
+    it.next(iterator);
+  }
+
+  it.free(iterator);
+}
+
+static void for_each_with_iterator(Iterator it, void(^callback)(void*)) {
+  void* iterator = it.new_iterator(it.container);
+
+  while(!it.end(iterator)) {
+    callback(iterator);
     it.next(iterator);
   }
 
@@ -272,10 +286,12 @@ void reverse(Iterator it) {
   int stop = it.same(fw_iterator, bw_iterator);
 
   while(!stop) {
-    void* fw_obj = it.get(fw_iterator);
     void* bw_obj = it.get(bw_iterator);
+
+    void* tmp = it.clone_obj(fw_iterator);
     it.set(fw_iterator, bw_obj);
-    it.set(bw_iterator, fw_obj);
+    it.set(bw_iterator, tmp);
+    it.free_obj(tmp);
 
     it.next(fw_iterator);
     stop = it.same(fw_iterator, bw_iterator);
@@ -326,11 +342,13 @@ void* last(Iterator it) {
 
 void sort(Iterator it, int (^compare)(const void*, const void*)) {
   require_mutable_iterator(it);
+  require_cloning_iterator(it);
+
   void* iterator = it.new_iterator(it.container);
 
   Array* array = Array_new(1000);
-  for_each(it, ^(void* obj) {
-    Array_add(array, obj);
+  for_each_with_iterator(it, ^(void* cloning_iterator) {
+    Array_add(array, it.clone_obj(cloning_iterator));
   });
 
   Array_sort(array, compare);
@@ -340,6 +358,10 @@ void sort(Iterator it, int (^compare)(const void*, const void*)) {
 
     it.set(iterator, obj);
     it.next(iterator);
+  });
+
+  for_each(Array_it(array), ^(void* obj) {
+    it.free_obj(obj);
   });
 
   it.free(iterator);
