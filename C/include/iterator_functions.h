@@ -85,6 +85,7 @@ size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, 
 // requires a mutable iterator
 void sort(Iterator it, int (^compare)(const void*, const void*));
 
+
 // Replaces the objects in the container with those returned by the given function.
 //
 // Requires a mutable iterator.
@@ -98,3 +99,8 @@ void replace(Iterator it, void* (^)(void*));
 //
 // Requires a bidirectional mutable iterator.
 void reverse(Iterator it);
+
+// Sorts the objects iterated by "it"
+// The function requires "it" to be a mutable/cloning iterator.
+// If "it" is also a random access iterator, the function switches to a faster implementation.
+void sort(Iterator it, int (^compare)(const void*, const void*));

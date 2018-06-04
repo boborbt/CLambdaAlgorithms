@@ -71,6 +71,18 @@ typedef struct {
   int j;
 } CArrayTestStruct;
 
+static int CArrayTestStruct_cmp(const CArrayTestStruct* elem1, const CArrayTestStruct* elem2) {
+  if(elem1->j < elem2->j) {
+    return -1;
+  }
+
+  if(elem1->j > elem2->j) {
+    return 1;
+  }
+
+  return 0;
+}
+
 static void test_carray_iterator() {
   CArrayTestStruct array[5];
   for(int i=0; i<5; ++i) {
@@ -108,19 +120,8 @@ static void test_carray_iterator_sort() {
     array[i].j = -i;
   }
 
-  sort(CArray_it(array, 5, sizeof(CArrayTestStruct)), ^(const void* obj1, const void* obj2) {
-    const CArrayTestStruct* elem1 = (const CArrayTestStruct*) obj1;
-    const CArrayTestStruct* elem2 = (const CArrayTestStruct*) obj2;
-
-    if(elem1->j < elem2->j) {
-      return -1;
-    }
-
-    if(elem1->j > elem2->j) {
-      return 1;
-    }
-
-    return 0;
+  sort(CArray_it(array, 5, sizeof(CArrayTestStruct)), ^(const void* lhs, const void* rhs) {
+    return CArrayTestStruct_cmp(lhs, rhs);
   });
 
   for_each_with_index(CArray_it(array, 5, sizeof(CArrayTestStruct)), ^(void* obj, size_t index) {

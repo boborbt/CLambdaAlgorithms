@@ -5,6 +5,7 @@
 
 #include "mem.h"
 #include "errors.h"
+#include "macros.h"
 
 
 // --------------------------------------------------------------------------------
@@ -226,15 +227,27 @@ static void CharIterator_to_end(CharIterator* iterator) {
   iterator->position = iterator->end;
 }
 
+static void CharIterator_move_to(CharIterator* iterator, size_t new_pos) {
+  iterator->position = new_pos;
+}
+
+static size_t CharIterator_size(CharIterator* iterator) {
+  return iterator->end + 1;
+}
+
 static void CharIterator_set(CharIterator* iterator, char* ch) {
   iterator->string[iterator->position] = *ch;
 }
 
-static void* CharIterator_clone_obj(CharIterator* iterator) {
-  char* result = Mem_alloc(sizeof(char));
-  *result = *CharIterator_get(iterator);
+static void* CharIterator_alloc_obj(CharIterator* UNUSED(iterator)) {
+  return  Mem_alloc(sizeof(char));
+}
 
-  return result;
+static void* CharIterator_copy_obj(CharIterator* iterator, void* to_mem) {
+  char* to_mem_ch = (char*) to_mem;
+  *to_mem_ch = *CharIterator_get(iterator);
+
+  return to_mem;
 }
 
 static void CharIterator_free_obj(void* obj) {
@@ -263,9 +276,16 @@ Iterator Char_it(char* string) {
     (void  (*)(void*, void*)) CharIterator_set
   );
 
+  result = RandomAccessIterator_make(
+    result,
+    (void (*)(void*, size_t)) CharIterator_move_to,
+    (size_t (*)(void*)) CharIterator_size
+  );
+
   result = CloningIterator_make(
     result,
-    (void* (*)(void*)) CharIterator_clone_obj,
+    (void* (*)(void*)) CharIterator_alloc_obj,
+    (void* (*)(void*, void*)) CharIterator_copy_obj,
     (void (*)(void*)) CharIterator_free_obj
   );
 
@@ -322,6 +342,14 @@ static void* CArrayIterator_get(CArrayIterator* iterator) {
   return cit_pos(iterator);
 }
 
+static void CArrayIterator_move_to(CArrayIterator* iterator, size_t new_pos) {
+  iterator->position = new_pos;
+}
+
+static size_t CArrayIterator_size(CArrayIterator* iterator) {
+  return iterator->info->count;
+}
+
 static int CArrayIterator_end(CArrayIterator* iterator) {
   return iterator->position == (size_t) -1 || iterator->position >= iterator->info->count;
 }
@@ -354,10 +382,13 @@ static void CArrayIterator_set(CArrayIterator* iterator, void* obj) {
   memcpy( cit_pos(iterator), obj, iterator->info->width );
 }
 
-static void* CArrayIterator_clone_obj(CArrayIterator* iterator) {
-  void* result = Mem_alloc(iterator->info->width);
-  memcpy( result, cit_pos(iterator), iterator->info->width );
-  return result;
+static void* CArrayIterator_alloc_obj(CArrayIterator* iterator) {
+  return Mem_alloc(iterator->info->width);
+}
+
+static void* CArrayIterator_copy_obj(CArrayIterator* iterator, void* to_mem) {
+  memcpy( to_mem, cit_pos(iterator), iterator->info->width );
+  return to_mem;
 }
 
 static void CArrayIterator_free_obj(void* obj)  {
@@ -381,6 +412,12 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
     (void  (*)(void*)) CArrayIterator_to_end
   );
 
+  result = RandomAccessIterator_make(
+    result,
+    (void (*)(void*, size_t)) CArrayIterator_move_to,
+    (size_t (*)(void*)) CArrayIterator_size
+  );
+
   result = MutableIterator_make(
     result,
     (void  (*)(void*, void*)) CArrayIterator_set
@@ -388,7 +425,8 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
 
   result = CloningIterator_make(
     result,
-    (void* (*)(void*)) CArrayIterator_clone_obj,
+    (void* (*)(void*)) CArrayIterator_alloc_obj,
+    (void* (*)(void*, void*)) CArrayIterator_copy_obj,
     (void (*)(void*)) CArrayIterator_free_obj
   );
 

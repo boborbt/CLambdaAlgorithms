@@ -204,7 +204,11 @@ int ArrayIterator_same(ArrayIterator* it1, ArrayIterator* it2) {
   return it1->array == it2->array && it1->current_index == it2->current_index;
 }
 
-static void* ArrayIterator_clone_obj(ArrayIterator* it) {
+static void* ArrayIterator_alloc_obj(ArrayIterator* UNUSED(it)) {
+  return NULL;
+}
+
+static void* ArrayIterator_copy_obj(ArrayIterator* it, void* UNUSED(to_mem)) {
   return ArrayIterator_get(it);
 }
 
@@ -243,7 +247,8 @@ Iterator Array_it(Array* array)
 
  iterator = CloningIterator_make(
    iterator,
-   (void* (*)(void*)) ArrayIterator_clone_obj,
+   (void* (*)(void*)) ArrayIterator_alloc_obj,
+   (void* (*)(void*, void*)) ArrayIterator_copy_obj,
    (void  (*)(void*)) ArrayIterator_free_obj
  );
 

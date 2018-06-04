@@ -250,7 +250,11 @@ void ListIterator_set(ListIterator* it, void* obj) {
   it->current->elem = obj;
 }
 
-static void* ListIterator_clone_obj(ListIterator* it) {
+static void* ListIterator_alloc_obj(ListIterator* UNUSED(it)) {
+  return NULL;
+}
+
+static void* ListIterator_copy_obj(ListIterator* it, void* UNUSED(to_mem)) {
   return ListIterator_get(it);
 }
 
@@ -279,7 +283,8 @@ Iterator List_it(List* list) {
   );
 
   iterator = CloningIterator_make(iterator,
-    (void* (*)(void*)) ListIterator_clone_obj,
+    (void*(*)(void*)) ListIterator_alloc_obj,
+    (void* (*)(void*, void*)) ListIterator_copy_obj,
     (void (*)(void*)) ListIterator_free_obj
   );
 
