@@ -9,6 +9,7 @@
 #include "mem.h"
 #include "print_time.h"
 #include "iterator_functions.h"
+#include "basic_iterators.h"
 
 struct _Record {
   int id;
@@ -100,6 +101,23 @@ static void array_exp(const char* filename) {
     printf("Array sum: %f\n", sum);
   });
 
+  PrintTime_print(pt, "array sort", ^{
+  printf("Array -- sort\n");
+
+  sort(Array_it(array), ^(const void* lhs_obj, const void* rhs_obj) {
+    const Record* lhs = (const Record*) lhs_obj;
+    const Record* rhs = (const Record*) rhs_obj;
+
+    if(lhs->field2 < rhs->field2) {
+      return -1;
+    }
+    if(lhs->field2 > rhs->field2) {
+      return 1;
+    }
+    return 0;
+  });
+});
+
   PrintTime_print(pt, "array dealloc", ^{
     printf("Array -- freeing dataset \n");
 
@@ -137,6 +155,26 @@ static void array_alt_exp(const char* filename) {
     }
 
     printf("ArrayAlt sum: %f\n", sum);
+  });
+
+  PrintTime_print(pt, "array alt sort", ^{
+    printf("ArrayAlt -- sort\n");
+
+    void* carray = ArrayAlt_carray(array_alt);
+    size_t count = ArrayAlt_size(array_alt);
+    size_t width = sizeof(Record);
+    sort(CArray_it(carray, count, width), ^(const void* lhs_obj, const void* rhs_obj) {
+      const Record* lhs = (const Record*) lhs_obj;
+      const Record* rhs = (const Record*) rhs_obj;
+
+      if(lhs->field2 < rhs->field2) {
+        return -1;
+      }
+      if(lhs->field2 > rhs->field2) {
+        return 1;
+      }
+      return 0;
+    });
   });
 
 
