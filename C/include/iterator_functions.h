@@ -78,13 +78,6 @@ size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, 
 // Functions supported by mutable iterators
 // --------------------------------------------------------------------------------
 
-// Sorts the elements iterated by it according to the order induced by the compare function.
-// This function will make an in-memory copy of your data into an Array. If your data is already
-// in an array you might want to sort it using the Array_sort method.
-//
-// requires a mutable iterator
-void sort(Iterator it, int (^compare)(const void*, const void*));
-
 
 // Replaces the objects in the container with those returned by the given function.
 //
@@ -100,7 +93,8 @@ void replace(Iterator it, void* (^)(void*));
 // Requires a bidirectional mutable iterator.
 void reverse(Iterator it);
 
-// Sorts the objects iterated by "it"
-// The function requires "it" to be a mutable/cloning iterator.
-// If "it" is also a random access iterator, the function switches to a faster implementation.
+// Sorts the elements iterated by it according to the order induced by the compare function.
+// The function requires "it" to be a mutable and cloning iterator.
+// If "it" is also a random access iterator, the function switches to an implementation that
+// uses less memory and runs faster.
 void sort(Iterator it, int (^compare)(const void*, const void*));
