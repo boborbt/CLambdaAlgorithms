@@ -5,9 +5,7 @@
 
 // BASIC ITERATORS
 //
-// basic iterators are iterators over a number of basic types. They are useful
-// to allow using the iterator functions (for_each, sort, reverse, ...) onto objects
-// that are not dealt with the provided containers. For intance:
+// basic iterators provide iterators over a number of basic types.
 //
 //  -  Number_it: can be used to iterate a block a fixed number of times, e.g.
 //    ```
@@ -26,10 +24,19 @@
 //    ```
 //      reverse(Char_it(mystring));
 //    ```
+//
+//    - CArray_it: can be used to iterate over a c array, e.g.:
+//    ```
+//      int array[10];
+//      [ ... array filling ... ]
+//      sort(CArray_it(array, 10, sizeof(int)), ^(const void* lhs, const void* rhs) {
+//        return *(const int*)lhs  - *(const int*)rhs;
+//      });
+//    ```
 
 
 
-// This is a convenience macro to dereference the objects returned by
+// NUM() is a convenience macro to dereference the objects returned by
 // iterations started using Number_it
 // Example:
 //    for_each(Number_it(100), ^(void* obj) {
@@ -48,8 +55,9 @@ Iterator TextFile_it(const char* filename, char delimiter);
 #define CH(a) (*(char*) (a))
 
 // Creates a character iterator over the given string. The resulting iterator will be
-// a bidirectional, mutable iterator.
+// a bidirectional, mutable, random access, cloning iterator.
 Iterator Char_it(char* string);
 
-// Creates an iterator over a standard C array.
+// Creates an iterator over a standard C array. The resulting iterator will be
+// a bidirectional, mutable, random access, cloning iterator.
 Iterator CArray_it(void* carray, size_t count, size_t width);
