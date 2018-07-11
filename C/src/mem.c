@@ -1,6 +1,3 @@
-
-#include <malloc.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -9,15 +6,21 @@
 #include "macros.h"
 #include "errors.h"
 
+#include "os_macros.h"
+
+#ifdef OS_HAVE_MALLOC_H
+  #include <malloc.h>
+#else
+  #include <malloc/malloc.h>
+#endif
 
 static MemStats mem_stats = { 0, 0 };
 
 #if MEM_DEBUG_ON == 1
 
-#ifndef malloc_size
+#ifndef OS_HAVE_MALLOC_SIZE
   #define malloc_size(a) malloc_usable_size(a)
 #endif
-
 
 #if MEM_VERBOSE == 1
 
