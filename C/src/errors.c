@@ -34,7 +34,7 @@ Error* Error_print(Error* error) {
 }
 
 __attribute__((noreturn)) void Error_raise_silent(Error* error) {
-  exit(error->code);
+  exit((int)error->code);
 }
 
 __attribute__((noreturn)) void Error_raise(Error* error)  {
