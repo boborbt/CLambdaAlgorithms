@@ -158,6 +158,10 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
     return editing_distance_with_memo(memo, string1, string2, i+1, j);
   }) + 1;
 
+  unsigned long cost_with_replacement = EDMemo_memoize(memo, i+1, j+1, ^(void) {
+    return editing_distance_with_memo(memo, string1, string2, i+1, j+1);
+  }) + 1;
+
 
   unsigned long cost_with_match = INT_MAX;
   if(string1[i] == string2[j]) {
@@ -166,7 +170,7 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
     });
   }
 
-  return min(cost_with_insertion, min(cost_with_deletion, cost_with_match));
+  return min(cost_with_replacement, min(cost_with_insertion, min(cost_with_deletion, cost_with_match)));
 }
 
 
