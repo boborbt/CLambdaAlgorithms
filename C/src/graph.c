@@ -95,13 +95,7 @@ void* Graph_edge_info(Graph* graph, const void* v1, const void* v2) {
 }
 
 int Graph_has_vertex(Graph* graph, const void* v) {
-  Dictionary* adj_list;
-
-  if(Dictionary_get(graph->adjacency_matrix, v, (void**)&adj_list) == 0) {
-    return 0;
-  } else {
-    return 1;
-  }
+  return Dictionary_get(graph->adjacency_matrix, v, NULL);
 }
 
 int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
