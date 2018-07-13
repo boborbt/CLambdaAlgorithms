@@ -63,7 +63,7 @@ static Graph* Prim_build_result(Prim* prim) {
   return result;
 }
 
-// Runs Prim* and returns the found minimal spanning tree
+// Runs Prim and returns the found minimal spanning forest
 // The minimal path is returned as a newly alloced graph having the same
 // KeyInfo* as the source graph
 // The user needs to dealloc the graph when he is finished with it.
