@@ -100,11 +100,7 @@ int Graph_has_vertex(Graph* graph, const void* v) {
 
 int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
   Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, source);
-  void* info = NULL;
-  if(Dictionary_get(v1_adj_list, dest, &info)==0) {
-    return 0;
-  }
-  return 1;
+  return Dictionary_get(v1_adj_list, dest, NULL);
 }
 
 // Substitute the edge info in an edge. If the edge is not present in the
