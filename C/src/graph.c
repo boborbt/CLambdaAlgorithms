@@ -159,11 +159,11 @@ EdgeIterator* Graph_edges(Graph* graph) {
   it->vertex_it = Graph_vertices(graph);
 
   void* vertex = Graph_first_vertex_with_adjacents(graph, it->vertex_it);
+  it->current_source = vertex;
+
   if(vertex != NULL) {
-    it->current_source = vertex;
     it->dic_it = DictionaryIterator_new( Graph_adjacents_dictionary(graph, vertex) );
   } else {
-    it->current_source = NULL;
     it->dic_it = NULL;
   }
 
@@ -271,8 +271,7 @@ Iterator Edge_it(Graph* graph) {
   );
 }
 
-void* AdjacentsEdgeIt_new(EdgeIterator* it);
-void* AdjacentsEdgeIt_new(EdgeIterator* it) {
+static void* AdjacentsEdgeIt_new(EdgeIterator* it) {
   return it;
 }
 
