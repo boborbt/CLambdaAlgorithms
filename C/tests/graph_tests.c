@@ -39,6 +39,7 @@ static Graph* build_graph_fixtures() {
   return graph;
 }
 
+
 static void free_graph_fixture(Graph* graph) {
   VertexIterator* v_it = Graph_vertices(graph);
   while(!VertexIterator_end(v_it)) {
@@ -59,6 +60,31 @@ static void free_graph_fixture(Graph* graph) {
   Graph_free(graph);
   KeyInfo_free(keyInfo);
 }
+
+static void test_graph_creation() {
+  Graph* graph = Graph_new(KeyInfo_new(Key_string_compare, Key_string_hash));
+  KeyInfo* info = Graph_keyInfo(graph);
+
+  Graph_add_vertex(graph, "v1");
+  assert_true(Graph_has_vertex(graph, "v1"));
+
+  Graph_add_vertex(graph, "v2");
+  assert_true(Graph_has_vertex(graph, "v2"));
+
+  void* weight =  DoubleContainer_new(3.0);
+  Graph_add_edge(graph, "v1", "v2", weight);
+  assert_true(Graph_has_edge(graph, "v1", "v2"));
+
+  void* got_weight = Graph_edge_info(graph, "v1", "v2");
+  assert_double_equal(DoubleContainer_get(got_weight), 3.0, 0.0001);
+  assert_pointers_equal(weight, got_weight);
+
+  DoubleContainer_free(weight);
+
+  Graph_free(graph);
+  KeyInfo_free(info);
+}
+
 
 
 
@@ -335,7 +361,9 @@ static void test_bfs_visit() {
 }
 
 int main() {
+  // test_focus(test_graph_creation);
   start_tests("graph");
+  test(test_graph_creation);
   test(test_graph_add_vertex);
   test(test_graph_add_edge);
   test(test_graph_vertices);
@@ -352,14 +380,13 @@ int main() {
   test(test_dijkstra);
   end_tests();
 
-  start_tests("kruskal");
-  test(test_kruskal);
-  end_tests();
-
   start_tests("prim");
   test(test_prim);
   end_tests();
 
+  start_tests("kruskal");
+  test(test_kruskal);
+  end_tests();
 
   start_tests("visits");
   test(test_dfs_visit);

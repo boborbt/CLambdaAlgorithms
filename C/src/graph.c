@@ -7,9 +7,15 @@
 #include "iterator_functions.h"
 #include "mem.h"
 
-// The adjacency matrix is a dictionary storing vertices as keys. Values
-// are dictionaries themselves in which keys are the adjacent vertex and
-// values are the edge info.
+// The indices field is a dictionary storing vertices as keys. Values
+// are pointers to integers specifying where the key can be found in the
+// adj_lists array.
+// The adj_lists maintains the adjacency lists for each vertex.
+// Each list is implemented with an Array containing EdgeInfo objects.
+// This means that a pointer to each source vertex is repeated once
+// for each element in its adjacency list. Since this implementation is
+// optimizied for sparse graphs, this repetition should not impact much
+// the memory consumption of the data structure.
 struct _Graph {
   KeyInfo* vertexInfo;
   Dictionary* indices;
@@ -17,7 +23,6 @@ struct _Graph {
 };
 
 struct _EdgeIterator {
-  // TO BE DONE
   Graph* graph;
   size_t source_index;
   size_t adj_index;
@@ -92,6 +97,7 @@ void Graph_add_edge(Graph* graph, void* source, void* dest,  void* info) {
   edge->source = source;
   edge->destination = dest;
   edge->info = info;
+
   Array_add(adj_list, edge);
 }
 
@@ -103,14 +109,16 @@ size_t Graph_size(Graph* graph) {
 void* Graph_edge_info(Graph* graph, const void* v1, const void* v2) {
   Array* v1_adj_list = Graph_adjacents_container(graph, v1);
 
-  void* info = find_first(Array_it(v1_adj_list), ^(void* obj) {
-      return KeyInfo_comparator(graph->vertexInfo)(obj, v2);
+  EdgeInfo* edge_info = find_first(Array_it(v1_adj_list), ^(void* obj) {
+      EdgeInfo* ei = (EdgeInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(v2, ei->destination)==0;
   });
 
-  if(info==NULL) {
+  if(edge_info==NULL) {
     Error_raise(Error_new(ERROR_GENERIC, "Cannot find v2 in v1 adj list"));
   }
-  return info;
+
+  return edge_info->info;
 }
 
 int Graph_has_vertex(Graph* graph, const void* v) {
@@ -121,10 +129,10 @@ int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
   Array* v1_adj_list = Graph_adjacents_container(graph, source);
 
   return find_first(Array_it(v1_adj_list), ^(void* obj) {
-      return KeyInfo_comparator(graph->vertexInfo)(obj, dest);
+      EdgeInfo* ei = (EdgeInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(ei->destination, dest)==0;
   }) != NULL;
 }
-
 
 
 // Substitute the edge info in an edge. If the edge is not present in the
