@@ -44,6 +44,13 @@ void Graph_free(Graph* graph) {
     Mem_free(((KeyValue*)kv)->value);
   });
 
+  for_each(Array_it(graph->adj_lists), ^(void* edge_list) {
+    for_each(Array_it(edge_list), ^(void* edge) {
+      Mem_free(edge);
+    });
+    Array_free(edge_list);
+  });
+
   Dictionary_free(graph->indices);
   Array_free(graph->adj_lists);
   Mem_free(graph);
@@ -58,7 +65,7 @@ void Graph_add_vertex(Graph* graph, void* vertex) {
     Error_raise(Error_new(ERROR_GENERIC, "Trying to insert a vertex twice in the graph"));
   }
 
-  size_t* index = (size_t*) malloc(sizeof(size_t));
+  size_t* index = (size_t*) Mem_alloc(sizeof(size_t));
   *index = Array_size(graph->adj_lists);
   Dictionary_set(graph->indices, vertex, index);
   Array_add(graph->adj_lists, Array_new(10));
