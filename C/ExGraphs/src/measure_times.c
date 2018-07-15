@@ -212,6 +212,17 @@ static void execute_prim(Graph* graph) {
   Prim_free(prim);
 }
 
+static void execute_print_graphviz(Graph* graph) {
+  printf("digraph grap {\n");
+  for_each(Edge_it(graph), ^(void* obj) {
+    EdgeInfo* ei = (EdgeInfo*) obj;
+
+    printf("\"%s\" ->  \"%s\";\n", ei->source, ei->destination );
+
+  });
+  printf("}\n");
+}
+
 static void print_usage(const char* msg) {
   printf("%s\n\n",msg);
   printf("Usage: measure_times <op specifier> <graph file name> <source> <dest>\n");
@@ -222,6 +233,7 @@ static void print_usage(const char* msg) {
   printf("  -b: to find connected components using bfs\n");
   printf("  -k: to invoke kruskal\n");
   printf("  -p: to invoke prim\n");
+  printf("  -P: to print the graph in graphviz format");
 }
 
 static void check_arguments(int argc, char* argv[]) {
@@ -235,8 +247,8 @@ static void check_arguments(int argc, char* argv[]) {
     exit(ERROR_ARGUMENT_PARSING);
   }
   char op = argv[1][1];
-  if(op!='d' && op!='e' && op!='c' && op!='b' && op!='k' && op!='p') {
-    print_usage("Op specifier needs to be one of {-d,-e,-c,-b,-k,-p}");
+  if(op!='d' && op!='e' && op!='c' && op!='b' && op!='k' && op!='p' && op!='P') {
+    print_usage("Op specifier needs to be one of {-d,-e,-c,-b,-k,-p,-P}");
     exit(ERROR_ARGUMENT_PARSING);
   }
 
@@ -245,6 +257,7 @@ static void check_arguments(int argc, char* argv[]) {
     case 'b':
     case 'k':
     case 'p':
+    case 'P':
       if(argc != 3) {
         print_usage("Wrong number of arguments - expected 3");
         exit(ERROR_ARGUMENT_PARSING);
@@ -270,6 +283,7 @@ static char* flag_to_task_name(char ch) {
     case 'e': return "edge_check";
     case 'k': return "kruskal";
     case 'p': return "prim";
+    case 'P': return "print graph in graphviz format";
     default:
       printf("Unknown flag");
       exit(ERROR_ARGUMENT_PARSING);
@@ -344,6 +358,10 @@ int main(int argc, char *argv[]) {
       case 'p':
         printf("Executing prim...\n");
         execute_prim(graph);
+        break;
+      case 'P':
+        printf("Printing graph in GraphViz format...\n");
+        execute_print_graphviz(graph);
         break;
     }
   });
