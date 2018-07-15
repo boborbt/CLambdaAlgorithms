@@ -31,9 +31,32 @@ struct _EdgeIterator {
   EdgeInfo result;
 };
 
+typedef struct {
+  void* source;
+  Array* list;
+} AdjList;
+
+typedef struct {
+  void* destination;
+  void* info;
+} AdjInfo;
+
 struct _VertexIterator {
  DictionaryIterator* key_iterator;
 };
+
+static AdjList* AdjList_new(void* source) {
+  AdjList* result = (AdjList*) Mem_alloc(sizeof(AdjList));
+  result->source = source;
+  result->list = Array_new(10);
+
+  return result;
+}
+
+static void AdjList_free(AdjList* adj_list) {
+  Array_free(adj_list->list);
+  Mem_free(adj_list);
+}
 
 
 Graph* Graph_new(KeyInfo* vertexInfo) {
@@ -45,15 +68,18 @@ Graph* Graph_new(KeyInfo* vertexInfo) {
 }
 
 void Graph_free(Graph* graph) {
+  // FIXME
   for_each(Dictionary_it(graph->indices),  ^(void* kv) {
     Mem_free(((KeyValue*)kv)->value);
   });
 
-  for_each(Array_it(graph->adj_lists), ^(void* edge_list) {
-    for_each(Array_it(edge_list), ^(void* edge) {
-      Mem_free(edge);
+  for_each(Array_it(graph->adj_lists), ^(void* obj) {
+    AdjList* adj_list = (AdjList*) obj;
+    for_each(Array_it(adj_list->list), ^(void* adj_info) {
+      Mem_free(adj_info);
     });
-    Array_free(edge_list);
+
+    AdjList_free(adj_list);
   });
 
   Dictionary_free(graph->indices);
@@ -73,11 +99,11 @@ void Graph_add_vertex(Graph* graph, void* vertex) {
   size_t* index = (size_t*) Mem_alloc(sizeof(size_t));
   *index = Array_size(graph->adj_lists);
   Dictionary_set(graph->indices, vertex, index);
-  Array_add(graph->adj_lists, Array_new(10));
+  Array_add(graph->adj_lists, AdjList_new(vertex));
 }
 
 
-static Array* Graph_adjacents_container(Graph* graph, const void* source) {
+static AdjList* Graph_adjacents_container(Graph* graph, const void* source) {
   size_t* index;
   if(Dictionary_get(graph->indices, source, (void**)&index) == 0) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
@@ -91,14 +117,13 @@ void Graph_add_edge(Graph* graph, void* source, void* dest,  void* info) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the destination vertex in the graph"));
   }
 
-  Array* adj_list = Graph_adjacents_container(graph, source);
+  AdjList* adj_list = Graph_adjacents_container(graph, source);
 
-  EdgeInfo* edge = (EdgeInfo*) Mem_alloc(sizeof(EdgeInfo));
-  edge->source = source;
+  AdjInfo* edge = (AdjInfo*) Mem_alloc(sizeof(AdjInfo));
   edge->destination = dest;
   edge->info = info;
 
-  Array_add(adj_list, edge);
+  Array_add(adj_list->list, edge);
 }
 
 
@@ -107,18 +132,18 @@ size_t Graph_size(Graph* graph) {
 }
 
 void* Graph_edge_info(Graph* graph, const void* v1, const void* v2) {
-  Array* v1_adj_list = Graph_adjacents_container(graph, v1);
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, v1);
 
-  EdgeInfo* edge_info = find_first(Array_it(v1_adj_list), ^(void* obj) {
-      EdgeInfo* ei = (EdgeInfo*) obj;
+  AdjInfo* adj_info = find_first(Array_it(v1_adj_list->list), ^(void* obj) {
+      AdjInfo* ei = (AdjInfo*) obj;
       return KeyInfo_comparator(graph->vertexInfo)(v2, ei->destination)==0;
   });
 
-  if(edge_info==NULL) {
+  if(adj_info==NULL) {
     Error_raise(Error_new(ERROR_GENERIC, "Cannot find v2 in v1 adj list"));
   }
 
-  return edge_info->info;
+  return adj_info->info;
 }
 
 int Graph_has_vertex(Graph* graph, const void* v) {
@@ -126,11 +151,11 @@ int Graph_has_vertex(Graph* graph, const void* v) {
 }
 
 int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
-  Array* v1_adj_list = Graph_adjacents_container(graph, source);
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
 
-  return find_first(Array_it(v1_adj_list), ^(void* obj) {
-      EdgeInfo* ei = (EdgeInfo*) obj;
-      return KeyInfo_comparator(graph->vertexInfo)(ei->destination, dest)==0;
+  return find_first(Array_it(v1_adj_list->list), ^(void* obj) {
+      AdjInfo* ai = (AdjInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(ai->destination, dest)==0;
   }) != NULL;
 }
 
@@ -138,12 +163,12 @@ int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
 // Substitute the edge info in an edge. If the edge is not present in the
 // graph it raises an error.
 void Graph_set_edge(Graph* graph, void* source, void* dest, void* info) {
-  Array* v1_adj_list = Graph_adjacents_container(graph, source);
-  EdgeInfo* edge =  find_first(Array_it(v1_adj_list), ^(void* obj) {
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
+  AdjInfo* adj =  find_first(Array_it(v1_adj_list->list), ^(void* obj) {
       return KeyInfo_comparator(graph->vertexInfo)(obj, dest);
   });
 
-  edge->info = info;
+  adj->info = info;
 }
 
 
@@ -154,8 +179,8 @@ EdgeIterator* Graph_adjacents(Graph* graph, void* vertex) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
   }
 
-  Array* adj_list = Array_at(graph->adj_lists, *index);
-  if(Array_size(adj_list) == 0) {
+  AdjList* adj_list = Array_at(graph->adj_lists, *index);
+  if(Array_size(adj_list->list) == 0) {
     *index = Array_size(graph->adj_lists);
   }
 
@@ -179,8 +204,8 @@ static size_t Graph_first_vertex_with_adjacents(Graph* graph, size_t vertex_inde
     return vertex_index;
   }
 
-  Array* adj_list = Array_at(graph->adj_lists, vertex_index);
-  while(Array_size(adj_list) == 0 && ++vertex_index < graph_size) {
+  AdjList* adj_list = Array_at(graph->adj_lists, vertex_index);
+  while(Array_size(adj_list->list) == 0 && ++vertex_index < graph_size) {
     adj_list = Array_at(graph->adj_lists, vertex_index);
   }
 
@@ -211,8 +236,8 @@ void EdgeIterator_next(EdgeIterator* it) {
 
   it->adj_index += 1;
 
-  void* adj_list = Array_at(it->graph->adj_lists, it->source_index);
-  if(it->adj_index < Array_size(adj_list)) {
+  AdjList* adj_list = Array_at(it->graph->adj_lists, it->source_index);
+  if(it->adj_index < Array_size(adj_list->list)) {
     return;
   }
 
@@ -229,8 +254,12 @@ void EdgeIterator_next(EdgeIterator* it) {
 
 
 EdgeInfo* EdgeIterator_get(EdgeIterator* it) {
-  void* adj_list = Array_at(it->graph->adj_lists, it->source_index);
-  return Array_at(adj_list, it->adj_index);
+  AdjList* adj_list = Array_at(it->graph->adj_lists, it->source_index);
+  AdjInfo* adj = Array_at(adj_list->list, it->adj_index);
+  it->result.source = adj_list->source;
+  it->result.destination = adj->destination;
+  it->result.info = adj->info;
+  return &it->result;
 }
 
 int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2) {
