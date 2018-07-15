@@ -333,7 +333,7 @@ int main(int argc, char *argv[]) {
     printf("Graph* size: %ld\n", Graph_size(graph));
   });
 
-  PrintTime_print(pt, "Algorithm_execution", ^{
+  // PrintTime_print(pt, "Algorithm_execution", ^{
     switch(argv[1][1]) {
       case 'd':
         printf("Executing Dijkstra* algorithm...\n");
@@ -355,16 +355,18 @@ int main(int argc, char *argv[]) {
         printf("Executing kruskal...\n");
         execute_kruskal(graph);
         break;
-      case 'p':
-        printf("Executing prim...\n");
-        execute_prim(graph);
-        break;
       case 'P':
         printf("Printing graph in GraphViz format...\n");
         execute_print_graphviz(graph);
         break;
+      case 'p':
+        PrintTime_print(pt, "Prim", ^{
+          printf("Executing prim...\n");
+          execute_prim(graph);
+        });
+        break;
     }
-  });
+  // });
 
   PrintTime_print(pt, "Graph_free", ^{
     printf("Freeing memory\n");
