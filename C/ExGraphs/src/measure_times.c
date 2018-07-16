@@ -16,6 +16,7 @@
 #include "iterator_functions.h"
 #include "basic_iterators.h"
 #include "mem.h"
+#include "string_utils.h"
 
 
 #define BUF_SIZE 1024
@@ -292,21 +293,30 @@ static char* flag_to_task_name(char ch) {
 
 static char* get_compilation_flags() {
   static char buf[4096];
-  FILE* file = fopen("Makefile.vars", "r");
-  if(file==NULL) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags"));
-  }
+  Array* strings = Array_new(5);
 
-  int found = 0;
-  while( !found && fgets(buf, 4096, file) != NULL) {
-    found =  strstr(buf, "CFLAGS") != NULL;
-  }
+  for_each(TextFile_it("Makefile.vars",'\n'), ^(void* obj){
+    char* line = (char*) obj;
+    if(line[0] == '\0' || line[0] == '#') {
+      return;
+    }
+    
+    if(strstr(line, "CFLAGS")!=NULL) {
+      Array_add(strings, Mem_strdup(line));
+    }
+  });
 
-  if(!found) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
-  }
+  char* result = String_join(strings, ' ');
+  strcpy(buf, result);
 
-  buf[strlen(buf)-1] = '\0'; // removing trailing \n
+  Mem_free(result);
+
+  for_each(Array_it(strings), ^(void* obj) {
+    Mem_free(obj);
+  });
+
+  Array_free(strings);
+
   return buf;
 }
 

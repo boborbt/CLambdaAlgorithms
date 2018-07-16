@@ -11,6 +11,9 @@
 #include "print_time.h"
 #include "errors.h"
 #include "mem.h"
+#include "iterator_functions.h"
+#include "basic_iterators.h"
+#include "string_utils.h"
 
 
 // qsort passes to the comparison function a pointer to the array element,
@@ -170,23 +173,30 @@ static char* flag_to_algorithm_name(char ch) {
 
 static char* get_compilation_flags() {
   static char buf[4096];
-  FILE* file = fopen("Makefile.vars", "r");
-  if(file==NULL) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags"));
-  }
+  Array* strings = Array_new(5);
 
-  int found = 0;
-  while( !found && fgets(buf, 4096, file) != NULL) {
-    found =  strstr(buf, "CFLAGS") != NULL;
-  }
+  for_each(TextFile_it("Makefile.vars",'\n'), ^(void* obj){
+    char* line = (char*) obj;
+    if(line[0] == '\0' || line[0] == '#') {
+      return;
+    }
 
-  if(!found) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
-  }
+    if(strstr(line, "CFLAGS")!=NULL) {
+      Array_add(strings, Mem_strdup(line));
+    }
+  });
 
-  buf[strlen(buf)-1] = '\0'; // removing trailing \n
+  char* result = String_join(strings, ' ');
+  strcpy(buf, result);
 
-  fclose(file);
+  Mem_free(result);
+
+  for_each(Array_it(strings), ^(void* obj) {
+    Mem_free(obj);
+  });
+
+  Array_free(strings);
+
   return buf;
 }
 

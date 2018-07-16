@@ -10,6 +10,8 @@
 #include "basic_iterators.h"
 #include "print_time.h"
 #include "errors.h"
+#include "mem.h"
+#include "string_utils.h"
 
 
 typedef struct {
@@ -138,23 +140,30 @@ static EDResult find_closest_match(const char* word, Array* word_list, unsigned 
 
 static char* get_compilation_flags() {
   static char buf[4096];
-  FILE* file = fopen("Makefile.vars", "r");
-  if(file==NULL) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot open Makefile.vars to read compilatin flags" ));
-  }
+  Array* strings = Array_new(5);
 
-  int found = 0;
-  while( !found && fgets(buf, 4096, file) != NULL) {
-    found =  strstr(buf, "CFLAGS") != NULL;
-  }
+  for_each(TextFile_it("Makefile.vars",'\n'), ^(void* obj){
+    char* line = (char*) obj;
+    if(line[0] == '\0' || line[0] == '#') {
+      return;
+    }
 
-  if(!found) {
-    Error_raise(Error_new(ERROR_FILE_READING, "Cannot find CFLAGS string into Makefile.vars"));
-  }
+    if(strstr(line, "CFLAGS")!=NULL) {
+      Array_add(strings, Mem_strdup(line));
+    }
+  });
 
-  fclose(file);
+  char* result = String_join(strings, ' ');
+  strcpy(buf, result);
 
-  buf[strlen(buf)-1] = '\0'; // removing trailing \n
+  Mem_free(result);
+
+  for_each(Array_it(strings), ^(void* obj) {
+    Mem_free(obj);
+  });
+
+  Array_free(strings);
+
   return buf;
 }
 
