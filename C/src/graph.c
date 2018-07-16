@@ -180,7 +180,9 @@ void Graph_set_edge(Graph* graph, void* source, void* dest, void* info) {
   adj->info = info;
 }
 
-
+// --------------------------------------------------------------------------------
+// Graph iterator making functions
+// --------------------------------------------------------------------------------
 
 EdgeIterator* Graph_adjacents(Graph* graph, void* vertex) {
   size_t* index;
@@ -230,6 +232,10 @@ EdgeIterator* Graph_edges(Graph* graph) {
   return it;
 }
 
+// --------------------------------------------------------------------------------
+// EdgeIterator
+// --------------------------------------------------------------------------------
+
 void EdgeIterator_free(EdgeIterator* it) {
   Mem_free(it);
 }
@@ -278,6 +284,9 @@ int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2) {
     it1->adj_index       ==  it2->adj_index;
 }
 
+// --------------------------------------------------------------------------------
+// VertexIterator
+// --------------------------------------------------------------------------------
 
 void VertexIterator_free(VertexIterator* it) {
   DictionaryIterator_free(it->key_iterator);
@@ -300,6 +309,9 @@ int VertexIterator_same(VertexIterator* it1, VertexIterator* it2) {
   return DictionaryIterator_same(it1->key_iterator, it2->key_iterator);
 }
 
+// --------------------------------------------------------------------------------
+// Iterator interface
+// --------------------------------------------------------------------------------
 
 Iterator Vertex_it(Graph* graph) {
  return Iterator_make(
