@@ -15,9 +15,7 @@ typedef struct _EdgeIterator EdgeIterator;
 typedef struct _VertexIterator VertexIterator;
 
 
-// Edge information as returned by the EdgeIterator. Note that the struct
-// lacks a pointer to the source vertex. In most cases this is implied by
-// an outer iteration over vertices.
+// Edge information as returned by the EdgeIterator. 
 typedef struct {
   void* source;
   void* destination;

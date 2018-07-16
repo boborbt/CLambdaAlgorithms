@@ -10,25 +10,20 @@
 // The indices field is a dictionary storing vertices as keys. Values
 // are pointers to integers specifying where the key can be found in the
 // adj_lists array.
+//
+// In other terms one can access the adjacent list of vertex "v1" by doing:
+//   int* index;
+//   Dictionary_get(indices, "v1", &index)
+//   AdjList* adj_list = Array_at(adj_lists, *index)
+//
 // The adj_lists maintains the adjacency lists for each vertex.
-// Each list is implemented with an Array containing EdgeInfo objects.
-// This means that a pointer to each source vertex is repeated once
-// for each element in its adjacency list. Since this implementation is
-// optimizied for sparse graphs, this repetition should not impact much
-// the memory consumption of the data structure.
+//
+//  Each list is a struct containing the pointer to the source vertex and an
+//  array containing AdjInfo objects;
 struct _Graph {
   KeyInfo* vertexInfo;
   Dictionary* indices;
   Array* adj_lists;
-};
-
-struct _EdgeIterator {
-  Graph* graph;
-  size_t source_index;
-  size_t adj_index;
-  int advance_source_index;
-
-  EdgeInfo result;
 };
 
 typedef struct {
@@ -41,9 +36,22 @@ typedef struct {
   void* info;
 } AdjInfo;
 
+struct _EdgeIterator {
+  Graph* graph;
+  size_t source_index;
+  size_t adj_index;
+  int advance_source_index;
+
+  EdgeInfo result;
+};
+
 struct _VertexIterator {
  DictionaryIterator* key_iterator;
 };
+
+// --------------------------------------------------------------------------------
+// AdjList implementation
+// --------------------------------------------------------------------------------
 
 static AdjList* AdjList_new(void* source) {
   AdjList* result = (AdjList*) Mem_alloc(sizeof(AdjList));
@@ -58,6 +66,9 @@ static void AdjList_free(AdjList* adj_list) {
   Mem_free(adj_list);
 }
 
+// --------------------------------------------------------------------------------
+// Graph implementation
+// --------------------------------------------------------------------------------
 
 Graph* Graph_new(KeyInfo* vertexInfo) {
   Graph* result = (Graph*) Mem_alloc(sizeof(struct _Graph));
@@ -68,7 +79,6 @@ Graph* Graph_new(KeyInfo* vertexInfo) {
 }
 
 void Graph_free(Graph* graph) {
-  // FIXME
   for_each(Dictionary_it(graph->indices),  ^(void* kv) {
     Mem_free(((KeyValue*)kv)->value);
   });
@@ -102,8 +112,7 @@ void Graph_add_vertex(Graph* graph, void* vertex) {
   Array_add(graph->adj_lists, AdjList_new(vertex));
 }
 
-
-static AdjList* Graph_adjacents_container(Graph* graph, const void* source) {
+static AdjList* Graph_adj_list(Graph* graph, const void* source) {
   size_t* index;
   if(Dictionary_get(graph->indices, source, (void**)&index) == 0) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
@@ -117,7 +126,7 @@ void Graph_add_edge(Graph* graph, void* source, void* dest,  void* info) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the destination vertex in the graph"));
   }
 
-  AdjList* adj_list = Graph_adjacents_container(graph, source);
+  AdjList* adj_list = Graph_adj_list(graph, source);
 
   AdjInfo* edge = (AdjInfo*) Mem_alloc(sizeof(AdjInfo));
   edge->destination = dest;
@@ -132,7 +141,7 @@ size_t Graph_size(Graph* graph) {
 }
 
 void* Graph_edge_info(Graph* graph, const void* v1, const void* v2) {
-  AdjList* v1_adj_list = Graph_adjacents_container(graph, v1);
+  AdjList* v1_adj_list = Graph_adj_list(graph, v1);
 
   AdjInfo* adj_info = find_first(Array_it(v1_adj_list->list), ^(void* obj) {
       AdjInfo* ei = (AdjInfo*) obj;
@@ -151,7 +160,7 @@ int Graph_has_vertex(Graph* graph, const void* v) {
 }
 
 int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
-  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
+  AdjList* v1_adj_list = Graph_adj_list(graph, source);
 
   return find_first(Array_it(v1_adj_list->list), ^(void* obj) {
       AdjInfo* ai = (AdjInfo*) obj;
@@ -163,7 +172,7 @@ int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
 // Substitute the edge info in an edge. If the edge is not present in the
 // graph it raises an error.
 void Graph_set_edge(Graph* graph, void* source, void* dest, void* info) {
-  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
+  AdjList* v1_adj_list = Graph_adj_list(graph, source);
   AdjInfo* adj =  find_first(Array_it(v1_adj_list->list), ^(void* obj) {
       return KeyInfo_comparator(graph->vertexInfo)(obj, dest);
   });
