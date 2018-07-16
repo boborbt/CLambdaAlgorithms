@@ -7,43 +7,83 @@
 #include "iterator_functions.h"
 #include "mem.h"
 
-// The adjacency matrix is a dictionary storing vertices as keys. Values
-// are dictionaries themselves in which keys are the adjacent vertex and
-// values are the edge info.
+// The indices field is a dictionary storing vertices as keys. Values
+// are pointers to integers specifying where the key can be found in the
+// adj_lists array.
+// The adj_lists maintains the adjacency lists for each vertex.
+// Each list is implemented with an Array containing EdgeInfo objects.
+// This means that a pointer to each source vertex is repeated once
+// for each element in its adjacency list. Since this implementation is
+// optimizied for sparse graphs, this repetition should not impact much
+// the memory consumption of the data structure.
 struct _Graph {
   KeyInfo* vertexInfo;
-  Dictionary* adjacency_matrix;
-  size_t size;
+  Dictionary* indices;
+  Array* adj_lists;
 };
 
 struct _EdgeIterator {
   Graph* graph;
-  VertexIterator* vertex_it;
-  DictionaryIterator* dic_it;
-  void* current_source;
+  size_t source_index;
+  size_t adj_index;
+  int advance_source_index;
 
   EdgeInfo result;
 };
 
+typedef struct {
+  void* source;
+  Array* list;
+} AdjList;
+
+typedef struct {
+  void* destination;
+  void* info;
+} AdjInfo;
+
 struct _VertexIterator {
- DictionaryIterator* dic_it;
+ DictionaryIterator* key_iterator;
 };
+
+static AdjList* AdjList_new(void* source) {
+  AdjList* result = (AdjList*) Mem_alloc(sizeof(AdjList));
+  result->source = source;
+  result->list = Array_new(10);
+
+  return result;
+}
+
+static void AdjList_free(AdjList* adj_list) {
+  Array_free(adj_list->list);
+  Mem_free(adj_list);
+}
 
 
 Graph* Graph_new(KeyInfo* vertexInfo) {
   Graph* result = (Graph*) Mem_alloc(sizeof(struct _Graph));
   result->vertexInfo = vertexInfo;
-  result->adjacency_matrix = Dictionary_new(vertexInfo);
-  result->size = 0;
+  result->indices = Dictionary_new(vertexInfo);
+  result->adj_lists = Array_new(1000);
   return result;
 }
 
 void Graph_free(Graph* graph) {
-  for_each(Dictionary_it(graph->adjacency_matrix),  ^(void* kv) {
-    Dictionary_free((Dictionary*) ((KeyValue*)kv)->value);
+  // FIXME
+  for_each(Dictionary_it(graph->indices),  ^(void* kv) {
+    Mem_free(((KeyValue*)kv)->value);
   });
 
-  Dictionary_free(graph->adjacency_matrix);
+  for_each(Array_it(graph->adj_lists), ^(void* obj) {
+    AdjList* adj_list = (AdjList*) obj;
+    for_each(Array_it(adj_list->list), ^(void* adj_info) {
+      Mem_free(adj_info);
+    });
+
+    AdjList_free(adj_list);
+  });
+
+  Dictionary_free(graph->indices);
+  Array_free(graph->adj_lists);
   Mem_free(graph);
 }
 
@@ -52,187 +92,203 @@ KeyInfo* Graph_keyInfo(Graph* graph) {
 }
 
 void Graph_add_vertex(Graph* graph, void* vertex) {
-  if(Dictionary_get(graph->adjacency_matrix, vertex, NULL)) {
+  if(Dictionary_get(graph->indices, vertex, NULL)) {
     Error_raise(Error_new(ERROR_GENERIC, "Trying to insert a vertex twice in the graph"));
   }
 
-  Dictionary_set(graph->adjacency_matrix, vertex, Dictionary_new(graph->vertexInfo));
-  graph->size += 1;
+  size_t* index = (size_t*) Mem_alloc(sizeof(size_t));
+  *index = Array_size(graph->adj_lists);
+  Dictionary_set(graph->indices, vertex, index);
+  Array_add(graph->adj_lists, AdjList_new(vertex));
 }
 
-static Dictionary* Graph_adjacents_dictionary(Graph* graph, const void* source) {
-  Dictionary* adj_list;
-  if(Dictionary_get(graph->adjacency_matrix, source, (void**)&adj_list) == 0) {
+
+static AdjList* Graph_adjacents_container(Graph* graph, const void* source) {
+  size_t* index;
+  if(Dictionary_get(graph->indices, source, (void**)&index) == 0) {
     Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
   }
 
-  return adj_list;
+  return Array_at(graph->adj_lists, *index);
 }
 
 void Graph_add_edge(Graph* graph, void* source, void* dest,  void* info) {
-  if( !Dictionary_get(graph->adjacency_matrix, dest, NULL) ) {
-    Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the source vertex in the graph"));
+  if( !Dictionary_get(graph->indices, dest, NULL) ) {
+    Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the destination vertex in the graph"));
   }
 
-  Dictionary* adj_list = Graph_adjacents_dictionary(graph, source);
-  Dictionary_set(adj_list, dest, info);
+  AdjList* adj_list = Graph_adjacents_container(graph, source);
+
+  AdjInfo* edge = (AdjInfo*) Mem_alloc(sizeof(AdjInfo));
+  edge->destination = dest;
+  edge->info = info;
+
+  Array_add(adj_list->list, edge);
 }
 
+
 size_t Graph_size(Graph* graph) {
-  return graph->size;
+  return Array_size(graph->adj_lists);
 }
 
 void* Graph_edge_info(Graph* graph, const void* v1, const void* v2) {
-  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, v1);
-  if(v1_adj_list==NULL) {
-    Error_raise(Error_new(ERROR_GENERIC, "Cannot find given vertex"));
-  }
-  void* info = NULL;
-  if(Dictionary_get(v1_adj_list, v2, &info)==0) {
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, v1);
+
+  AdjInfo* adj_info = find_first(Array_it(v1_adj_list->list), ^(void* obj) {
+      AdjInfo* ei = (AdjInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(v2, ei->destination)==0;
+  });
+
+  if(adj_info==NULL) {
     Error_raise(Error_new(ERROR_GENERIC, "Cannot find v2 in v1 adj list"));
   }
-  return info;
+
+  return adj_info->info;
 }
 
 int Graph_has_vertex(Graph* graph, const void* v) {
-  return Dictionary_get(graph->adjacency_matrix, v, NULL);
+  return Dictionary_get(graph->indices, v, NULL);
 }
 
 int Graph_has_edge(Graph* graph, const void* source, const void* dest) {
-  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, source);
-  return Dictionary_get(v1_adj_list, dest, NULL);
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
+
+  return find_first(Array_it(v1_adj_list->list), ^(void* obj) {
+      AdjInfo* ai = (AdjInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(ai->destination, dest)==0;
+  }) != NULL;
 }
+
 
 // Substitute the edge info in an edge. If the edge is not present in the
 // graph it raises an error.
 void Graph_set_edge(Graph* graph, void* source, void* dest, void* info) {
-  Dictionary* v1_adj_list = Graph_adjacents_dictionary(graph, source);
-  Dictionary_set(v1_adj_list, dest, info);
+  AdjList* v1_adj_list = Graph_adjacents_container(graph, source);
+  AdjInfo* adj =  find_first(Array_it(v1_adj_list->list), ^(void* obj) {
+      return KeyInfo_comparator(graph->vertexInfo)(obj, dest);
+  });
+
+  adj->info = info;
 }
 
 
 
 EdgeIterator* Graph_adjacents(Graph* graph, void* vertex) {
-  Dictionary* adj_list = Graph_adjacents_dictionary(graph, vertex);
+  size_t* index;
+  if(Dictionary_get(graph->indices, vertex, (void**)&index) == 0) {
+    Error_raise(Error_new(ERROR_GENERIC, "Error: cannot find the given vertex in the graph"));
+  }
+
+  AdjList* adj_list = Array_at(graph->adj_lists, *index);
+  if(Array_size(adj_list->list) == 0) {
+    *index = Array_size(graph->adj_lists);
+  }
 
   EdgeIterator* it = (EdgeIterator*) Mem_alloc(sizeof(struct _EdgeIterator));
-  it->dic_it = DictionaryIterator_new(adj_list);
-  it->current_source = vertex;
-  it->vertex_it = NULL;
-  it->graph = NULL;
+  it->graph = graph;
+  it->source_index = *index;
+  it->adj_index = 0;
+  it->advance_source_index = 0;
   return it;
 }
 
 VertexIterator* Graph_vertices(Graph* graph) {
   VertexIterator* it = (VertexIterator*) Mem_alloc(sizeof(struct _VertexIterator));
-  it->dic_it = DictionaryIterator_new(graph->adjacency_matrix);
+  it->key_iterator = DictionaryIterator_new(graph->indices);
   return it;
 }
 
-static void* Graph_first_vertex_with_adjacents(Graph* graph, VertexIterator* vertex_it) {
- DictionaryIterator* dic_it = NULL;
-  while(!VertexIterator_end(vertex_it) && dic_it == NULL) {
-    Dictionary* adj_list = Graph_adjacents_dictionary(graph, VertexIterator_get(vertex_it));
-    if(!Dictionary_empty(adj_list)) {
-      return VertexIterator_get(vertex_it);
-    } else {
-      VertexIterator_next(vertex_it);
-    }
+static size_t Graph_first_vertex_with_adjacents(Graph* graph, size_t vertex_index) {
+  size_t graph_size = Array_size(graph->adj_lists);
+  if(vertex_index >= graph_size) {
+    return vertex_index;
   }
 
-  return NULL;
+  AdjList* adj_list = Array_at(graph->adj_lists, vertex_index);
+  while(Array_size(adj_list->list) == 0 && ++vertex_index < graph_size) {
+    adj_list = Array_at(graph->adj_lists, vertex_index);
+  }
+
+  return vertex_index;
 }
 
 EdgeIterator* Graph_edges(Graph* graph) {
   EdgeIterator* it = (EdgeIterator*) Mem_alloc(sizeof(struct _EdgeIterator));
   it->graph = graph;
-  it->vertex_it = Graph_vertices(graph);
-
-  void* vertex = Graph_first_vertex_with_adjacents(graph, it->vertex_it);
-  it->current_source = vertex;
-
-  if(vertex != NULL) {
-    it->dic_it = DictionaryIterator_new( Graph_adjacents_dictionary(graph, vertex) );
-  } else {
-    it->dic_it = NULL;
-  }
-
+  it->source_index = Graph_first_vertex_with_adjacents(graph, 0);
+  it->adj_index = 0;
+  it->advance_source_index = 1;
   return it;
 }
 
 void EdgeIterator_free(EdgeIterator* it) {
-  if(it->dic_it!=NULL) {
-    DictionaryIterator_free(it->dic_it);
-  }
-
-  if(it->vertex_it!=NULL) {
-    VertexIterator_free(it->vertex_it);
-  }
   Mem_free(it);
 }
 
 int EdgeIterator_end(EdgeIterator* it) {
-  return it->dic_it == NULL || DictionaryIterator_end(it->dic_it);
+  return it->source_index >= Array_size(it->graph->adj_lists);
 }
 
 void EdgeIterator_next(EdgeIterator* it) {
-  if(it->dic_it == NULL || DictionaryIterator_end(it->dic_it)) {
+  if(EdgeIterator_end(it)) {
     return;
   }
 
-  DictionaryIterator_next(it->dic_it);
-  while(it->dic_it != NULL && DictionaryIterator_end(it->dic_it) && it->vertex_it != NULL && !VertexIterator_end(it->vertex_it)) {
-    DictionaryIterator_free(it->dic_it);
-    VertexIterator_next(it->vertex_it);
-    void* vertex = Graph_first_vertex_with_adjacents(it->graph, it->vertex_it);
-    it->current_source = vertex;
+  it->adj_index += 1;
 
-    if(vertex != NULL) {
-      it->dic_it = DictionaryIterator_new(Graph_adjacents_dictionary(it->graph, vertex));
-    } else {
-      it->dic_it = NULL;
-    }
+  AdjList* adj_list = Array_at(it->graph->adj_lists, it->source_index);
+  if(it->adj_index < Array_size(adj_list->list)) {
+    return;
   }
+
+  // need to increase the source index
+  if(!it->advance_source_index) {
+    it->source_index = Array_size(it->graph->adj_lists);
+    return;
+  }
+
+  it->adj_index = 0;
+  it->source_index = Graph_first_vertex_with_adjacents(it->graph, it->source_index + 1);
 }
 
+
+
 EdgeInfo* EdgeIterator_get(EdgeIterator* it) {
-  KeyValue* keyValue = DictionaryIterator_get(it->dic_it);
-
-  it->result.source = it->current_source;
-  it->result.destination = keyValue->key;
-  it->result.info = keyValue->value;
-
+  AdjList* adj_list = Array_at(it->graph->adj_lists, it->source_index);
+  AdjInfo* adj = Array_at(adj_list->list, it->adj_index);
+  it->result.source = adj_list->source;
+  it->result.destination = adj->destination;
+  it->result.info = adj->info;
   return &it->result;
 }
 
 int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2) {
   return
     it1->graph           ==  it2->graph &&
-    VertexIterator_same(it1->vertex_it,it2->vertex_it) &&
-    DictionaryIterator_same(it1->dic_it,it2->dic_it) &&
-    it1->current_source  ==  it2->current_source;
+    it1->source_index    ==  it2->source_index &&
+    it1->adj_index       ==  it2->adj_index;
 }
 
 
 void VertexIterator_free(VertexIterator* it) {
-  DictionaryIterator_free(it->dic_it);
+  DictionaryIterator_free(it->key_iterator);
   Mem_free(it);
 }
 
 int VertexIterator_end(VertexIterator* it) {
-  return it->dic_it == NULL || DictionaryIterator_end(it->dic_it);
+  return DictionaryIterator_end(it->key_iterator);
 }
 
 void VertexIterator_next(VertexIterator* it) {
-  DictionaryIterator_next(it->dic_it);
+  DictionaryIterator_next(it->key_iterator);
 }
 
 void* VertexIterator_get(VertexIterator* it) {
-  return (void*) DictionaryIterator_get(it->dic_it)->key;
+  return (void*) DictionaryIterator_get(it->key_iterator)->key;
 }
 
 int VertexIterator_same(VertexIterator* it1, VertexIterator* it2) {
-  return DictionaryIterator_same(it1->dic_it, it2->dic_it);
+  return DictionaryIterator_same(it1->key_iterator, it2->key_iterator);
 }
 
 
