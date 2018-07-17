@@ -21,6 +21,9 @@ typedef enum {
 // for these functions.
 PriorityQueue* PriorityQueue_new(PQOrder, KeyInfo* key_info);
 
+// Returns the key info used to initialize the queue
+KeyInfo* PriorityQueue_key_info(PriorityQueue*);
+
 // Dealloc the priority queue
 void PriorityQueue_free(PriorityQueue*);
 

@@ -2,8 +2,18 @@
 #include "priority_queue.h"
 #include "double_container.h"
 
+static void free_fixtures(PriorityQueue* pq) {
+  KeyInfo* key_info = PriorityQueue_key_info(pq);
+  if(key_info) {
+    KeyInfo_free(key_info);
+  }
+
+  PriorityQueue_free(pq);
+}
+
 static PriorityQueue* fixtures() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending, NULL);
+  KeyInfo* key_info = KeyInfo_new(Key_string_compare, Key_string_hash);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending, key_info);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -17,7 +27,8 @@ static PriorityQueue* fixtures() {
 }
 
 static PriorityQueue* fixtures_descending() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_descending, NULL);
+  KeyInfo* key_info = KeyInfo_new(Key_string_compare, Key_string_hash);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_descending, key_info);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -37,22 +48,33 @@ static void test_priority_queue_push() {
   PriorityQueue_push(pq, "test", 4.0);
   assert_equal(size + 1, PriorityQueue_size(pq));
 
-  PriorityQueue_free(pq);
+  double priority;
+  PriorityQueue_get_priority(pq, "test", &priority);
+  assert_double_equal(4.0, priority, 0.001);
+
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_pop() {
   PriorityQueue* pq = fixtures();
   char* strings[] = {"p1", "p5", "p2", "p4", "p3"};
+  double priorities[] = {1.0, 1.0, 2.0, 5.0, 10.0};
 
   for(int i=0; i<5; ++i) {
     char* string = (char*) PriorityQueue_top_value(pq);
     assert_string_equal(strings[i], string);
     PriorityQueue_pop(pq);
+
+    for(int j=i+1; j < 5; j++) {
+      double priority;
+      assert_true(PriorityQueue_get_priority(pq, strings[j], &priority));
+      assert_double_equal(priorities[j], priority, 0.0001);
+    }
   }
 
   assert_true(PriorityQueue_empty(pq));
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_top_value() {
@@ -67,7 +89,7 @@ static void test_priority_queue_top_value() {
   PriorityQueue_push(pq, "test2", 20.0);
   assert_string_equal("test", PriorityQueue_top_value(pq));
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_top_priority() {
@@ -82,7 +104,7 @@ static void test_priority_queue_top_priority() {
   PriorityQueue_push(pq, "test2", 20.0);
   assert_string_equal("test", PriorityQueue_top_value(pq));
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_decrease_priority() {
@@ -92,7 +114,7 @@ static void test_priority_queue_decrease_priority() {
   PriorityQueue_decrease_priority(pq, "p4", 0.0);
   assert_string_equal("p4", PriorityQueue_top_value(pq));
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_pop_descending() {
@@ -107,7 +129,7 @@ static void test_priority_queue_pop_descending() {
 
   assert_true(PriorityQueue_empty(pq));
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 static void test_priority_queue_large_queue() {
@@ -127,13 +149,12 @@ static void test_priority_queue_large_queue() {
     DoubleContainer_free(dbl);
   }
 
-  PriorityQueue_free(pq);
+  free_fixtures(pq);
 }
 
 
 int main() {
   start_tests("Priority Queue");
-
   test(test_priority_queue_push);
   test(test_priority_queue_pop);
   test(test_priority_queue_top_value);

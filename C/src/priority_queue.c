@@ -24,12 +24,15 @@ struct _PriorityQueue {
 
 static void PQElem_swap(PriorityQueue* pq, size_t i, size_t j) {
   if(pq->index) {
-    void* obj1;
-    void* obj2;
-    Dictionary_get(pq->index, pq->array[i].elem, &obj1);
-    Dictionary_get(pq->index, pq->array[j].elem, &obj2);
-    Dictionary_set(pq->index, pq->array[i].elem, obj2);
-    Dictionary_set(pq->index, pq->array[j].elem, obj1);
+    size_t* obj1;
+    size_t* obj2;
+
+    Dictionary_get(pq->index, pq->array[i].elem, (void**)&obj1);
+    Dictionary_get(pq->index, pq->array[j].elem, (void**)&obj2);
+
+    size_t sz_tmp = *obj1;
+    *obj1 = *obj2;
+    *obj2 = sz_tmp;
   }
 
   PQElem tmp = pq->array[i];
@@ -76,6 +79,15 @@ void PriorityQueue_free(PriorityQueue* pq) {
     });
     Dictionary_free(pq->index);
   }
+}
+
+KeyInfo* PriorityQueue_key_info(PriorityQueue* pq) {
+  if(pq->index==NULL) {
+    return NULL;
+  }
+
+  return Dictionary_key_info(pq->index);
+
 }
 
 
@@ -143,6 +155,7 @@ void PriorityQueue_push(PriorityQueue* pq, void* elem, double priority) {
     Dictionary_set(pq->index, elem, index_value);
   }
 
+
   PriorityQueue_moveup(pq, pq->size);
   pq->size += 1;
 }
@@ -159,10 +172,31 @@ double PriorityQueue_top_priority(PriorityQueue* pq) {
   return pq->array[0].priority;
 }
 
+
+// static void PriorityQueue_dump(PriorityQueue* pq) {
+//   __block size_t count = 0;
+//   PriorityQueue_foreach(pq, ^(void* elem, double priority) {
+//     if(priority < 10E100) {
+//       printf("%zu: %p %4.2f\n", count, elem, priority);
+//     } else {
+//       printf("%zu: %p DBL_MAX\n", count, elem);
+//     }
+//     count+=1;
+//   });
+// }
+
 void PriorityQueue_pop(PriorityQueue* pq) {
-  pq->array[0] = pq->array[pq->size-1];
+  PQElem_swap(pq, 0, pq->size-1);
   pq->size -= 1;
   PriorityQueue_movedown(pq, 0);
+
+  if(pq->index) {
+    size_t* index_value;
+    assert(Dictionary_get(pq->index, pq->array[pq->size].elem, (void**)&index_value));
+    Mem_free(index_value);
+
+    Dictionary_delete(pq->index, pq->array[pq->size].elem);
+  }
 }
 
 static size_t PriorityQueue_search_index(PriorityQueue* pq, void* elem) {
@@ -185,8 +219,11 @@ static size_t PriorityQueue_search_index(PriorityQueue* pq, void* elem) {
   return pq->size;
 }
 
+
+
 int PriorityQueue_get_priority(PriorityQueue* pq, void* elem, double* result) {
   size_t index_value = PriorityQueue_search_index(pq, elem);
+
   if(index_value == pq->size) {
     return 0;
   }
@@ -223,6 +260,7 @@ int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double pr
   if(priority < pq->array[i].priority) {
     pq->array[i].priority = priority;
     PriorityQueue_moveup(pq, i);
+
     return 1;
   }
 
