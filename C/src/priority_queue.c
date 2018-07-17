@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <assert.h>
 #include "errors.h"
+#include "dictionary.h"
 #include "mem.h"
-
+#include "iterator_functions.h"
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
 
@@ -18,12 +19,22 @@ struct _PriorityQueue {
   PQOrder order;
   size_t size;
   size_t capacity;
+  Dictionary* index;
 };
 
-static void PQElem_swap(PQElem* e1, PQElem* e2) {
-  PQElem tmp = *e1;
-  *e1 = *e2;
-  *e2 = tmp;
+static void PQElem_swap(PriorityQueue* pq, size_t i, size_t j) {
+  if(pq->index) {
+    void* obj1;
+    void* obj2;
+    Dictionary_get(pq->index, pq->array[i].elem, &obj1);
+    Dictionary_get(pq->index, pq->array[j].elem, &obj2);
+    Dictionary_set(pq->index, pq->array[i].elem, obj2);
+    Dictionary_set(pq->index, pq->array[j].elem, obj1);
+  }
+
+  PQElem tmp = pq->array[i];
+  pq->array[i] = pq->array[j];
+  pq->array[j] = tmp;
 }
 
 static size_t PriorityQueue_parent(size_t pos) {
@@ -38,12 +49,18 @@ static size_t PriorityQueue_right_child(size_t pos) {
   return pos * 2 + 2;
 }
 
-PriorityQueue* PriorityQueue_new(PQOrder order) {
+PriorityQueue* PriorityQueue_new(PQOrder order, KeyInfo* key_info) {
   PriorityQueue* result = (PriorityQueue*) Mem_alloc(sizeof(struct _PriorityQueue));
   result->array = (PQElem*) Mem_alloc(sizeof(PQElem) * PRIORITY_QUEUE_INITIAL_CAPACITY);
   result->size = 0;
   result->capacity = PRIORITY_QUEUE_INITIAL_CAPACITY;
   result->order = order;
+
+  if(key_info) {
+    result->index = Dictionary_new(key_info);
+  } else {
+    result->index = NULL;
+  }
 
   return result;
 }
@@ -51,7 +68,16 @@ PriorityQueue* PriorityQueue_new(PQOrder order) {
 void PriorityQueue_free(PriorityQueue* pq) {
   Mem_free(pq->array);
   Mem_free(pq);
+
+  if(pq->index) {
+    for_each(Dictionary_it(pq->index), ^(void* obj) {
+      KeyValue* kv = (KeyValue*) obj;
+      Mem_free(kv->value);
+    });
+    Dictionary_free(pq->index);
+  }
 }
+
 
 size_t PriorityQueue_size(PriorityQueue* pq) {
   return pq->size;
@@ -77,7 +103,7 @@ static void PriorityQueue_try_realloc(PriorityQueue* pq) {
 static void PriorityQueue_moveup(PriorityQueue* pq, size_t pos) {
   size_t parent = PriorityQueue_parent(pos);
   while(pos != 0 && pq_key_cmp(pq, pq->array[parent].priority, pq->array[pos].priority)) {
-    PQElem_swap(&pq->array[parent], &pq->array[pos]);
+    PQElem_swap(pq, parent, pos);
     pos = parent;
     parent = PriorityQueue_parent(pos);
   }
@@ -100,7 +126,7 @@ static void PriorityQueue_movedown(PriorityQueue* pq, size_t pos) {
   }
 
   if(!pq_key_cmp(pq, pq->array[best].priority, pq->array[pos].priority)) {
-    PQElem_swap(&pq->array[best], &pq->array[pos]);
+    PQElem_swap(pq, best, pos);
     PriorityQueue_movedown(pq, best);
   }
 }
@@ -110,6 +136,13 @@ void PriorityQueue_push(PriorityQueue* pq, void* elem, double priority) {
 
   pq->array[pq->size].elem = elem;
   pq->array[pq->size].priority = priority;
+
+  if(pq->index) {
+    size_t* index_value = Mem_alloc(sizeof(size_t));
+    *index_value = pq->size;
+    Dictionary_set(pq->index, elem, index_value);
+  }
+
   PriorityQueue_moveup(pq, pq->size);
   pq->size += 1;
 }
@@ -132,27 +165,39 @@ void PriorityQueue_pop(PriorityQueue* pq) {
   PriorityQueue_movedown(pq, 0);
 }
 
-int PriorityQueue_get_priority(PriorityQueue* pq, void* elem, double* result) {
+static size_t PriorityQueue_search_index(PriorityQueue* pq, void* elem) {
+  if(pq->index) {
+    size_t* index_value;
+    if(!Dictionary_get(pq->index, elem, (void**)&index_value)) {
+      return pq->size;
+    }
+
+    return *index_value;
+  }
+
   size_t i;
   for(i=0; i<pq->size; ++i) {
     if(pq->array[i].elem == elem) {
-      *result = pq->array[i].priority;
-      return 1;
+      return i;
     }
   }
 
-  return 0;
+  return pq->size;
+}
+
+int PriorityQueue_get_priority(PriorityQueue* pq, void* elem, double* result) {
+  size_t index_value = PriorityQueue_search_index(pq, elem);
+  if(index_value == pq->size) {
+    return 0;
+  }
+
+  *result = pq->array[index_value].priority;
+  return 1;
 }
 
 
-
 void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
-  size_t i;
-  for(i=0; i<pq->size; ++i) {
-    if(pq->array[i].elem == elem) {
-      break;
-    }
-  }
+  size_t i = PriorityQueue_search_index(pq, elem);
 
   if(i==pq->size) {
     Error_raise(Error_new(ERROR_GENERIC, "Priority queues: cannot find element while decreasing its priority"));
@@ -169,12 +214,7 @@ void PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double prior
 
 
 int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority) {
-  size_t i;
-  for(i=0; i<pq->size; ++i) {
-    if(pq->array[i].elem == elem) {
-      break;
-    }
-  }
+  size_t i = PriorityQueue_search_index(pq, elem);
 
   if(i==pq->size) {
     return 0;

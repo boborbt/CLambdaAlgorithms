@@ -96,7 +96,7 @@ void Dijkstra_free(Dijkstra* d) {
 
 static void Dijkstra_init_state(Dijkstra* state) {
   state->comparator = KeyInfo_comparator(Graph_keyInfo(state->graph));
-  state->pq = PriorityQueue_new(PQOrder_ascending);
+  state->pq = PriorityQueue_new(PQOrder_ascending, Graph_keyInfo(state->graph));
   state->parents = Dictionary_new(Graph_keyInfo(state->graph));
   state->distances = Dictionary_new(Graph_keyInfo(state->graph));
 }

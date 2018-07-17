@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "keys.h"
 
 //
 // Implementation of a priority queue (smaller values first)
@@ -14,8 +15,11 @@ typedef enum {
   PQOrder_descending = -1
 } PQOrder;
 
-// Alloc the priority queue
-PriorityQueue* PriorityQueue_new(PQOrder);
+// Alloc the priority queue. If key_info is given it is used to
+// alloc a dictionary that improves the speed of get_priority and
+// increase_priority methods. If NULL the queue revert to slower methods
+// for these functions.
+PriorityQueue* PriorityQueue_new(PQOrder, KeyInfo* key_info);
 
 // Dealloc the priority queue
 void PriorityQueue_free(PriorityQueue*);

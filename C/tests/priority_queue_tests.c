@@ -3,7 +3,7 @@
 #include "double_container.h"
 
 static PriorityQueue* fixtures() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending, NULL);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -17,7 +17,7 @@ static PriorityQueue* fixtures() {
 }
 
 static PriorityQueue* fixtures_descending() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_descending);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_descending, NULL);
   assert_true(PriorityQueue_empty(pq));
 
   PriorityQueue_push(pq, "p1", 1.0);
@@ -111,7 +111,7 @@ static void test_priority_queue_pop_descending() {
 }
 
 static void test_priority_queue_large_queue() {
-  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending);
+  PriorityQueue* pq = PriorityQueue_new(PQOrder_ascending, NULL);
   unsigned int num_insertions = 1024 * 4;
   for(unsigned int i=0; i <= num_insertions; ++i) {
     DoubleContainer* dbl = DoubleContainer_new((double)i);

@@ -25,7 +25,7 @@ Prim* Prim_new(Graph* graph, double (*graph_info_to_double)(const void*)) {
   prim->graph = graph;
   prim->parents = Dictionary_new(Graph_keyInfo(graph));
   prim->graph_info_to_double = graph_info_to_double;
-  prim->pq = PriorityQueue_new(PQOrder_ascending);
+  prim->pq = PriorityQueue_new(PQOrder_ascending, Graph_keyInfo(graph));
 
   return prim;
 }
