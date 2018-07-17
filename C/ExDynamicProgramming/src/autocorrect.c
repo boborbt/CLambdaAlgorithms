@@ -158,9 +158,7 @@ static char* get_compilation_flags() {
 
   Mem_free(result);
 
-  for_each(Array_it(strings), ^(void* obj) {
-    Mem_free(obj);
-  });
+  free_contents(Array_it(strings));
 
   Array_free(strings);
 

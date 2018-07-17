@@ -76,9 +76,7 @@ static void destroy_graph_double_containers(Graph* graph) {
 
   printf("destroy dc count:%d\n", count);
 
-  for_each(Vertex_it(graph), ^(void* obj) {
-    Mem_free(obj);
-  });
+  free_contents(Vertex_it(graph));
 }
 
 static void print_path(Graph* graph, void** path) {
@@ -300,7 +298,7 @@ static char* get_compilation_flags() {
     if(line[0] == '\0' || line[0] == '#') {
       return;
     }
-    
+
     if(strstr(line, "CFLAGS")!=NULL) {
       Array_add(strings, Mem_strdup(line));
     }
@@ -311,9 +309,7 @@ static char* get_compilation_flags() {
 
   Mem_free(result);
 
-  for_each(Array_it(strings), ^(void* obj) {
-    Mem_free(obj);
-  });
+  free_contents(Array_it(strings));
 
   Array_free(strings);
 

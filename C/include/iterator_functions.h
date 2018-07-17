@@ -36,6 +36,9 @@ void* find_first(Iterator, int(^condition)(void* elem));
 // returned Array needs to be freed by the user.
 Array* map(Iterator, void* (^)(void*));
 
+// Frees the content of the given iterator using Mem_free
+void free_contents(Iterator);
+
 // --------------------------------------------------------------------------------
 // Functions supported by bidirectional iterators
 // --------------------------------------------------------------------------------

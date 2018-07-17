@@ -85,9 +85,7 @@ void Graph_free(Graph* graph) {
 
   for_each(Array_it(graph->adj_lists), ^(void* obj) {
     AdjList* adj_list = (AdjList*) obj;
-    for_each(Array_it(adj_list->list), ^(void* adj_info) {
-      Mem_free(adj_info);
-    });
+    free_contents(Array_it(adj_list->list));
 
     AdjList_free(adj_list);
   });

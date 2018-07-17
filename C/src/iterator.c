@@ -292,6 +292,12 @@ void* first(Iterator it) {
   return result;
 }
 
+void free_contents(Iterator it) {
+  for_each(it, ^(void* obj){
+    Mem_free(obj);
+  });
+}
+
 void reverse(Iterator it) {
   require_bidirectional_iterator(it);
   require_mutable_iterator(it);

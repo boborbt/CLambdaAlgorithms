@@ -50,10 +50,7 @@ static Array* build_fixtures2() {
 }
 
 static void free_fixtures(Array* array) {
-  for_each(Array_it(array), ^(void* obj) {
-    Mem_free(obj);
-  });
-
+  free_contents(Array_it(array));
   Array_free(array);
 }
 
