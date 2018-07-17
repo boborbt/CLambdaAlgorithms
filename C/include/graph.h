@@ -15,7 +15,7 @@ typedef struct _EdgeIterator EdgeIterator;
 typedef struct _VertexIterator VertexIterator;
 
 
-// Edge information as returned by the EdgeIterator. 
+// Edge information as returned by the EdgeIterator.
 typedef struct {
   void* source;
   void* destination;
@@ -36,10 +36,9 @@ KeyInfo* Graph_keyInfo(Graph* graph);
 // Raises an ERROR_GENERIC if the vertex already belongs to the graph.
 void Graph_add_vertex(Graph* graph, void* vertex);
 
-// adds the given edge to the graph. Substitute the info value if the edge
-// already belongs to the graph.
-// if source or dest do not already belong to the graph, it raises a
-// ERROR_GENERIC.
+// Adds the given edge to the graph. Raises a ERROR_GENERIC if the edge
+// already belongs to the graph or if either source or dest have not been
+// added to the graph (via the Graph_add_vertex method).
 void Graph_add_edge(Graph* graph, void* source, void* dest, void* info);
 
 // Returns the number of vertices in the graph

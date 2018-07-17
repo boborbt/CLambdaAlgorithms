@@ -128,6 +128,15 @@ void Graph_add_edge(Graph* graph, void* source, void* dest,  void* info) {
 
   AdjList* adj_list = Graph_adj_list(graph, source);
 
+  int found = find_first(Array_it(adj_list->list), ^(void* obj) {
+      AdjInfo* ei = (AdjInfo*) obj;
+      return KeyInfo_comparator(graph->vertexInfo)(dest, ei->destination)==0;
+  }) != NULL;
+
+  if(found) {
+    Error_raise(Error_new(ERROR_GENERIC, "Error: trying to add an edge twice to the graph"));
+  }
+
   AdjInfo* edge = (AdjInfo*) Mem_alloc(sizeof(AdjInfo));
   edge->destination = dest;
   edge->info = info;
