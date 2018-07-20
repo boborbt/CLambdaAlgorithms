@@ -89,9 +89,6 @@ size_t ArrayIterator_size(ArrayIterator*);
 // end of the container.
 void ArrayIterator_next(ArrayIterator*);
 
-// Move the iterator to the next element. Do nothing if it is already past the
-// end of the container.
-void ArrayIterator_next(ArrayIterator*);
 
 // Move the iterator to the previous element. Do nothing if it is already past the
 // end (i.e., beginning) of the container.
