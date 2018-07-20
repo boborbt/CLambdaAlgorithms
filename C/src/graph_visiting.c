@@ -12,7 +12,7 @@ struct _VisitingInfo {
 
   Dictionary* vertex_set;
   UnionFindSet* visited_set;
- DictionaryIterator* current;
+  DictionaryIterator* current;
 };
 
 
