@@ -8,6 +8,9 @@ typedef Dictionary Set;
 Set* Set_new(KeyInfo*);
 void Set_free(Set*);
 
+// Returs the cardinality of the set
+size_t Set_size(Set* set);
+
 // Returns the key info used to build this set
 KeyInfo* Set_key_info(Set*);
 
@@ -42,13 +45,15 @@ void Set_inplace_union(Set* s1, Set* s2);
 // Inplace intersection of s1 and s2. After the method call s1 will contain only objects
 // that are both in s1 and s2.
 // Precondition: s1 and s2 must be based on the same KeyInfo
-void Set_inplace_intersect(Set* s1, Set s2);
+void Set_inplace_intersect(Set* s1, Set* s2);
 
 // Inplace difference of s1 and s2. After the method call s1 will not contain any object
 // in s2.
 // Precondition: s1 and s2 must be based on the same KeyInfo
-void Set_remove_set(Set* s1, void* object);
+void Set_inplace_difference(Set* s1, Set* s2);
 
+// Returns 1 if s1 and s2 are the same set (i.e., they contains the same objects)
+int Set_equals(Set* s1, Set* s2);
 
 // Iterator interface
 Iterator Set_it(Set*);

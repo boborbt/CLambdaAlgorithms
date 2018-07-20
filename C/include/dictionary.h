@@ -68,6 +68,10 @@ KeyValue* DictionaryIterator_get(DictionaryIterator* it);
 int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2);
 
 
+// Returns the key of the element currently pointed by the iterator
+void* DictionaryIterator_key_get(DictionaryIterator* it);
+
+
 // Important notice: the iterator will return KeyValue* objects.
 // so a tipical for_each will be something like:
 // for_each(Dictionary_it(dictionary), ^(void* obj) {
@@ -75,3 +79,6 @@ int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2);
 //    ... do your work ...
 // });
 Iterator Dictionary_it(Dictionary*);
+
+// This iterator iterates over the keys only
+Iterator Dictionary_key_it(Dictionary*);

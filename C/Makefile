@@ -31,7 +31,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o  build/list.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o build/set.o
 
 build:
 	mkdir build
@@ -89,6 +89,7 @@ tests: test_binaries
 	$(call exec, bin/dictionary_tests_st)
 	$(call exec, bin/dictionary_tests_hash)
 	$(call exec, bin/dictionary_tests_rb)
+	$(call exec, bin/set_tests)
 	$(call exec, bin/graph_tests)
 	$(call exec, bin/list_tests)
 	$(call exec, bin/array_alt_tests)
@@ -101,7 +102,7 @@ tests: test_binaries
 	$(call exec, bin/editing_distance_tests)
 	$(call exec, bin/basic_iterators_tests)
 
-test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests bin/editing_distance_tests bin/basic_iterators_tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests_st bin/dictionary_tests_hash bin/dictionary_tests_rb bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests bin/editing_distance_tests bin/basic_iterators_tests bin/set_tests
 
 bin/editing_distance_tests: tests/editing_distance_tests.c include/editing_distance.h lib/libcontainers_st.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/editing_distance_tests.c -o bin/editing_distance_tests -lcontainers_st $(LDFLAGS)
@@ -123,6 +124,10 @@ bin/dictionary_tests_rb: tests/dictionary_tests_rb.c include/unit_testing.h lib/
 
 bin/graph_tests: tests/graph_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/graph_tests.c -o bin/graph_tests -lcontainers_st $(LDFLAGS)
+
+bin/set_tests: tests/set_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
+	$(CC) $(CFLAGS) tests/set_tests.c -o bin/set_tests -lcontainers_st $(LDFLAGS)
+
 
 bin/list_tests: tests/list_tests.c include/unit_testing.h lib/libcontainers_hash.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/list_tests.c -o bin/list_tests -lcontainers_hash $(LDFLAGS)
