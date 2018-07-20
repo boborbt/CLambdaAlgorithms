@@ -9,17 +9,17 @@
 
 #define PRIORITY_QUEUE_INITIAL_CAPACITY 1024
 
-typedef struct {
-  void* elem;
-  double priority;
-} PQElem;
-
 struct _PriorityQueue {
   PQElem* array;
   PQOrder order;
   size_t size;
   size_t capacity;
   Dictionary* index;
+};
+
+struct _PriorityQueueIterator {
+  PriorityQueue* pq;
+  size_t index;
 };
 
 static void PQElem_swap(PriorityQueue* pq, size_t i, size_t j) {
@@ -267,9 +267,52 @@ int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double pr
   return 0;
 }
 
+// Iterator interface
 
-void PriorityQueue_foreach(PriorityQueue* pq, void (^callback)(void* elem, double priority)) {
-  for(size_t i=0; i<pq->size; ++i) {
-    callback(pq->array[i].elem, pq->array[i].priority);
-  }
+
+// Creates a new PriorityQueueIterator
+PriorityQueueIterator* PriorityQueueIterator_new(PriorityQueue* pq) {
+  PriorityQueueIterator* result = (PriorityQueueIterator*) Mem_alloc(sizeof(PriorityQueueIterator));
+
+  result->index = 0;
+  result->pq = pq;
+
+  return result;
+}
+
+// Frees the priority queue iterator
+void PriorityQueueIterator_free(PriorityQueueIterator* it) {
+  Mem_free(it);
+}
+
+// Advances the iterator
+void PriorityQueueIterator_next(PriorityQueueIterator* it) {
+  it->index += 1;
+}
+
+// Returns the priority queue element on which the iterator is pointing
+PQElem* PriorityQueueIterator_get(PriorityQueueIterator* it) {
+  return &it->pq->array[it->index];
+}
+
+//  Returns 1 if the iterator is past its end
+int PriorityQueueIterator_end(PriorityQueueIterator* it) {
+  return it->index >= it->pq->size;
+}
+
+// Returns 1 if the two iterators point at the same position of the same container
+int PriorityQueueIterator_same(PriorityQueueIterator* it1, PriorityQueueIterator* it2) {
+  return it1->index == it2->index && it1->pq == it2->pq;
+}
+
+// Creates a new iterator
+Iterator PriorityQueue_it(PriorityQueue* pq) {
+  return Iterator_make(pq,
+    (void* (*)(void*)) PriorityQueueIterator_new,
+    (void (*)(void*))  PriorityQueueIterator_next,
+    (void* (*)(void*)) PriorityQueueIterator_get,
+    (int (*)(void*))   PriorityQueueIterator_end,
+    (int (*)(void*, void*)) PriorityQueueIterator_same,
+    (void (*)(void*))  PriorityQueueIterator_free
+  );
 }

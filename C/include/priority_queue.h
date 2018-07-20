@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include "keys.h"
+#include "iterator.h"
 
 //
 // Implementation of a priority queue (smaller values first)
@@ -9,11 +10,20 @@
 
 // PriorityQueue* opaque type
 typedef struct _PriorityQueue PriorityQueue;
+typedef struct _PriorityQueueIterator PriorityQueueIterator;
 
 typedef enum {
   PQOrder_ascending = 1,
   PQOrder_descending = -1
 } PQOrder;
+
+
+// Type of objects returned by PriorityQueue iterators
+
+typedef struct {
+  void* elem;
+  double priority;
+} PQElem;
 
 // Alloc the priority queue. If key_info is given it is used to
 // alloc a dictionary that improves the speed of get_priority and
@@ -61,5 +71,24 @@ void   PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double new
 // to the priority queue or if the new priority is not lower than the old one, nothing is done.
 int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority);
 
+// Creates a new PriorityQueueIterator
+PriorityQueueIterator* PriorityQueueIterator_new(PriorityQueue*);
 
-void PriorityQueue_foreach(PriorityQueue* pq, void (^callback)(void* elem, double priority));
+// Frees the priority queue iterator
+void PriorityQueueIterator_free(PriorityQueueIterator*);
+
+// Advances the iterator
+void PriorityQueueIterator_next(PriorityQueueIterator*);
+
+// Returns the priority queue element on which the iterator is pointing
+PQElem* PriorityQueueIterator_get(PriorityQueueIterator*);
+
+//  Returns 1 if the iterator is past its end
+int PriorityQueueIterator_end(PriorityQueueIterator*);
+
+// Returns 1 if the two iterators point at the same position of the same container
+int PriorityQueueIterator_same(PriorityQueueIterator*, PriorityQueueIterator*);
+
+// Iterator interface
+
+Iterator PriorityQueue_it(PriorityQueue*);

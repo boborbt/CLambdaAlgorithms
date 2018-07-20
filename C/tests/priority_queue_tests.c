@@ -1,6 +1,8 @@
 #include "unit_testing.h"
 #include "priority_queue.h"
 #include "double_container.h"
+#include "iterator.h"
+#include "iterator_functions.h"
 
 static void free_fixtures(PriorityQueue* pq) {
   KeyInfo* key_info = PriorityQueue_key_info(pq);
@@ -149,12 +151,26 @@ static void test_priority_queue_large_queue() {
     DoubleContainer_free(dbl);
   }
 
+  PriorityQueue_free(pq);
+}
+
+static void test_priority_queue_iterators() {
+  PriorityQueue* pq = fixtures_descending();
+  __block double last_priority = 20.0;
+
+  for_each(PriorityQueue_it(pq), ^(void* obj) {
+    PQElem* elem = (PQElem*) obj;
+    assert_true(last_priority >= elem->priority);
+    last_priority = elem->priority;
+  });
+
   free_fixtures(pq);
 }
 
 
 int main() {
   start_tests("Priority Queue");
+
   test(test_priority_queue_push);
   test(test_priority_queue_pop);
   test(test_priority_queue_top_value);
@@ -162,6 +178,7 @@ int main() {
   test(test_priority_queue_decrease_priority);
   test(test_priority_queue_pop_descending);
   test(test_priority_queue_large_queue);
+  test(test_priority_queue_iterators);
 
   end_tests();
   return 0;
