@@ -42,8 +42,6 @@ ListNode* List_head(List* list);
 // Returns the list node at the end of the list
 ListNode* List_tail(List* list);
 
-// Returns the element pointed by the given ListNode
-void* List_get(ListNode* node);
 
 // Returns the successor of the given ListNode. Returns null if
 // the given ListNode is the last in the list
@@ -62,6 +60,9 @@ ListNode* List_find_wb(List* list, int (^elem_comparator)(const void*));
 
 // Returns the element stored in the given ListNode
 void* ListNode_get(ListNode*);
+
+// Sets the element of the current node
+void ListNode_set(ListNode*, void* elem);
 
 //
 // Iterators
