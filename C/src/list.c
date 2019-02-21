@@ -121,8 +121,9 @@ ListNode* List_tail(List* list) {
   return list->tail;
 }
 
-void *List_get(ListNode *node) {
-  return node->elem;
+
+void ListNode_set(ListNode* node, void* elem) {
+  node->elem = elem;
 }
 
 ListNode *List_next(ListNode * node) {
