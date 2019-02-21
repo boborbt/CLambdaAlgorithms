@@ -121,6 +121,18 @@ ListNode* List_tail(List* list) {
   return list->tail;
 }
 
+void *List_get(ListNode *node) {
+  return node->elem;
+}
+
+ListNode *List_next(ListNode * node) {
+  return node->succ;
+}
+
+ListNode *List_prev(ListNode * node) {
+  return node->pred;
+}
+
 void List_free(List* list, void (*elem_free)(void*)) {
   ListNode* current = list->head;
   while(current!=NULL) {

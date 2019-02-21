@@ -42,6 +42,17 @@ ListNode* List_head(List* list);
 // Returns the list node at the end of the list
 ListNode* List_tail(List* list);
 
+// Returns the element pointed by the given ListNode
+void* List_get(ListNode* node);
+
+// Returns the successor of the given ListNode. Returns null if
+// the given ListNode is the last in the list
+ListNode* List_next(ListNode*);
+
+// Returns the predecessor of the given ListNode. Returns null if
+// the given ListNode is the first in the list
+ListNode* List_prev(ListNode*);
+
 
 // Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==1.
 ListNode* List_find(List* list, int (*elem_selector)(const void*));
