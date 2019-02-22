@@ -173,6 +173,32 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
   return min(cost_with_replacement, min(cost_with_insertion, min(cost_with_deletion, cost_with_match)));
 }
 
+// The code below is equivalent and cleaner w.r.t. the code above. Unfortunately is slightly slower.
+// 
+// static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, unsigned long i, unsigned long j) {
+//
+//   return EDMemo_memoize(memo, i, j, ^{
+//     if(string1[i] == '\0') {
+//       return EDMemo_len2(memo) - j;
+//     }
+//
+//     if(string2[j] == '\0') {
+//       return EDMemo_len1(memo) - i;
+//     }
+//
+//     unsigned long cost_with_deletion = editing_distance_with_memo(memo, string1, string2, i, j+1) + 1;
+//     unsigned long cost_with_insertion =  editing_distance_with_memo(memo, string1, string2, i+1, j) + 1;
+//     unsigned long cost_with_replacement = editing_distance_with_memo(memo, string1, string2, i+1, j+1) + 1;
+//
+//     unsigned long cost_with_match = INT_MAX;
+//     if(string1[i] == string2[j]) {
+//       cost_with_match = editing_distance_with_memo(memo, string1, string2, i+1, j+1);
+//     }
+//
+//     return min(cost_with_replacement, min(cost_with_insertion, min(cost_with_deletion, cost_with_match)));
+//   });
+// }
+
 
 // Returns the editing distance between string1 and string2
 unsigned long editing_distance(const char* string1, const char* string2) {
