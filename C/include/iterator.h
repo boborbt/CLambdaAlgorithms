@@ -62,7 +62,7 @@
 // NOTE: cloning is only useful for value types. When a container stores pointers, cloning can
 // (and for performance reasons should) degrade to simply returning the pointers stored in the
 // container. To understand why this is the case, consider that the client of the api will store
-// the result of the cloning operation into a pointer. Since that storage is sufficient ot actually
+// the result of the cloning operation into a pointer. Since that storage is sufficient to actually
 // hold the data (i.e., the pointer in the container) it is not necessary to alloc memory just to
 // hold the pointer.
 //  - alloc_obj: a function that allocates enough memory to store a new instance of the objects
