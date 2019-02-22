@@ -52,7 +52,9 @@ ListNode* List_next(List* list, ListNode*);
 ListNode* List_prev(List* list, ListNode*);
 
 
-// Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==1.
+// Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==0.
+// Note the odd check here. The reason to use ==0 instead of ==1 is to make it work
+// with comparison functions such as strcmp.
 ListNode* List_find(List* list, int (*elem_selector)(const void*));
 
 // Identical to List_find, but accept a block instead of a function.
