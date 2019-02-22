@@ -1,8 +1,12 @@
 #include "unit_testing.h"
 #include "set.h"
 
+static KeyInfo* key_info;
+
 static Set* build_fixtures() {
-  Set* set = Set_new(KeyInfo_new( Key_string_compare, Key_string_hash));
+  key_info = KeyInfo_new(Key_string_compare, Key_string_hash);
+  Set* set = Set_new(key_info);
+  
   Set_insert(set, "el1");
   Set_insert(set, "el2");
   Set_insert(set, "el3");
@@ -15,6 +19,7 @@ static Set* build_fixtures() {
 
 static void free_fixtures(Set* set) {
   Set_free(set);
+  KeyInfo_free(key_info);
 }
 
 static void test_set_insert() {
@@ -61,7 +66,7 @@ static void test_set_union() {
 int main() {
 
   start_tests("Sets");
-
+  
   test(test_set_insert);
   test(test_set_union);
 

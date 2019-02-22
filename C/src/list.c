@@ -122,15 +122,15 @@ ListNode* List_tail(List* list) {
 }
 
 
-void ListNode_set(ListNode* node, void* elem) {
+void ListNode_set(UNUSED(List* list), ListNode* node, void* elem) {
   node->elem = elem;
 }
 
-ListNode *List_next(ListNode * node) {
+ListNode *List_next(UNUSED(List* list), ListNode * node) {
   return node->succ;
 }
 
-ListNode *List_prev(ListNode * node) {
+ListNode *List_prev(UNUSED(List* list), ListNode * node) {
   return node->pred;
 }
 
@@ -148,7 +148,9 @@ void List_free(List* list, void (*elem_free)(void*)) {
   Mem_free(list);
 }
 
-ListNode* List_find_wb(List* list,  int (^elem_selector)(const void*)) {
+ListNode *ListIterator_get_node(ListIterator *it);
+
+ListNode *List_find_wb(List *list, int (^elem_selector)(const void *)) {
   ListIterator* it = ListIterator_new(list);
 
   while( !ListIterator_end(it) && elem_selector(ListIterator_get(it)) != 0 ) {
@@ -171,7 +173,7 @@ ListNode* List_find(List* list, int (*elem_selector)(const void*)) {
   });
 }
 
-void* ListNode_get(ListNode* node) {
+void* ListNode_get(UNUSED(List* list), ListNode* node) {
   return node->elem;
 }
 
@@ -214,7 +216,7 @@ ListIterator* ListIterator_new(List* list) {
   return result;
 }
 
-ListIterator* ListIterator_new_from_node(ListNode* node) {
+ListIterator* ListIterator_new_from_node(UNUSED(List* list), ListNode* node) {
   if(node == NULL) {
     return NULL;
   }

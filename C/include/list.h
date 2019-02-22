@@ -45,11 +45,11 @@ ListNode* List_tail(List* list);
 
 // Returns the successor of the given ListNode. Returns null if
 // the given ListNode is the last in the list
-ListNode* List_next(ListNode*);
+ListNode* List_next(List* list, ListNode*);
 
 // Returns the predecessor of the given ListNode. Returns null if
 // the given ListNode is the first in the list
-ListNode* List_prev(ListNode*);
+ListNode* List_prev(List* list, ListNode*);
 
 
 // Returns a pointer to the node that satisfies elem_selector(ListNode_get(elem))==1.
@@ -59,10 +59,10 @@ ListNode* List_find(List* list, int (*elem_selector)(const void*));
 ListNode* List_find_wb(List* list, int (^elem_comparator)(const void*));
 
 // Returns the element stored in the given ListNode
-void* ListNode_get(ListNode*);
+void* ListNode_get(List*, ListNode*);
 
 // Sets the element of the current node
-void ListNode_set(ListNode*, void* elem);
+void ListNode_set(List*, ListNode*, void* elem);
 
 //
 // Iterators
@@ -78,16 +78,13 @@ ListIterator* ListIterator_new(List* list);
 // returned. Note that ListIterator_end(NULL) returns true and ListIterator_free(NULL),
 // will do nothing, all other iterators functions, instead, will produce undefined
 // result when called on NULL values.
-ListIterator* ListIterator_new_from_node(ListNode*);
+ListIterator* ListIterator_new_from_node(List*, ListNode*);
 
 // Frees the given iterator. Does nothing if the iterator is NULL
 void ListIterator_free(ListIterator*);
 
 // Returns the object pointed by the given iterator
 void* ListIterator_get(ListIterator*);
-
-// Returns the node pointed by the given iterator
-ListNode* ListIterator_get_node(ListIterator*);
 
 // Moves the iterator on the next element
 void ListIterator_next(ListIterator*);

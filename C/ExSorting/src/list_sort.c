@@ -25,33 +25,33 @@ static void list_merge(List *dest, List *lhs, List *rhs, int (^comp)(void *, voi
     while(lhs_it != NULL && rhs_it != NULL) {
         assert(dest_it != NULL);
 
-        void* lhs_elem = ListNode_get(lhs_it);
-        void* rhs_elem = ListNode_get(rhs_it);
+        void* lhs_elem = ListNode_get(lhs, lhs_it);
+        void* rhs_elem = ListNode_get(rhs, rhs_it);
         if(comp(lhs_elem, rhs_elem) < 0) {
-            ListNode_set(dest_it, lhs_elem);
-            lhs_it = List_next(lhs_it);
+            ListNode_set(dest, dest_it, lhs_elem);
+            lhs_it = List_next(lhs, lhs_it);
         } else {
-            ListNode_set(dest_it, rhs_elem);
-            rhs_it = List_next(rhs_it);
+            ListNode_set(dest, dest_it, rhs_elem);
+            rhs_it = List_next(rhs, rhs_it);
         }
 
-        dest_it = List_next(dest_it);
+        dest_it = List_next(dest, dest_it);
     }
 
     while(lhs_it!=NULL) {
         assert(dest_it != NULL);
-        void *lhs_elem = ListNode_get(lhs_it);
-        ListNode_set(dest_it, lhs_elem);
-        lhs_it = List_next(lhs_it);
-        dest_it = List_next(dest_it);
+        void *lhs_elem = ListNode_get(lhs, lhs_it);
+        ListNode_set(dest, dest_it, lhs_elem);
+        lhs_it = List_next(lhs, lhs_it);
+        dest_it = List_next(dest, dest_it);
     }
 
     while (rhs_it != NULL) {
         assert(dest_it != NULL);
-        void *rhs_elem = ListNode_get(rhs_it);
-        ListNode_set(dest_it, rhs_elem);
-        rhs_it = List_next(rhs_it);
-        dest_it = List_next(dest_it);
+        void *rhs_elem = ListNode_get(rhs, rhs_it);
+        ListNode_set(dest, dest_it, rhs_elem);
+        rhs_it = List_next(rhs, rhs_it);
+        dest_it = List_next(dest, dest_it);
     }
 }
 

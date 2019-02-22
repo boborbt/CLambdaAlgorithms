@@ -54,12 +54,12 @@ static void test_list_find_wb() {
   List* list = build_fixtures();
 
   ListNode* list_elem = List_find_wb(list,  ^int(const void* elem) {
-    return strcmp(elem, "4");
+    return strcmp(elem, "4")==0;
   });
 
   assert_not_null(list_elem);
 
-  assert_true(strcmp(ListNode_get(list_elem), "4")==0);
+  assert_true(strcmp(ListNode_get(list, list_elem), "4"));
   List_free(list, NULL);
 }
 
@@ -74,7 +74,7 @@ static void test_list_find() {
 
   assert_not_null(list_elem);
 
-  assert_true(strcmp(ListNode_get(list_elem), "4")==0);
+  assert_true(strcmp(ListNode_get(list, list_elem), "4")==0);
   List_free(list, NULL);
 }
 
@@ -90,16 +90,15 @@ static long delete_elem(void* elem) {
 
 static void test_list_delete_node() {
   List* list = build_fixtures();
-  ListIterator* it = ListIterator_new(list);
+  ListNode* it = List_head(list);
 
-  ListNode* elem = ListIterator_get_node(it);
-  ListIterator_next(it);
-  List_delete_node(list, elem);
+  List_delete_node(list, it);
 
-  assert_true(!strcmp(ListIterator_get(it), "21") );
+  it = List_head(list);
+
+  assert_true(!strcmp(ListNode_get(list, it), "21") );
   assert_equal(7l, List_size(list));
 
-  ListIterator_free(it);
   List_free(list, NULL);
 }
 

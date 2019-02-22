@@ -15,13 +15,13 @@ void Queue_enqueue(Queue* queue, void* elem) {
 
 void* Queue_dequeue(Queue* queue) {
   ListNode* node = List_tail(queue);
-  void* elem = ListNode_get(node);
+  void* elem = ListNode_get(queue, node);
   List_delete_node(queue, node);
   return elem;
 }
 
 void* Queue_front(Queue* queue) {
-  return ListNode_get( List_tail(queue) );
+  return ListNode_get( queue, List_tail(queue) );
 }
 
 size_t Queue_size(Queue* queue) {

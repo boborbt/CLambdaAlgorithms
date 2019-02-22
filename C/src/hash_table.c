@@ -172,7 +172,7 @@ void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
     });
 
   if(list_elem != NULL) {
-    KeyValue* kv = ListNode_get(list_elem);
+    KeyValue* kv = ListNode_get(dictionary->table[index], list_elem);
     kv->key = key;
     kv->value = value;
     return;
@@ -196,7 +196,7 @@ static KeyValue* Dictionary_get_key_value(Dictionary* dictionary, const void* ke
   if(list_elem == NULL) {
     return NULL;
   } else {
-    return ListNode_get(list_elem);
+    return ListNode_get(dictionary->table[index], list_elem);
   }
 }
 
@@ -236,7 +236,7 @@ void Dictionary_delete(Dictionary* dictionary, const void* key) {
 
   dictionary->size -= 1;
 
-  KeyValue_free(ListNode_get(list_ptr));
+  KeyValue_free(ListNode_get(dictionary->table[index], list_ptr));
   List_delete_node(dictionary->table[index], list_ptr);
 
   if(dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
