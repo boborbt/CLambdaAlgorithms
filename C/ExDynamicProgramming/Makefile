@@ -17,5 +17,5 @@ clean:
 	@$(RM) -rf bin
 
 
-bin/autocorrect: src/autocorrect.c ../include/array.h  ../include/iterator.h ../include/iterator_functions.h ../include/editing_distance.h ../lib/libcontainers_hash.a Makefile ../Makefile.vars
-	@$(CC) $(CFLAGS) -o bin/autocorrect src/autocorrect.c  -lcontainers_hash $(LDFLAGS)
+bin/autocorrect: src/autocorrect.c ../include/array.h  ../include/iterator.h ../include/iterator_functions.h ../include/editing_distance.h ../lib/libcontainers.a Makefile ../Makefile.vars
+	@$(CC) $(CFLAGS) -o bin/autocorrect src/autocorrect.c  -lcontainers $(LDFLAGS)

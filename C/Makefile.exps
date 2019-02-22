@@ -10,36 +10,17 @@ esercizio1_m:
 
 experiment1: ExSorting esercizio1_q esercizio1_h esercizio1_m
 
-esercizio2_hash_1:
-	ExDictionaries/bin/measure_times_hash 1 $(RECORDS_DATASET)
+esercizio2_1:
+	ExDictionaries/bin/measure_times 1 $(RECORDS_DATASET)
 
-esercizio2_hash_2:
-	ExDictionaries/bin/measure_times_hash 2 $(RECORDS_DATASET)
+esercizio2_2:
+	ExDictionaries/bin/measure_times 2 $(RECORDS_DATASET)
 
-esercizio2_hash_3:
-	ExDictionaries/bin/measure_times_hash 3 $(RECORDS_DATASET)
-
-esercizio2_st_1:
-	ExDictionaries/bin/measure_times_st 1 $(RECORDS_DATASET)
-
-esercizio2_st_2:
-	ExDictionaries/bin/measure_times_st 2 $(RECORDS_DATASET)
-
-esercizio2_st_3:
-	ExDictionaries/bin/measure_times_st 3 $(RECORDS_DATASET)
+esercizio2_3:
+	ExDictionaries/bin/measure_times 3 $(RECORDS_DATASET)
 
 
-esercizio2_rb_1:
-	ExDictionaries/bin/measure_times_rb 1 $(RECORDS_DATASET)
-
-esercizio2_rb_2:
-	ExDictionaries/bin/measure_times_rb 2 $(RECORDS_DATASET)
-
-esercizio2_rb_3:
-	ExDictionaries/bin/measure_times_rb 3 $(RECORDS_DATASET)
-
-
-experiment2: ExDictionaries esercizio2_hash_1 esercizio2_hash_2 esercizio2_hash_3 esercizio2_rb_1 esercizio2_rb_2 esercizio2_rb_3 esercizio2_st_1 esercizio2_st_2 esercizio2_st_3
+experiment2: ExDictionaries esercizio2_1 esercizio2_2 esercizio2_3
 
 esercizio3_d:
 	ExGraphs/bin/measure_times -d $(DIST_DATASET) torino catania

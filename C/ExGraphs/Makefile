@@ -14,5 +14,5 @@ clean:
 	@$(RM) -rf bin
 
 
-bin/measure_times: src/measure_times.c ../include/dijkstra.h ../include/graph.h ../lib/libcontainers_hash.a ../Makefile.vars Makefile
-	@$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c -lcontainers_hash $(LDFLAGS)
+bin/measure_times: src/measure_times.c ../include/dijkstra.h ../include/graph.h ../lib/libcontainers.a ../Makefile.vars Makefile
+	@$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c -lcontainers $(LDFLAGS)
