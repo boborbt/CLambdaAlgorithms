@@ -361,7 +361,6 @@ static void test_bfs_visit() {
 }
 
 int main() {
-  test_focus(test_prim);
   start_tests("graph");
   test(test_graph_creation);
   test(test_graph_add_vertex);
