@@ -11,5 +11,6 @@ C/bin
 *.class
 *.csv
 C/*.txt
+.vscode
 .tags
 bin
