@@ -4,7 +4,7 @@ CFLAGS+=-I../include
 LDFLAGS+=-L../lib
 
 
-all: bin bin/measure_times bin/test_read bin/array_comparison bin/sorting-17-18 bin/list_sort
+all: bin bin/measure_times bin/test_read bin/array_comparison bin/sorting-17-18 bin/list-sort-18-19
 
 bin:
 	mkdir bin
@@ -16,8 +16,8 @@ clean:
 bin/sorting-17-18: src/sorting-17-18.c ../include/array.h ../include/mem.h ../include/print_time.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	$(CC) $(CFLAGS) -o bin/sorting-17-18 src/sorting-17-18.c -lcontainers $(LDFLAGS)
 
-bin/list_sort: src/list_sort.c ../include/list.h ../include/mem.h ../include/print_time.h ../lib/libcontainers.a Makefile ../Makefile.vars
-	$(CC) $(CFLAGS) -o bin/list_sort src/list_sort.c -lcontainers $(LDFLAGS)
+bin/list-sort-18-19: src/list-sort-18-19.c ../include/list.h ../include/mem.h ../include/print_time.h ../lib/libcontainers.a Makefile ../Makefile.vars
+	$(CC) $(CFLAGS) -o bin/list-sort-18-19 src/list-sort-18-19.c -lcontainers $(LDFLAGS)
 
 
 bin/measure_times: src/measure_times.c ../include/heap_sort.h ../include/quick_sort.h ../include/insertion_sort.h ../include/dataset.h  ../lib/libcontainers.a Makefile ../Makefile.vars

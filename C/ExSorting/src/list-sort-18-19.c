@@ -133,25 +133,10 @@ int main(int argc, char const *argv[]) {
         });
     });
 
-    // PrintTime_print(pt, "Sorting...", ^{
-    //     sort(List_it(list), ^(const void *lhs, const void *rhs){
-    //         long int lhs_val = *(const long int*) lhs;
-    //         long int rhs_val = *(const long int*) rhs;
+    PrintTime_free(pt);
 
-    //         if(lhs_val < rhs_val) {
-    //             return -1;
-    //         } else if(lhs_val == rhs_val) {
-    //             return 0;
-    //         } else {
-    //             return 1;
-    //         }
-    //     });
-    // });
+    List_free(list, mem_free);
 
-        PrintTime_free(pt);
-
-        List_free(list, mem_free);
-
-        Mem_check_and_report();
-        return 0;
+    Mem_check_and_report();
+    return 0;
 }
