@@ -218,7 +218,7 @@ void* find_last(Iterator it, int(^condition)(void* elem)) {
   return result;
 }
 
-size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs)) {
+static size_t binsearch_approx_(Iterator it, const void* elem, int* last_comparison, int (^compare)(const void* lhs, const void* rhs)) {
   require_random_access_iterator(it);
 
   void* iterator = it.new_iterator(it.container);
@@ -248,16 +248,29 @@ size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, 
 
   it.free(iterator);
 
+  if(last_comparison != NULL) {
+    *last_comparison = comparison;
+  }
+
+  return current_index;
+}
+
+size_t binsearch_approx(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs)) {
+  return binsearch_approx_(it, elem, NULL, compare);
+}
+
+size_t binsearch(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs)) {
+  int comparison;
+  size_t index = binsearch_approx_(it, elem, &comparison,  compare);
+
   if(comparison == 0) {
-    return current_index;
+    return index;
   } else {
     return (size_t) -1;
   }
 }
 
-
-
-Array* map(Iterator it, void* (^mapping_function)(void*)) {
+Array *map(Iterator it, void * (^mapping_function)(void *)) {
   Array* result = Array_new(10);
   for_each(it, ^(void* obj) {
     void* elem = mapping_function(obj);

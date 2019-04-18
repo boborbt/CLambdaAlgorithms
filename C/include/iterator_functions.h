@@ -77,15 +77,20 @@ size_t count(Iterator it);
 // Requires a random access iterator over a sorted container.
 size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs));
 
-// --------------------------------------------------------------------------------
-// Functions supported by mutable iterators
-// --------------------------------------------------------------------------------
-
-
-// Replaces the objects in the container with those returned by the given function.
+// Finds an occurrence of the given elem. It returns the index of the nearest element found.
 //
-// Requires a mutable iterator.
-void replace(Iterator it, void* (^)(void*));
+// Requires a random access iterator over a sorted container.
+size_t binsearch_approx(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs));
+
+    // --------------------------------------------------------------------------------
+    // Functions supported by mutable iterators
+    // --------------------------------------------------------------------------------
+
+    // Replaces the objects in the container with those returned by the given
+    // function.
+    //
+    // Requires a mutable iterator.
+    void replace(Iterator it, void * (^)(void *));
 
 // --------------------------------------------------------------------------------
 // Functions supported by a combination of iterators

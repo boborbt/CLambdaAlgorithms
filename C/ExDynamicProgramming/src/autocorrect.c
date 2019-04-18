@@ -15,7 +15,7 @@
 
 
 typedef struct {
-  unsigned long distance;
+  long distance;
   Array* closest_matches;
 } EDResult;
 
@@ -32,6 +32,23 @@ static int in_bad_char_set(char ch) {
     default:
       return 0;
   }
+}
+
+// Compares e1 and e2 first on the basis of their lenght and then on the basis of their 
+// lexicographic order.
+static int alphalen_cmp(const void* e1, const void* e2) {
+  const char *s1 = (const char *)e1, *s2 = (const char *)e2;
+  size_t len1 = strlen(s1), len2 = strlen(s2);
+
+  if (len1 == len2) {
+    return strcmp(s1, s2);
+  }
+
+  if (len1 < len2) {
+    return -1;
+  }
+
+  return 1;
 }
 
 static void str_strip_chars(char* buf) {
@@ -101,38 +118,90 @@ static Array* load_strings(const char* filename, char delim) {
 //   }
 // }
 
+static size_t find_exact_match(const char* word, Array* word_list) {
+  size_t binsearch_result = binsearch_approx(
+      Array_it(word_list), word, ^(const void *lhs, const void *rhs) {
+        return alphalen_cmp(lhs, rhs);
+      });
+
+  const char* other = Array_at(word_list, binsearch_result);
+
+  if (strcmp(word, other) == 0) {
+    return ULONG_MAX;
+  } else {
+    return binsearch_result;
+  }
+}
+
+// static long udiff(unsigned long u1, unsigned long u2) {
+//   if(u1 >= u2) {
+//     return (long) (u1 - u2);
+//   }
+
+//   return (long) (u2 - u2);
+// }
+
+static void find_with_increment(const char *word, Array *word_list,
+                           unsigned long(editing_distance)(const char *,
+                                                           const char *),
+                           size_t start_index, size_t limit,
+                           EDResult* result,
+                           size_t (increment)(size_t)) {
+  size_t index = increment(start_index);
+  char *match_candidate = NULL;
+  // size_t word_len = strlen(word);
+
+  if (index != ULONG_MAX) {
+    match_candidate = (char*) Array_at(word_list, index);
+  }
+
+  while (index != limit /* && udiff(word_len,strlen(match_candidate)) <= result->distance */) {
+    long distance = (long) editing_distance(word, match_candidate);
+
+    if (distance == result->distance) {
+      Array_add(result->closest_matches, match_candidate);
+      return;
+    }
+
+    if (distance < result->distance) {
+      Array_free(result->closest_matches);
+      result->closest_matches = Array_new(10);
+      Array_add(result->closest_matches, match_candidate);
+      result->distance = distance;
+    }
+
+    index = increment(index);
+    if (index != limit) {
+      match_candidate = (char*) Array_at(word_list, index);
+    }
+  }
+}
+
+static size_t inc_index(size_t index) {
+  return index + 1;
+}
+
+static size_t dec_index(size_t index) {
+  return index - 1;
+}
+
 static EDResult find_closest_match(const char* word, Array* word_list, unsigned long (editing_distance)(const char*, const char*)) {
   __block EDResult result;
-  result.distance = ULONG_MAX;
+  result.distance = 0;
   result.closest_matches = NULL;
 
-  size_t binsearch_result = binsearch(Array_it(word_list), word, ^(const void* lhs, const void* rhs) {
-    return strcmp(lhs, rhs);
-  });
+  size_t match_index = find_exact_match(word, word_list);
 
-  if( binsearch_result != ULONG_MAX) {
-    result.distance = 0;
+  if(match_index == ULONG_MAX) {
     return result;
   }
 
   result.closest_matches = Array_new(10);
+  Array_add(result.closest_matches, Array_at(word_list, match_index));
+  result.distance = (long) editing_distance(word, (const char*) Array_at(word_list, match_index));
 
-  for_each(Array_it(word_list), ^(void* obj) {
-    const char* match_candidate = (char*) obj;
-    unsigned long distance = editing_distance(word, match_candidate);
-
-    if(distance == result.distance) {
-      Array_add(result.closest_matches, obj);
-      return;
-    }
-
-    if(distance < result.distance) {
-      Array_free(result.closest_matches);
-      result.closest_matches = Array_new(10);
-      Array_add(result.closest_matches, obj);
-      result.distance = distance;
-    }
-  });
+  find_with_increment(word, word_list, editing_distance, match_index + 1, Array_size(word_list) - 1 , & result, inc_index);
+  find_with_increment(word, word_list, editing_distance, match_index - 1, (size_t)-1, & result, dec_index);
 
   return result;
 }
@@ -190,6 +259,13 @@ int main(int argc, char const *argv[]) {
     word_list = load_strings(argv[1],'\n');
     text = load_strings(argv[2], ' ');
     printf("Done!\n");
+  });
+
+  PrintTime_print(pt, "Sorting dictionary", ^() {
+    printf("Sorting dictionary...");
+    sort(Array_it(word_list), ^(const void* e1, const void* e2) {
+      return alphalen_cmp(e1,e2);
+    });
   });
 
   PrintTime_print(pt, "Finding matches", ^() {
