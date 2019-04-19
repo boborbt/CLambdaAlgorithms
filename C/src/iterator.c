@@ -142,9 +142,15 @@ static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^c
 }
 
 
+// TODO: To make reversable iterators a reality, the only option seems to be that all iterators,
+//       not only the bidirectional ones, implement to_begin. Also, all functions that iterate
+//       from the beginning (or end) of the container should call the appropriate function to 
+//       move the iterator to the desired position (it cannot be longer safely assumed that the
+//       iterator is positioned at the beginning of the container).
+
 void for_each(Iterator it, void (^callback)(void*)) {
   void* iterator = it.new_iterator(it.container);
-  it.to_begin(iterator);
+  // it.to_begin(iterator);
 
   for_each_(it, iterator, it.next, callback);
 
