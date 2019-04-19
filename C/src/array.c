@@ -142,7 +142,14 @@ void Array_remove(Array* array, size_t index) {
 }
 
 void Array_sort(Array* array, int (^compare)(const void*, const void*)) {
-  quick_sort_wb(Array_carray(array), Array_size(array), compare);
+  #ifndef MACOS
+    quick_sort_wb(Array_carray(array), Array_size(array), compare);
+  #else
+    // System implementation is about 20% faster than our implementation
+    qsort_b(Array_carray(array), Array_size(array), sizeof(void*), ^(const void* lhs, const void* rhs) {
+      return compare(*( void* const*)lhs, *(void* const*)rhs);
+    });
+  #endif
 }
 
 // Iterator

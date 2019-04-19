@@ -8,6 +8,7 @@
 #include "errors.h"
 #include "list.h"
 #include "macros.h"
+#include "array.h"
 
 Iterator Iterator_make(
   void* container,
@@ -524,7 +525,17 @@ size_t count(Iterator it) {
   return result;
 }
 
+static int is_array_iterator(Iterator it) {
+  return it.new_iterator == (void* (*)(void*)) ArrayIterator_new;
+}
+
 void sort(Iterator it, int (^compare)(const void*, const void*)) {
+  if(is_array_iterator(it)) {
+    Array* array = (Array*) it.container;
+    Array_sort(array, compare);
+    return;
+  }
+
   if(is_random_access_iterator(it)) {
     sort__default(it, compare);
   } else {

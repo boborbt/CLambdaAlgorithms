@@ -125,10 +125,7 @@ static void sort_file(Options options) {
 
   PrintTime_print(options.pt, "Sorting...", ^{
     printf("Sorting %zu objects\n", Array_size(array));
-    // Array_sort(array, ^(const void* lhs, const void* rhs) {
-    //   return Key_long_compare(lhs, rhs);
-    // });
-    //
+
     sort(Array_it(array), ^(const void* lhs, const void* rhs) {
       return Key_long_compare(lhs, rhs);
     });
