@@ -186,6 +186,10 @@ int ArrayIterator_end(ArrayIterator* it) {
   return it->current_index >= it->array->size || it->current_index == (size_t) -1;
 }
 
+void ArrayIterator_to_begin(ArrayIterator* it) {
+  it->current_index = 0;
+}
+
 void ArrayIterator_to_end(ArrayIterator* it) {
   it->current_index = Array_size(it->array) - 1;
 }
@@ -231,6 +235,7 @@ Iterator Array_it(Array* array)
  iterator = BidirectionalIterator_make(
    iterator,
    (void (*)(void*)) ArrayIterator_prev,
+   (void (*)(void*)) ArrayIterator_to_begin,
    (void (*)(void*)) ArrayIterator_to_end
  );
 

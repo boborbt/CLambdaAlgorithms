@@ -95,6 +95,7 @@ struct _Iterator {
 
   // bidirectional iterators
   void   (*prev)(void*);
+  void   (*to_begin)(void*);
   void   (*to_end)(void*);
 
   // mutable iterators
@@ -174,13 +175,14 @@ Iterator RandomAccessIterator_make(
 // Example:
 // ```C
 //  Iterator it = Iterator_make(...);
-//  it = BidirectionalIterator_make(it, _my_prev_fun, _my_to_end_fun);
+//  it = BidirectionalIterator_make(it, _my_prev_fun, _my_to_begin_fun _my_to_end_fun);
 // ```
 
 
 Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),
+  void  (*to_begin)(void*),
   void  (*to_end)(void*)
 );
 

@@ -36,7 +36,7 @@ static void test_char_iterator_reverse() {
   char* string = Mem_strdup("boon");
   char* reversed = "noob";
 
-  reverse(Char_it(string));
+  reverse_contents(Char_it(string));
 
   for_each_with_index(Char_it(string), ^(void* obj, size_t index) {
     assert_char_equal(reversed[index], CH(obj));
@@ -104,7 +104,7 @@ static void test_carray_iterator_reverse() {
     array[i].j = -i;
   }
 
-  reverse(CArray_it(array, 5, sizeof(CArrayTestStruct)));
+  reverse_contents(CArray_it(array, 5, sizeof(CArrayTestStruct)));
 
   for_each_with_index(CArray_it(array, 5, sizeof(CArrayTestStruct)), ^(void* obj, size_t index) {
     CArrayTestStruct* elem = (CArrayTestStruct*) obj;

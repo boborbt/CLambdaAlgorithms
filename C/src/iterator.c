@@ -62,9 +62,11 @@ Iterator RandomAccessIterator_make(
 Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),
+  void  (*to_begin)(void*),
   void  (*to_end)(void*)
 ) {
   iterator.prev = prev;
+  iterator.to_begin = to_begin;
   iterator.to_end = to_end;
 
   return iterator;
@@ -93,7 +95,7 @@ Iterator CloningIterator_make(
 }
 
 int is_bidirectional_iterator(Iterator it) {
-  return !(it.to_end==NULL || it.prev==NULL);
+  return !(it.to_begin==NULL || it.to_end==NULL || it.prev==NULL);
 }
 
 int is_random_access_iterator(Iterator it) {
@@ -142,19 +144,35 @@ static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^c
 
 void for_each(Iterator it, void (^callback)(void*)) {
   void* iterator = it.new_iterator(it.container);
+  it.to_begin(iterator);
 
   for_each_(it, iterator, it.next, callback);
 
   it.free(iterator);
 }
 
+Iterator reverse(Iterator it) {
+  Iterator result = it;
+  result.prev = it.next;
+  result.next = it.prev;
+  result.to_end = it.to_begin;
+  result.to_begin = it.to_end;
+
+  return result;
+}
+
 void for_each_reverse(Iterator it, void (^callback)(void*)) {
-  void* iterator = it.new_iterator(it.container);
-  it.to_end(iterator);
+  require_bidirectional_iterator(it);
+  it = reverse(it);
 
-  for_each_(it, iterator, it.prev, callback);
+  for_each(it, callback);
 
-  it.free(iterator);
+  // void* iterator = it.new_iterator(it.container);
+  // it.to_end(iterator);
+
+  // for_each_(it, iterator, it.prev, callback);
+
+  // it.free(iterator);
 }
 
 void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
@@ -311,7 +329,7 @@ void free_contents(Iterator it) {
   });
 }
 
-void reverse(Iterator it) {
+void reverse_contents(Iterator it) {
   require_bidirectional_iterator(it);
   require_mutable_iterator(it);
 

@@ -24,6 +24,7 @@ struct _List {
 
 struct _ListIterator {
   ListNode* current;
+  ListNode* head;
   ListNode* tail;
 };
 
@@ -212,16 +213,19 @@ ListIterator* ListIterator_new(List* list) {
 
   ListIterator* result = (ListIterator*) Mem_alloc(sizeof(struct _ListIterator));
   result->current = list->head;
+  result->head = list->head;
   result->tail = list->tail;
   return result;
 }
 
-ListIterator* ListIterator_new_from_node(UNUSED(List* list), ListNode* node) {
+ListIterator* ListIterator_new_from_node(List* list, ListNode* node) {
   if(node == NULL) {
     return NULL;
   }
 
   ListIterator* result = (ListIterator*) Mem_alloc(sizeof(struct _ListIterator));
+  result->head = list->head;
+  result->tail = list->tail;
   result->current = node;
   return result;
 }
@@ -248,8 +252,12 @@ void ListIterator_prev(ListIterator* it) {
   it->current = it->current->pred;
 }
 
-void ListIterator_to_end(ListIterator* it) {
-  it->current = it->tail;
+void ListIterator_to_begin(ListIterator* it) {
+  it->current = it->head;
+}
+
+void ListIterator_to_end(ListIterator *it) { 
+  it->current = it->tail; 
 }
 
 int ListIterator_end(ListIterator* it) {
@@ -290,6 +298,7 @@ Iterator List_it(List* list) {
 
   iterator = BidirectionalIterator_make(iterator,
     (void  (*)(void*)) ListIterator_prev,
+    (void  (*)(void*)) ListIterator_to_begin,
     (void  (*)(void*)) ListIterator_to_end
   );
 

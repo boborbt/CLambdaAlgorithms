@@ -293,7 +293,7 @@ static void test_binary_search_elem_not_present() {
 
 static void test_reverse() {
   Array* reversed = build_fixtures();
-  reverse(Array_it(reversed));
+  reverse_contents(Array_it(reversed));
 
   for_each_with_index(Array_it(reversed), ^(void* obj, size_t index) {
     assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);
@@ -304,7 +304,7 @@ static void test_reverse() {
 
 static void test_reverse_lists() {
   List* reversed = build_fixtures_lists();
-  reverse(List_it(reversed));
+  reverse_contents(List_it(reversed));
 
   for_each_with_index(List_it(reversed), ^(void* obj, size_t index) {
     assert_double_equal(6.0 - (double)index, DoubleContainer_get(obj), 0.0001);

@@ -94,6 +94,9 @@ void ListIterator_next(ListIterator*);
 // Moves the iterator on the previous element
 void ListIterator_prev(ListIterator* it);
 
+// Moves the iterator to the begin of the list
+void ListIterator_to_begin(ListIterator *it);
+
 // Moves the iterator to the end of the list
 void ListIterator_to_end(ListIterator* it);
 

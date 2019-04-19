@@ -223,7 +223,11 @@ static void CharIterator_prev(CharIterator* iterator) {
   --iterator->position;
 }
 
-static void CharIterator_to_end(CharIterator* iterator) {
+static void CharIterator_to_begin(CharIterator* iterator) {
+  iterator->position = 0;
+}
+
+static void CharIterator_to_end(CharIterator *iterator) {
   iterator->position = iterator->end;
 }
 
@@ -268,6 +272,7 @@ Iterator Char_it(char* string) {
   result = BidirectionalIterator_make(
     result,
     (void  (*)(void*)) CharIterator_prev,
+    (void  (*)(void*)) CharIterator_to_begin,
     (void  (*)(void*)) CharIterator_to_end
   );
 
@@ -374,7 +379,11 @@ static void CArrayIterator_prev(CArrayIterator* iterator) {
   iterator->position -= 1;
 }
 
-static void CArrayIterator_to_end(CArrayIterator* iterator) {
+static void CArrayIterator_to_begin(CArrayIterator* iterator) {
+  iterator->position = 0;
+}
+
+static void CArrayIterator_to_end(CArrayIterator *iterator) {
   iterator->position = iterator->info->count - 1;
 }
 
@@ -409,6 +418,7 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
   result = BidirectionalIterator_make(
     result,
     (void  (*)(void*)) CArrayIterator_prev,
+    (void  (*)(void*)) CArrayIterator_to_begin,
     (void  (*)(void*)) CArrayIterator_to_end
   );
 

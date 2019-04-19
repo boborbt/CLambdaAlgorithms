@@ -43,6 +43,10 @@ void free_contents(Iterator);
 // Functions supported by bidirectional iterators
 // --------------------------------------------------------------------------------
 
+// Reverses the direction of the given iterator. I.e., it swaps the next and prev 
+// functions.
+Iterator reverse(Iterator);
+
 // Finds the last element matching the condition evaluated by the callback
 // `condition` must evaluate to 1 if the given elem is the one sought.
 // it must evaluate to 0 otherwise.
@@ -99,7 +103,7 @@ size_t binsearch_approx(Iterator it, const void *elem, int (^compare)(const void
 // Reverses the content of the given iterator.
 //
 // Requires a bidirectional mutable iterator.
-void reverse(Iterator it);
+void reverse_contents(Iterator it);
 
 // Sorts the elements iterated by it according to the order induced by the compare function.
 // The function requires "it" to be a mutable and cloning iterator.

@@ -96,9 +96,11 @@ void ArrayIterator_prev(ArrayIterator*);
 
 void ArrayIterator_move_to(ArrayIterator*, size_t);
 
-// Moves the iterator to the end of the container (i.e., on the last element)
-void ArrayIterator_to_end(ArrayIterator*);
+// Moves the iterator to the begin of the container (i.e., on the first element)
+void ArrayIterator_to_begin(ArrayIterator*);
 
+// Moves the iterator to the end of the container (i.e., on the last element)
+void ArrayIterator_to_end(ArrayIterator *);
 
 // Returns 1 if the iterator is past the end of the container (i.e., if
 // ArrayIterator_get would not return a sensible result), 0 otherwise.

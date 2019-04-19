@@ -174,6 +174,10 @@ void ListIterator_prev(ListIterator* it) {
   ArrayIterator_prev(it->it);
 }
 
+void ListIterator_to_begin(ListIterator *it) { 
+  ArrayIterator_to_begin(it->it); 
+}
+
 void ListIterator_to_end(ListIterator* it) {
   ArrayIterator_to_end(it->it);
 }
@@ -218,6 +222,7 @@ Iterator List_it(List* list) {
 
   iterator = BidirectionalIterator_make(iterator,
     (void  (*)(void*)) ListIterator_prev,
+    (void  (*)(void*)) ListIterator_to_begin,
     (void  (*)(void*)) ListIterator_to_end
   );
 

@@ -22,7 +22,7 @@
 //
 //   - Char_it: can be used to iterate over a string, e.g.:
 //    ```
-//      reverse(Char_it(mystring));
+//      reverse_contents(Char_it(mystring));
 //    ```
 //
 //    - CArray_it: can be used to iterate over a c array, e.g.:
