@@ -118,6 +118,11 @@ static Array* load_strings(const char* filename, char delim) {
 //   }
 // }
 
+/*
+ * Search for an exact match of word in word_list. If it finds one, then it returns ULONG_MAX.
+ * Otherwise it returns the position of the nearest match.
+ */
+
 static size_t find_exact_match(const char* word, Array* word_list) {
   size_t binsearch_result = binsearch_approx(
       Array_it(word_list), word, ^(const void *lhs, const void *rhs) {
@@ -133,34 +138,49 @@ static size_t find_exact_match(const char* word, Array* word_list) {
   }
 }
 
-// static long udiff(unsigned long u1, unsigned long u2) {
-//   if(u1 >= u2) {
-//     return (long) (u1 - u2);
-//   }
+/*
+ * Returns the distance between the given two unsigned integers (i.e., |u1 - u2|).
+ */
 
-//   return (long) (u2 - u2);
-// }
+static long udiff(unsigned long u1, unsigned long u2) {
+  if(u1 >= u2) {
+    return (long) (u1 - u2);
+  }
+
+  return (long) (u2 - u1);
+}
+
+/*
+ * Starting from start_index and using the increment function to update the index, it searches
+ * the word_list for the best possible matches to the given word. Every time it finds a word with
+ * the same distance as the best matches in result, then it adds the word the best matches. 
+ * Every time it finds a word with a lower distance, it reset the best matches array and insert
+ * the word as the best match.
+ * 
+ * It stops the search when the index reaches the given limit, or when it is no longer possible
+ * to improve the results. Presently, it assumes that the word array is sorted according to the
+ * word lengths and stops the result when the difference in length between word and the current
+ * candidate is larger than the current distance.
+ */
 
 static void find_with_increment(const char *word, Array *word_list,
-                           unsigned long(editing_distance)(const char *,
-                                                           const char *),
+                           unsigned long (editing_distance)(const char *, const char *),
                            size_t start_index, size_t limit,
                            EDResult* result,
                            size_t (increment)(size_t)) {
-  size_t index = increment(start_index);
+  size_t index = start_index;
   char *match_candidate = NULL;
-  // size_t word_len = strlen(word);
+  size_t word_len = strlen(word);
 
-  if (index != ULONG_MAX) {
+  if (index != limit) {
     match_candidate = (char*) Array_at(word_list, index);
   }
 
-  while (index != limit /* && udiff(word_len,strlen(match_candidate)) <= result->distance */) {
+  while (index != limit && udiff(word_len,strlen(match_candidate)) <= result->distance ) {
     long distance = (long) editing_distance(word, match_candidate);
 
     if (distance == result->distance) {
       Array_add(result->closest_matches, match_candidate);
-      return;
     }
 
     if (distance < result->distance) {
@@ -200,7 +220,7 @@ static EDResult find_closest_match(const char* word, Array* word_list, unsigned 
   Array_add(result.closest_matches, Array_at(word_list, match_index));
   result.distance = (long) editing_distance(word, (const char*) Array_at(word_list, match_index));
 
-  find_with_increment(word, word_list, editing_distance, match_index + 1, Array_size(word_list) - 1 , & result, inc_index);
+  find_with_increment(word, word_list, editing_distance, match_index + 1,Array_size(word_list) - 1, &result, inc_index);
   find_with_increment(word, word_list, editing_distance, match_index - 1, (size_t)-1, & result, dec_index);
 
   return result;
@@ -276,7 +296,7 @@ int main(int argc, char const *argv[]) {
 
       EDResult result = find_closest_match(word, word_list, editing_distance);
       if(result.distance != 0) {
-        printf("word %s is mispelled, the closest matches are:\n", word);
+        printf("word %s is mispelled, the closest matches (dist: %ld) are:\n", word, result.distance);
         for_each(Array_it(result.closest_matches), ^(void* correction) {
           printf("   %s\n", (const char*) correction);
         });
