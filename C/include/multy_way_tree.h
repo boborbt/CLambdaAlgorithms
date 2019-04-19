@@ -64,6 +64,8 @@ int MultyWayTreeIterator_end(MultyWayTreeIterator* it);
 // Returns the element currently pointed by the iterator
 void* MultyWayTreeIterator_get(MultyWayTreeIterator* it);
 
+void MultyWayTreeIterator_to_begin(MultyWayTreeIterator* it);
+
 // Returns 1 if it1 and it2 points to the same position in the container, retunrs 0 otherwise.
 int MultyWayTreeIterator_same(MultyWayTreeIterator* it1, MultyWayTreeIterator* it2);
 

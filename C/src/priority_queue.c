@@ -300,6 +300,10 @@ int PriorityQueueIterator_end(PriorityQueueIterator* it) {
   return it->index >= it->pq->size;
 }
 
+void PriorityQueueIterator_to_begin(PriorityQueueIterator* it) {
+  it->index = 0;
+}
+
 // Returns 1 if the two iterators point at the same position of the same container
 int PriorityQueueIterator_same(PriorityQueueIterator* it1, PriorityQueueIterator* it2) {
   return it1->index == it2->index && it1->pq == it2->pq;
@@ -312,6 +316,7 @@ Iterator PriorityQueue_it(PriorityQueue* pq) {
     (void (*)(void*))  PriorityQueueIterator_next,
     (void* (*)(void*)) PriorityQueueIterator_get,
     (int (*)(void*))   PriorityQueueIterator_end,
+    (void  (*)(void*)) PriorityQueueIterator_to_begin,
     (int (*)(void*, void*)) PriorityQueueIterator_same,
     (void (*)(void*))  PriorityQueueIterator_free
   );

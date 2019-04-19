@@ -90,7 +90,10 @@ void EdgeIterator_next(EdgeIterator* it);
 // Returns the EdgeInfo currently pointed by the iterator.
 EdgeInfo* EdgeIterator_get(EdgeIterator* it);
 
+// Resets the iterator to the first vertex
+void EdgeIterator_to_begin(EdgeIterator* it);
 
+// Returns 1 iff it1 and it2 represent the same iterator
 int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2);
 
 
@@ -111,6 +114,10 @@ void VertexIterator_next(VertexIterator* it);
 // Returns the EdgeInfo currently pointed by the iterator.
 void* VertexIterator_get(VertexIterator* it);
 
+// Resets the iterator to the first vertex
+void VertexIterator_to_begin(VertexIterator* it);
+
+// Returns 1 iff it1 and it2 represent the same iterator
 int  VertexIterator_same(VertexIterator* it1, VertexIterator* it2);
 
 //

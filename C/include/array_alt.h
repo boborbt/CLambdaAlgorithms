@@ -114,6 +114,8 @@ int ArrayAltIterator_end(ArrayAltIterator* it);
 // Returns the element currently pointed by the iterator
 void* ArrayAltIterator_get(ArrayAltIterator* it);
 
+// Resets the iterator to the first element
+void ArrayAltIterator_to_begin(ArrayAltIterator* it);
 
 // Returns 1 if it1 and it2 points to the same element.
 int ArrayAltIterator_same(ArrayAltIterator* it1, ArrayAltIterator* it2);

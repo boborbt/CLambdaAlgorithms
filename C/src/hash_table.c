@@ -85,6 +85,19 @@ void DictionaryIterator_next(DictionaryIterator* it) {
   }
 }
 
+void DictionaryIterator_to_begin(DictionaryIterator* it) {
+  it->cur_index = 0;
+  
+  if(it->cur_list_element!=NULL) {
+    ListIterator_free(it->cur_list_element);
+  }
+
+  it->cur_list_element = ListIterator_new(it->dictionary->table[0]);
+  if(ListIterator_end(it->cur_list_element)) {
+    DictionaryIterator_next(it);
+  }
+}
+
 int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2) {
   return
     it1->dictionary == it2->dictionary &&

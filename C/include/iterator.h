@@ -142,6 +142,7 @@ Iterator Iterator_make(
   void  (*_next)(void*),
   void* (*_get)(void*),
   int   (*_end)(void* it),
+  void  (*to_begin)(void*),
   int   (*_same)(void* it1, void* it2),
   void  (*_free)(void*)
 );
@@ -175,14 +176,13 @@ Iterator RandomAccessIterator_make(
 // Example:
 // ```C
 //  Iterator it = Iterator_make(...);
-//  it = BidirectionalIterator_make(it, _my_prev_fun, _my_to_begin_fun _my_to_end_fun);
+//  it = BidirectionalIterator_make(it, _my_prev_fun _my_to_end_fun);
 // ```
 
 
 Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),
-  void  (*to_begin)(void*),
   void  (*to_end)(void*)
 );
 

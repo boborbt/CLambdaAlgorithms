@@ -64,6 +64,9 @@ int DictionaryIterator_end(DictionaryIterator* it);
 // Returns the element currently pointed by the iterator
 KeyValue* DictionaryIterator_get(DictionaryIterator* it);
 
+// Resets the iterator to the first element
+void DictionaryIterator_to_begin(DictionaryIterator* it);
+
 // Returns 1 if it1 and it2 points to the same place in the container, retunrs 0 otherwise.
 int DictionaryIterator_same(DictionaryIterator* it1, DictionaryIterator* it2);
 

@@ -15,6 +15,7 @@ Iterator Iterator_make(
   void  (*next)(void*),
   void* (*get)(void*),
   int   (*end)(void*),
+  void  (*to_begin)(void*),
   int   (*same)(void*, void*),
   void  (*free)(void*)
 ) {
@@ -25,6 +26,7 @@ Iterator Iterator_make(
   it.next=next;
   it.get=get;
   it.end=end;
+  it.to_begin=to_begin;
   it.same=same;
   it.free=free;
 
@@ -62,11 +64,9 @@ Iterator RandomAccessIterator_make(
 Iterator BidirectionalIterator_make(
   Iterator iterator,
   void  (*prev)(void*),
-  void  (*to_begin)(void*),
   void  (*to_end)(void*)
 ) {
   iterator.prev = prev;
-  iterator.to_begin = to_begin;
   iterator.to_end = to_end;
 
   return iterator;
@@ -108,7 +108,6 @@ int is_cloning_iterator(Iterator it) {
   return !(it.alloc_obj == NULL || it.copy_obj == NULL || it.free_obj == NULL);
 }
 
-
 void require_bidirectional_iterator(Iterator it) {
   if(!is_bidirectional_iterator(it)) {
     Error_raise(Error_new(ERROR_ITERATOR_MISUSE, "The given iterator is not a bidirectional iterator as required"));
@@ -133,13 +132,6 @@ void require_cloning_iterator(Iterator it) {
   }
 }
 
-static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^callback)(void*)) {
-  while(!it.end(iterator)) {
-    void* elem = it.get(iterator);
-    callback(elem);
-    next(iterator);
-  }
-}
 
 
 // TODO: To make reversable iterators a reality, the only option seems to be that all iterators,
@@ -150,9 +142,13 @@ static void for_each_(Iterator it, void* iterator, void (*next)(void*), void (^c
 
 void for_each(Iterator it, void (^callback)(void*)) {
   void* iterator = it.new_iterator(it.container);
-  // it.to_begin(iterator);
+  it.to_begin(iterator);
 
-  for_each_(it, iterator, it.next, callback);
+  while(!it.end(iterator)) {
+    void* elem = it.get(iterator);
+    callback(elem);
+    it.next(iterator);
+  }
 
   it.free(iterator);
 }
@@ -167,19 +163,12 @@ Iterator reverse(Iterator it) {
   return result;
 }
 
-void for_each_reverse(Iterator it, void (^callback)(void*)) {
-  require_bidirectional_iterator(it);
-  it = reverse(it);
+// void for_each_reverse(Iterator it, void (^callback)(void*)) {
+//   require_bidirectional_iterator(it);
+//   it = reverse(it);
 
-  for_each(it, callback);
-
-  // void* iterator = it.new_iterator(it.container);
-  // it.to_end(iterator);
-
-  // for_each_(it, iterator, it.prev, callback);
-
-  // it.free(iterator);
-}
+//   for_each(it, callback);
+// }
 
 void for_each_with_index(Iterator it, void(^callback)(void*, size_t)) {
   void* iterator = it.new_iterator(it.container);
@@ -206,9 +195,12 @@ static void for_each_with_iterator(Iterator it, void(^callback)(void*)) {
 }
 
 
-static void* find_first_(Iterator it, void* iterator, void (*next)(void*), int(^condition)(void* elem)) {
+void* find_first(Iterator it, int(^condition)(void* elem)) {
+  void* iterator = it.new_iterator(it.container);
+  it.to_begin(iterator);
+
   while(!it.end(iterator) && condition(it.get(iterator)) == 0) {
-    next(iterator);
+    it.next(iterator);
   }
   void* result = NULL;
 
@@ -216,30 +208,13 @@ static void* find_first_(Iterator it, void* iterator, void (*next)(void*), int(^
     result = it.get(iterator);
   }
 
-  return result;
-}
-
-
-void* find_first(Iterator it, int(^condition)(void* elem)) {
-  void* iterator = it.new_iterator(it.container);
-
-  void* result = find_first_(it, iterator, it.next, condition);
-
   it.free(iterator);
   return result;
 }
 
 
 void* find_last(Iterator it, int(^condition)(void* elem)) {
-  require_bidirectional_iterator(it);
-
-  void* iterator = it.new_iterator(it.container);
-  it.to_end(iterator);
-
-  void* result = find_first_(it, iterator, it.prev, condition);
-
-  it.free(iterator);
-  return result;
+  return find_first(reverse(it), condition);
 }
 
 static size_t binsearch_approx_(Iterator it, const void* elem, int* last_comparison, int (^compare)(const void* lhs, const void* rhs)) {

@@ -13,6 +13,7 @@ Iterator Dictionary_it(Dictionary* dictionary) {
    (void  (*)(void*))  DictionaryIterator_next,
    (void* (*)(void*)) DictionaryIterator_get,
    (int   (*)(void*))   DictionaryIterator_end,
+   (void  (*)(void*)) DictionaryIterator_to_begin,
    (int   (*)(void*, void*)) DictionaryIterator_same,
    (void  (*)(void*))  DictionaryIterator_free
  );
@@ -25,6 +26,7 @@ Iterator Dictionary_key_it(Dictionary* dictionary) {
     (void  (*)(void*))  DictionaryIterator_next,
     (void* (*)(void*)) DictionaryIterator_key_get,
     (int   (*)(void*))   DictionaryIterator_end,
+    (void  (*)(void*)) DictionaryIterator_to_begin,
     (int   (*)(void*, void*)) DictionaryIterator_same,
     (void  (*)(void*))  DictionaryIterator_free
   );

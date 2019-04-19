@@ -228,6 +228,7 @@ Iterator Array_it(Array* array)
    (void (*)(void*))  ArrayIterator_next,
    (void* (*)(void*)) ArrayIterator_get,
    (int (*)(void*))   ArrayIterator_end,
+   (void (*)(void*)) ArrayIterator_to_begin,
    (int (*)(void*, void*)) ArrayIterator_same,
    (void (*)(void*))  ArrayIterator_free
  );
@@ -235,7 +236,6 @@ Iterator Array_it(Array* array)
  iterator = BidirectionalIterator_make(
    iterator,
    (void (*)(void*)) ArrayIterator_prev,
-   (void (*)(void*)) ArrayIterator_to_begin,
    (void (*)(void*)) ArrayIterator_to_end
  );
 

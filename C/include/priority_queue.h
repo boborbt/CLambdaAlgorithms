@@ -86,6 +86,8 @@ PQElem* PriorityQueueIterator_get(PriorityQueueIterator*);
 //  Returns 1 if the iterator is past its end
 int PriorityQueueIterator_end(PriorityQueueIterator*);
 
+void PriorityQueueIterator_to_begin(PriorityQueueIterator* it);
+
 // Returns 1 if the two iterators point at the same position of the same container
 int PriorityQueueIterator_same(PriorityQueueIterator*, PriorityQueueIterator*);
 

@@ -54,12 +54,6 @@ Iterator reverse(Iterator);
 // Requires a bidirectional iterator
 void* find_last(Iterator, int(^condition)(void* elem));
 
-// Calls callback on each element of the container iterated by the given Iterator.
-// The iteration will proceed in reverse order.
-//
-// Requires a bidirectional iterator
-void for_each_reverse(Iterator, void (^callback)(void* elem));
-
 // Returns the last element returned by the iterator.
 //
 // Requires a bidirectional iterators

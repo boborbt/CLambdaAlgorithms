@@ -14,6 +14,7 @@ struct _MultyWayTree {
 struct _MultyWayTreeIterator {
   MultyWayTree* node;
   Stack* state;
+  MultyWayTree* tree;
 };
 
 
@@ -200,6 +201,7 @@ void MultyWayTree_free(MultyWayTree* root) {
 MultyWayTreeIterator* MultyWayTreeIterator_new(MultyWayTree* tree) {
   MultyWayTreeIterator* iterator = (MultyWayTreeIterator*) Mem_alloc(sizeof(struct _MultyWayTreeIterator));
   iterator->state = Stack_new(100);
+  iterator->tree = tree;
   Stack_push(iterator->state, tree);
   MultyWayTreeIterator_next(iterator);
   return iterator;
@@ -245,6 +247,15 @@ int MultyWayTreeIterator_end(MultyWayTreeIterator* it) {
   return it->node == NULL;
 }
 
+void MultyWayTreeIterator_to_begin(MultyWayTreeIterator* iterator) {
+  while(!Stack_empty(iterator->state)) {
+    Stack_pop(iterator->state);
+  }
+
+  Stack_push(iterator->state, iterator->tree);
+  MultyWayTreeIterator_next(iterator);
+}
+
 int MultyWayTreeIterator_same(MultyWayTreeIterator* it1, MultyWayTreeIterator* it2) {
   return it1->node == it2->node;
 }
@@ -258,6 +269,7 @@ Iterator MultyWayTree_it(MultyWayTree* tree) {
     (void (*)(void*)) MultyWayTreeIterator_next,
     (void* (*)(void*)) MultyWayTreeIterator_get,
     (int (*)(void*)) MultyWayTreeIterator_end,
+    (void (*)(void*)) MultyWayTreeIterator_to_begin,
     (int (*)(void*,void*)) MultyWayTreeIterator_same,
     (void (*)(void*)) MultyWayTreeIterator_free
   );

@@ -263,7 +263,7 @@ static void test_array_foreach_reverse() {
   Array* array = build_fixtures();
   __block size_t count = 5;
 
-  for_each_reverse(Array_it(array), ^(void* elem) {
+  for_each(reverse(Array_it(array)), ^(void* elem) {
     assert_equal( count, (unsigned long) to_int(elem));
     count-=1;
   });

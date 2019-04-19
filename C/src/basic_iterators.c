@@ -45,6 +45,10 @@ static long NumberIterator_end(NumberIterator* iterator) {
   return iterator->current >= *iterator->end;
 }
 
+static void NumberIterator_to_begin(NumberIterator* iterator) {
+  iterator->current = 0;
+}
+
 static long NumberIterator_same(NumberIterator* lhs, NumberIterator* rhs) {
   return *lhs->end == *rhs->end && lhs->current == rhs->current;
 }
@@ -61,6 +65,7 @@ Iterator Number_it(unsigned long n) {
     (void  (*)(void*))        NumberIterator_next,
     (void* (*)(void*))        NumberIterator_get,
     (int   (*)(void*))        NumberIterator_end,
+    (void  (*)(void*))        NumberIterator_to_begin,
     (int   (*)(void*, void*)) NumberIterator_same,
     (void  (*)(void*))        NumberIterator_free
   );
@@ -149,6 +154,11 @@ static int TextFileIterator_end(TextFileIterator* iterator) {
   return iterator->buf == NULL;
 }
 
+static void TextFileIterator_to_begin(TextFileIterator* it) {
+  fseek(it->file, 0, SEEK_SET);
+  TextFileIterator_next(it);
+}
+
 static int TextFileIterator_same(TextFileIterator* it1, TextFileIterator* it2) {
   return !strcmp(it1->file_info->filename, it2->file_info->filename) && ftell(it1->file) == ftell(it2->file);
 }
@@ -175,6 +185,7 @@ Iterator TextFile_it(const char* filename, char delimiter) {
     (void  (*)(void*))        TextFileIterator_next,
     (void* (*)(void*))        TextFileIterator_get,
     (int   (*)(void*))        TextFileIterator_end,
+    (void  (*)(void*))        TextFileIterator_to_begin,
     (int   (*)(void*, void*)) TextFileIterator_same,
     (void  (*)(void*))        TextFileIterator_free
   );
@@ -265,6 +276,7 @@ Iterator Char_it(char* string) {
     (void  (*)(void*))        CharIterator_next,
     (void* (*)(void*))        CharIterator_get,
     (int   (*)(void*))        CharIterator_end,
+    (void  (*)(void*))        CharIterator_to_begin,
     (int   (*)(void*, void*)) CharIterator_same,
     (void  (*)(void*))        CharIterator_free
   );
@@ -272,7 +284,6 @@ Iterator Char_it(char* string) {
   result = BidirectionalIterator_make(
     result,
     (void  (*)(void*)) CharIterator_prev,
-    (void  (*)(void*)) CharIterator_to_begin,
     (void  (*)(void*)) CharIterator_to_end
   );
 
@@ -411,6 +422,7 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
     (void  (*)(void*))        CArrayIterator_next,
     (void* (*)(void*))        CArrayIterator_get,
     (int   (*)(void*))        CArrayIterator_end,
+    (void  (*)(void*))        CArrayIterator_to_begin,    
     (int   (*)(void*, void*)) CArrayIterator_same,
     (void  (*)(void*))        CArrayIterator_free
   );
@@ -418,7 +430,6 @@ Iterator CArray_it(void* carray, size_t count, size_t width) {
   result = BidirectionalIterator_make(
     result,
     (void  (*)(void*)) CArrayIterator_prev,
-    (void  (*)(void*)) CArrayIterator_to_begin,
     (void  (*)(void*)) CArrayIterator_to_end
   );
 

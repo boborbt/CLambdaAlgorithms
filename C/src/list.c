@@ -292,13 +292,13 @@ Iterator List_it(List* list) {
     (void (*)(void*))  ListIterator_next,
     (void* (*)(void*)) ListIterator_get,
     (int (*)(void*))   ListIterator_end,
+    (void  (*)(void*)) ListIterator_to_begin,
     (int (*)(void*, void*)) ListIterator_same,
     (void (*)(void*))  ListIterator_free
   );
 
   iterator = BidirectionalIterator_make(iterator,
     (void  (*)(void*)) ListIterator_prev,
-    (void  (*)(void*)) ListIterator_to_begin,
     (void  (*)(void*)) ListIterator_to_end
   );
 

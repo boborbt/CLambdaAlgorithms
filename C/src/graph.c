@@ -38,6 +38,7 @@ typedef struct {
 
 struct _EdgeIterator {
   Graph* graph;
+  size_t start_source_index;
   size_t source_index;
   size_t adj_index;
   int advance_source_index;
@@ -204,6 +205,7 @@ EdgeIterator* Graph_adjacents(Graph* graph, void* vertex) {
 
   EdgeIterator* it = (EdgeIterator*) Mem_alloc(sizeof(struct _EdgeIterator));
   it->graph = graph;
+  it->start_source_index = *index;
   it->source_index = *index;
   it->adj_index = 0;
   it->advance_source_index = 0;
@@ -232,8 +234,10 @@ static size_t Graph_first_vertex_with_adjacents(Graph* graph, size_t vertex_inde
 
 EdgeIterator* Graph_edges(Graph* graph) {
   EdgeIterator* it = (EdgeIterator*) Mem_alloc(sizeof(struct _EdgeIterator));
+
   it->graph = graph;
   it->source_index = Graph_first_vertex_with_adjacents(graph, 0);
+  it->start_source_index = it->source_index;
   it->adj_index = 0;
   it->advance_source_index = 1;
   return it;
@@ -284,6 +288,11 @@ EdgeInfo* EdgeIterator_get(EdgeIterator* it) {
   return &it->result;
 }
 
+void EdgeIterator_to_begin(EdgeIterator* it) {
+  it->source_index = it->start_source_index;
+  it->adj_index = 0;
+}
+
 int  EdgeIterator_same(EdgeIterator* it1, EdgeIterator* it2) {
   return
     it1->graph           ==  it2->graph &&
@@ -312,6 +321,10 @@ void* VertexIterator_get(VertexIterator* it) {
   return (void*) DictionaryIterator_get(it->key_iterator)->key;
 }
 
+void VertexIterator_to_begin(VertexIterator* it) {
+   DictionaryIterator_to_begin(it->key_iterator);
+}
+
 int VertexIterator_same(VertexIterator* it1, VertexIterator* it2) {
   return DictionaryIterator_same(it1->key_iterator, it2->key_iterator);
 }
@@ -327,6 +340,7 @@ Iterator Vertex_it(Graph* graph) {
    (void (*)(void*))  VertexIterator_next,
    (void*(*)(void*)) VertexIterator_get,
    (int  (*)(void*))   VertexIterator_end,
+   (void  (*)(void*)) VertexIterator_to_begin,
    (int  (*)(void*, void*)) VertexIterator_same,
    (void (*)(void*))  VertexIterator_free
  );
@@ -340,6 +354,7 @@ Iterator Edge_it(Graph* graph) {
     (void (*)(void*))  EdgeIterator_next,
     (void* (*)(void*)) EdgeIterator_get,
     (int (*)(void*))   EdgeIterator_end,
+    (void  (*)(void*)) EdgeIterator_to_begin,
     (int  (*)(void*, void*)) EdgeIterator_same,
     (void (*)(void*))  EdgeIterator_free
   );
@@ -356,6 +371,7 @@ Iterator AdjacentsEdge_it(EdgeIterator* it) {
   (void (*)(void*))  EdgeIterator_next,
   (void* (*)(void*)) EdgeIterator_get,
   (int (*)(void*))   EdgeIterator_end,
+  (void  (*)(void*)) EdgeIterator_to_begin,
   (int  (*)(void*, void*)) EdgeIterator_same,
   (void (*)(void*))  EdgeIterator_free
 );
