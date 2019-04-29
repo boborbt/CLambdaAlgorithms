@@ -248,11 +248,11 @@ static size_t binsearch_approx_(Iterator it, const void* elem, int* last_compari
   return current_index;
 }
 
-size_t binsearch_approx(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs)) {
+size_t binsearch_approx(Iterator it, const void *elem, KIBlkComparator compare) {
   return binsearch_approx_(it, elem, NULL, compare);
 }
 
-size_t binsearch(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs)) {
+size_t binsearch(Iterator it, const void *elem, KIBlkComparator compare) {
   int comparison;
   size_t index = binsearch_approx_(it, elem, &comparison,  compare);
 
@@ -529,7 +529,7 @@ static int is_array_iterator(Iterator it) {
   return it.new_iterator == (void* (*)(void*)) ArrayIterator_new;
 }
 
-void sort(Iterator it, int (^compare)(const void*, const void*)) {
+void sort(Iterator it, KIBlkComparator compare) {
   if(is_array_iterator(it)) {
     Array* array = (Array*) it.container;
     Array_sort(array, compare);

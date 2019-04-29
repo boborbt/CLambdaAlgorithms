@@ -79,7 +79,7 @@ Array* MultyWayTree_children(MultyWayTree* root) {
   return children;
 }
 
-MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, int (*compare)(void*, void*)) {
+MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, KIComparator compare) {
   if(tree == NULL) {
     return NULL;
   }

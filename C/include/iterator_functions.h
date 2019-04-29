@@ -2,6 +2,7 @@
 
 #include "iterator.h"
 #include "array.h"
+#include "keys.h"
 
 // --------------------------------------------------------------------------------
 // Functions supported by all iterators
@@ -73,12 +74,12 @@ size_t count(Iterator it);
 // Finds an occurrence of the given elem. It returns the index of the found element or (size_t) -1.
 //
 // Requires a random access iterator over a sorted container.
-size_t binsearch(Iterator it, const void* elem, int (^compare)(const void* lhs, const void* rhs));
+size_t binsearch(Iterator it, const void* elem, KIBlkComparator compare);
 
 // Finds an occurrence of the given elem. It returns the index of the nearest element found.
 //
 // Requires a random access iterator over a sorted container.
-size_t binsearch_approx(Iterator it, const void *elem, int (^compare)(const void *lhs, const void *rhs));
+size_t binsearch_approx(Iterator it, const void *elem, KIBlkComparator compare);
 
     // --------------------------------------------------------------------------------
     // Functions supported by mutable iterators
@@ -103,4 +104,4 @@ void reverse_contents(Iterator it);
 // The function requires "it" to be a mutable and cloning iterator.
 // If "it" is also a random access iterator, the function switches to an implementation that
 // uses less memory and runs faster.
-void sort(Iterator it, int (^compare)(const void*, const void*));
+void sort(Iterator it, KIBlkComparator compare);

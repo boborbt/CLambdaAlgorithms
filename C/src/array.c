@@ -141,7 +141,7 @@ void Array_remove(Array* array, size_t index) {
   array->size -= 1;
 }
 
-void Array_sort(Array* array, int (^compare)(const void*, const void*)) {
+void Array_sort(Array* array, KIBlkComparator compare) {
   #ifndef MACOS
     quick_sort_wb(Array_carray(array), Array_size(array), compare);
   #else

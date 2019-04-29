@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "keys.h"
 #include "iterator.h"
 
 // ArrayAlt implements a slightly modified interface of the Array
@@ -95,7 +96,7 @@ void ArrayAlt_remove(ArrayAlt* array, size_t index);
 // }
 //
 //
-void ArrayAlt_sort(ArrayAlt* array, int (*compare)(const void*, const void*));
+void ArrayAlt_sort(ArrayAlt* array, KIComparator compare);
 // void ArrayAlt_sort_f(ArrayAlt* array, void (*compare)(void*,void*));
 
 

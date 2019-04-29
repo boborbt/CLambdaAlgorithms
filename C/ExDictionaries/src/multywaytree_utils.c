@@ -48,7 +48,7 @@ void save_tree(MultyWayTree* tree, FILE* file) {
 
 
 
-static int String_compare(void* s1, void* s2) {
+static int String_compare(const void* s1, const void* s2) {
   if(s1==NULL) {
     return -1;
   }
@@ -57,7 +57,7 @@ static int String_compare(void* s1, void* s2) {
     return 1;
   }
 
-  return strcmp((char*) s1, (char*) s2);
+  return strcmp((const char*) s1, (const char*) s2);
 }
 
 

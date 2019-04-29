@@ -35,7 +35,7 @@ Array* MultyWayTree_children(MultyWayTree*);
 //
 // The compare function needs to respect the "strcmp" protocol, i.e., it needs to return
 // 0 if the elements are equal, -1 if the first is smaller than the second and 1 otherwise.
-MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, int (*compare)(void*, void*));
+MultyWayTree* MultyWayTree_find(MultyWayTree* tree, void* content, KIComparator compare);
 
 // Returns the size (number of nodes) in the tree
 size_t MultyWayTree_size(MultyWayTree*);

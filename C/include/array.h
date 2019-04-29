@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include "iterator.h"
+#include "keys.h"
 
 typedef struct _Array Array;
 typedef struct _ArrayIterator ArrayIterator;
@@ -65,7 +66,7 @@ void Array_remove(Array* array, size_t index);
 
 // sorts in-place the given array. The parameters to the compare function
 // are pointers to the objects inserted into the array. This implies that
-// it is usually necessary cast and a dereference to get the actual value:
+// it is usually necessary a cast and a dereference to get the actual value:
 // e.g., if the array contains Record objects then the compare block
 //   should be something like:
 //
@@ -75,9 +76,11 @@ void Array_remove(Array* array, size_t index);
 //
 //   ... do the comparison ...
 // }
-//
-//
-void Array_sort(Array* array, int (^compare)(const void*, const void*));
+// 
+// the compare function should follow the strcmp pattern (0 means the two
+// objects are equal, -1 means that the first smaller than the second, and
+// +1 means that the first is larger than the second).
+void Array_sort(Array* array, KIBlkComparator compare);
 
 // Iterator
 ArrayIterator* ArrayIterator_new(Array*);

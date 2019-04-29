@@ -8,7 +8,7 @@ void quick_sort(void** array, size_t count, KIComparator compare);
 
 // Implements the quick sort algorithm. It assumes that each element in the array is a pointer
 // type. 
-void quick_sort_wb(void** array, size_t count, int (^compare)(const void*, const void*));
+void quick_sort_wb(void** array, size_t count, KIBlkComparator compare);
 
 // Implements the quick sort algorithm. This function allows one to sort arrays of any type
 // whereas `quick_sort` assumes that each element of the array is a pointer.

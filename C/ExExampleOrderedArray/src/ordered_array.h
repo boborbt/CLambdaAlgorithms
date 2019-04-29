@@ -1,5 +1,7 @@
 #pragma once
 
+#include "keys.h"
+
 // --------------------------------------------------------------------------------
 // OrderedArray
 //
@@ -10,13 +12,6 @@
 
 typedef struct _OrderedArray OrderedArray;
 
-// CompareCallback is the type describing callbacks tha can be used with ordered arrays.
-// A compare callback is a function accepting two objects o1 and o2 and returning:
-// -    -1   if o1 is strictly smaller than o2
-// -     0   if o1 is equal to o2
-// -    +1   if o1 is strictly larger than o2
-
-typedef int (*CompareCallback)(void*, void*);
 
 // OrderedArray constructor
 //
@@ -27,7 +22,7 @@ typedef int (*CompareCallback)(void*, void*);
 // Memory: the memory alloced by this function needs to be disposed by the user using the
 //    OrderedArray_free function. The memory occupied by the objects contained in the array
 //    is not managed by the data structure (the user is responsible for allocing and deallocing it).
-OrderedArray* OrderedArray_new(CompareCallback compare);
+OrderedArray* OrderedArray_new(KIComparator compare);
 
 // Ordered array destructor
 // Frees the memory taken by the container data structure. It does not free the memory taken by
