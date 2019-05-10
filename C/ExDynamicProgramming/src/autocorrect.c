@@ -164,7 +164,7 @@ static long udiff(unsigned long u1, unsigned long u2) {
  */
 
 static void find_with_increment(const char *word, Array *word_list,
-                           unsigned long (editing_distance)(const char *, const char *),
+                           unsigned long (editing_distance)(const char *, const char *, unsigned long),
                            size_t start_index, size_t limit,
                            EDResult* result,
                            size_t (increment)(size_t)) {
@@ -177,7 +177,7 @@ static void find_with_increment(const char *word, Array *word_list,
   }
 
   while (index != limit && udiff(word_len,strlen(match_candidate)) <= result->distance ) {
-    long distance = (long) editing_distance(word, match_candidate);
+    long distance = (long) editing_distance(word, match_candidate, (unsigned long) result->distance);
 
     if (distance == result->distance) {
       Array_add(result->closest_matches, match_candidate);
@@ -205,7 +205,7 @@ static size_t dec_index(size_t index) {
   return index - 1;
 }
 
-static EDResult find_closest_match(const char* word, Array* word_list, unsigned long (editing_distance)(const char*, const char*)) {
+static EDResult find_closest_match(const char* word, Array* word_list, unsigned long (editing_distance)(const char*, const char*, unsigned long)) {
   __block EDResult result;
   result.distance = 0;
   result.closest_matches = NULL;
@@ -218,7 +218,7 @@ static EDResult find_closest_match(const char* word, Array* word_list, unsigned 
 
   result.closest_matches = Array_new(10);
   Array_add(result.closest_matches, Array_at(word_list, match_index));
-  result.distance = (long) editing_distance(word, (const char*) Array_at(word_list, match_index));
+  result.distance = (long) editing_distance(word, (const char*) Array_at(word_list, match_index), (unsigned long) -2);
 
   find_with_increment(word, word_list, editing_distance, match_index + 1,Array_size(word_list) - 1, &result, inc_index);
   find_with_increment(word, word_list, editing_distance, match_index - 1, (size_t)-1, & result, dec_index);

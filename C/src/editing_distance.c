@@ -93,7 +93,7 @@ __attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
 
     for_each(Number_it(memo->len2), ^(void* j) {
       unsigned long value = EDMemo_get(memo, NUM(i), NUM(j));
-      printf("%2d\t", value == ULONG_MAX ? -1 : (int) value);
+      printf("%2d\t", value == ULONG_MAX/2 ? -1 : (int) value);
     });
 
     printf("\n");
@@ -107,7 +107,7 @@ __attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
 
 static unsigned long EDMemo_memoize(EDMemo* memo, unsigned long i, unsigned long j, unsigned long (^compute_val)(void) ) {
   unsigned long result = EDMemo_get(memo, i, j);
-  if(result == ULONG_MAX) {
+  if(result == ULONG_MAX/2) {
     result = compute_val();
     EDMemo_set(memo, i, j, result);
   }
@@ -126,7 +126,7 @@ static EDMemo* EDMemo_new(unsigned long len1, unsigned long len2) {
 
   for_each(Number_it(memo->len1), ^(void* i) {
     for_each(Number_it(memo->len2), ^(void* j) {
-      EDMemo_set(memo, NUM(i), NUM(j),ULONG_MAX);
+      EDMemo_set(memo, NUM(i), NUM(j),ULONG_MAX/2);
     });
   });
 
@@ -141,7 +141,9 @@ static void EDMemo_free(EDMemo* memo) {
 
 // Uses memoization to compute the editing distance between string1 and string2 assuming
 // that someone already took care of all string1[0..i] and string2[0..j].
-static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, unsigned long i, unsigned long j) {
+
+// TODO: TRY TO CHANGE THE SIGNATURE GETTING RID OF THE UNSIGNED PART AND USE -1 INSTEAD OF ULONG_MAX
+static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, unsigned long i, unsigned long j, unsigned long bound) {
   if(string1[i] == '\0') {
     return EDMemo_len2(memo) - j;
   }
@@ -151,26 +153,30 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
   }
 
   unsigned long cost_with_deletion = EDMemo_memoize(memo, i, j+1, ^(void) {
-    return editing_distance_with_memo(memo, string1, string2, i, j+1);
+    return editing_distance_with_memo(memo, string1, string2, i, j+1, bound-1);
   }) + 1;
 
   unsigned long cost_with_insertion = EDMemo_memoize(memo, i+1, j, ^(void) {
-    return editing_distance_with_memo(memo, string1, string2, i+1, j);
+    return editing_distance_with_memo(memo, string1, string2, i+1, j, bound-1);
   }) + 1;
 
   unsigned long cost_with_replacement = EDMemo_memoize(memo, i+1, j+1, ^(void) {
-    return editing_distance_with_memo(memo, string1, string2, i+1, j+1);
+    return editing_distance_with_memo(memo, string1, string2, i+1, j+1, bound-1);
   }) + 1;
 
-
-  unsigned long cost_with_match = INT_MAX;
+  unsigned long cost_with_match = ULONG_MAX;
   if(string1[i] == string2[j]) {
     cost_with_match = EDMemo_memoize(memo, i+1, j+1, ^(void) {
-      return editing_distance_with_memo(memo, string1, string2, i+1, j+1);
+      return editing_distance_with_memo(memo, string1, string2, i+1, j+1, bound);
     });
   }
 
-  return min(cost_with_replacement, min(cost_with_insertion, min(cost_with_deletion, cost_with_match)));
+  unsigned long result = min(cost_with_deletion, min(cost_with_insertion, min(cost_with_replacement, cost_with_match)));
+  if(result>bound) {
+    return ULONG_MAX;
+  }
+
+  return result;
 }
 
 // The code below is equivalent and cleaner w.r.t. the code above. Unfortunately is slightly slower.
@@ -201,9 +207,9 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
 
 
 // Returns the editing distance between string1 and string2
-unsigned long editing_distance(const char* string1, const char* string2) {
+unsigned long editing_distance(const char* string1, const char* string2, unsigned long bound) {
   EDMemo* memo = EDMemo_new(strlen(string1), strlen(string2));
-  unsigned long result = editing_distance_with_memo(memo, string1, string2, 0, 0);
+  unsigned long result = editing_distance_with_memo(memo, string1, string2, 0, 0, bound);
   EDMemo_free(memo);
 
   return result;
