@@ -6,4 +6,4 @@
 // necessary to transform string2 into string1.
 // bound == (unsigned long) -1 is used internally and should never be specified by the user
 // if bound is set to (unsigned long) -2, is equivalent to not using the bound
-unsigned long editing_distance(const char* string1, const char* string2, unsigned long bound);
+long editing_distance(const char* string1, const char* string2, long bound);

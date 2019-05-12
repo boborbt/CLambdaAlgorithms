@@ -186,7 +186,7 @@ void Dataset_print_storage(Array* dataset, size_t num_records) {
 void Dataset_print(Dataset* dataset, size_t num_records) {
   assert(num_records < Dataset_size(dataset));
   for_each(Number_it(num_records), ^(void* index) {
-    Record* rec = Array_at(dataset->records, NUM(index));
+    Record* rec = Array_at(dataset->records, UNUM(index));
     printf("%10d %30s %10d %10.4f\n", rec->id, rec->field1, rec->field2, rec->field3);
   });
 }

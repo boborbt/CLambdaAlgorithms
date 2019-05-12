@@ -20,7 +20,7 @@
 
 
 // Min function
-static unsigned long min(unsigned long x, unsigned long y) {
+static long min(long x, long y) {
   if(x<y) {
     return x;
   } else {
@@ -29,17 +29,17 @@ static unsigned long min(unsigned long x, unsigned long y) {
 }
 
 // Recursive function to compute the editing distance between string1 and string2.
-__attribute__((unused)) static unsigned long editing_distance_dummy(const char* string1, const char* string2) {
+__attribute__((unused)) static long editing_distance_dummy(const char* string1, const char* string2) {
   if(string1[0] == '\0') {
-    return strlen(string2);
+    return (long) strlen(string2);
   }
 
   if(string2[0] == '\0') {
-    return strlen(string1);
+    return (long) strlen(string1);
   }
 
-  unsigned long del_c = editing_distance_dummy(string1, string2+1) + 1;
-  unsigned long copy_c = editing_distance_dummy(string1+1, string2) + 1;
+  long del_c = editing_distance_dummy(string1, string2+1) + 1;
+  long copy_c = editing_distance_dummy(string1+1, string2) + 1;
   if(string1[0] == string2[0]) {
     return min(del_c, min(copy_c, editing_distance_dummy(string1+1, string2+1)));
   } else {
@@ -50,20 +50,20 @@ __attribute__((unused)) static unsigned long editing_distance_dummy(const char* 
 
 //  Definition of the structure used to memoize intermediate values
 typedef struct {
-  unsigned long* matrix;
-  unsigned long len1;
-  unsigned long len2;
+  long* matrix;
+  long len1;
+  long len2;
 } EDMemo;
 
 // Return the value in position i,j
-static unsigned long EDMemo_get(EDMemo* memo, unsigned long i, unsigned long j) {
+static long EDMemo_get(EDMemo* memo, long i, long j) {
   assert(i < memo->len1);
   assert(j < memo->len2);
   return memo->matrix[i * memo->len2 + j];
 }
 
 // Set the value in position i,j to the content of `val`
-static void EDMemo_set(EDMemo* memo, unsigned long i, unsigned long j, unsigned long val) {
+static void EDMemo_set(EDMemo* memo, long i, long j, long val) {
   assert(i < memo->len1);
   assert(j < memo->len2);
   memo->matrix[i * memo->len2 + j] = val;
@@ -74,7 +74,7 @@ static void EDMemo_set(EDMemo* memo, unsigned long i, unsigned long j, unsigned 
 //    to EDMemo_new, *always* use this method when retrieving the length from
 //    the perspective of the data structure user, *always* use memo->len1 when
 //    dealing with the internal storage memo->matrix.
-static unsigned long EDMemo_len1(EDMemo* memo) {
+static long EDMemo_len1(EDMemo* memo) {
   return memo->len1 - 1;
 }
 
@@ -83,17 +83,17 @@ static unsigned long EDMemo_len1(EDMemo* memo) {
 //    to EDMemo_new, *always* use this method when retrieving the length from
 //    the perspective of the data structure user, *always* use memo->len2 when
 //    dealing with the internal storage memo->matrix.
-static unsigned long EDMemo_len2(EDMemo* memo) {
+static long EDMemo_len2(EDMemo* memo) {
   return memo->len2 - 1;
 }
 
 // Debugging function: it prints the content of the memoization matrix
 __attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
-  for_each(Number_it(memo->len1), ^(void* i) {
+  for_each(Number_it((unsigned long) memo->len1), ^(void* i) {
 
-    for_each(Number_it(memo->len2), ^(void* j) {
-      unsigned long value = EDMemo_get(memo, NUM(i), NUM(j));
-      printf("%2d\t", value == ULONG_MAX/2 ? -1 : (int) value);
+    for_each(Number_it((unsigned long)memo->len2), ^(void* j) {
+      long value = EDMemo_get(memo, (long) NUM(i), (long) NUM(j));
+      printf("%2ld\t", value);
     });
 
     printf("\n");
@@ -105,11 +105,14 @@ __attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
 // returns that value. Otherwise it calls `compute_val` to compute a new value
 // for those coordinates, memorize that value in position i,j and returns the computed value.
 
-static unsigned long EDMemo_memoize(EDMemo* memo, unsigned long i, unsigned long j, unsigned long (^compute_val)(void) ) {
-  unsigned long result = EDMemo_get(memo, i, j);
-  if(result == ULONG_MAX/2) {
+static long EDMemo_memoize(EDMemo* memo, long i, long j, long (^compute_val)(void) ) {
+  long result = EDMemo_get(memo, i, j);
+  if(result == -1) {
     result = compute_val();
-    EDMemo_set(memo, i, j, result);
+
+    if(result != LONG_MAX) {
+      EDMemo_set(memo, i, j, result);
+    }
   }
 
   return result;
@@ -118,15 +121,15 @@ static unsigned long EDMemo_memoize(EDMemo* memo, unsigned long i, unsigned long
 // Creates a new memoization structure
 // Note: the given len1 and len2 will not be the same as memo->len1 and memo->len2
 //    use EDMemo_len1() and EDMemo_len2() to retrieve the lengths passed to this function.
-static EDMemo* EDMemo_new(unsigned long len1, unsigned long len2) {
+static EDMemo* EDMemo_new(long len1, long len2) {
   __block EDMemo* memo = (EDMemo*) Mem_alloc(sizeof(EDMemo));
   memo->len1 = len1 + 1;
   memo->len2 = len2 + 1;
-  memo->matrix = (unsigned long*) Mem_alloc( memo->len1 * memo->len2 * sizeof(unsigned long) );
+  memo->matrix = (long*) Mem_alloc( ((unsigned long) memo->len1) * ((unsigned long) memo->len2) * sizeof(long) );
 
-  for_each(Number_it(memo->len1), ^(void* i) {
-    for_each(Number_it(memo->len2), ^(void* j) {
-      EDMemo_set(memo, NUM(i), NUM(j),ULONG_MAX/2);
+  for_each(Number_it((unsigned long) memo->len1), ^(void* i) {
+    for_each(Number_it((unsigned long)memo->len2), ^(void* j) {
+      EDMemo_set(memo,  NUM(i),  NUM(j), -1);
     });
   });
 
@@ -142,8 +145,11 @@ static void EDMemo_free(EDMemo* memo) {
 // Uses memoization to compute the editing distance between string1 and string2 assuming
 // that someone already took care of all string1[0..i] and string2[0..j].
 
-// TODO: TRY TO CHANGE THE SIGNATURE GETTING RID OF THE UNSIGNED PART AND USE -1 INSTEAD OF ULONG_MAX
-static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, unsigned long i, unsigned long j, unsigned long bound) {
+static long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, long i, long j, long bound) {
+  if(bound < 0) {
+    return LONG_MAX;
+  }
+
   if(string1[i] == '\0') {
     return EDMemo_len2(memo) - j;
   }
@@ -152,36 +158,41 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
     return EDMemo_len1(memo) - i;
   }
 
-  unsigned long cost_with_deletion = EDMemo_memoize(memo, i, j+1, ^(void) {
+  long cost_with_deletion = EDMemo_memoize(memo, i, j+1, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i, j+1, bound-1);
-  }) + 1;
+  });
+  cost_with_deletion = (cost_with_deletion == LONG_MAX ? LONG_MAX : (cost_with_deletion + 1));
 
-  unsigned long cost_with_insertion = EDMemo_memoize(memo, i+1, j, ^(void) {
+  long cost_with_insertion = EDMemo_memoize(memo, i+1, j, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i+1, j, bound-1);
-  }) + 1;
+  });
+  cost_with_insertion = (cost_with_insertion == LONG_MAX ? LONG_MAX : (cost_with_insertion + 1));
 
-  unsigned long cost_with_replacement = EDMemo_memoize(memo, i+1, j+1, ^(void) {
+  long cost_with_replacement = EDMemo_memoize(memo, i+1, j+1, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i+1, j+1, bound-1);
-  }) + 1;
+  });
+  cost_with_replacement = (cost_with_replacement == LONG_MAX ? LONG_MAX : (cost_with_replacement + 1));
 
-  unsigned long cost_with_match = ULONG_MAX;
+
+  long cost_with_match = LONG_MAX;
   if(string1[i] == string2[j]) {
     cost_with_match = EDMemo_memoize(memo, i+1, j+1, ^(void) {
       return editing_distance_with_memo(memo, string1, string2, i+1, j+1, bound);
     });
   }
 
-  unsigned long result = min(cost_with_deletion, min(cost_with_insertion, min(cost_with_replacement, cost_with_match)));
-  if(result>bound) {
-    return ULONG_MAX;
-  }
+  long result = min(cost_with_deletion, min(cost_with_insertion, min(cost_with_replacement, cost_with_match)));
+
+  // if(bound<result) {
+  //   return LONG_MAX;
+  // }
 
   return result;
 }
 
 // The code below is equivalent and cleaner w.r.t. the code above. Unfortunately is slightly slower.
 // 
-// static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, unsigned long i, unsigned long j) {
+// static long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, long i, long j) {
 //
 //   return EDMemo_memoize(memo, i, j, ^{
 //     if(string1[i] == '\0') {
@@ -192,11 +203,11 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
 //       return EDMemo_len1(memo) - i;
 //     }
 //
-//     unsigned long cost_with_deletion = editing_distance_with_memo(memo, string1, string2, i, j+1) + 1;
-//     unsigned long cost_with_insertion =  editing_distance_with_memo(memo, string1, string2, i+1, j) + 1;
-//     unsigned long cost_with_replacement = editing_distance_with_memo(memo, string1, string2, i+1, j+1) + 1;
+//     long cost_with_deletion = editing_distance_with_memo(memo, string1, string2, i, j+1) + 1;
+//     long cost_with_insertion =  editing_distance_with_memo(memo, string1, string2, i+1, j) + 1;
+//     long cost_with_replacement = editing_distance_with_memo(memo, string1, string2, i+1, j+1) + 1;
 //
-//     unsigned long cost_with_match = INT_MAX;
+//     long cost_with_match = LONG_MAX;
 //     if(string1[i] == string2[j]) {
 //       cost_with_match = editing_distance_with_memo(memo, string1, string2, i+1, j+1);
 //     }
@@ -207,9 +218,9 @@ static unsigned long editing_distance_with_memo(EDMemo* memo, const char* string
 
 
 // Returns the editing distance between string1 and string2
-unsigned long editing_distance(const char* string1, const char* string2, unsigned long bound) {
-  EDMemo* memo = EDMemo_new(strlen(string1), strlen(string2));
-  unsigned long result = editing_distance_with_memo(memo, string1, string2, 0, 0, bound);
+long editing_distance(const char* string1, const char* string2, long bound) {
+  EDMemo* memo = EDMemo_new((long) strlen(string1), (long) strlen(string2));
+  long result = editing_distance_with_memo(memo, string1, string2, 0, 0, bound);
   EDMemo_free(memo);
 
   return result;

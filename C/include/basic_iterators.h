@@ -42,7 +42,8 @@
 //    for_each(Number_it(100), ^(void* obj) {
 //      printf("number: %ld\n", NUM(obj));
 //    });
-#define NUM(a) (*(unsigned long*) (a))
+#define NUM(a) (*(long*) (a))
+#define UNUM(a) (*(unsigned long*) (a))
 
 // Creates a number iterator. The iterator will iterate from 0 to the given integer.
 Iterator Number_it(unsigned long);
