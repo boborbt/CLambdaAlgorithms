@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <assert.h>
+#include <os/log.h>
 
 #include "mem.h"
 #include "editing_distance.h"
@@ -88,7 +89,8 @@ static long EDMemo_len2(EDMemo* memo) {
 }
 
 // Debugging function: it prints the content of the memoization matrix
-__attribute__((unused)) static void EDMemo_print(EDMemo* memo) {
+__attribute__((unused)) 
+static void EDMemo_print(EDMemo* memo) {
   for_each(Number_it((unsigned long) memo->len1), ^(void* i) {
 
     for_each(Number_it((unsigned long)memo->len2), ^(void* j) {
@@ -147,21 +149,16 @@ __attribute__((unused))
 static void log_ed(const char* string1, const char* string2, long i, long j, long bound, long distance) {
   const char* s1 = &string1[i];
   const char* s2 = &string2[j];
-  printf("Ed distnace (%ld, %ld): %s - %s --> %ld (%ld)\n", i, j, s1, s2, distance, bound);
+  os_log_debug(OS_LOG_DEFAULT, "Ed distnace (%ld, %ld): %s - %s --> %ld (%ld)\n", i, j, s1, s2, distance, bound);
 }
+
+
+// #define LOG_ED(dist) log_ed(string1, string2, i, j, bound, (dist))
+#define LOG_ED(dist)
 
 // Uses memoization to compute the editing distance between string1 and string2 assuming
 // that someone already took care of all string1[0..i] and string2[0..j].
-
 static long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, long i, long j, long bound) {
-  // #define LOG_ED(dist) log_ed(string1, string2, i, j, bound, (dist))
-  #define LOG_ED(dist)
-
-  // if(i == 0 && j==0) {
-  //   printf("\n\nEd distance [%s -- %s]\n", string1, string2);
-  // }
-
-
   if(bound < 0) {
     LOG_ED(LONG_MAX);
     return LONG_MAX;
@@ -211,41 +208,10 @@ static long editing_distance_with_memo(EDMemo* memo, const char* string1, const 
                 min(cost_with_insertion,
                 min(cost_with_replacement, cost_with_match)));
 
-
-  // if(bound<result) {
-  //   return LONG_MAX;
-  // }
   LOG_ED(result);
   return result;
-  #undef LOG_ED
 }
-
-// The code below is equivalent and cleaner w.r.t. the code above. Unfortunately is slightly slower.
-// 
-// static long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, long i, long j) {
-//
-//   return EDMemo_memoize(memo, i, j, ^{
-//     if(string1[i] == '\0') {
-//       return EDMemo_len2(memo) - j;
-//     }
-//
-//     if(string2[j] == '\0') {
-//       return EDMemo_len1(memo) - i;
-//     }
-//
-//     long cost_with_deletion = editing_distance_with_memo(memo, string1, string2, i, j+1) + 1;
-//     long cost_with_insertion =  editing_distance_with_memo(memo, string1, string2, i+1, j) + 1;
-//     long cost_with_replacement = editing_distance_with_memo(memo, string1, string2, i+1, j+1) + 1;
-//
-//     long cost_with_match = LONG_MAX;
-//     if(string1[i] == string2[j]) {
-//       cost_with_match = editing_distance_with_memo(memo, string1, string2, i+1, j+1);
-//     }
-//
-//     return min(cost_with_replacement, min(cost_with_insertion, min(cost_with_deletion, cost_with_match)));
-//   });
-// }
-
+#undef LOG_ED
 
 // Returns the editing distance between string1 and string2
 long editing_distance(const char* string1, const char* string2, long bound) {
