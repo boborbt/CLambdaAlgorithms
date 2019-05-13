@@ -142,36 +142,62 @@ static void EDMemo_free(EDMemo* memo) {
   Mem_free(memo);
 }
 
+
+__attribute__((unused)) 
+static void log_ed(const char* string1, const char* string2, long i, long j, long bound, long distance) {
+  const char* s1 = &string1[i];
+  const char* s2 = &string2[j];
+  printf("Ed distnace (%ld, %ld): %s - %s --> %ld (%ld)\n", i, j, s1, s2, distance, bound);
+}
+
 // Uses memoization to compute the editing distance between string1 and string2 assuming
 // that someone already took care of all string1[0..i] and string2[0..j].
 
 static long editing_distance_with_memo(EDMemo* memo, const char* string1, const char* string2, long i, long j, long bound) {
+  // #define LOG_ED(dist) log_ed(string1, string2, i, j, bound, (dist))
+  #define LOG_ED(dist)
+
+  // if(i == 0 && j==0) {
+  //   printf("\n\nEd distance [%s -- %s]\n", string1, string2);
+  // }
+
+
   if(bound < 0) {
+    LOG_ED(LONG_MAX);
     return LONG_MAX;
   }
 
   if(string1[i] == '\0') {
-    return EDMemo_len2(memo) - j;
+    long result = EDMemo_len2(memo) - j;
+    result = result <= bound ? result : LONG_MAX;
+    LOG_ED(result);
+    return result;
   }
 
   if(string2[j] == '\0') {
-    return EDMemo_len1(memo) - i;
+    long result = EDMemo_len1(memo) - i;
+    result = result <= bound ? result : LONG_MAX;
+    LOG_ED(result);
+    return result;
   }
 
   long cost_with_deletion = EDMemo_memoize(memo, i, j+1, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i, j+1, bound-1);
   });
   cost_with_deletion = (cost_with_deletion == LONG_MAX ? LONG_MAX : (cost_with_deletion + 1));
+  bound = min(cost_with_deletion, bound);
 
   long cost_with_insertion = EDMemo_memoize(memo, i+1, j, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i+1, j, bound-1);
   });
   cost_with_insertion = (cost_with_insertion == LONG_MAX ? LONG_MAX : (cost_with_insertion + 1));
+  bound = min(cost_with_insertion, bound);
 
   long cost_with_replacement = EDMemo_memoize(memo, i+1, j+1, ^(void) {
     return editing_distance_with_memo(memo, string1, string2, i+1, j+1, bound-1);
   });
   cost_with_replacement = (cost_with_replacement == LONG_MAX ? LONG_MAX : (cost_with_replacement + 1));
+  bound = min(cost_with_replacement, bound);
 
 
   long cost_with_match = LONG_MAX;
@@ -181,13 +207,17 @@ static long editing_distance_with_memo(EDMemo* memo, const char* string1, const 
     });
   }
 
-  long result = min(cost_with_deletion, min(cost_with_insertion, min(cost_with_replacement, cost_with_match)));
+  long result = min(cost_with_deletion,
+                min(cost_with_insertion,
+                min(cost_with_replacement, cost_with_match)));
+
 
   // if(bound<result) {
   //   return LONG_MAX;
   // }
-
+  LOG_ED(result);
   return result;
+  #undef LOG_ED
 }
 
 // The code below is equivalent and cleaner w.r.t. the code above. Unfortunately is slightly slower.

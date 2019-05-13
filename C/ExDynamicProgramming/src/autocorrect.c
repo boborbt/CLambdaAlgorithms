@@ -221,7 +221,7 @@ static EDResult find_closest_match(const char* word, Array* word_list, long (edi
   result.distance = (long) editing_distance(word, (const char*) Array_at(word_list, match_index), LONG_MAX);
 
   find_with_increment(word, word_list, editing_distance, match_index + 1,Array_size(word_list) - 1, &result, inc_index);
-  find_with_increment(word, word_list, editing_distance, match_index - 1, (size_t)-1, & result, dec_index);
+  find_with_increment(word, word_list, editing_distance, match_index - 1, (size_t)-1, &result, dec_index);
 
   return result;
 }

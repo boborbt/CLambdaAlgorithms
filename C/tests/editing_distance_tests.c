@@ -50,8 +50,13 @@ static void test_scuola2() {
   assert_equal(editing_distance("scuola", "stalle", 0l), (long)LONG_MAX);
 }
 
+static void test_eimpresta() {
+  assert_equal(editing_distance("ario", "eimpresta", 0l), (long)LONG_MAX);
+}
+
 int main() {
   start_tests("editing distance");
+  test_focus(test_eimpresta);
   test(test_empty_strings);
   test(test_first_string_empty);
   test(test_second_string_empty);
@@ -61,6 +66,7 @@ int main() {
   test(test_complex_editing);
   test(test_scuola);
   test(test_scuola2);
+  test(test_eimpresta);
 
   end_tests();
 }
