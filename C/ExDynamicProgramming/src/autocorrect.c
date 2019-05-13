@@ -282,7 +282,7 @@ int main(int argc, char const *argv[]) {
   });
 
   PrintTime_print(pt, "Sorting dictionary", ^() {
-    printf("Sorting dictionary...");
+    printf("Sorting dictionary...\n");
     sort(Array_it(word_list), ^(const void* e1, const void* e2) {
       return alphalen_cmp(e1,e2);
     });
