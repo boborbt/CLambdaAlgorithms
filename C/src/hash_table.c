@@ -156,7 +156,7 @@ static void Dictionary_realloc(Dictionary* dictionary, size_t new_capacity) {
     List_insert(new_table[index], current);
 
     DictionaryIterator_next(it);
-  };
+  }
 
   DictionaryIterator_free(it);
 
