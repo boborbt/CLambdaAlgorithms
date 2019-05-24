@@ -17,15 +17,15 @@ static void test_int_iterator() {
 
 static void test_file_iterator() {
   char fname_template[] = "/tmp/basic_iterators_tempfile.XXXXXX";
-  char* fname = mktemp(fname_template);
-  FILE* file = fopen(fname, "w");
+  int fd = mkstemp(fname_template);
+  FILE* file = fdopen(fd, "w");
   char* file_contents[] = {"test", "of", "file iterator", " with for_each"};
   __block Array* array_with_fcontents = Array_new_by_copying_carray(file_contents, 4);
 
   fprintf(file, "test\nof\nfile iterator\n with for_each\n");
   fclose(file);
 
-  for_each_with_index(TextFile_it(fname, '\n'), ^(void* obj, size_t index) {
+  for_each_with_index(TextFile_it(fname_template, '\n'), ^(void* obj, size_t index) {
     assert_string_equal(Array_at(array_with_fcontents, index), (const char*) obj);
   });
 

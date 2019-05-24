@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <limits.h>
 #include <assert.h>
-#include <os/log.h>
 
 #include "mem.h"
 #include "editing_distance.h"
@@ -149,7 +148,7 @@ __attribute__((unused))
 static void log_ed(const char* string1, const char* string2, long i, long j, long bound, long distance) {
   const char* s1 = &string1[i];
   const char* s2 = &string2[j];
-  os_log_debug(OS_LOG_DEFAULT, "Ed distnace (%ld, %ld): %s - %s --> %ld (%ld)\n", i, j, s1, s2, distance, bound);
+  printf("Ed distnace (%ld, %ld): %s - %s --> %ld (%ld)\n", i, j, s1, s2, distance, bound);
 }
 
 

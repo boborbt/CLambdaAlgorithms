@@ -163,7 +163,7 @@ static void execute_kruskal(Graph* graph) {
     EdgeInfo* ei = (EdgeInfo*) obj;
     double edge_weight = DoubleContainer_get(ei->info);
     tree_size += DoubleContainer_get(ei->info);
-    num_edges += 1.0;
+    num_edges += 1;
 
     if( edge_weight < min_edge ) {
       min_edge = edge_weight;
@@ -194,7 +194,7 @@ static void execute_prim(Graph* graph) {
     EdgeInfo* ei = (EdgeInfo*) obj;
     double edge_weight = DoubleContainer_get(ei->info);
     tree_size += DoubleContainer_get(ei->info);
-    num_edges += 1.0;
+    num_edges += 1;
 
     if( edge_weight < min_edge ) {
       min_edge = edge_weight;
