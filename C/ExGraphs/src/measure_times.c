@@ -212,14 +212,16 @@ static void execute_prim(Graph* graph) {
 }
 
 static void execute_print_graphviz(Graph* graph) {
-  printf("digraph grap {\n");
+  FILE* file = fopen("graph.dot", "w");
+  fprintf(file, "digraph G {\n");
   for_each(Edge_it(graph), ^(void* obj) {
     EdgeInfo* ei = (EdgeInfo*) obj;
 
-    printf("\"%s\" ->  \"%s\";\n", ei->source, ei->destination );
+    fprintf(file, "\"%s\" ->  \"%s\" [label = \"%f\"];\n", ei->source, ei->destination, DoubleContainer_get(ei->info) );
 
   });
-  printf("}\n");
+  fprintf(file, "}\n");
+  fclose(file);
 }
 
 static void print_usage(const char* msg) {

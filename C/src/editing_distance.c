@@ -63,11 +63,18 @@ static long EDMemo_get(EDMemo* memo, long i, long j) {
 }
 
 // Set the value in position i,j to the content of `val`
-static void EDMemo_set(EDMemo* memo, long i, long j, long val) {
-  assert(i < memo->len1);
-  assert(j < memo->len2);
-  memo->matrix[i * memo->len2 + j] = val;
-}
+
+#define EDMemo_set(memo,i,j,val) memo->matrix[(i)*(memo)->len2 +(j)] = (val)
+
+// The above definition forces the inlining of the functional version below.
+// The inlining allows shaving 15% computation time.
+//
+// static void EDMemo_set(EDMemo* memo, long i, long j, long val) {
+//   assert(i < memo->len1);
+//   assert(j < memo->len2);
+//   memo->matrix[i * memo->len2 + j] = val;
+// }
+
 
 // Returns the first length used to initialize the data structure.
 // Note: internally the length is not the same as the one used in the call
@@ -128,11 +135,18 @@ static EDMemo* EDMemo_new(long len1, long len2) {
   memo->len2 = len2 + 1;
   memo->matrix = (long*) Mem_alloc( ((unsigned long) memo->len1) * ((unsigned long) memo->len2) * sizeof(long) );
 
-  for_each(Number_it((unsigned long) memo->len1), ^(void* i) {
-    for_each(Number_it((unsigned long)memo->len2), ^(void* j) {
-      EDMemo_set(memo,  NUM(i),  NUM(j), -1);
-    });
-  });
+  for(long i=0; i<memo->len1; ++i) {
+    for(long j=0; j<memo->len2; ++j) {
+      EDMemo_set(memo,  i,  j, -1);
+    }
+  }
+
+  // (Much) Slower version based on blocks
+  // for_each(Number_it((unsigned long) memo->len1), ^(void* i) {
+  //   for_each(Number_it((unsigned long)memo->len2), ^(void* j) {
+  //     EDMemo_set(memo,  NUM(i),  NUM(j), -1);
+  //   });
+  // });
 
   return memo;
 }
