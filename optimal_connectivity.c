@@ -20,6 +20,19 @@ typedef struct _Tree {
     int size;
 } Tree;
 
+void print_edge(Edge e)
+{
+    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
+}
+
+void print_edges(Edges *edges, int start, int end)
+{
+    for (int i = start; i <= end; ++i)
+    {
+        print_edge(edges->edges[i]);
+        printf("\n");
+    }
+}
 
 void tree_init(Tree* tree, int num_nodes) {
     for(int i=0; i<num_nodes+1; ++i) {
@@ -144,8 +157,12 @@ static int bin_search(Edges* edges, int weight) {
     return start;
 }
 
+
 static int query_improve_graph(Tree* tree, Edges* edges, Edge* query) {
     int first_candidate = bin_search(edges, query->weight);
+
+    printf("fcs: %d\n", first_candidate);
+    print_edges(edges, first_candidate-2, first_candidate+2 );
 
     // for(int i=0; i<edges->num_edges; ++i) {
     //     printf("%d w:%d\n", i, edges->edges[i].weight);
@@ -174,17 +191,22 @@ int main() {
     read_edges(&edges);
     qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
 
+    print_edges(&edges, 0, 10);
+    printf("num edges:%d\n", edges.num_edges);
+
     tree_init(&tree, edges.num_edges+1);
     tree_build(&tree, &edges);
 
     int num_queries = read_num_edges();
     for(int i =0; i<num_queries; ++i) {
-        if(i!=226) {
-            continue;
-        }
-        
         Edge query;
         read_edge(&query);
+
+        if(i<226 || i>226) {
+            continue;
+        }
+
+        printf("trying query:");print_edge(query);printf("\n");
 
         if(query_improve_graph(&tree, &edges, &query)) {
             printf("YES\n");
