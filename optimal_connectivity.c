@@ -14,59 +14,84 @@ typedef struct _Edges {
     int num_edges;
 } Edges;
 
-typedef struct _UnionFind {
-    int sets[NUM_NODES];
-    int ranks[NUM_NODES];
-} UnionFind;
+typedef struct _Tree {
+    int fwd[NUM_NODES];
+    int bck[NUM_NODES];
+    int size;
+} Tree;
 
-static void UF_init(UnionFind* uf, int size) {
-    for(int i=0; i<size+1; ++i) {
-        uf->sets[i] = i;
-        uf->ranks[i] = 0;
-    }
-}
 
-static void UF_link(UnionFind* uf, int i, int j) {
-    uf->sets[j] = i;
-}
-
-static int UF_find(UnionFind* uf, int i) {
-    if(uf->sets[i] == i) {
-        return i;
+void tree_init(Tree* tree, int num_nodes) {
+    for(int i=0; i<num_nodes+1; ++i) {
+        tree->fwd[i] = i;
+        tree->bck[i] = i;
     }
 
-    int p_i = UF_find(uf, uf->sets[i]);
-    uf->sets[i] = p_i;
-
-    return p_i;
+    tree->size = num_nodes;
 }
 
-static int UF_union(UnionFind* uf, int i, int j) {
-    // printf("joining %d %d\n", i, j);
-    // printf("uf: ");
-    // for(int i=0; i<=6; ++i) {
-    //     printf("%d:%d ", i, uf->sets[i]);
-    // }
-    // printf("\n");
+void tree_add_edge(Tree* tree, Edge* e) {
+    int i = e->source;
+    int j = e->dest;
 
-    int p_i = UF_find(uf, i);
-    int p_j = UF_find(uf, j);
-    if(p_i==p_j) {
-        // printf("can't join\n");
-        return 0;
-    }
-
-    if(uf->ranks[p_i] > uf->ranks[p_j]) {
-        UF_link(uf, p_j, p_i);
-    } else if(uf->ranks[p_i] < uf->ranks[p_j]) {
-        UF_link(uf, p_i, p_j);
+    if(i < j) {
+        tree->fwd[i] = j;
+        tree->bck[j] = i;
     } else {
-        UF_link(uf, p_i, p_j);
-        uf->ranks[p_i]++;
+        tree->fwd[j] = i;
+        tree->bck[i] = j;
+    }
+}
+
+void tree_build(Tree* tree, Edges* edges) {
+    for(int i=0; i<edges->num_edges; ++i) {
+        tree_add_edge(tree, &edges->edges[i]);
+    }
+}
+
+void tree_remove_edge(Tree* tree, Edge* e) {
+    int i = e->source;
+    int j = e->dest;
+
+    if(i < j) {
+        tree->fwd[i] = i;
+        tree->bck[j] = j;
+    } else {
+        tree->fwd[j] = j;
+        tree->bck[i] = i;
+    }
+}
+
+int tree_depth_search(Tree *tree, short *visited, int source, int dest)
+{
+    if (source == dest)
+    {
+        return 1;
     }
 
-    return 1;
+    int found = 0;
+    visited[source] = 1;
+
+    if (visited[tree->fwd[source]] == 0)
+    {
+        found = tree_depth_search(tree, visited, tree->fwd[source], dest);
+    }
+    if (!found && visited[tree->bck[source]] == 0)
+    {
+        found = tree_depth_search(tree, visited, tree->bck[source], dest);
+    }
+
+    return found;
 }
+
+int tree_find_path(Tree* tree, int source, int dest) {
+    short* visited = (short*) calloc(tree->size+1, sizeof(short));
+    int result = tree_depth_search(tree, visited, source, dest);
+    free(visited);
+
+    return result;
+}
+
 
 
 
@@ -89,23 +114,16 @@ static void read_edges(Edges* edges) {
     edges->num_edges = num_edges;
 }
 
-static int check_substitution(Edges* edges, Edge* candidate, Edge* query) {
-    UnionFind uf;
-    UF_init(&uf, edges->num_edges+1);
-    UF_union(&uf, query->source, query->dest);
+static int check_substitution(Tree* tree, Edge* candidate, Edge* query) {
+    tree_remove_edge(tree, candidate);
+    tree_add_edge(tree, query);
 
-    for(int i=0; i<edges->num_edges; ++i) {
-        if(&edges->edges[i] == candidate) {
-            // the candidate edge is not in the candidate tree, we skip it
-            continue;
-        }
+    int result = tree_find_path(tree, candidate->source, candidate->dest);
 
-        if(!UF_union(&uf, edges->edges[i].source, edges->edges[i].dest )) {
-            return 0;
-        }
-    }
+    tree_remove_edge(tree, query);
+    tree_add_edge(tree, candidate);
 
-    return 1;
+    return result;
 }
 
 static int bin_search(Edges* edges, int weight) {
@@ -126,7 +144,7 @@ static int bin_search(Edges* edges, int weight) {
     return start;
 }
 
-static int query_improve_graph(Edges* edges, Edge* query) {
+static int query_improve_graph(Tree* tree, Edges* edges, Edge* query) {
     int first_candidate = bin_search(edges, query->weight);
 
     // for(int i=0; i<edges->num_edges; ++i) {
@@ -135,7 +153,7 @@ static int query_improve_graph(Edges* edges, Edge* query) {
     // printf("query weight: %d first candidate: %d\n", query->weight, first_candidate);
 
     for(int i=first_candidate; i<edges->num_edges; ++i) {
-        if(check_substitution(edges, &edges->edges[i], query)) {
+        if(check_substitution(tree, &edges->edges[i], query)) {
             return 1;
         }
     }
@@ -149,18 +167,26 @@ static int compare_edge(const Edge* e1, const Edge* e2) {
 
 
 int main() {
+    Tree tree;
     Edges edges;
     edges.num_edges=0;
 
     read_edges(&edges);
     qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
 
+    tree_init(&tree, edges.num_edges+1);
+    tree_build(&tree, &edges);
 
     int num_queries = read_num_edges();
     for(int i =0; i<num_queries; ++i) {
+        if(i!=226) {
+            continue;
+        }
+        
         Edge query;
         read_edge(&query);
-        if(query_improve_graph(&edges, &query)) {
+
+        if(query_improve_graph(&tree, &edges, &query)) {
             printf("YES\n");
         } else {
             printf("NO\n");
