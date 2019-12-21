@@ -15,10 +15,19 @@ typedef struct _Edges {
     int num_edges;
 } Edges;
 
+typedef struct _Node {
+    int elem;
+    struct _Node *next;
+} Node;
+
 typedef struct _Tree {
-    int* adj;
+    Node** adj;
     int size;
 } Tree;
+
+
+typedef Node ListIt;
+
 
 /// MARK: -------------------------   DEBUG   -------------------------
 
@@ -36,31 +45,54 @@ static void print_edges(Edges *edges, int start, int end)
     }
 }
 
-/// MARK: -------------------------   TREE   -------------------------
-static void tree_init(Tree* tree, int num_nodes) {
-    tree->adj = (int *)calloc((num_nodes + 1) * (num_nodes + 1), sizeof(int));
-    tree->size = num_nodes;
+/// MARK: -------------------------   LIST   -------------------------
+
+static Node* list_add(Node* list, int elem) {
+    Node* node = (Node*) malloc(sizeof(Node));
+    node->elem = elem;
+    node->next = list;
+
+    return node;
 }
 
-#define AT(s,a) (s)*((tree)->size+1)+(a)
-#define tree_at(tree, s, a) (tree)->adj[(s) * ((tree)->size + 1) + (a)]
+static Node* list_remove(Node* list, int elem) {
+    assert(list != NULL);
+    if(list->elem == elem) {
+        Node* next = list->next;
+        free(list);
 
-static void tree_set_adj(Tree *tree, int s, int a, int new_adj)
+        return next;
+    }
+
+    list->next = list_remove(list->next, elem);
+    return list;
+}
+
+static ListIt* list_iterator(Node* list) {
+    return list;
+}
+
+static ListIt* list_iterator_next(ListIt *list)
 {
-    assert(AT(s,a) < TREE_TAB_SIZE);
+    return list->next;
+}
 
-    tree_at(tree,s,a) = new_adj;
+static int list_iterator_get(ListIt* it) {
+    return it->elem;
+}
+
+/// MARK: -------------------------   TREE   -------------------------
+
+static void tree_init(Tree *tree, int num_nodes)
+{
+    tree->adj = (Node **)calloc(num_nodes + 1, sizeof(Node *));
+    tree->size = num_nodes;
 }
 
 static void tree_add_edge(Tree *tree, Edge *e)
 {
-    int a=0;
-    while(tree_at(tree,e->source,a)!=0) { ++a; }
-    tree_set_adj(tree,e->source,a, e->dest);
-
-    a = 0;
-    while(tree_at(tree,e->dest,a)!=0) { ++a; }
-    tree_set_adj(tree,e->dest,a, e->source);
+    tree->adj[e->source] = list_add(tree->adj[e->source], e->dest);
+    tree->adj[e->dest] = list_add(tree->adj[e->dest], e->source);
 }
 
 static void tree_build(Tree *tree, Edges *edges)
@@ -72,12 +104,8 @@ static void tree_build(Tree *tree, Edges *edges)
 
 static void tree_remove_edge(Tree *tree, Edge *e)
 {
-    int a=0;
-    while(tree_at(tree, e->source,a)!=e->dest) { ++a; }
-    while(tree_at(tree, e->source,a)!=0) {
-        tree_set_adj(tree,e->source,a, tree_at(tree,e->source,a+1));
-        a++;
-    }
+    tree->adj[e->source] = list_remove(tree->adj[e->source], e->dest);
+    tree->adj[e->dest] = list_remove(tree->adj[e->dest], e->source);
 }
 
 static int tree_depth_search(Tree *tree, short *visited, int source, int dest)
@@ -91,12 +119,13 @@ static int tree_depth_search(Tree *tree, short *visited, int source, int dest)
     visited[source] = 1;
 
     int found = 0;
-    int a=0;
-    while(tree_at(tree,source,a)!=0 && !found) {
-        if(!visited[tree_at(tree,source,a)]) {
-            found = tree_depth_search(tree, visited, tree_at(tree,source,a), dest);
+    ListIt* a = list_iterator(tree->adj[source]);
+    while(a != NULL && !found) {
+        int node = list_iterator_get(a);
+        if(!visited[node]) {
+            found = tree_depth_search(tree, visited, node, dest);
         }
-        a++;
+        a = list_iterator_next(a);
     }
 
     return found;
@@ -191,7 +220,7 @@ static int compare_edge(const Edge* e1, const Edge* e2) {
 int main() {
     Tree tree;
     Edges edges;
-    edges.num_edgesd=0;
+    edges.num_edges=0;
 
     read_edges(&edges);
 
@@ -213,16 +242,16 @@ int main() {
         // print_edge(query);
         // printf("\n");
 
-    //     if(i<3 || i>4) {
-    //         continue;
-    //     }
+        if(i<226 || i>226) {
+            continue;
+        }
 
-    //     printf("trying query:");print_edge(query);printf("\n");
+        printf("trying query:");print_edge(query);printf("\n");
 
         if(query_improve_graph(&tree, &edges, &query)) {
-            printf("YES\n");
+            printf("%d:YES\n", i);
         } else {
-            printf("NO\n");
+            printf("%d:NO\n",i);
         }
     }
 
