@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define NUM_NODES 100000
 
@@ -15,17 +16,18 @@ typedef struct _Edges {
 } Edges;
 
 typedef struct _Tree {
-    int fwd[NUM_NODES];
-    int bck[NUM_NODES];
+    int* adj;
     int size;
 } Tree;
 
-void print_edge(Edge e)
+/// MARK: -------------------------   DEBUG   -------------------------
+
+static void print_edge(Edge e)
 {
     printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
 }
 
-void print_edges(Edges *edges, int start, int end)
+static void print_edges(Edges *edges, int start, int end)
 {
     for (int i = start; i <= end; ++i)
     {
@@ -34,70 +36,74 @@ void print_edges(Edges *edges, int start, int end)
     }
 }
 
-void tree_init(Tree* tree, int num_nodes) {
-    for(int i=0; i<num_nodes+1; ++i) {
-        tree->fwd[i] = i;
-        tree->bck[i] = i;
-    }
-
+/// MARK: -------------------------   TREE   -------------------------
+static void tree_init(Tree* tree, int num_nodes) {
+    tree->adj = (int *)calloc((num_nodes + 1) * (num_nodes + 1), sizeof(int));
     tree->size = num_nodes;
 }
 
-void tree_add_edge(Tree* tree, Edge* e) {
-    int i = e->source;
-    int j = e->dest;
+#define AT(s,a) (s)*((tree)->size+1)+(a)
+#define tree_at(tree, s, a) (tree)->adj[(s) * ((tree)->size + 1) + (a)]
 
-    if(i < j) {
-        tree->fwd[i] = j;
-        tree->bck[j] = i;
-    } else {
-        tree->fwd[j] = i;
-        tree->bck[i] = j;
-    }
+static void tree_set_adj(Tree *tree, int s, int a, int new_adj)
+{
+    assert(AT(s,a) < TREE_TAB_SIZE);
+
+    tree_at(tree,s,a) = new_adj;
 }
 
-void tree_build(Tree* tree, Edges* edges) {
+static void tree_add_edge(Tree *tree, Edge *e)
+{
+    int a=0;
+    while(tree_at(tree,e->source,a)!=0) { ++a; }
+    tree_set_adj(tree,e->source,a, e->dest);
+
+    a = 0;
+    while(tree_at(tree,e->dest,a)!=0) { ++a; }
+    tree_set_adj(tree,e->dest,a, e->source);
+}
+
+static void tree_build(Tree *tree, Edges *edges)
+{
     for(int i=0; i<edges->num_edges; ++i) {
         tree_add_edge(tree, &edges->edges[i]);
     }
 }
 
-void tree_remove_edge(Tree* tree, Edge* e) {
-    int i = e->source;
-    int j = e->dest;
-
-    if(i < j) {
-        tree->fwd[i] = i;
-        tree->bck[j] = j;
-    } else {
-        tree->fwd[j] = j;
-        tree->bck[i] = i;
+static void tree_remove_edge(Tree *tree, Edge *e)
+{
+    int a=0;
+    while(tree_at(tree, e->source,a)!=e->dest) { ++a; }
+    while(tree_at(tree, e->source,a)!=0) {
+        tree_set_adj(tree,e->source,a, tree_at(tree,e->source,a+1));
+        a++;
     }
 }
 
-int tree_depth_search(Tree *tree, short *visited, int source, int dest)
+static int tree_depth_search(Tree *tree, short *visited, int source, int dest)
 {
+    assert(!visited[source]);
     if (source == dest)
     {
         return 1;
     }
 
-    int found = 0;
     visited[source] = 1;
 
-    if (visited[tree->fwd[source]] == 0)
-    {
-        found = tree_depth_search(tree, visited, tree->fwd[source], dest);
-    }
-    if (!found && visited[tree->bck[source]] == 0)
-    {
-        found = tree_depth_search(tree, visited, tree->bck[source], dest);
+    int found = 0;
+    int a=0;
+    while(tree_at(tree,source,a)!=0 && !found) {
+        if(!visited[tree_at(tree,source,a)]) {
+            found = tree_depth_search(tree, visited, tree_at(tree,source,a), dest);
+        }
+        a++;
     }
 
     return found;
 }
 
-int tree_find_path(Tree* tree, int source, int dest) {
+static int tree_find_path(Tree *tree, int source, int dest)
+{
     short* visited = (short*) calloc(tree->size+1, sizeof(short));
     int result = tree_depth_search(tree, visited, source, dest);
     free(visited);
@@ -105,8 +111,7 @@ int tree_find_path(Tree* tree, int source, int dest) {
     return result;
 }
 
-
-
+/// MARK: -------------------------   I/O   -------------------------
 
 static int read_num_edges() {
     int result;
@@ -116,7 +121,7 @@ static int read_num_edges() {
 
 
 static void read_edge(Edge* edge) {
-    scanf("%d %d %d\n", &edge->source, &edge->dest, &edge->weight);
+    scanf("%d %d %d", &edge->source, &edge->dest, &edge->weight);
 }
 
 static void read_edges(Edges* edges) {
@@ -126,6 +131,8 @@ static void read_edges(Edges* edges) {
     }
     edges->num_edges = num_edges;
 }
+
+/// MARK: -------------------------   ALGORITHM   -------------------------
 
 static int check_substitution(Tree* tree, Edge* candidate, Edge* query) {
     tree_remove_edge(tree, candidate);
@@ -161,16 +168,13 @@ static int bin_search(Edges* edges, int weight) {
 static int query_improve_graph(Tree* tree, Edges* edges, Edge* query) {
     int first_candidate = bin_search(edges, query->weight);
 
-    printf("fcs: %d\n", first_candidate);
-    print_edges(edges, first_candidate-2, first_candidate+2 );
-
-    // for(int i=0; i<edges->num_edges; ++i) {
-    //     printf("%d w:%d\n", i, edges->edges[i].weight);
-    // }
-    // printf("query weight: %d first candidate: %d\n", query->weight, first_candidate);
+    // printf("fcs: %d\n", first_candidate);
+    // print_edges(edges, first_candidate-2, first_candidate+2 );
 
     for(int i=first_candidate; i<edges->num_edges; ++i) {
-        if(check_substitution(tree, &edges->edges[i], query)) {
+
+        if (check_substitution(tree, &edges->edges[i], query))
+        {
             return 1;
         }
     }
@@ -182,31 +186,38 @@ static int compare_edge(const Edge* e1, const Edge* e2) {
     return e1->weight - e2->weight;
 }
 
+/// MARK: -------------------------   MAIN   -------------------------
 
 int main() {
     Tree tree;
     Edges edges;
-    edges.num_edges=0;
+    edges.num_edgesd=0;
 
     read_edges(&edges);
-    qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
 
-    print_edges(&edges, 0, 10);
-    printf("num edges:%d\n", edges.num_edges);
+    // print_edges(&edges, 0, 4);
+    // printf("num edges:%d\n", edges.num_edges);
+
+    qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
 
     tree_init(&tree, edges.num_edges+1);
     tree_build(&tree, &edges);
 
     int num_queries = read_num_edges();
+
+    // printf("num queries:%d\n", num_queries );
     for(int i =0; i<num_queries; ++i) {
         Edge query;
         read_edge(&query);
 
-        if(i<226 || i>226) {
-            continue;
-        }
+        // print_edge(query);
+        // printf("\n");
 
-        printf("trying query:");print_edge(query);printf("\n");
+    //     if(i<3 || i>4) {
+    //         continue;
+    //     }
+
+    //     printf("trying query:");print_edge(query);printf("\n");
 
         if(query_improve_graph(&tree, &edges, &query)) {
             printf("YES\n");
