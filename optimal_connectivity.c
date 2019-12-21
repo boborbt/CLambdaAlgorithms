@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <strings.h>
+#include <time.h>
 
-#define NUM_NODES 100000
+#define NUM_NODES 100001
 
 typedef struct _Edge {
     int source;
@@ -110,8 +111,7 @@ static void tree_remove_edge(Tree *tree, Edge *e)
     tree->adj[e->dest] = list_remove(tree->adj[e->dest], e->source);
 }
 
-
-static int tree_find_path_larger_than(Tree *tree, int source, int dest, int weight)
+static int tree_find_path_and_largest_weight(Tree *tree, int source, int dest)
 {
     assert(tree->visited[source]!=tree->cur_mark);
     if (source == dest)
@@ -121,23 +121,22 @@ static int tree_find_path_larger_than(Tree *tree, int source, int dest, int weig
 
     tree->visited[source] = tree->cur_mark;
 
-    int found = 0;
+    int max_weight_found = -1;
     ListIt* a = list_iterator(tree->adj[source]);
-    while(a != NULL && !found) {
+    while(a != NULL) {
         int node = list_iterator_get(a);
-        int cur_weight = list_iterator_get_weight(a);
-
-        if(cur_weight > weight) {
-            return 1;
-        }
 
         if(tree->visited[node]!=tree->cur_mark) {
-            found = tree_find_path_larger_than(tree, node, dest, weight);
+            int path_max_weight = tree_find_path_and_largest_weight(tree, node, dest);
+            if(path_max_weight!=-1) {
+                int cur_weight = list_iterator_get_weight(a);
+                return max(cur_weight, path_max_weight);
+            }
         }
         a = list_iterator_next(a);
     }
 
-    return found;
+    return -1;
 }
 
 
@@ -199,11 +198,12 @@ static void read_edges(Tree* tree) {
 
 
 static int query_improve_graph(Tree* tree, Edge* query) {
+    int result = 0;
     if(tree->max_w <= query->weight) {
         return 0;
     }
 
-    int result = tree_find_path_larger_than(tree, query->dest, query->source, query->weight);
+    result = tree_find_path_and_largest_weight(tree, query->dest, query->source) > query->weight;
     tree->cur_mark++;
 
     return result;
@@ -255,21 +255,29 @@ int main(int argc, char** argv) {
     read_edges(&tree);
 
     int num_queries = read_num_edges();
+    float longest = 0;
+    int longest_index=-1;
 
     for(int i =0; i<num_queries; ++i) {
         Edge query;
         read_edge(&query);
 
-        if(i!=9909) {
-            continue;
-        }
-
-        if(query_improve_graph(&tree, &query)) {
+        clock_t start = clock();
+        if (query_improve_graph(&tree, &query)) {
             printf("YES\n");
-        } else {
+        }
+        else {
             printf("NO\n");
         }
+        clock_t end = clock();
+
+        if((end - start)/(float)CLOCKS_PER_SEC > longest) {
+            longest = (end - start)/(float)CLOCKS_PER_SEC;
+            longest_index = i;
+        }
     }
+
+    printf("longest: %f index: %d\n", longest, longest_index);
 
     return 0;
 }
