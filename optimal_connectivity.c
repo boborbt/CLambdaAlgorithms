@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <strings.h>
 
 #define NUM_NODES 100000
 
@@ -21,31 +22,29 @@ typedef struct _Node {
 } Node;
 
 typedef struct _Tree {
+    int visited[NUM_NODES];
     Node** adj;
     int size;
+    int max_w;
+    int cur_mark;
 } Tree;
 
 
 typedef Node ListIt;
 
-
-/// MARK: -------------------------   DEBUG   -------------------------
-
-static void print_edge(Edge e)
-{
-    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
-}
-
-static void print_edges(Edges *edges, int start, int end)
-{
-    for (int i = start; i <= end; ++i)
-    {
-        print_edge(edges->edges[i]);
-        printf("\n");
-    }
-}
+#define max(a,b) (a) > (b) ? (a) : (b)
 
 /// MARK: -------------------------   LIST   -------------------------
+
+static int list_len(Node* list) {
+    int count = 0;
+    while(list != NULL) {
+        list = list->next;
+        count++;
+    }
+
+    return count;
+}
 
 static Node* list_add(Node* list, int elem) {
     Node* node = (Node*) malloc(sizeof(Node));
@@ -87,12 +86,15 @@ static void tree_init(Tree *tree, int num_nodes)
 {
     tree->adj = (Node **)calloc(num_nodes + 1, sizeof(Node *));
     tree->size = num_nodes;
+    bzero(tree->visited, tree->size * sizeof(int));
+    tree->cur_mark = 1;
 }
 
 static void tree_add_edge(Tree *tree, Edge *e)
 {
     tree->adj[e->source] = list_add(tree->adj[e->source], e->dest);
     tree->adj[e->dest] = list_add(tree->adj[e->dest], e->source);
+    tree->max_w = max(tree->max_w, e->weight);
 }
 
 static void tree_build(Tree *tree, Edges *edges)
@@ -108,22 +110,23 @@ static void tree_remove_edge(Tree *tree, Edge *e)
     tree->adj[e->dest] = list_remove(tree->adj[e->dest], e->source);
 }
 
-static int tree_depth_search(Tree *tree, short *visited, int source, int dest)
+
+static int tree_depth_search(Tree *tree, int source, int dest)
 {
-    assert(!visited[source]);
+    assert(tree->visited[source]!=tree->cur_mark);
     if (source == dest)
     {
         return 1;
     }
 
-    visited[source] = 1;
+    tree->visited[source] = tree->cur_mark;
 
     int found = 0;
     ListIt* a = list_iterator(tree->adj[source]);
     while(a != NULL && !found) {
         int node = list_iterator_get(a);
-        if(!visited[node]) {
-            found = tree_depth_search(tree, visited, node, dest);
+        if(tree->visited[node]!=tree->cur_mark) {
+            found = tree_depth_search(tree, node, dest);
         }
         a = list_iterator_next(a);
     }
@@ -133,9 +136,8 @@ static int tree_depth_search(Tree *tree, short *visited, int source, int dest)
 
 static int tree_find_path(Tree *tree, int source, int dest)
 {
-    short* visited = (short*) calloc(tree->size+1, sizeof(short));
-    int result = tree_depth_search(tree, visited, source, dest);
-    free(visited);
+    int result = tree_depth_search(tree, dest, source);
+    tree->cur_mark++;
 
     return result;
 }
@@ -195,10 +197,11 @@ static int bin_search(Edges* edges, int weight) {
 
 
 static int query_improve_graph(Tree* tree, Edges* edges, Edge* query) {
-    int first_candidate = bin_search(edges, query->weight);
+    if(tree->max_w <= query->weight) {
+        return 0;
+    }
 
-    // printf("fcs: %d\n", first_candidate);
-    // print_edges(edges, first_candidate-2, first_candidate+2 );
+    int first_candidate = bin_search(edges, query->weight);
 
     for(int i=first_candidate; i<edges->num_edges; ++i) {
 
@@ -215,17 +218,49 @@ static int compare_edge(const Edge* e1, const Edge* e2) {
     return e1->weight - e2->weight;
 }
 
+/// MARK: -------------------------   DEBUG   -------------------------
+
+static void print_edge(Edge e)
+{
+    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
+}
+
+static void print_edges(Edges *edges, int start, int end)
+{
+    for (int i = start; i <= end; ++i)
+    {
+        print_edge(edges->edges[i]);
+        printf("\n");
+    }
+}
+
+static int max_list_len(Tree *tree)
+{
+    int max_len = 0;
+    for (int i = 0; i < tree->size; ++i)
+    {
+        int cur_len = list_len(tree->adj[i]);
+        if (max_len < cur_len)
+        {
+            max_len = cur_len;
+        }
+    }
+    return max_len;
+}
+
 /// MARK: -------------------------   MAIN   -------------------------
 
-int main() {
+int main(int argc, char** argv) {
+    if(argc > 1) {
+        FILE* filein = fopen(argv[1], "r");
+        stdin = filein;
+    }
+
     Tree tree;
     Edges edges;
     edges.num_edges=0;
 
     read_edges(&edges);
-
-    // print_edges(&edges, 0, 4);
-    // printf("num edges:%d\n", edges.num_edges);
 
     qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
 
@@ -234,24 +269,14 @@ int main() {
 
     int num_queries = read_num_edges();
 
-    // printf("num queries:%d\n", num_queries );
     for(int i =0; i<num_queries; ++i) {
         Edge query;
         read_edge(&query);
 
-        // print_edge(query);
-        // printf("\n");
-
-        if(i<226 || i>226) {
-            continue;
-        }
-
-        printf("trying query:");print_edge(query);printf("\n");
-
         if(query_improve_graph(&tree, &edges, &query)) {
-            printf("%d:YES\n", i);
+            printf("YES\n");
         } else {
-            printf("%d:NO\n",i);
+            printf("NO\n");
         }
     }
 
