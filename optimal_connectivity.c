@@ -11,13 +11,14 @@ typedef struct _Edge {
     int weight;
 } Edge;
 
-typedef struct _Edges {
-    Edge edges[NUM_NODES];
-    int num_edges;
-} Edges;
+// typedef struct _Edges {
+//     Edge edges[NUM_NODES];
+//     int num_edges;
+// } Edges;
 
 typedef struct _Node {
     int elem;
+    int weight;
     struct _Node *next;
 } Node;
 
@@ -46,10 +47,11 @@ static int list_len(Node* list) {
     return count;
 }
 
-static Node* list_add(Node* list, int elem) {
+static Node* list_add(Node* list, int elem, int weight) {
     Node* node = (Node*) malloc(sizeof(Node));
     node->elem = elem;
     node->next = list;
+    node->weight = weight;
 
     return node;
 }
@@ -80,6 +82,11 @@ static int list_iterator_get(ListIt* it) {
     return it->elem;
 }
 
+static int list_iterator_get_weight(ListIt *it)
+{
+    return it->weight;
+}
+
 /// MARK: -------------------------   TREE   -------------------------
 
 static void tree_init(Tree *tree, int num_nodes)
@@ -92,16 +99,9 @@ static void tree_init(Tree *tree, int num_nodes)
 
 static void tree_add_edge(Tree *tree, Edge *e)
 {
-    tree->adj[e->source] = list_add(tree->adj[e->source], e->dest);
-    tree->adj[e->dest] = list_add(tree->adj[e->dest], e->source);
+    tree->adj[e->source] = list_add(tree->adj[e->source], e->dest, e->weight);
+    tree->adj[e->dest] = list_add(tree->adj[e->dest], e->source, e->weight);
     tree->max_w = max(tree->max_w, e->weight);
-}
-
-static void tree_build(Tree *tree, Edges *edges)
-{
-    for(int i=0; i<edges->num_edges; ++i) {
-        tree_add_edge(tree, &edges->edges[i]);
-    }
 }
 
 static void tree_remove_edge(Tree *tree, Edge *e)
@@ -111,12 +111,12 @@ static void tree_remove_edge(Tree *tree, Edge *e)
 }
 
 
-static int tree_depth_search(Tree *tree, int source, int dest)
+static int tree_find_path_larger_than(Tree *tree, int source, int dest, int weight)
 {
     assert(tree->visited[source]!=tree->cur_mark);
     if (source == dest)
     {
-        return 1;
+        return 0;
     }
 
     tree->visited[source] = tree->cur_mark;
@@ -125,8 +125,14 @@ static int tree_depth_search(Tree *tree, int source, int dest)
     ListIt* a = list_iterator(tree->adj[source]);
     while(a != NULL && !found) {
         int node = list_iterator_get(a);
+        int cur_weight = list_iterator_get_weight(a);
+
+        if(cur_weight > weight) {
+            return 1;
+        }
+
         if(tree->visited[node]!=tree->cur_mark) {
-            found = tree_depth_search(tree, node, dest);
+            found = tree_find_path_larger_than(tree, node, dest, weight);
         }
         a = list_iterator_next(a);
     }
@@ -134,13 +140,6 @@ static int tree_depth_search(Tree *tree, int source, int dest)
     return found;
 }
 
-static int tree_find_path(Tree *tree, int source, int dest)
-{
-    int result = tree_depth_search(tree, dest, source);
-    tree->cur_mark++;
-
-    return result;
-}
 
 /// MARK: -------------------------   I/O   -------------------------
 
@@ -155,63 +154,59 @@ static void read_edge(Edge* edge) {
     scanf("%d %d %d", &edge->source, &edge->dest, &edge->weight);
 }
 
-static void read_edges(Edges* edges) {
+static void read_edges(Tree* tree) {
     int num_edges = read_num_edges() - 1;
+    tree_init(tree, num_edges+1);
+
     for(int i=0; i<num_edges; ++i) {
-        read_edge(&edges->edges[i]);
+        Edge e;
+        read_edge(&e);
+        tree_add_edge(tree, &e);
     }
-    edges->num_edges = num_edges;
 }
 
 /// MARK: -------------------------   ALGORITHM   -------------------------
 
-static int check_substitution(Tree* tree, Edge* candidate, Edge* query) {
-    tree_remove_edge(tree, candidate);
-    tree_add_edge(tree, query);
+// static int check_substitution(Tree* tree, Edge* candidate, Edge* query) {
+//     tree_remove_edge(tree, candidate);
+//     tree_add_edge(tree, query);
 
-    int result = tree_find_path(tree, candidate->source, candidate->dest);
+//     int result = tree_find_path(tree, candidate->source, candidate->dest);
 
-    tree_remove_edge(tree, query);
-    tree_add_edge(tree, candidate);
+//     tree_remove_edge(tree, query);
+//     tree_add_edge(tree, candidate);
 
-    return result;
-}
+//     return result;
+// }
 
-static int bin_search(Edges* edges, int weight) {
-    int start = 0;
-    int end = edges->num_edges-1;
-    int mid;
+// static int bin_search(Edges* edges, int weight) {
+//     int start = 0;
+//     int end = edges->num_edges-1;
+//     int mid;
 
-    while( start <= end ){
-        mid = (start + end)/2;
-        if( edges->edges[mid].weight <= weight ) {
-            start = mid+1;
-            continue;
-        }
+//     while( start <= end ){
+//         mid = (start + end)/2;
+//         if( edges->edges[mid].weight <= weight ) {
+//             start = mid+1;
+//             continue;
+//         }
 
-        end = mid-1;
-    }
+//         end = mid-1;
+//     }
 
-    return start;
-}
+//     return start;
+// }
 
 
-static int query_improve_graph(Tree* tree, Edges* edges, Edge* query) {
+static int query_improve_graph(Tree* tree, Edge* query) {
     if(tree->max_w <= query->weight) {
         return 0;
     }
 
-    int first_candidate = bin_search(edges, query->weight);
+    int result = tree_find_path_larger_than(tree, query->dest, query->source, query->weight);
+    tree->cur_mark++;
 
-    for(int i=first_candidate; i<edges->num_edges; ++i) {
-
-        if (check_substitution(tree, &edges->edges[i], query))
-        {
-            return 1;
-        }
-    }
-
-    return 0;
+    return result;
 }
 
 static int compare_edge(const Edge* e1, const Edge* e2) {
@@ -225,14 +220,14 @@ static void print_edge(Edge e)
     printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
 }
 
-static void print_edges(Edges *edges, int start, int end)
-{
-    for (int i = start; i <= end; ++i)
-    {
-        print_edge(edges->edges[i]);
-        printf("\n");
-    }
-}
+// static void print_edges(Edges *edges, int start, int end)
+// {
+//     for (int i = start; i <= end; ++i)
+//     {
+//         print_edge(edges->edges[i]);
+//         printf("\n");
+//     }
+// }
 
 static int max_list_len(Tree *tree)
 {
@@ -257,15 +252,7 @@ int main(int argc, char** argv) {
     }
 
     Tree tree;
-    Edges edges;
-    edges.num_edges=0;
-
-    read_edges(&edges);
-
-    qsort(edges.edges, edges.num_edges, sizeof(Edge), (int (*)(const void*, const void*)) compare_edge);
-
-    tree_init(&tree, edges.num_edges+1);
-    tree_build(&tree, &edges);
+    read_edges(&tree);
 
     int num_queries = read_num_edges();
 
@@ -273,7 +260,11 @@ int main(int argc, char** argv) {
         Edge query;
         read_edge(&query);
 
-        if(query_improve_graph(&tree, &edges, &query)) {
+        if(i!=9909) {
+            continue;
+        }
+
+        if(query_improve_graph(&tree, &query)) {
             printf("YES\n");
         } else {
             printf("NO\n");
