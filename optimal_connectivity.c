@@ -6,16 +6,23 @@
 
 #define NUM_NODES 100001
 
+typedef enum {
+    UNKNOWN=0,
+    YES,
+    NO
+} Answer;
+
 typedef struct _Edge {
     int source;
     int dest;
     int weight;
+    Answer answer;
 } Edge;
 
-// typedef struct _Edges {
-//     Edge edges[NUM_NODES];
-//     int num_edges;
-// } Edges;
+typedef struct _Edges {
+    Edge** edges;
+    int num_edges;
+} Edges;
 
 typedef struct _Node {
     int elem;
@@ -35,10 +42,13 @@ typedef struct _Tree {
 typedef Node ListIt;
 
 #define max(a,b) (a) > (b) ? (a) : (b)
+static Edge *bin_search(Edges *edges, Edge *goal);
+static int compare_edges(Edge ** e1, Edge** e2);
 
-/// MARK: -------------------------   LIST   -------------------------
+    /// MARK: -------------------------   LIST   -------------------------
 
-static int list_len(Node* list) {
+    static int list_len(Node *list)
+{
     int count = 0;
     while(list != NULL) {
         list = list->next;
@@ -111,32 +121,50 @@ static void tree_remove_edge(Tree *tree, Edge *e)
     tree->adj[e->dest] = list_remove(tree->adj[e->dest], e->source);
 }
 
-static int tree_find_path_and_largest_weight(Tree *tree, int source, int dest)
+static void update_query(Edge* query, int max_weight_found) {
+    if(query == NULL) {
+        return;
+    }
+
+    if (query->weight < max_weight_found) {
+        query->answer = YES;
+    }
+    else {
+        query->answer = NO;
+    }
+}
+
+static void tree_depth_search(Tree *tree, Edge* orig, int source, int max_weight_found, Edges* sorted_queries)
 {
     assert(tree->visited[source]!=tree->cur_mark);
-    if (source == dest)
-    {
-        return 0;
-    }
 
     tree->visited[source] = tree->cur_mark;
 
-    int max_weight_found = -1;
     ListIt* a = list_iterator(tree->adj[source]);
-    while(a != NULL) {
+    while(a != NULL && orig->answer==UNKNOWN) {
         int node = list_iterator_get(a);
 
         if(tree->visited[node]!=tree->cur_mark) {
-            int path_max_weight = tree_find_path_and_largest_weight(tree, node, dest);
-            if(path_max_weight!=-1) {
-                int cur_weight = list_iterator_get_weight(a);
-                return max(cur_weight, path_max_weight);
+            int cur_weight = list_iterator_get_weight(a);
+            int hop_max_weight = max(max_weight_found, cur_weight);
+
+            Edge edge_n;
+            edge_n.source = orig->source;
+            edge_n.dest = node;
+
+            // Edge* query = bin_search(sorted_queries, &edge_n);
+            Edge* query = NULL;
+            if(edge_n.source == orig->source && edge_n.dest == orig->dest) {
+                query = orig;
+                update_query(query, hop_max_weight);
+                return;
             }
+            // update_query(query, hop_max_weight); 
+
+            tree_depth_search(tree, orig, node, hop_max_weight, sorted_queries);
         }
         a = list_iterator_next(a);
     }
-
-    return -1;
 }
 
 
@@ -164,6 +192,31 @@ static void read_edges(Tree* tree) {
     }
 }
 
+static void read_queries(Edges* queries) {
+    queries->num_edges = read_num_edges();
+    queries->edges = (Edge**) malloc(sizeof(Edge*)*queries->num_edges);
+
+    for(int i=0; i<queries->num_edges; ++i) {
+        queries->edges[i] = (Edge*) malloc(sizeof(Edge));
+        read_edge(queries->edges[i]);
+        queries->edges[i]->answer = UNKNOWN;
+    }
+}
+
+static void print_answer(Answer answer) {
+    switch(answer) {
+        case UNKNOWN:
+            printf("ERRORE\n");
+            exit(1);
+        case YES:
+            printf("YES\n");
+            break;
+        case NO:
+            printf("NO\n");
+            break;
+    }
+}
+
 /// MARK: -------------------------   ALGORITHM   -------------------------
 
 // static int check_substitution(Tree* tree, Edge* candidate, Edge* query) {
@@ -178,39 +231,54 @@ static void read_edges(Tree* tree) {
 //     return result;
 // }
 
-// static int bin_search(Edges* edges, int weight) {
-//     int start = 0;
-//     int end = edges->num_edges-1;
-//     int mid;
+static Edge* bin_search(Edges* edges, Edge* goal) {
+    int start = 0;
+    int end = edges->num_edges-1;
+    int mid;
 
-//     while( start <= end ){
-//         mid = (start + end)/2;
-//         if( edges->edges[mid].weight <= weight ) {
-//             start = mid+1;
-//             continue;
-//         }
+    while( start <= end ){
+        mid = (start + end)/2;
 
-//         end = mid-1;
-//     }
+        if(compare_edges(&edges->edges[mid], &goal) == 0) {
+            return edges->edges[mid];
+        }
 
-//     return start;
-// }
+        if( compare_edges(&edges->edges[mid], &goal) < 0) {
+            start = mid+1;
+            continue;
+        }
 
-
-static int query_improve_graph(Tree* tree, Edge* query) {
-    int result = 0;
-    if(tree->max_w <= query->weight) {
-        return 0;
+        end = mid-1;
     }
 
-    result = tree_find_path_and_largest_weight(tree, query->dest, query->source) > query->weight;
-    tree->cur_mark++;
-
-    return result;
+    return NULL;
 }
 
-static int compare_edge(const Edge* e1, const Edge* e2) {
-    return e1->weight - e2->weight;
+
+static void query_improve_graph(Tree* tree, Edge* query, Edges* sorted_queries) {
+    tree_depth_search(tree, query, query->source, -1, sorted_queries);
+    tree->cur_mark++;
+}
+
+static int compare_edges(Edge **e1, Edge **e2)
+{
+    if((*e1)->source < (*e2)->source) {
+        return -1;
+    }
+    
+    if((*e1)->source > (*e2)->source) {
+        return 1;
+    }
+    
+    if((*e1)->dest < (*e2)->dest) {
+        return -1;
+    }
+    
+    if((*e1)->dest > (*e2)->dest) {
+        return 1;
+    }
+
+    return 0;
 }
 
 /// MARK: -------------------------   DEBUG   -------------------------
@@ -220,14 +288,14 @@ static void print_edge(Edge e)
     printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
 }
 
-// static void print_edges(Edges *edges, int start, int end)
-// {
-//     for (int i = start; i <= end; ++i)
-//     {
-//         print_edge(edges->edges[i]);
-//         printf("\n");
-//     }
-// }
+static void print_edges(Edges *edges, int start, int end)
+{
+    for (int i = start; i <= end; ++i)
+    {
+        print_edge(*edges->edges[i]);
+        printf("\n");
+    }
+}
 
 static int max_list_len(Tree *tree)
 {
@@ -254,30 +322,47 @@ int main(int argc, char** argv) {
     Tree tree;
     read_edges(&tree);
 
-    int num_queries = read_num_edges();
     float longest = 0;
     int longest_index=-1;
 
-    for(int i =0; i<num_queries; ++i) {
-        Edge query;
-        read_edge(&query);
+    Edges queries;
+    read_queries(&queries);
+    Edges sorted_queries = queries;
+    sorted_queries.edges = (Edge**) malloc(sizeof(Edge*)*queries.num_edges);
+    memcpy(sorted_queries.edges, queries.edges, sizeof(Edge*) * queries.num_edges);
+    qsort(sorted_queries.edges, sorted_queries.num_edges, sizeof(Edge *), (int (*)(const void *, const void *))compare_edges);
 
-        clock_t start = clock();
-        if (query_improve_graph(&tree, &query)) {
-            printf("YES\n");
+    for(int i=0; i<queries.num_edges; ++i) {
+        if(queries.edges[i]->answer != UNKNOWN) {
+            print_answer(queries.edges[i]->answer);
+            continue;
         }
-        else {
-            printf("NO\n");
-        }
-        clock_t end = clock();
 
-        if((end - start)/(float)CLOCKS_PER_SEC > longest) {
-            longest = (end - start)/(float)CLOCKS_PER_SEC;
-            longest_index = i;
-        }
+        query_improve_graph(&tree, queries.edges[i], &sorted_queries);
+        print_answer(queries.edges[i]->answer);
     }
+    
 
-    printf("longest: %f index: %d\n", longest, longest_index);
+    // for(int i =0; i<num_queries; ++i) {
+    //     Edge query;
+    //     read_edge(&query);
+
+    //     clock_t start = clock();
+    //     if (query_improve_graph(&tree, &query)) {
+    //         printf("YES\n");
+    //     }
+    //     else {
+    //         printf("NO\n");
+    //     }
+    //     clock_t end = clock();
+
+    //     if((end - start)/(float)CLOCKS_PER_SEC > longest) {
+    //         longest = (end - start)/(float)CLOCKS_PER_SEC;
+    //         longest_index = i;
+    //     }
+    // }
+
+    // printf("longest: %f index: %d\n", longest, longest_index);
 
     return 0;
 }
