@@ -30,9 +30,16 @@ typedef struct _Node {
     struct _Node *next;
 } Node;
 
+typedef struct _QueryNode {
+    Edge* query;
+    struct _QueryNode* next;
+} QueryNode;
+
 typedef struct _Tree {
     int visited[NUM_NODES];
+    int active[NUM_NODES];
     Node** adj;
+    QueryNode** endQueryNodes;
     int size;
     int max_w;
     int cur_mark;
@@ -45,10 +52,25 @@ typedef Node ListIt;
 static Edge *bin_search(Edges *edges, Edge *goal);
 static int compare_edges(Edge ** e1, Edge** e2);
 
-    /// MARK: -------------------------   LIST   -------------------------
+/// MARK: -------------------------   DEBUG   -------------------------
 
-    static int list_len(Node *list)
+static void print_edge(Edge e)
 {
+    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
+}
+
+static void print_edges(Edges *edges, int start, int end)
+{
+    for (int i = start; i <= end; ++i)
+    {
+        print_edge(*edges->edges[i]);
+        printf("\n");
+    }
+}
+
+/// MARK: -------------------------   LIST   -------------------------
+
+static int list_len(Node *list) {
     int count = 0;
     while(list != NULL) {
         list = list->next;
@@ -104,7 +126,8 @@ static void tree_init(Tree *tree, int num_nodes)
 {
     tree->adj = (Node **)calloc(num_nodes + 1, sizeof(Node *));
     tree->size = num_nodes;
-    bzero(tree->visited, tree->size * sizeof(int));
+    bzero(tree->visited, (tree->size+1) * sizeof(int));
+    bzero(tree->active, (tree->size+1)*sizeof(int));
     tree->cur_mark = 1;
 }
 
@@ -134,36 +157,113 @@ static void update_query(Edge* query, int max_weight_found) {
     }
 }
 
-static void tree_depth_search(Tree *tree, Edge* orig, int source, int max_weight_found, Edges* sorted_queries)
+#define STACK_SIZE 1000
+
+typedef struct _StackFrame {
+    int source;
+    int weight;
+    ListIt* a;
+} StackFrame;
+
+typedef struct _Stack {
+    StackFrame storage[STACK_SIZE];
+    int top;
+} Stack;
+
+static void stack_init(Stack* stack) {
+    stack->top = -1;
+}
+
+static int stack_empty(Stack* stack) {
+    return stack->top < 0;
+}
+
+static void stack_push(Stack* stack, int source, int weight, ListIt* a) {
+    assert(++stack->top < 1000);
+    assert(stack->top >= 0);
+    stack->storage[stack->top].source = source;
+    stack->storage[stack->top].weight = weight;
+    stack->storage[stack->top].a = a;
+}
+
+static StackFrame* stack_get(Stack* stack) {
+    return &stack->storage[stack->top];
+}
+
+static void stack_pop(Stack* stack) {
+    assert(stack->top >= 0);
+    stack->top--;
+}
+
+int find_weight_for_source(Stack* stack, int source) {
+    int cur_weight = -1;
+    int top = stack->top;
+    while(top>=0) {
+        cur_weight = max(cur_weight, stack->storage[top].weight);
+        if(stack->storage[top].source == source) {
+            return cur_weight;
+        }
+
+        top--;
+    }
+
+    return -1;
+}
+
+static void update_queries(QueryNode** queries, Stack* stack, Tree* tree) {
+    QueryNode** next_ptr = queries;
+    QueryNode* query_it = *queries;
+
+    while(query_it!=NULL) {
+        if(!tree->active[query_it->query->source]) {
+            continue;
+        }
+
+        int weight = find_weight_for_source(stack, query_it->query->source);
+        if(weight != -1) {
+            query_it->query->answer = (query_it->query->weight < weight) ? YES : NO;
+
+            // this is solved, unlinking query from query list
+            *next_ptr = query_it->next;
+        }
+
+        next_ptr = &query_it->next;
+        query_it = query_it->next;
+    }
+}
+
+static void tree_depth_search(Tree *tree, Edge* orig, int source, int max_weight_found)
 {
     assert(tree->visited[source]!=tree->cur_mark);
 
+    Stack stack;
+    stack_init(&stack);
+    stack_push(&stack, source, -1, list_iterator(tree->adj[source]));
     tree->visited[source] = tree->cur_mark;
+    tree->active[source] = 1;
 
-    ListIt* a = list_iterator(tree->adj[source]);
-    while(a != NULL && orig->answer==UNKNOWN) {
-        int node = list_iterator_get(a);
-
-        if(tree->visited[node]!=tree->cur_mark) {
-            int cur_weight = list_iterator_get_weight(a);
-            int hop_max_weight = max(max_weight_found, cur_weight);
-
-            Edge edge_n;
-            edge_n.source = orig->source;
-            edge_n.dest = node;
-
-            // Edge* query = bin_search(sorted_queries, &edge_n);
-            Edge* query = NULL;
-            if(edge_n.source == orig->source && edge_n.dest == orig->dest) {
-                query = orig;
-                update_query(query, hop_max_weight);
-                return;
-            }
-            // update_query(query, hop_max_weight); 
-
-            tree_depth_search(tree, orig, node, hop_max_weight, sorted_queries);
+    while(!stack_empty(&stack) && orig->answer==UNKNOWN) {
+        StackFrame* frame = stack_get(&stack);
+        if(frame->a == NULL) {
+            tree->active[frame->source] = 0;
+            stack_pop(&stack);
+            continue;
         }
-        a = list_iterator_next(a);
+
+        int node = list_iterator_get(frame->a);
+        if(tree->visited[node]!=tree->cur_mark) {
+            int cur_weight = list_iterator_get_weight(frame->a);
+            frame->a = list_iterator_next(frame->a);
+
+            stack_push(&stack, node, cur_weight, list_iterator(tree->adj[node]));
+            tree->visited[node] = tree->cur_mark;
+            tree->active[node] = 1;
+
+            // searching for possible queries to update
+            update_queries(&tree->endQueryNodes[node], &stack, tree);
+        } else {
+            frame->a = list_iterator_next(frame->a);
+        }
     }
 }
 
@@ -192,14 +292,23 @@ static void read_edges(Tree* tree) {
     }
 }
 
-static void read_queries(Edges* queries) {
+static void add_query_to_end_query_nodes(Edge* query, QueryNode** end_query_nodes) {
+    QueryNode* qn = (QueryNode*) malloc(sizeof(QueryNode));
+    qn->query = query;
+    qn->next = end_query_nodes[query->dest];
+    end_query_nodes[query->dest] = qn;
+}
+
+static void read_queries(Edges* queries, Tree* tree) {
     queries->num_edges = read_num_edges();
     queries->edges = (Edge**) malloc(sizeof(Edge*)*queries->num_edges);
+    tree->endQueryNodes = (QueryNode **)calloc(tree->size + 1, sizeof(QueryNode *));
 
     for(int i=0; i<queries->num_edges; ++i) {
         queries->edges[i] = (Edge*) malloc(sizeof(Edge));
         read_edge(queries->edges[i]);
         queries->edges[i]->answer = UNKNOWN;
+        add_query_to_end_query_nodes(queries->edges[i], tree->endQueryNodes);
     }
 }
 
@@ -248,15 +357,20 @@ static Edge* bin_search(Edges* edges, Edge* goal) {
             continue;
         }
 
-        end = mid-1;
+        end = mid - 1;
     }
 
     return NULL;
 }
 
 
-static void query_improve_graph(Tree* tree, Edge* query, Edges* sorted_queries) {
-    tree_depth_search(tree, query, query->source, -1, sorted_queries);
+static void query_improve_graph(Tree* tree, Edge* query) {
+    if(query->weight >= tree->max_w) {
+        query->answer = NO;
+        return ;
+    }
+
+    tree_depth_search(tree, query, query->source, -1);
     tree->cur_mark++;
 }
 
@@ -279,22 +393,6 @@ static int compare_edges(Edge **e1, Edge **e2)
     }
 
     return 0;
-}
-
-/// MARK: -------------------------   DEBUG   -------------------------
-
-static void print_edge(Edge e)
-{
-    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
-}
-
-static void print_edges(Edges *edges, int start, int end)
-{
-    for (int i = start; i <= end; ++i)
-    {
-        print_edge(*edges->edges[i]);
-        printf("\n");
-    }
 }
 
 static int max_list_len(Tree *tree)
@@ -320,49 +418,20 @@ int main(int argc, char** argv) {
     }
 
     Tree tree;
-    read_edges(&tree);
-
-    float longest = 0;
-    int longest_index=-1;
-
     Edges queries;
-    read_queries(&queries);
-    Edges sorted_queries = queries;
-    sorted_queries.edges = (Edge**) malloc(sizeof(Edge*)*queries.num_edges);
-    memcpy(sorted_queries.edges, queries.edges, sizeof(Edge*) * queries.num_edges);
-    qsort(sorted_queries.edges, sorted_queries.num_edges, sizeof(Edge *), (int (*)(const void *, const void *))compare_edges);
 
-    for(int i=0; i<queries.num_edges; ++i) {
+    read_edges(&tree);
+    read_queries(&queries, &tree);
+    
+    for(int i = 0; i < queries.num_edges; ++i) {
         if(queries.edges[i]->answer != UNKNOWN) {
             print_answer(queries.edges[i]->answer);
             continue;
         }
 
-        query_improve_graph(&tree, queries.edges[i], &sorted_queries);
+        query_improve_graph(&tree, queries.edges[i]);
         print_answer(queries.edges[i]->answer);
     }
-    
-
-    // for(int i =0; i<num_queries; ++i) {
-    //     Edge query;
-    //     read_edge(&query);
-
-    //     clock_t start = clock();
-    //     if (query_improve_graph(&tree, &query)) {
-    //         printf("YES\n");
-    //     }
-    //     else {
-    //         printf("NO\n");
-    //     }
-    //     clock_t end = clock();
-
-    //     if((end - start)/(float)CLOCKS_PER_SEC > longest) {
-    //         longest = (end - start)/(float)CLOCKS_PER_SEC;
-    //         longest_index = i;
-    //     }
-    // }
-
-    // printf("longest: %f index: %d\n", longest, longest_index);
 
     return 0;
 }
