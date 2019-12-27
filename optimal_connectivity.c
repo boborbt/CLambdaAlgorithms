@@ -8,11 +8,6 @@
 #define NUM_NODES 100001
 #define LOG_NUM_NODES 17
 
-typedef enum {
-    UNKNOWN=0,
-    YES,
-    NO
-} Answer;
 
 typedef struct _Edge {
     int source;
@@ -51,24 +46,6 @@ typedef struct _Tree {
 typedef Node ListIt;
 
 #define max(a,b) (a) > (b) ? (a) : (b)
-static Edge *bin_search(Edges *edges, Edge *goal);
-static int compare_edges(Edge ** e1, Edge** e2);
-
-/// MARK: -------------------------   DEBUG   -------------------------
-
-static void print_edge(Edge e)
-{
-    printf("s:%d d:%d w:%d", e.source, e.dest, e.weight);
-}
-
-static void print_edges(Edges *edges, int start, int end)
-{
-    for (int i = start; i <= end; ++i)
-    {
-        print_edge(*edges->edges[i]);
-        printf("\n");
-    }
-}
 
 /// MARK: -------------------------   LIST   -------------------------
 
@@ -89,19 +66,6 @@ static Node* list_add(Node* list, int elem, int weight) {
     node->weight = weight;
 
     return node;
-}
-
-static Node* list_remove(Node* list, int elem) {
-    assert(list != NULL);
-    if(list->elem == elem) {
-        Node* next = list->next;
-        free(list);
-
-        return next;
-    }
-
-    list->next = list_remove(list->next, elem);
-    return list;
 }
 
 static ListIt* list_iterator(Node* list) {
@@ -181,20 +145,6 @@ static void read_queries(Edges* queries, Tree* tree) {
     }
 }
 
-static void print_answer(Answer answer) {
-    switch(answer) {
-        case UNKNOWN:
-            printf("ERRORE\n");
-            exit(1);
-        case YES:
-            printf("YES\n");
-            break;
-        case NO:
-            printf("NO\n");
-            break;
-    }
-}
-
 /// MARK: -------------------------   ALGORITHM   -------------------------
 
 void depth_first_search(Tree* tree, int u) {
@@ -227,6 +177,24 @@ void depth_first_search(Tree* tree, int u) {
     }
 }
 
+int ancestor(Tree* tree, int u, int level) {
+    // printf("anc(u:%d, l:%d) = %d\n", u, level, tree->ancestors[u][level]);
+    return tree->ancestors[u][level];
+}
+
+int maxval(Tree* tree, int u, int level) {
+    // printf("maxv(u:%d, l:%d) = %d\n", u, level, tree->max_weights[u][level]);
+    return tree->max_weights[u][level];
+}
+
+void print_table_line(int u, int* line) {
+    printf("printing table line for node: %d\n", u);
+    for(int i=0; i<LOG_NUM_NODES; ++i) {
+        printf("%d:%d ", i, line[i]);
+    }
+    printf("\n\n");
+}
+
 // The max weight is found by searching for the lowest common ancestor of
 // the nodes u and v in the query. If m_u is the max weight on the path from
 // u to the lca(u,v) and m_v is the max weight on the path from v and lca(u,v),
@@ -247,8 +215,8 @@ int lca_max_weight(Tree* tree, Edge* query) {
     int depth_diff = tree->depth[u] - tree->depth[v];
     while(depth_diff > 0) {
         int log_diff = log2(depth_diff);
-        max_value = max( max_value, tree->max_weights[u][log_diff] );
-        u = tree->ancestors[u][log_diff];
+        max_value = max( max_value, maxval(tree, u,log_diff) );
+        u = ancestor(tree, u, log_diff);
         depth_diff = tree->depth[u] - tree->depth[v];
     }
 
@@ -256,18 +224,60 @@ int lca_max_weight(Tree* tree, Edge* query) {
         return max_value;
     }
 
+    // print_table_line(u, tree->ancestors[u]);
+    // print_table_line(v, tree->ancestors[v]);
+
     // now we can raise both until we get to the lca
     int level = log2(tree->depth[u]);
-    while(tree->ancestors[u][level]!=tree->ancestors[v][level]) {
+    while(level >= 0) {
+        if(level != -1 && ancestor(tree, u, level) != ancestor(tree, v, level)) {
+            max_value = max(max_value, maxval(tree, u, level));
+            max_value = max(max_value, maxval(tree, v, level));
+            u = ancestor(tree, u, level);
+            v = ancestor(tree, v, level);
+        }
 
-        max_value = max( max_value, tree->max_weights[u][level]);
-        max_value = max( max_value, tree->max_weights[v][level]);
-        u = tree->ancestors[u][level];
-        v = tree->ancestors[v][level];
         level--;
     }
 
-    return max( max(max_value, tree->max_weights[u][0]), tree->max_weights[v][0]);
+    return max(max_value, maxval(tree, u,level));
+}
+
+
+int print_path_(Tree* tree, int source, int end, int* visited) {
+    if(source == end) {
+        return 1;
+    }
+
+    visited[source] = 1;
+    ListIt* it = list_iterator(tree->adj[source]);
+    while(it!=NULL) {
+        if(visited[it->elem]) {
+            it = list_iterator_next(it);
+            continue;
+        }
+
+        int found = print_path_(tree, it->elem, end, visited);
+        if(found) {
+            printf("--(%d)-- %d ", it->weight, source);
+            return 1;
+        }
+
+        it = list_iterator_next(it);
+    }
+
+    return 0;
+}
+
+void print_path(Tree* tree, int source, int end) {
+    int visited[NUM_NODES];
+    for(int i=0; i<NUM_NODES; ++i) {
+        visited[i] = 0;
+    }
+
+    printf("%d ", source);
+    print_path_(tree, end, source, visited);
+    printf("\n\n");
 }
 
 /// MARK: -------------------------   MAIN   -------------------------
@@ -284,8 +294,20 @@ int main(int argc, char** argv) {
     read_edges(tree);
     read_queries(queries, tree);
 
-    tree->depth[queries->edges[0]->source] = 0;
+    int orig = queries->edges[0]->source;
+    tree->depth[orig] = 0;
     depth_first_search(tree, queries->edges[0]->source);
+
+    // printf("lca_w:%d w:%d\n", lca_max_weight(tree, queries->edges[9908]), queries->edges[9908]->weight);
+
+    // printf("printing path between %d -- %d\n", queries->edges[9908]->source, queries->edges[9908]->dest );
+    // print_path(tree, queries->edges[9908]->source, queries->edges[9908]->dest);
+
+    // printf("printing path between orig(%d) and %d\n", orig, queries->edges[9908]->source);
+    // print_path(tree, orig, queries->edges[9908]->source);
+
+    // printf("printing path between orig(%d) and %d\n", orig, queries->edges[9908]->dest);
+    // print_path(tree, orig, queries->edges[9908]->dest);
 
     for(int i = 0; i < queries->num_edges; ++i) {
         if( lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight ) {
