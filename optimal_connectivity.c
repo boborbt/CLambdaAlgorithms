@@ -157,7 +157,7 @@ static void update_query(Edge* query, int max_weight_found) {
     }
 }
 
-#define STACK_SIZE 1000
+#define STACK_SIZE 100000
 
 typedef struct _StackFrame {
     int source;
@@ -178,13 +178,21 @@ static int stack_empty(Stack* stack) {
     return stack->top < 0;
 }
 
-static void stack_push(Stack* stack, int source, int weight, ListIt* a) {
-    assert(++stack->top < 1000);
-    assert(stack->top >= 0);
-    stack->storage[stack->top].source = source;
-    stack->storage[stack->top].weight = weight;
-    stack->storage[stack->top].a = a;
-}
+// static void stack_push(Stack* stack, int source, int weight, ListIt* a) {
+//     ++stack->top;
+//     assert(stack->top < STACK_SIZE);
+//     assert(stack->top >= 0);
+//     stack->storage[stack->top].source = source;
+//     stack->storage[stack->top].weight = weight;
+//     stack->storage[stack->top].a = a;
+// }
+
+#define stack_push(stack, src, wgt, adj) do { \
+    ++(stack)->top; \
+    (stack)->storage[(stack)->top].source = (src); \
+    (stack)->storage[(stack)->top].weight = (wgt); \
+    (stack)->storage[(stack)->top].a = (adj); \
+    } while(0)
 
 static StackFrame* stack_get(Stack* stack) {
     return &stack->storage[stack->top];
@@ -216,6 +224,8 @@ static void update_queries(QueryNode** queries, Stack* stack, Tree* tree) {
 
     while(query_it!=NULL) {
         if(!tree->active[query_it->query->source]) {
+            next_ptr = &query_it->next;
+            query_it = query_it->next;
             continue;
         }
 
@@ -223,12 +233,14 @@ static void update_queries(QueryNode** queries, Stack* stack, Tree* tree) {
         if(weight != -1) {
             query_it->query->answer = (query_it->query->weight < weight) ? YES : NO;
 
-            // this is solved, unlinking query from query list
+            // this is solved, unlinking query from query list, next_ptr will not move
+            // since now it already point to the correct field of the previous query
             *next_ptr = query_it->next;
+            query_it = query_it->next;
+        } else {
+            next_ptr = &query_it->next;
+            query_it = query_it->next;
         }
-
-        next_ptr = &query_it->next;
-        query_it = query_it->next;
     }
 }
 
