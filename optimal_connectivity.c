@@ -52,7 +52,7 @@ typedef struct _Tree {
     int size;
 } Tree;
 
-
+// type of list iterators.
 typedef Node ListIt;
 
 #define max(a,b) (a) > (b) ? (a) : (b)
@@ -78,19 +78,44 @@ static Node* list_add(Node* list, int elem, int weight) {
     return node;
 }
 
+static void list_free(Node* list) {
+    if(list == NULL) {
+        return;
+    }
+
+    list_free(list->next);
+    free(list);
+}
+
+// Returns a new list iterator. The list iterator needs not to be dealloced
 static ListIt* list_iterator(Node* list) {
     return list;
 }
 
-static ListIt* list_iterator_next(ListIt *list)
+// Moves the list iterator to the next element. Assign it to your current iterator. E.g.,
+//
+// ListIt* it = ...
+// ...  
+// it = list_iterator_next(it);
+// 
+// Returns NULL if no next element exists.
+// Assumes that the iterator is valid (not NULL).
+
+static ListIt* list_iterator_next(ListIt *it)
 {
-    return list->next;
+    assert(it != NULL);
+    return it->next;
 }
 
+// Returns the element currently pointed by this iterator.
+// Assumes that the iterator is valid.
 static int list_iterator_get(ListIt* it) {
+    assert(it != NULL);
     return it->elem;
 }
 
+// Returns the weight currently pointed by this iterator.
+// Assumes that the iterator is valid.
 static int list_iterator_get_weight(ListIt *it)
 {
     return it->weight;
@@ -98,6 +123,7 @@ static int list_iterator_get_weight(ListIt *it)
 
 /// MARK: -------------------------   TREE   -------------------------
 
+// Initializes the tree. It assumes that the main structure has already been alloced.
 static void tree_init(Tree *tree, int num_nodes)
 {
     tree->adj = (Node **)calloc(num_nodes + 1, sizeof(Node *));
@@ -112,27 +138,47 @@ static void tree_init(Tree *tree, int num_nodes)
     }    
 }
 
+// Adds the given edge to the tree.
+// It assumes 0 <= e->source < NUM_NODES; 0 <= e->dest < NUM_NODES
 static void tree_add_edge(Tree *tree, Edge *e)
 {
     tree->adj[e->source] = list_add(tree->adj[e->source], e->dest, e->weight);
     tree->adj[e->dest] = list_add(tree->adj[e->dest], e->source, e->weight);
 }
 
+// Frees the memory occupied by the tree
+static void tree_free(Tree* tree) {
+    for(int u=0; u<tree->size; ++u) {
+        list_free(tree->adj[u]);
+    }
+
+    free(tree->adj);
+}
+
+// Frees the memory occupied by the Edges data structure
+static void edges_free(Edges* edges) {
+    for(int i=0; i<edges->num_edges; ++i) {
+        free(edges->edges[i]);
+    }
+    free(edges->edges);
+}
 
 
 /// MARK: -------------------------   I/O   -------------------------
 
+// Reads the next integer from the stdin
 static int read_num_edges() {
     int result;
     scanf("%d", &result);
     return result;
 }
 
-
+// Reads the next edge (three integers) from stdin
 static void read_edge(Edge* edge) {
     scanf("%d %d %d", &edge->source, &edge->dest, &edge->weight);
 }
 
+// Reads a list of edges from stdin
 static void read_edges(Tree* tree) {
     int num_edges = read_num_edges() - 1;
     tree_init(tree, num_edges+1);
@@ -144,7 +190,7 @@ static void read_edges(Tree* tree) {
     }
 }
 
-
+// Reads the query list from the stdin
 static void read_queries(Edges* queries, Tree* tree) {
     queries->num_edges = read_num_edges();
     queries->edges = (Edge**) malloc(sizeof(Edge*)*queries->num_edges);
@@ -156,6 +202,12 @@ static void read_queries(Edges* queries, Tree* tree) {
 }
 
 /// MARK: -------------------------   ALGORITHM   -------------------------
+
+/// Performs a depth first search on the given three starting from node u. In doing
+/// it records:
+///   - the depths at which each node is found;
+///   - the list of 2^i-th ancestors for each node and for 0<=i<LOG_NUM_NODES
+///   - the list of maximal weights for the ancestors
 
 void depth_first_search(Tree* tree, int u) {
     // starts by updating ancestors and max weight for the current node, we assume
@@ -195,8 +247,10 @@ int maxval(Tree* tree, int u, int level) {
     return tree->max_weights[u][level];
 }
 
+// Returns the max weight found in the path from u=query->source to v=query->dest.
+//
 // The max weight is found by searching for the lowest common ancestor of
-// the nodes u and v in the query. If m_u is the max weight on the path from
+// the nodes u and v. If m_u is the max weight on the path from
 // u to the lca(u,v) and m_v is the max weight on the path from v and lca(u,v),
 // then max(m_u,m_v) is the max weight on the path from u to v.
 int lca_max_weight(Tree* tree, Edge* query) {
@@ -269,6 +323,11 @@ int main(int argc, char** argv) {
         } else {
             printf("NO\n");        }
     }
+
+    tree_free(tree);
+    edges_free(queries);
+    free(tree);
+    free(queries);
 
     return 0;
 }
