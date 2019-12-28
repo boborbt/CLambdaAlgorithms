@@ -6,7 +6,7 @@
 #include <time.h>
 
 #define NUM_NODES 100001
-#define LOG_NUM_NODES 17
+#define LOG_NUM_NODES 20
 
 
 typedef struct _Edge {
@@ -178,12 +178,10 @@ void depth_first_search(Tree* tree, int u) {
 }
 
 int ancestor(Tree* tree, int u, int level) {
-    // printf("anc(u:%d, l:%d) = %d\n", u, level, tree->ancestors[u][level]);
     return tree->ancestors[u][level];
 }
 
 int maxval(Tree* tree, int u, int level) {
-    // printf("maxv(u:%d, l:%d) = %d\n", u, level, tree->max_weights[u][level]);
     return tree->max_weights[u][level];
 }
 
@@ -215,22 +213,42 @@ int lca_max_weight(Tree* tree, Edge* query) {
     int depth_diff = tree->depth[u] - tree->depth[v];
     while(depth_diff > 0) {
         int log_diff = log2(depth_diff);
-        max_value = max( max_value, maxval(tree, u,log_diff) );
+
+        #ifdef DBG_QRY
+            printf("u:%d v:%d depth[u]:%d depth[v]: %d depth diff:%d log diff:%d\n", u, v, tree->depth[u], tree->depth[v], depth_diff, log_diff);
+        #endif
+        
+        max_value = max(max_value, maxval(tree, u, log_diff));
         u = ancestor(tree, u, log_diff);
         depth_diff = tree->depth[u] - tree->depth[v];
     }
+
+    #ifdef DBG_QRY
+        printf("u:%d v:%d depth[u]:%d depth[v]: %d depth diff:%d\n", u, v, tree->depth[u], tree->depth[v], depth_diff);
+    #endif
 
     if(u==v) {
         return max_value;
     }
 
-    // print_table_line(u, tree->ancestors[u]);
-    // print_table_line(v, tree->ancestors[v]);
+    #ifdef DBG_QRY
+        print_table_line(u, tree->ancestors[u]);
+        print_table_line(v, tree->ancestors[v]);
+    #endif
+
+    #ifdef DBG_QRY
+        printf("initial same level ancestors  u:%d and v:%d\n", ancestor(tree, u, 0), ancestor(tree, v, 0));
+    #endif
 
     // now we can raise both until we get to the lca
-    int level = log2(tree->depth[u]);
-    while(level >= 0) {
-        if(level != -1 && ancestor(tree, u, level) != ancestor(tree, v, level)) {
+    int level = LOG_NUM_NODES - 1;
+    while (level >= 0)
+    {
+        if (ancestor(tree, u, level) != -1 && ancestor(tree, u, level) != ancestor(tree, v, level))
+        {
+            #ifdef DBG_QRY
+                printf("updating u,v for level: %d; a(u):%d a(v):%d\n", level, ancestor(tree,u,level), ancestor(tree, v, level));
+            #endif
             max_value = max(max_value, maxval(tree, u, level));
             max_value = max(max_value, maxval(tree, v, level));
             u = ancestor(tree, u, level);
@@ -240,13 +258,18 @@ int lca_max_weight(Tree* tree, Edge* query) {
         level--;
     }
 
-    return max(max_value, maxval(tree, u,level));
+    #ifdef DBG_QRY
+        printf("final ancestors  u:%d and v:%d\n", ancestor(tree, u, 0), ancestor(tree, v, 0));
+    #endif
+
+
+    return max(max_value, max(maxval(tree, v,0), maxval(tree, u,0)));
 }
 
 
-int print_path_(Tree* tree, int source, int end, int* visited) {
+int find_path_(Tree* tree, int source, int end, int* visited, Node* path[NUM_NODES],int level) {
     if(source == end) {
-        return 1;
+        return level;
     }
 
     visited[source] = 1;
@@ -257,10 +280,10 @@ int print_path_(Tree* tree, int source, int end, int* visited) {
             continue;
         }
 
-        int found = print_path_(tree, it->elem, end, visited);
+        int found = find_path_(tree, it->elem, end, visited, path, level + 1);
         if(found) {
-            printf("--(%d)-- %d ", it->weight, source);
-            return 1;
+            path[level] = it;
+            return found;
         }
 
         it = list_iterator_next(it);
@@ -270,13 +293,19 @@ int print_path_(Tree* tree, int source, int end, int* visited) {
 }
 
 void print_path(Tree* tree, int source, int end) {
-    int visited[NUM_NODES];
+    int* visited = (int*) malloc(sizeof(int[NUM_NODES]));
+    Node** path = (Node**) malloc(sizeof(Node*[NUM_NODES]));
+
     for(int i=0; i<NUM_NODES; ++i) {
         visited[i] = 0;
     }
 
-    printf("%d ", source);
-    print_path_(tree, end, source, visited);
+    int max_index = find_path_(tree, source, end, visited, path, 0);
+    printf("0:\t\t%d\t--(%d)-- %d\n", source, path[0]->weight, path[0]->elem);
+    for(int i=1; i<max_index; ++i) {
+        printf("%d:\t\t\t--(%d)-- %d\n", i, path[i]->weight, path[i]->elem);
+    }
+
     printf("\n\n");
 }
 
@@ -298,23 +327,27 @@ int main(int argc, char** argv) {
     tree->depth[orig] = 0;
     depth_first_search(tree, queries->edges[0]->source);
 
-    // printf("lca_w:%d w:%d\n", lca_max_weight(tree, queries->edges[9908]), queries->edges[9908]->weight);
+    #ifdef DBG_QRY
+        int dbg_query = DBG_QRY - 1;
+        printf("Debugging query number: %d (s:%d d:%d w:%d) width orig:%d\n\n", DBG_QRY, queries->edges[dbg_query]->source, queries->edges[dbg_query]->dest, queries->edges[dbg_query]->weight, orig);
+        printf("lca_w:%d w:%d\n", lca_max_weight(tree, queries->edges[dbg_query]), queries->edges[dbg_query]->weight);
 
-    // printf("printing path between %d -- %d\n", queries->edges[9908]->source, queries->edges[9908]->dest );
-    // print_path(tree, queries->edges[9908]->source, queries->edges[9908]->dest);
+        printf("printing path between %d -- %d\n", queries->edges[dbg_query]->source, queries->edges[dbg_query]->dest );
+        print_path(tree, queries->edges[dbg_query]->source, queries->edges[dbg_query]->dest);
 
-    // printf("printing path between orig(%d) and %d\n", orig, queries->edges[9908]->source);
-    // print_path(tree, orig, queries->edges[9908]->source);
+        printf("printing path between orig(%d) and %d\n", orig, queries->edges[dbg_query]->source);
+        print_path(tree, orig, queries->edges[dbg_query]->source);
 
-    // printf("printing path between orig(%d) and %d\n", orig, queries->edges[9908]->dest);
-    // print_path(tree, orig, queries->edges[9908]->dest);
-
-    for(int i = 0; i < queries->num_edges; ++i) {
-        if( lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight ) {
-            printf("YES\n");
-        } else {
-            printf("NO\n");        }
-    }
+        printf("printing path between orig(%d) and %d\n", orig, queries->edges[dbg_query]->dest);
+        print_path(tree, orig, queries->edges[dbg_query]->dest);
+    #else
+        for(int i = 0; i < queries->num_edges; ++i) {
+            if( lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight ) {
+                printf("YES\n");
+            } else {
+                printf("NO\n");        }
+        }
+    #endif
 
     return 0;
 }
