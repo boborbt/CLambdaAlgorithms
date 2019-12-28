@@ -6,7 +6,7 @@
 #include <time.h>
 
 #define NUM_NODES 100001
-#define LOG_NUM_NODES 20
+#define LOG_NUM_NODES 17
 
 
 typedef struct _Edge {
@@ -241,7 +241,7 @@ int lca_max_weight(Tree* tree, Edge* query) {
     #endif
 
     // now we can raise both until we get to the lca
-    int level = LOG_NUM_NODES - 1;
+    int level = log2(tree->depth[u]);
     while (level >= 0)
     {
         if (ancestor(tree, u, level) != -1 && ancestor(tree, u, level) != ancestor(tree, v, level))
