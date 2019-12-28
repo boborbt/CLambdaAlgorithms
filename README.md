@@ -3,7 +3,7 @@
 You are given a connected graph with N nodes and N-1 bidirectional edges. Each edge has an integer weight W associated to it. 
 Given M query edges, write an algorithm that checks, for each one of the queries, if the total weight of the network can be improved (decreased)
 by swapping any edge in the network with the query edge and leaving a network that is still connected. For each query output "YES" if it improves
-the network, "No" if it does not.
+the network, "No" if it does not. Each query has to be dealt independently from the others.
 
 The input files starts with a line containing the number N of nodes in the network followed by N-1 lines each one containing 3 integers denoting the N-1 edges 
 (the first two integers denote the edge end points, the third integer is the weight of the edgee). The file continues with a line containing the number Q of 
