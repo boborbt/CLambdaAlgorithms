@@ -8,6 +8,8 @@
 #define NUM_NODES 100001
 #define LOG_NUM_NODES 17
 
+#define require(a) if(!(a)) { fprintf(stderr, "Require failed at line:%d!\n", __LINE__); exit(1); }
+
 
 typedef struct _Edge {
     int source;
@@ -169,18 +171,20 @@ static void edges_free(Edges* edges) {
 // Reads the next integer from the stdin
 static int read_num_edges() {
     int result;
-    scanf("%d", &result);
+    require(scanf("%d", &result) == 1);
     return result;
 }
 
 // Reads the next edge (three integers) from stdin
 static void read_edge(Edge* edge) {
-    scanf("%d %d %d", &edge->source, &edge->dest, &edge->weight);
+    require(scanf("%d %d %d", &edge->source, &edge->dest, &edge->weight) == 3);
 }
 
 // Reads a list of edges from stdin
 static void read_edges(Tree* tree) {
     int num_edges = read_num_edges() - 1;
+    require(num_edges < NUM_NODES - 1);
+
     tree_init(tree, num_edges+1);
 
     for(int i=0; i<num_edges; ++i) {
@@ -193,15 +197,37 @@ static void read_edges(Tree* tree) {
 // Reads the query list from the stdin
 static void read_queries(Edges* queries, Tree* tree) {
     queries->num_edges = read_num_edges();
+    require(queries->num_edges < NUM_NODES);
+
     queries->edges = (Edge**) malloc(sizeof(Edge*)*queries->num_edges);
+    require(queries->edges != NULL);
 
     for(int i=0; i<queries->num_edges; ++i) {
         queries->edges[i] = (Edge*) malloc(sizeof(Edge));
+        require(queries->edges[i]!=NULL);
+
         read_edge(queries->edges[i]);
     }
 }
 
 /// MARK: -------------------------   ALGORITHM   -------------------------
+
+// Returns the 2^ith ancestor of u found during the dfs visit
+int ancestor(Tree *tree, int u, int i)
+{
+    require(u<=tree->size);
+    require(i<LOG_NUM_NODES);
+
+    return tree->ancestors[u][i];
+}
+
+// Returns the max weight of edges on the path from u to its 2^ith ancestor
+int maxval(Tree *tree, int u, int i)
+{
+    require(u<=tree->size);
+    require(i<LOG_NUM_NODES);
+    return tree->max_weights[u][i];
+}
 
 /// Performs a depth first search on the given three starting from node u. In doing
 /// it records:
@@ -210,14 +236,16 @@ static void read_queries(Edges* queries, Tree* tree) {
 ///   - the list of maximal weights for the ancestors
 
 void depth_first_search(Tree* tree, int u) {
+    require(u<=tree->size);
     // starts by updating ancestors and max weight for the current node, we assume
     // that the 0-th ancestor and the 0-th max weight have already been set and
     // also that all referenced ancestors already have their information set
     // (this is guaranteed by recursivity of the depth search visit)
     for(int i=1; i<LOG_NUM_NODES; ++i) {
         if(tree->ancestors[u][i-1]!=-1) {
-            tree->ancestors[u][i] = tree->ancestors[ tree->ancestors[u][i-1] ][i-1];
-            tree->max_weights[u][i] = max(tree->max_weights[ tree->ancestors[u][i-1] ][i-1], tree->max_weights[u][i-1]  );
+            tree->ancestors[u][i] = ancestor( tree, ancestor(tree, u,i-1), i-1);
+            tree->max_weights[u][i] = max(  maxval( tree, ancestor(tree, u,i-1), i-1), 
+                                            maxval( tree, u,i-1)  );
         }
     }
 
@@ -239,21 +267,16 @@ void depth_first_search(Tree* tree, int u) {
     }
 }
 
-int ancestor(Tree* tree, int u, int level) {
-    return tree->ancestors[u][level];
-}
-
-int maxval(Tree* tree, int u, int level) {
-    return tree->max_weights[u][level];
-}
-
 // Returns the max weight found in the path from u=query->source to v=query->dest.
 //
 // The max weight is found by searching for the lowest common ancestor of
 // the nodes u and v. If m_u is the max weight on the path from
-// u to the lca(u,v) and m_v is the max weight on the path from v and lca(u,v),
+// u to lca(u,v) and m_v is the max weight on the path from v to lca(u,v),
 // then max(m_u,m_v) is the max weight on the path from u to v.
 int lca_max_weight(Tree* tree, Edge* query) {
+    require(query->source <= tree->size);
+    require(query->dest <= tree->size);
+
     int u,v;
     int max_value = -1;
     if(tree->depth[query->source] > tree->depth[query->dest]) {
@@ -294,20 +317,17 @@ int lca_max_weight(Tree* tree, Edge* query) {
     }
 
 
-    return max(max_value, max(maxval(tree, v,0), maxval(tree, u,0)));
+    return  max( max_value, 
+                 max( maxval(tree, v,0), maxval(tree, u,0) ) );
 }
-
 
 /// MARK: -------------------------   MAIN   -------------------------
 
-int main(int argc, char** argv) {
-    if(argc > 1) {
-        FILE* filein = fopen(argv[1], "r");
-        stdin = filein;
-    }
-
-    Tree* tree = (Tree*) malloc(sizeof(Tree));
-    Edges* queries = (Edges*) malloc(sizeof(Edges));
+void main_work() {
+    Tree *tree = (Tree *)malloc(sizeof(Tree));
+    Edges *queries = (Edges *)malloc(sizeof(Edges));
+    require(tree != NULL);
+    require(queries != NULL);
 
     read_edges(tree);
     read_queries(queries, tree);
@@ -316,18 +336,58 @@ int main(int argc, char** argv) {
     tree->depth[orig] = 0;
     depth_first_search(tree, queries->edges[0]->source);
 
-
-    for(int i = 0; i < queries->num_edges; ++i) {
-        if( lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight ) {
+    for (int i = 0; i < queries->num_edges; ++i)
+    {
+        if (lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight)
+        {
             printf("YES\n");
-        } else {
-            printf("NO\n");        }
+        }
+        else
+        {
+            printf("NO\n");
+        }
     }
 
     tree_free(tree);
     edges_free(queries);
     free(tree);
     free(queries);
+}
 
+void open_files(int argc, char** argv) {
+    if (argc > 1)
+    {
+        FILE *filein = fopen(argv[1], "r");
+        stdin = filein;
+    }
+
+    if (argc > 2)
+    {
+        FILE *fileout = fopen(argv[2], "w");
+        stdout = fileout;
+    }
+}
+
+void close_files(int argc, char** argv) {
+    if (argc > 1)
+    {
+        fclose(stdin);
+    }
+
+    if (argc > 2)
+    {
+        fclose(stdout);
+    }
+}
+
+
+/// MARK: -------------------------   MAIN ENTRY POINT   -------------------------
+
+int main(int argc, char** argv) {
+    open_files(argc, argv);
+
+    main_work();
+    
+    close_files(argc, argv);
     return 0;
 }

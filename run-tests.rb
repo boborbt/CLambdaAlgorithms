@@ -1,6 +1,7 @@
 (1..11).each do |elem|
-    puts "running test#{elem}"
-    `oc test#{elem}/input.txt > test#{elem}/output.txt`
+    time = `( time oc test#{elem}/input.txt test#{elem}/output.txt ) 2>&1`
+    secs = /real\s+\dm(\d+\.\d+)s/.match(time)[1]
+    puts "test#{elem} ran in #{secs} secs"
 end
 
 (1..11).each do |elem|
