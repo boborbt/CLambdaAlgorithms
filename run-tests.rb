@@ -1,14 +1,24 @@
 require 'timeout'
 require 'ansi_colors'
 
-(1..11).each do |elem|
+test_dirs = (1..11).to_a.map { |index| "test#{index}" }
+
+# cleaning up
+
+test_dirs.each do |test_dir|
+    `rm #{test_dir}/output.txt`
+end
+
+# testing times
+
+test_dirs.each do |test_dir|
     start = Time.now
 
-    print "time for " + "test#{elem}".ansi_bold + ":" 
+    print "time for " + "#{test_dir}".ansi_bold + ":" 
 
     begin
         Timeout.timeout(2) do 
-            `oc test#{elem}/input.txt test#{elem}/output.txt`
+            `oc #{test_dir}/input.txt #{test_dir}/output.txt`
         end
         finish = Time.now
     rescue
@@ -19,13 +29,15 @@ require 'ansi_colors'
     puts " #{finish - start}".ansi_yellow.ansi_bold + " secs" + " -- " + "Ok".ansi_green.ansi_bold
 end
 
-(1..11).each do |elem|
-    print "diff for " + "test#{elem}".ansi_bold + ": "
-    diff = `diff test#{elem}/output.txt test#{elem}/correct.txt`
-    if $? != 0
-        puts "Diff failed -- first 10 lines of diff".ansi_red.ansi_bold
+# testing diffs
 
-        # puts diff.split("\n")[0..10]
+test_dirs.each do |test_dir|
+    print "diff for " + "#{test_dir}".ansi_bold + ": "
+    diff = `diff #{test_dir}/output.txt #{test_dir}/correct.txt`
+    if $? != 0
+        puts "Fail".ansi_red.ansi_bold + "-- first 10 lines of diff:"
+
+        puts diff.split("\n")[0..10]
         # exit(1)
     else
         puts "Ok".ansi_green.ansi_bold
