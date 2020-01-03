@@ -1,6 +1,9 @@
 require 'timeout'
 require 'ansi_colors'
 
+exec_name = ARGV[0] || "oc"
+puts "Testing executable:" + exec_name.ansi_yellow.ansi_bold
+
 test_dirs = (1..11).to_a.map { |index| "test#{index}" }
 
 # cleaning up
@@ -18,7 +21,7 @@ test_dirs.each do |test_dir|
 
     begin
         Timeout.timeout(2) do 
-            `oc #{test_dir}/input.txt #{test_dir}/output.txt`
+            `cat #{test_dir}/input.txt | #{exec_name} > #{test_dir}/output.txt`
         end
         finish = Time.now
     rescue
