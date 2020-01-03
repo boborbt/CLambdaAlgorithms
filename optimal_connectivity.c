@@ -264,6 +264,33 @@ void depth_first_search(Tree* tree, int u) {
   }
 }
 
+int lca_raise_u_to_equalize_levels(Tree* tree, int u, int v, int* max_value) {
+  // first we need to get both nodes at the same level. We do that
+  // by raising the largest one until we get to the same level
+  int depth_diff = tree->depth[u] - tree->depth[v];
+  while (depth_diff > 0) {
+    int log_diff = log2(depth_diff);
+
+    *max_value = max(*max_value, maxval(tree, u, log_diff));
+    u = ancestor(tree, u, log_diff);
+    depth_diff = tree->depth[u] - tree->depth[v];
+  }
+
+  return u;
+}
+
+// Sets u and v so to point to the query edge vertices and so that
+// depth[u] > depth[v]
+void lca_set_u_v(Tree* tree, int* u, int* v, Edge* query) {
+  if (tree->depth[query->source] > tree->depth[query->dest]) {
+    *u = query->source;
+    *v = query->dest;
+  } else {
+    *u = query->dest;
+    *v = query->source;
+  }
+}
+
 // Returns the max weight found in the path from u=query->source to
 // v=query->dest.
 //
@@ -277,24 +304,9 @@ int lca_max_weight(Tree* tree, Edge* query) {
 
   int u, v;
   int max_value = -1;
-  if (tree->depth[query->source] > tree->depth[query->dest]) {
-    u = query->source;
-    v = query->dest;
-  } else {
-    u = query->dest;
-    v = query->source;
-  }
 
-  // first we need to get both nodes at the same level. We do that
-  // by raising the largest one until we get to the same level
-  int depth_diff = tree->depth[u] - tree->depth[v];
-  while (depth_diff > 0) {
-    int log_diff = log2(depth_diff);
-
-    max_value = max(max_value, maxval(tree, u, log_diff));
-    u = ancestor(tree, u, log_diff);
-    depth_diff = tree->depth[u] - tree->depth[v];
-  }
+  lca_set_u_v(tree, &u, &v, query);
+  u = lca_raise_u_to_equalize_levels(tree, u, v, &max_value);
 
   if (u == v) {
     return max_value;
