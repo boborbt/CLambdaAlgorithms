@@ -20,10 +20,20 @@ typedef struct _Edge {
   int weight;
 } Edge;
 
+
+// we know the compiler will add padding to _Edges structure
+// to improve memory access times. There is nothing we can do
+// to avoid it so we are silencing the warning.
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
+
 typedef struct _Edges {
   int num_edges;
   Edge** edges;
 } Edges;
+
+#pragma clang diagnostic pop
 
 typedef struct _Node {
   int elem;
