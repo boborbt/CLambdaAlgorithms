@@ -17,30 +17,34 @@ end
 test_dirs.each do |test_dir|
     start = Time.now
 
-    print "time for " + "#{test_dir}".ansi_bold + ":" 
+    print "time for " + ("%8s" % [test_dir]).ansi_bold + ": " 
 
+    pid = Process.spawn("cat #{test_dir}/input.txt | #{exec_name} > #{test_dir}/output.txt", :pgroup => true )
     begin
         Timeout.timeout(2) do 
-            `cat #{test_dir}/input.txt | #{exec_name} > #{test_dir}/output.txt`
+            Process.waitpid(pid)
         end
         finish = Time.now
     rescue
-        puts " more than 2 seconds".ansi_yellow.ansi_bold + " -- " + "Fail".ansi_red.ansi_bold
+        Process.kill(9, -Process.getpgid(pid))
+        puts "Fail".ansi_red.ansi_bold + " (" + "more than 2 seconds".ansi_yellow.ansi_bold + ")"
         next
     end
     
-    puts " #{finish - start}".ansi_yellow.ansi_bold + " secs" + " -- " + "Ok".ansi_green.ansi_bold
+    puts "Ok".ansi_green.ansi_bold + " (" + ("%2.5f" % [finish - start]).ansi_yellow.ansi_bold + " secs)"
 end
 
 # testing diffs
 
 test_dirs.each do |test_dir|
-    print "diff for " + "#{test_dir}".ansi_bold + ": "
+    print "diff for " + ("%8s" % [test_dir]).ansi_bold + ": " 
+
     diff = `diff #{test_dir}/output.txt #{test_dir}/correct.txt`
     if $? != 0
-        puts "Fail".ansi_red.ansi_bold + "-- first 10 lines of diff:"
+        puts "Fail".ansi_red.ansi_bold 
+        puts "\tfirst 10 lines of diff:"
 
-        puts diff.split("\n")[0..10]
+        puts diff.split("\n")[0..10].map { |x| "\t" + x}
     else
         puts "Ok".ansi_green.ansi_bold
     end
