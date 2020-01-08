@@ -9,7 +9,7 @@ test_dirs = (1..11).to_a.map { |index| "test#{index}" }
 # cleaning up
 
 test_dirs.each do |test_dir|
-    `rm #{test_dir}/output.txt`
+    `rm -f #{test_dir}/output.txt`
 end
 
 # testing times
@@ -41,7 +41,6 @@ test_dirs.each do |test_dir|
         puts "Fail".ansi_red.ansi_bold + "-- first 10 lines of diff:"
 
         puts diff.split("\n")[0..10]
-        # exit(1)
     else
         puts "Ok".ansi_green.ansi_bold
     end
