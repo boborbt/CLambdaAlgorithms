@@ -4,7 +4,7 @@ LDFLAGS+=-L../lib
 
 .PHONY: clean all tests
 
-all: bin build  bin/measure_times bin/create_multy_way_trees bin/multy_way_tree_main
+all: bin build  bin/measure_times bin/create_multy_way_trees bin/multy_way_tree_main bin/measure_times2
 
 bin:
 	@mkdir bin
@@ -19,6 +19,9 @@ clean:
 
 bin/measure_times: src/measure_times.c ../include/keys.h  ../include/stack.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	@$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c  -lcontainers $(LDFLAGS)
+
+bin/measure_times2: src/measure_times2.c ../include/keys.h  ../include/array.h ../include/dictionary.h ../lib/libcontainers.a Makefile ../Makefile.vars
+	@$(CC) $(CFLAGS) -o bin/measure_times2 src/measure_times2.c  -lcontainers $(LDFLAGS)
 
 bin/create_multy_way_trees: src/create_multy_way_trees.c src/multywaytree_utils.c src/multywaytree_utils.h ../include/multy_way_tree.h  ../include/array.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	@$(CC) $(CFLAGS) -o bin/create_multy_way_trees src/create_multy_way_trees.c src/multywaytree_utils.c -lcontainers $(LDFLAGS)
