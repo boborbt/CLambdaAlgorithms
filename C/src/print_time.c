@@ -110,9 +110,44 @@ static char* sep_line(char c) {
   return result;
 }
 
+static char* head_line(char* label, char c) {
+  static char result[1024] = "";
+
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+  if(strlen(label)>=w.ws_col-6) {
+    return label;
+  }
+
+  unsigned long head_len = strlen(label);
+  unsigned long w_left = (w.ws_col / 2) - (head_len / 2) - 2;
+
+  unsigned long i;
+  for(i=0; i<w_left; ++i) {
+    result[i] = c;
+  }
+  result[i] = '\0';
+  strcat(result, "[");
+  strcat(result, BGRN);
+  strcat(result, label);
+  strcat(result, "]");
+  strcat(result, BWHT);
+
+  i = strlen(result);
+  unsigned int w_end = w.ws_col + strlen(BGRN) + strlen(BWHT);
+  
+  for(; i<w_end; ++i) {
+    result[i] = c;
+  }
+  result[i] = '\0';
+
+  return result;
+}
+
 double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
- printf(BWHT "%s\n" reset, sep_line('='));
+ printf(BWHT "%s\n" reset, head_line(label, '='));
  clock_t start = clock();
  fun();
  clock_t end = clock();
