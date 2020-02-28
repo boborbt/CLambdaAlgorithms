@@ -4,12 +4,15 @@
 #include <time.h>
 #include <sys/file.h>
 #include <errno.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "double_container.h"
 #include "array_alt.h"
 #include "iterator_functions.h"
 #include "errors.h"
 #include "mem.h"
+#include "ansi_colors.h"
 
 struct _PrintTime {
   const char* file_name;
@@ -94,18 +97,31 @@ void PrintTime_free(PrintTime* pt) {
   Mem_free(pt);
 }
 
+static char* sep_line(char c) {
+  static char result[1024] = "";
+
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  for(int i=0; i<w.ws_col; ++i) {
+    result[i] = c;
+  }
+  result[w.ws_col] = '\0';
+
+  return result;
+}
+
 double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
- printf("\n======================\n");
+ printf(BWHT "%s\n" reset, sep_line('='));
  clock_t start = clock();
  fun();
  clock_t end = clock();
 
  result = ((double)end-start) / CLOCKS_PER_SEC;
 
- printf("----------------------\n");
- printf("time:  %10.2lf secs\n", result);
- printf("======================\n\n");
+ printf(BWHT "%s\n" reset, sep_line('-'));
+ printf(BWHT "time:" BRED "%10.2lf" reset " secs\n" , result);
+ printf(BWHT "%s\n\n" reset, sep_line('='));
 
  KeyValue kv = { .key = Mem_strdup(label), .value = DoubleContainer_new(result) };
  ArrayAlt_add(pt->data, &kv);
