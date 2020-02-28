@@ -5,7 +5,7 @@
 #include <strings.h>
 #include <time.h>
 
-#define NUM_NODES 100001
+#define NUM_NODES 100005
 #define LOG_NUM_NODES 17
 
 #define require(a)                                             \

@@ -1,7 +1,7 @@
 require 'timeout'
 require 'ansi_colors'
 
-exec_name = ARGV[0] || "oc"
+exec_name = ARGV[0] || "bin/oc"
 puts "Testing executable:" + exec_name.ansi_yellow.ansi_bold
 
 test_dirs = (1..11).to_a.map { |index| "test#{index}" }
