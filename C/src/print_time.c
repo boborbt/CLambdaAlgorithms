@@ -111,6 +111,7 @@ static char* sep_line(char c) {
 }
 
 static char* head_line(char* label, char c) {
+  #define BUF_SIZE 1024
   static char result[1024] = "";
 
   struct winsize w;
@@ -120,14 +121,19 @@ static char* head_line(char* label, char c) {
     return label;
   }
 
+  if(w.ws_col >= BUF_SIZE) {
+    w.ws_col = BUF_SIZE - 1;
+  }
+
   unsigned long head_len = strlen(label);
-  unsigned long w_left = (w.ws_col / 2) - (head_len / 2) - 2;
+  unsigned long w_left = w.ws_col / 2 - head_len / 2 - 2;
 
   unsigned long i;
   for(i=0; i<w_left; ++i) {
     result[i] = c;
   }
   result[i] = '\0';
+
   strcat(result, "[");
   strcat(result, BGRN);
   strcat(result, label);
@@ -136,6 +142,9 @@ static char* head_line(char* label, char c) {
 
   i = strlen(result);
   unsigned int w_end = w.ws_col + strlen(BGRN) + strlen(BWHT);
+  if(w_end >= BUF_SIZE) {
+    w_end = BUF_SIZE - 1;
+  }
   
   for(; i<w_end; ++i) {
     result[i] = c;
