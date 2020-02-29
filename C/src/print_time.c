@@ -137,8 +137,8 @@ static char* head_line(char* label, char c) {
   strcat(result, "[");
   strcat(result, BGRN);
   strcat(result, label);
-  strcat(result, "]");
   strcat(result, BWHT);
+  strcat(result, "]");
 
   i = strlen(result);
   unsigned int w_end = w.ws_col + strlen(BGRN) + strlen(BWHT);

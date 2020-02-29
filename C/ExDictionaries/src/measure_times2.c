@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "iterator.h"
 #include "iterator_functions.h"
+#include "mem.h"
 
 #define NUM_TEST_KEYS 1E7
 #define MAX_KEY_VALUE 1E7
@@ -17,7 +18,7 @@ typedef struct {
 } IntKeyValue;
 
 static int* Int_new(int v) {
-    int* result = (int*) malloc(sizeof(int));
+    int* result = (int*) Mem_alloc(sizeof(int));
     *result = v;
     return result;
 }
@@ -51,7 +52,7 @@ static Array* load_dataset(char const* filename) {
             exit(1);
         }
 
-        IntKeyValue* kv = (IntKeyValue*) malloc(sizeof(IntKeyValue));
+        IntKeyValue* kv = (IntKeyValue*) Mem_alloc(sizeof(IntKeyValue));
         kv->key = Int_new(k);
         kv->value = Int_new(v);
 
@@ -63,7 +64,7 @@ static Array* load_dataset(char const* filename) {
 }
 
 static int* IntKey_new() {
-    int* result = (int*) malloc(sizeof(int));
+    int* result = (int*) Mem_alloc(sizeof(int));
     int random  = (int)(drand48() * MAX_KEY_VALUE );
 
     *result = random;
@@ -96,6 +97,10 @@ static void test_dictionaries(Array* kv, Array* keys) {
             num_tested += 1;
         });
         printf("num tested:%d num found: %d\n", num_tested, num_found);
+    });
+
+    PrintTime_print(pt, "Freeing dictionary...", ^{ 
+        Dictionary_free(dictionary);
     });
 }
 
@@ -133,6 +138,10 @@ static void test_binsearch(Array* kv, Array* keys) {
             num_tested += 1;
         });
         printf("num tested:%d num found: %d\n", num_tested, num_found);
+    });
+
+    PrintTime_print(pt, "Freeing array...", ^{
+        Array_free(array);
     });
 }
 
@@ -195,6 +204,26 @@ int main(int argc, char const *argv[])
     } else {
         test_binsearch(kv, keys);
     }
+
+    PrintTime_print(pt, "Cleaning up...", ^{
+      for_each(Array_it(kv), ^(void* obj) {
+        IntKeyValue* tbd = (IntKeyValue*)obj;
+        Mem_free(tbd->key);
+        Mem_free(tbd->value);
+        Mem_free(tbd);
+      });
+
+      Array_free(kv);
+
+      for_each(Array_it(keys), ^(void* obj) {
+          int* key = (int*) obj;
+          Mem_free(key);
+      });
+
+      Array_free(keys);
+    });
+
+    PrintTime_free(pt);
 
     return 0;
 }
