@@ -124,9 +124,29 @@ static char* sep_line(char* buf, char c, unsigned long n) {
   return buf;
 }
 
-#define SPACE_LEFT ((n - 1) - strlen(result))
+#define SPACE_LEFT ((n - 1) - strlen(hl))
 #define min(a,b) ((a) < (b) ? (a) : (b))
-static char* head_line(char* result, char* label, char c, unsigned long n) {
+/**
+ * Constructs and returns a string containing the given label surrounded by
+ * square brackets and centered in a field of length equal to the current 
+ * terminal line size (or BUF_SIZE if the line is larger than BUF_SIZE). 
+ * At each side of the label characters are filled with the given c symbol. 
+ * ANSI color characters are also inserted so to make everything bold and white
+ * with the exception of the label which is rendered in bold and green.
+ * 
+ * # parameters:
+ * 
+ * - hl: a character array with enough space to hold at least n characters
+ * - label: the label to be rendered
+ * - c: the character to be repeated at each side of the label
+ * - n: size of the hl buffer.
+ * 
+ * # result (example): 
+ * 
+ * head_line(hl, "test", '=', 100) and assuming a terminal line length of 22 
+ * would copy the string "========[test]========" into the hl buffer.
+ */
+static char* head_line(char* hl, char* label, char c, unsigned long n) {
   static char buf[MAX_BUF] = "";
 
   struct winsize w;
@@ -136,31 +156,31 @@ static char* head_line(char* result, char* label, char c, unsigned long n) {
     return label;
   }
 
-  unsigned long head_len = strlen(label);
-  unsigned long w_left = min((w.ws_col / 2) - (head_len / 2) - 2, MAX_BUF);
+  unsigned long w_left = min((w.ws_col / 2) - (strlen(label) / 2), MAX_BUF);
 
-  strncpy(result, strline(buf, c, w_left) , n);
+  strncpy(hl, BWHT, n);
+  strncat(hl, strline(buf, c, w_left) , SPACE_LEFT);
+  strncat(hl, "[", SPACE_LEFT);
+  strncat(hl, BGRN, SPACE_LEFT);
+  strncat(hl, label, SPACE_LEFT);
+  strncat(hl, BWHT, SPACE_LEFT);
+  strncat(hl, "]", SPACE_LEFT);
 
-  strncat(result, "[", SPACE_LEFT);
-  strncat(result, BGRN, SPACE_LEFT);
-  strncat(result, label, SPACE_LEFT);
-  strncat(result, "]", SPACE_LEFT);
-  strncat(result, BWHT, SPACE_LEFT);
+  unsigned long w_end = w.ws_col - (w_left + strlen(label));
+  strncat(hl, strline(buf, c, w_end), SPACE_LEFT);
+  strncat(hl, reset, SPACE_LEFT);
 
-  unsigned long w_end = w.ws_col + strlen(BGRN) + strlen(BWHT) - strlen(result) + 1;
-  strncat(result, strline(buf, c, w_end), SPACE_LEFT);
-
-  return result;
+  return hl;
 }
 #undef SPACE_LEFT
+#undef min
 
 
 double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
  char buf[MAX_BUF];
- head_line(buf, label, '=', MAX_BUF);
 
- printf(BWHT "%s\n" reset, buf);
+ printf("%s\n", head_line(buf, label, '=', MAX_BUF));
  clock_t start = clock();
  fun();
  clock_t end = clock();
