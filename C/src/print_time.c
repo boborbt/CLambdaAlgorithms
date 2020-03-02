@@ -4,8 +4,6 @@
 #include <time.h>
 #include <sys/file.h>
 #include <errno.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
 #include <string.h>
 
 #include "double_container.h"
@@ -14,6 +12,7 @@
 #include "errors.h"
 #include "mem.h"
 #include "ansi_colors.h"
+#include "string_utils.h"
 
 #define MAX_BUF 1024
 
@@ -100,87 +99,12 @@ void PrintTime_free(PrintTime* pt) {
   Mem_free(pt);
 }
 
-static char* strline(char* str, char c, unsigned long n)  {
-  unsigned long i;
-  for(i=0; i<(n-1); ++i) {
-    str[i] = c;
-  }
-
-  str[i++] = '\0';
-
-  return str;
-}
-
-static char* sep_line(char* buf, char c, unsigned long n) {
-  struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-  unsigned long i;
-  for(i=0; i<w.ws_col && i<(n-1); ++i) {
-    buf[i] = c;
-  }
-  buf[i++] = '\0';
-
-  return buf;
-}
-
-#define SPACE_LEFT ((n - 1) - strlen(hl))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-/**
- * Constructs and returns a string containing the given label surrounded by
- * square brackets and centered in a field of length equal to the current 
- * terminal line size (or BUF_SIZE if the line is larger than BUF_SIZE). 
- * At each side of the label characters are filled with the given c symbol. 
- * ANSI color characters are also inserted so to make everything bold and white
- * with the exception of the label which is rendered in bold and green.
- * 
- * # parameters:
- * 
- * - hl: a character array with enough space to hold at least n characters
- * - label: the label to be rendered
- * - c: the character to be repeated at each side of the label
- * - n: size of the hl buffer.
- * 
- * # result (example): 
- * 
- * head_line(hl, "test", '=', 100) and assuming a terminal line length of 22 
- * would copy the string "========[test]========" into the hl buffer.
- */
-static char* head_line(char* hl, char* label, char c, unsigned long n) {
-  static char buf[MAX_BUF] = "";
-
-  struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-  if(strlen(label)>=w.ws_col-6) {
-    return label;
-  }
-
-  unsigned long w_left = min((w.ws_col / 2) - (strlen(label) / 2), MAX_BUF);
-
-  strncpy(hl, BWHT, n);
-  strncat(hl, strline(buf, c, w_left) , SPACE_LEFT);
-  strncat(hl, "[", SPACE_LEFT);
-  strncat(hl, BGRN, SPACE_LEFT);
-  strncat(hl, label, SPACE_LEFT);
-  strncat(hl, BWHT, SPACE_LEFT);
-  strncat(hl, "]", SPACE_LEFT);
-
-  unsigned long w_end = w.ws_col - (w_left + strlen(label));
-  strncat(hl, strline(buf, c, w_end), SPACE_LEFT);
-  strncat(hl, reset, SPACE_LEFT);
-
-  return hl;
-}
-#undef SPACE_LEFT
-#undef min
-
 
 double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
  char buf[MAX_BUF];
 
- printf("%s\n", head_line(buf, label, '=', MAX_BUF));
+ printf("%s\n", String_head_line(buf, label, '=', MAX_BUF));
  clock_t start = clock();
  fun();
  clock_t end = clock();
@@ -188,9 +112,9 @@ double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  result = ((double)end-start) / CLOCKS_PER_SEC;
 
  
- printf(BWHT "%s\n" reset, sep_line(buf, '-', MAX_BUF));
+ printf(BWHT "%s\n" reset, String_line_with_termsize(buf, '-', MAX_BUF));
  printf(BWHT "time:" BRED "%10.2lf" reset " secs\n" , result);
- printf(BWHT "%s\n\n" reset, sep_line(buf, '=', MAX_BUF));
+ printf(BWHT "%s\n\n" reset, String_line_with_termsize(buf, '=', MAX_BUF));
 
  KeyValue kv = { .key = Mem_strdup(label), .value = DoubleContainer_new(result) };
  ArrayAlt_add(pt->data, &kv);
