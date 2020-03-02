@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "double_container.h"
 #include "array_alt.h"
@@ -13,6 +14,8 @@
 #include "errors.h"
 #include "mem.h"
 #include "ansi_colors.h"
+
+#define MAX_BUF 1024
 
 struct _PrintTime {
   const char* file_name;
@@ -97,21 +100,34 @@ void PrintTime_free(PrintTime* pt) {
   Mem_free(pt);
 }
 
-static char* sep_line(char c) {
-  static char result[1024] = "";
-
-  struct winsize w;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-  for(int i=0; i<w.ws_col; ++i) {
-    result[i] = c;
+static char* strline(char* str, char c, unsigned long n)  {
+  unsigned long i;
+  for(i=0; i<(n-1); ++i) {
+    str[i] = c;
   }
-  result[w.ws_col] = '\0';
 
-  return result;
+  str[i++] = '\0';
+
+  return str;
 }
 
-static char* head_line(char* label, char c) {
-  static char result[1024] = "";
+static char* sep_line(char* buf, char c, unsigned long n) {
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+  unsigned long i;
+  for(i=0; i<w.ws_col && i<(n-1); ++i) {
+    buf[i] = c;
+  }
+  buf[i++] = '\0';
+
+  return buf;
+}
+
+#define SPACE_LEFT ((n - 1) - strlen(result))
+#define min(a,b) ((a) < (b) ? (a) : (b))
+static char* head_line(char* result, char* label, char c, unsigned long n) {
+  static char buf[MAX_BUF] = "";
 
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -121,42 +137,40 @@ static char* head_line(char* label, char c) {
   }
 
   unsigned long head_len = strlen(label);
-  unsigned long w_left = (w.ws_col / 2) - (head_len / 2) - 2;
+  unsigned long w_left = min((w.ws_col / 2) - (head_len / 2) - 2, MAX_BUF);
 
-  unsigned long i;
-  for(i=0; i<w_left; ++i) {
-    result[i] = c;
-  }
-  result[i] = '\0';
-  strcat(result, "[");
-  strcat(result, BGRN);
-  strcat(result, label);
-  strcat(result, "]");
-  strcat(result, BWHT);
+  strncpy(result, strline(buf, c, w_left) , n);
 
-  i = strlen(result);
-  unsigned int w_end = w.ws_col + strlen(BGRN) + strlen(BWHT);
-  
-  for(; i<w_end; ++i) {
-    result[i] = c;
-  }
-  result[i] = '\0';
+  strncat(result, "[", SPACE_LEFT);
+  strncat(result, BGRN, SPACE_LEFT);
+  strncat(result, label, SPACE_LEFT);
+  strncat(result, "]", SPACE_LEFT);
+  strncat(result, BWHT, SPACE_LEFT);
+
+  unsigned long w_end = w.ws_col + strlen(BGRN) + strlen(BWHT) - strlen(result) + 1;
+  strncat(result, strline(buf, c, w_end), SPACE_LEFT);
 
   return result;
 }
+#undef SPACE_LEFT
+
 
 double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  double result;
- printf(BWHT "%s\n" reset, head_line(label, '='));
+ char buf[MAX_BUF];
+ head_line(buf, label, '=', MAX_BUF);
+
+ printf(BWHT "%s\n" reset, buf);
  clock_t start = clock();
  fun();
  clock_t end = clock();
 
  result = ((double)end-start) / CLOCKS_PER_SEC;
 
- printf(BWHT "%s\n" reset, sep_line('-'));
+ 
+ printf(BWHT "%s\n" reset, sep_line(buf, '-', MAX_BUF));
  printf(BWHT "time:" BRED "%10.2lf" reset " secs\n" , result);
- printf(BWHT "%s\n\n" reset, sep_line('='));
+ printf(BWHT "%s\n\n" reset, sep_line(buf, '=', MAX_BUF));
 
  KeyValue kv = { .key = Mem_strdup(label), .value = DoubleContainer_new(result) };
  ArrayAlt_add(pt->data, &kv);
