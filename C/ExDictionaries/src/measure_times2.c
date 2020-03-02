@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "iterator.h"
 #include "iterator_functions.h"
+#include "mem.h"
 
 #define NUM_TEST_KEYS 1E7
 #define MAX_KEY_VALUE 1E7
@@ -17,7 +18,7 @@ typedef struct {
 } IntKeyValue;
 
 static int* Int_new(int v) {
-    int* result = (int*) malloc(sizeof(int));
+    int* result = (int*) Mem_alloc(sizeof(int));
     *result = v;
     return result;
 }
@@ -34,36 +35,44 @@ static PrintTime* init_print_time() {
 static PrintTime* pt;
 
 static Array* load_dataset(char const* filename) {
+  __block Array* array; 
+  
+  PrintTime_print(pt, "Data load...", ^{
+    printf("Loading dataset...\n");
+
     FILE* file = fopen(filename, "r");
-    Array* array = Array_new(DATASET_SIZE);
+    array = Array_new(DATASET_SIZE);
     int line_num = 1;
 
-    while(!feof(file)) {
-        int k, v;
-        int num_read = fscanf(file, "%d,%d", &k, &v);
-        if(num_read == -1 && feof(file)) {
-            continue;
-        }
+    while (!feof(file)) {
+      int k, v;
+      int num_read = fscanf(file, "%d,%d", &k, &v);
+      if (num_read == -1 && feof(file)) {
+        continue;
+      }
 
-        if(num_read != 2) {
-            printf("read %d integers instead of 2\n", num_read);
-            printf("Error loading the dataset (line %d)\n", line_num);
-            exit(1);
-        }
+      if (num_read != 2) {
+        printf("read %d integers instead of 2\n", num_read);
+        printf("Error loading the dataset (line %d)\n", line_num);
+        exit(1);
+      }
 
-        IntKeyValue* kv = (IntKeyValue*) malloc(sizeof(IntKeyValue));
-        kv->key = Int_new(k);
-        kv->value = Int_new(v);
+      IntKeyValue* kv = (IntKeyValue*)Mem_alloc(sizeof(IntKeyValue));
+      kv->key = Int_new(k);
+      kv->value = Int_new(v);
 
-        Array_add(array, kv);
-        line_num++;
+      Array_add(array, kv);
+      line_num++;
     }
 
-    return array;
+    printf("Done.\n");
+  });
+
+  return array;
 }
 
 static int* IntKey_new() {
-    int* result = (int*) malloc(sizeof(int));
+    int* result = (int*) Mem_alloc(sizeof(int));
     int random  = (int)(drand48() * MAX_KEY_VALUE );
 
     *result = random;
@@ -96,6 +105,10 @@ static void test_dictionaries(Array* kv, Array* keys) {
             num_tested += 1;
         });
         printf("num tested:%d num found: %d\n", num_tested, num_found);
+    });
+
+    PrintTime_print(pt, "Freeing dictionary...", ^{ 
+        Dictionary_free(dictionary);
     });
 }
 
@@ -134,6 +147,10 @@ static void test_binsearch(Array* kv, Array* keys) {
         });
         printf("num tested:%d num found: %d\n", num_tested, num_found);
     });
+
+    PrintTime_print(pt, "Freeing array...", ^{
+        Array_free(array);
+    });
 }
 
 static void print_usage() {
@@ -143,51 +160,70 @@ static void print_usage() {
 }
 
 
+static Array* generate_keys(){
+  Array* keys = Array_new(NUM_TEST_KEYS);
+
+  PrintTime_print(pt, "Generating keys...", ^{
+    printf("Generating keys...\n");
+    for (int i = 0; i < NUM_TEST_KEYS; ++i) {
+      int* key = IntKey_new();
+      Array_add(keys, key);
+    }
+    printf("Done.\n");
+  });
+
+  return keys;
+}
+
+static void cleanup(Array* kv, Array* keys) {
+  PrintTime_print(pt, "Cleaning up...", ^{
+    printf("Freeing %lu objects\n", Array_size(kv)*3 + 1 + Array_size(keys) + 1);
+    for_each(Array_it(kv), ^(void* obj) {
+      IntKeyValue* tbd = (IntKeyValue*)obj;
+      Mem_free(tbd->key);
+      Mem_free(tbd->value);
+      Mem_free(tbd);
+    });
+
+    Array_free(kv);
+
+    for_each(Array_it(keys), ^(void* obj) {
+      int* key = (int*)obj;
+      Mem_free(key);
+    });
+
+    Array_free(keys);
+  });
+}
+
+static int parse_args(int argc, char const* argv[]) {
+  if (argc != 3) {
+    print_usage();
+    exit(1);
+  }
+
+  switch (argv[1][1]) {
+    case 'd':
+      return 1;
+    case 'a':
+      return 0;
+    default:
+      printf("Expected -d or -a, but %s found\n", argv[1]);
+      print_usage();
+      exit(1);
+  }
+}
+
+
 int main(int argc, char const *argv[])
 {
-    if(argc!=3) {
-        print_usage();
-        exit(1);
-    }
-
-    int use_dictionaries;
-
-    switch(argv[1][1]) {
-        case 'd': 
-            use_dictionaries = 1;
-            break;
-        case 'a': 
-            use_dictionaries = 0;
-            break;
-        default:
-            printf("Expected -d or -a, but %s found\n", argv[1]);
-            print_usage();
-            exit(1);
-    }
-    
-
+    int use_dictionaries = parse_args(argc, argv);
     char const* filename = argv[2];
     assert(filename != NULL);
 
     pt = init_print_time();
-    __block Array* kv = NULL;
-
-    PrintTime_print(pt, "Data load...", ^{
-        printf("Loading dataset...\n");
-        kv = load_dataset(filename);
-        printf("Done.\n");
-    });
-
-    Array* keys = Array_new(NUM_TEST_KEYS);
-
-    PrintTime_print(pt, "Generating keys...", ^{
-        printf("Generating keys...\n");
-        for(int i=0; i<NUM_TEST_KEYS; ++i) {
-            int* key = IntKey_new();
-            Array_add(keys, key);
-        }
-        printf("Done.\n");
-    });
+    Array* kv = load_dataset(filename);
+    Array* keys = generate_keys();
 
     
     if(use_dictionaries) { 
@@ -195,6 +231,10 @@ int main(int argc, char const *argv[])
     } else {
         test_binsearch(kv, keys);
     }
+
+    cleanup(kv, keys);
+
+    PrintTime_free(pt);
 
     return 0;
 }
