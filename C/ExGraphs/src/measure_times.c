@@ -17,6 +17,7 @@
 #include "basic_iterators.h"
 #include "mem.h"
 #include "string_utils.h"
+#include "ansi_colors.h"
 
 
 #define BUF_SIZE 1024
@@ -60,7 +61,7 @@ static Graph* load_graph(const char* filename) {
     count += 2;
   });
 
-  printf("dc creation count:%d\n", count);
+  printf("dc creation count:" GRN "%d\n" reset, count);
   Dictionary_free(known_vertices);
   return graph;
 }
@@ -74,7 +75,7 @@ static void destroy_graph_double_containers(Graph* graph) {
     DoubleContainer_free((DoubleContainer*)info->info);
   });
 
-  printf("destroy dc count:%d\n", count);
+  printf("destroy dc count:" GRN "%d\n" reset, count);
 
   free_contents(Vertex_it(graph));
 }
@@ -170,14 +171,14 @@ static void execute_kruskal(Graph* graph) {
     }
   });
 
-  printf("Original graph size:%ld\n", Graph_size(graph));
-  printf("Result graph size:%ld\n", Graph_size(result));
-  printf("Result graph num edges:%d\n", num_edges / 2);
-  printf("Result graph min edge:%f\n", min_edge);
+  printf("Original graph size: " GRN " %ld\n" reset, Graph_size(graph));
+  printf("Result graph size: " GRN " %ld\n" reset, Graph_size(result));
+  printf("Result graph num edges: " GRN " %d\n" reset, num_edges / 2);
+  printf("Result graph min edge: " GRN " %f\n" reset, min_edge);
 
   // print_kruskal_edges(result);
 
-  printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
+  printf("Minimum spanning tree weight: " GRN "%f\n" reset, (tree_size / 2.0)/1000.0);
   Graph_free(result);
   Kruskal_free(kruskal);
 }
@@ -201,12 +202,12 @@ static void execute_prim(Graph* graph) {
     }
   });
 
-  printf("Original graph size:%ld\n", Graph_size(graph));
-  printf("Result graph size:%ld\n", Graph_size(result));
-  printf("Result graph num edges:%d\n", num_edges / 2);
-  printf("Result graph min edge:%f\n", min_edge);
+  printf("Original graph size: " GRN "%ld\n" reset, Graph_size(graph));
+  printf("Result graph size: " GRN "%ld\n" reset, Graph_size(result));
+  printf("Result graph num edges: " GRN "%d\n" reset, num_edges / 2);
+  printf("Result graph min edge: " GRN "%f\n" reset, min_edge);
 
-  printf("Minimum spanning tree weight: %f\n", (tree_size / 2.0)/1000.0);
+  printf("Minimum spanning tree weight: " GRN "%f\n" reset, (tree_size / 2.0)/1000.0);
   Graph_free(result);
   Prim_free(prim);
 }
@@ -338,7 +339,7 @@ int main(int argc, char *argv[]) {
   PrintTime_print(pt, "Graph_load", ^{
     printf("Loading graph...\n");
     graph = load_graph(argv[2]);
-    printf("Graph* size: %ld\n", Graph_size(graph));
+    printf("Graph size: " GRN "%ld\n" reset, Graph_size(graph));
   });
 
   PrintTime_print(pt, "Algorithm_execution", ^{
