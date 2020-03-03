@@ -277,6 +277,7 @@ static void depth_first_search(Tree* tree, int u) {
   }
 }
 
+// Computes the integer part of log2(val)
 static int ilog2(int val) {
   int ilog = 0;
   while(val >>= 1) ++ilog;
@@ -284,6 +285,8 @@ static int ilog2(int val) {
   return ilog;
 }
 
+// returns the first node in the path from u to lca(u,v) that is at the same
+// height as v. Storesin max_value the maximal weight found up to that node.
 static int lca_raise_u_to_equalize_levels(Tree* tree, int u, int v, int* max_value) {
   // first we need to get both nodes at the same level. We do that
   // by raising the largest one until we get to the same level
