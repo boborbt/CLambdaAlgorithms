@@ -105,13 +105,12 @@ double PrintTime_print(PrintTime* pt, char* label, void(^fun)(void)) {
  char buf[MAX_BUF];
 
  printf("%s\n", String_head_line(buf, label, '=', MAX_BUF));
+
  clock_t start = clock();
  fun();
  clock_t end = clock();
-
  result = ((double)end-start) / CLOCKS_PER_SEC;
 
- 
  printf(BWHT "%s\n" reset, String_line_with_termsize(buf, '-', MAX_BUF));
  printf(BWHT "time:" BRED "%10.2lf" reset " secs\n" , result);
  printf(BWHT "%s\n\n" reset, String_line_with_termsize(buf, '=', MAX_BUF));
