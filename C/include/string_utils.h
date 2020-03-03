@@ -32,7 +32,7 @@ char* String_join(Array*, char delim);
 char* String_repeatchar(char* str, char c, unsigned long n);
 
 /**
- * Fil buf with a line of at most n repetitions of character c. The actual
+ * Fill buf with a line of at most n repetitions of character c. The actual
  * number of repetitions depends on TL the line length of the current terminal.
  * The actual number of repetitions will be min(TL, n)
  *
