@@ -15,7 +15,7 @@ exercise 4. The scripts assumes:
     and behaves accordingly (i.e., reads from the input file and writes
     onto the output file).
 
-For each test directory it runs the program, checks if the solution is
+For each test directory the script runs `oc`, checks if the solution is
 correct and reports the performances. If the solution is *not* correct
 it also reports the first few lines of the diff between the correct 
 and the calculated solutions.
