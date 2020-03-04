@@ -1,5 +1,8 @@
 #pragma once
 
+// Kudos to the author of this page gist for the color codes
+// https://gist.github.com/RabaDabaDoba/145049536f815903c79944599c6f952a
+
 //Regular text
 #define BLK "\033[0;30m"
 #define RED "\033[0;31m"
