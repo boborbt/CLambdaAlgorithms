@@ -88,9 +88,9 @@ char* String_repeatchar(char* str, char c, unsigned long n) {
 char* String_line_with_termsize(char* buf, char c, unsigned long n) {
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-  n = min(w.ws_col, n-1);
+  unsigned long width = min(w.ws_col, n-1);
 
-  String_repeatchar(buf, c,  n);
+  String_repeatchar(buf, c, width+1);
 
   return buf;
 }
