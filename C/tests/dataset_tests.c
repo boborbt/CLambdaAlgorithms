@@ -2,7 +2,7 @@
 #include <errno.h>
 
 #include "unit_testing.h"
-#include "dataset_.h"
+#include "dataset.h"
 #include "mem.h"
 #include "errors.h"
 
@@ -37,7 +37,7 @@ static Record* new_record(Array* fields) {
     return result;
 }
 
-static void test_dataset__load() {
+static void test_dataset_load() {
     DatasetOpts options = { 10l, 4, 1024 };
     Array* ds = Dataset__load("records.csv",  &options, ^(Array* fields) { return (void*) new_record(fields); });
     assert_equal( 10l, Array_size(ds) );
@@ -50,9 +50,9 @@ static void test_dataset__load() {
 
 
 int main() {
-  start_tests("dataset_");
+  start_tests("dataset");
 
-  test(test_dataset__load);
+  test(test_dataset_load);
 
   end_tests();
 

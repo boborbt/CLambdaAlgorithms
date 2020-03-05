@@ -9,7 +9,7 @@
 #include "insertion_sort.h"
 #include "merge_sort.h"
 #include "heap_sort.h"
-#include "dataset_.h"
+#include "dataset.h"
 #include "print_time.h"
 #include "errors.h"
 #include "mem.h"

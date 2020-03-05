@@ -23,7 +23,7 @@ bin/list-sort-18-19: src/list-sort-18-19.c ../include/list.h ../include/mem.h ..
 bin/measure_times: src/measure_times.c ../include/heap_sort.h ../include/quick_sort.h ../include/insertion_sort.h ../ExCommon/include/exsorting_dataset.h  ../lib/libcontainers.a Makefile ../Makefile.vars
 	$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c -lcontainers -lexcommon $(LDFLAGS)
 
-bin/test_read: src/test_read.c ../include/dataset_.h ../lib/libcontainers.a Makefile ../Makefile.vars
+bin/test_read: src/test_read.c ../include/dataset.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	$(CC) $(CFLAGS) -o bin/test_read src/test_read.c -lcontainers -lexcommon $(LDFLAGS)
 
 bin/array_comparison: src/array_comparison.c ../lib/libcontainers.a Makefile ../Makefile.vars

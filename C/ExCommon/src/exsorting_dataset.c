@@ -6,7 +6,7 @@
 #include "errors.h"
 #include "ansi_colors.h"
 #include "mem.h"
-#include "dataset_.h"
+#include "dataset.h"
 #include "iterator_functions.h"
 
 Record* new_record(Array* fields) {

@@ -32,7 +32,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o build/set.o build/dataset_.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o build/keys.o build/priority_queue.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o build/set.o build/dataset.o
 
 build:
 	mkdir build
@@ -95,9 +95,9 @@ tests: test_binaries
 	$(call exec, bin/multy_way_tree_tests)
 	$(call exec, bin/editing_distance_tests)
 	$(call exec, bin/basic_iterators_tests)
-	$(call exec, bin/dataset__tests)
+	$(call exec, bin/dataset_tests)
 
-test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests bin/ bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests bin/editing_distance_tests bin/basic_iterators_tests bin/set_tests bin/dataset__tests
+test_binaries: build lib bin bin/sorting_tests bin/dictionary_tests bin/ bin/graph_tests bin/list_tests bin/array_tests bin/array_alt_tests bin/errors_tests bin/union_find_tests bin/queue_tests bin/priority_queue_tests bin/iterator_tests bin/multy_way_tree_tests bin/editing_distance_tests bin/basic_iterators_tests bin/set_tests bin/dataset_tests
 
 bin/editing_distance_tests: tests/editing_distance_tests.c include/editing_distance.h lib/libcontainers.a $(HEADERS)
 	$(CC) $(CFLAGS) tests/editing_distance_tests.c -o bin/editing_distance_tests -lcontainers $(LDFLAGS)
@@ -145,8 +145,8 @@ bin/multy_way_tree_tests: tests/multy_way_tree_tests.c include/unit_testing.h li
 bin/basic_iterators_tests: lib/libcontainers.a tests/basic_iterators_tests.c $(HEADERS)
 	$(CC) $(CFLAGS) tests/basic_iterators_tests.c -o bin/basic_iterators_tests $(LDFLAGS) lib/libcontainers.a
 
-bin/dataset__tests: lib/libcontainers.a tests/dataset__tests.c $(HEADERS)
-	$(CC) $(CFLAGS) tests/dataset__tests.c -o bin/dataset__tests $(LDFLAGS) lib/libcontainers.a
+bin/dataset_tests: lib/libcontainers.a tests/dataset_tests.c $(HEADERS)
+	$(CC) $(CFLAGS) tests/dataset_tests.c -o bin/dataset_tests $(LDFLAGS) lib/libcontainers.a
 
 
 include Makefile.exps
