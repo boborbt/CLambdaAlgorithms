@@ -39,7 +39,7 @@ static void exec_and_print_with_dup_storage(Array* dataset, void (^callback)(Arr
   Array* array = Array_dup(dataset);
   callback(array);
 
-  ExSortingDataset_print(array, 10);
+  Dataset_print(array, 10);
 
   Array_free(array);
 }
@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
   __block Array* dataset;
   PrintTime_print(pt, "Dataset_load", ^{
     printf("Loading dataset...\n");
-    dataset = ExSortingDataset_load(argv[2]);
+    dataset = Dataset__load(argv[2], (unsigned long) -1, ^(Array* fields) { return (void*) new_record(fields); });
     printf("Done!\n");
   });
 
@@ -260,8 +260,13 @@ int main(int argc, char* argv[]) {
   PrintTime_print(pt, "Dataset_free", ^{
     printf("Freeing dataset\n");
 
-    ExSortingDataset_free(dataset);
+    for_each(Array_it(dataset), ^(void* obj) {
+      Record* rec = (Record*) obj;
+      Mem_free(rec->field1);
+      Mem_free(rec);
+    });
 
+    Array_free(dataset);
     printf("Done!\n");
   });
 
