@@ -3,14 +3,27 @@
 #include "basic_iterators.h"
 #include "string_utils.h"
 #include "ansi_colors.h"
+#include "mem.h"
+#include "iterator_functions.h"
 
-Array* Dataset__load(const char* filename, unsigned long max_lines, void* (^load_fun)(Array* fields)) {
+static DatasetOpts defaults = { (unsigned long) -1, 100, 1024 };
+
+Array* Dataset__load(const char* filename, DatasetOpts* options, void* (^load_fun)(Array* fields)) {
     Array* result = Array_new(1000);
     __block unsigned long count = 0;
 
+    if(options == NULL) {
+        options = &defaults;
+    }
+
+    Array* fields_array = Array_new(options->num_fields);
+    for(size_t i=0; i<options->num_fields; ++i) {
+        Array_add(fields_array, Mem_alloc(sizeof(char)*options->max_field_len));
+    }
+
     printf("\n");
     find_first( TextFile_it(filename, '\n'), ^(void* fields) {
-        if(count++ >= max_lines) {
+        if(count++ >= options->max_lines) {
             return 1;
         }
 
@@ -19,11 +32,17 @@ Array* Dataset__load(const char* filename, unsigned long max_lines, void* (^load
         }
 
         char* str = (char*) fields;
+        String_fast_split(str, ',', fields_array, 1024);
+        Array_add(result, load_fun(fields_array));
 
-        Array_add(result, load_fun(String_split(str, ',')));
         return 0;
     });
     printf("\n");
+
+    for_each(Array_it(fields_array), ^(void* obj) {
+        Mem_free(obj);
+    });
+    Array_free(fields_array);
 
     return result;
 }

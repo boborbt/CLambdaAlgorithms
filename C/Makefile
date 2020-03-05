@@ -16,11 +16,12 @@ define exec
 	@$(1)
 endef
 
-.PHONY: ExSorting ExDictionaries ExGraphs libs clean experiment1 experiment2 experiment3 tests
+.PHONY: ExCommon ExSorting ExDictionaries ExGraphs libs clean experiment1 experiment2 experiment3 tests
 
-all: build lib bin libs ExSorting ExDictionaries ExGraphs ExDynamicProgramming
+all: build lib bin libs ExCommon ExSorting ExDictionaries ExGraphs ExDynamicProgramming
 
 clean:
+	$(MAKE) -C ExCommon clean
 	$(MAKE) -C ExSorting clean
 	$(MAKE) -C ExDictionaries clean
 	$(MAKE) -C ExGraphs clean
@@ -31,7 +32,7 @@ clean:
 
 HEADERS=include/*.h
 
-COMMON_OBJECTS=build/dictionary.o build/graph.o build/keys.o build/priority_queue.o build/dataset.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o build/set.o build/dataset_.o
+COMMON_OBJECTS=build/dictionary.o build/graph.o build/keys.o build/priority_queue.o build/print_time.o build/double_container.o build/unit_testing.o build/array_g.o build/insertion_sort.o build/quick_sort.o build/merge_sort.o build/heap_sort.o build/dijkstra.o build/graph_visiting.o build/array.o build/stack.o build/errors.o build/union_find.o build/queue.o build/kruskal.o build/multy_way_tree.o build/string_utils.o build/basic_iterators.o build/iterator.o build/mem.o build/array_alt.o build/editing_distance.o build/prim.o build/set.o build/dataset_.o
 
 build:
 	mkdir build
@@ -56,6 +57,10 @@ build/%.o: src/%.c   Makefile Makefile.vars $(HEADERS)
 
 
 # Experiments
+
+ExCommon:
+	tput bold; tput setaf 2; echo "Making all in ExCommon"; tput sgr 0
+	$(MAKE) -C ExCommon
 
 ExSorting:  lib/libcontainers.a
 	tput bold; tput setaf 2; echo "Making all in ExSorting"; tput sgr 0

@@ -38,7 +38,8 @@ static Record* new_record(Array* fields) {
 }
 
 static void test_dataset__load() {
-    Array* ds = Dataset__load("records.csv",  10l, ^(Array* fields) { return (void*) new_record(fields); });
+    DatasetOpts options = { 10l, 4, 1024 };
+    Array* ds = Dataset__load("records.csv",  &options, ^(Array* fields) { return (void*) new_record(fields); });
     assert_equal( 10l, Array_size(ds) );
     Record* rec1 = Array_at(ds, 0);
     assert_equal((long) rec1->id, 0l);

@@ -1,18 +1,36 @@
 #pragma once
 #include "array.h"
 
+
 // Splits the given string into pieces.
 // Pieces are built such as String_join(String_split(string, delim), delim)
 // equals the original string.
-// Each piece is alloced via malloc and needs to be freed by the user.
+// Each piece and the resulting array are alloced via Mem_alloc and needs to be 
+// Mem_freed by the user.
 Array* String_split(char*, char delim);
+
+// Splits the given string into pieces. 
+// Pieces are built such as String_join(String_split(string, delim), delim)
+// equals the original string.
+// 
+// This version of String_split is optimized for use cases where a vast number
+// of splits have to be done on similar strings. The optimization consist in
+// avoiding to allocing and deallocing memory at each call since that part is
+// left to the user which can do it once for all before starting calling the
+/// split function.
+//
+// The pieces are copied into the memory provided by the given array, which
+// must contains enough elements to hold the result. Each element needs to
+// contain a pointer to enough memory to hold up to max_len characters.
+size_t String_fast_split(char* string, char delim, Array* array, int max_len);
+
 
 
 // Joins the givne string array into a single string
 // joining a piece with the following by inserting the given
 // delim char.
-// The newbuilt string is alloced via malloc and needs to be
-// freed by the user.
+// The newbuilt string is alloced via Mem_alloc and needs to be
+// Mem_freed by the user.
 char* String_join(Array*, char delim);
 
 /**

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include "dataset.h"
 #include "dictionary.h"
 #include "print_time.h"
 #include "errors.h"
@@ -12,10 +11,11 @@
 #include "basic_iterators.h"
 #include "mem.h"
 #include "string_utils.h"
+#include "exsorting_dataset.h"
 
-static void load_dictionary(Dataset* dataset, Dictionary* dictionary) {
-  Record** records = Dataset_get_records(dataset);
-  size_t size = Dataset_size(dataset);
+static void load_dictionary(Array* dataset, Dictionary* dictionary) {
+  Record** records = (Record**) Array_carray(dataset);
+  size_t size = Array_size(dataset);
 
   for_each(Number_it(size), ^(void* i) {
     if(NUM(i)%1000000 == 0) {
@@ -94,27 +94,27 @@ int main(int argc, char* argv[]) {
 
   PrintTime* pt = init_print_time(argv);
 
-  __block Dataset* dataset;
+  __block Array* dataset;
   PrintTime_print(pt, "Dataset_load", ^{
     printf("Loading dataset...\n");
-    dataset = Dataset_load(argv[2]);
+    dataset = ExSortingDataset_load(argv[2]);
     printf("Done!\n");
   });
 
-  Dataset_print(dataset, 10);
+  ExSortingDataset_print(dataset, 10);
 
 
   Dictionary* dictionary;
   KeyInfo* keyInfo;
   switch(argv[1][0]) {
     case '1':
-      keyInfo = KeyInfo_new(Dataset_compare_field1, Dataset_hash_field1);
+      keyInfo = KeyInfo_new(ExSortingDataset_compare_field1, ExSortingDataset_hash_field1);
       break;
     case '2':
-      keyInfo = KeyInfo_new(Dataset_compare_field2, Dataset_hash_field2);
+      keyInfo = KeyInfo_new(ExSortingDataset_compare_field2, ExSortingDataset_hash_field2);
       break;
     case '3':
-      keyInfo = KeyInfo_new(Dataset_compare_field3, Dataset_hash_field3);
+      keyInfo = KeyInfo_new(ExSortingDataset_compare_field3, ExSortingDataset_hash_field3);
       break;
     default:
       Error_raise(Error_new(ERROR_ARGUMENT_PARSING, "Index field was expected to be in {1,2,3} but was %d", argv[1][0]));
@@ -142,10 +142,10 @@ int main(int argc, char* argv[]) {
     printf("Counted %ld elements\n", count);
   });
 
-  Record** records = Dataset_get_records(dataset);
+  Record** records = (Record**) Array_carray(dataset);
   PrintTime_print(pt, "Dictionary_elem_access", ^{
     printf("Making 1_000_000 accesses\n");
-    size_t size = Dataset_size(dataset);
+    size_t size = Array_size(dataset);
     for_each(Number_it(1000000), ^(UNUSED(void* _)) {
       size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
@@ -160,7 +160,7 @@ int main(int argc, char* argv[]) {
     printf("Making 1_000_000 deletions\n");
     assert(Dictionary_check_integrity(dictionary));
 
-    size_t size = Dataset_size(dataset);
+    size_t size = Array_size(dataset);
     for_each(Number_it(1000000), ^(UNUSED(void* _)) {
       size_t index = (size_t)(drand48() * size);
       Record* record = records[index];
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 
   PrintTime_print(pt, "Dataset_free", ^{
     printf("Freeing dataset\n");
-    Dataset_free(dataset);
+    ExSortingDataset_free(dataset);
     printf("Done!\n");
   });
 

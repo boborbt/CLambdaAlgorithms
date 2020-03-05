@@ -1,6 +1,6 @@
 include ../Makefile.vars
-CFLAGS+=-I../include
-LDFLAGS+=-L../lib
+CFLAGS+=-I../include -I../ExCommon/include
+LDFLAGS+=-L../lib -L../ExCommon/lib
 
 .PHONY: clean all tests
 
@@ -18,7 +18,7 @@ clean:
 
 
 bin/measure_times: src/measure_times.c ../include/keys.h  ../include/stack.h ../lib/libcontainers.a Makefile ../Makefile.vars
-	@$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c  -lcontainers $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o bin/measure_times src/measure_times.c  -lcontainers -lexcommon $(LDFLAGS)
 
 bin/measure_times2: src/measure_times2.c ../include/keys.h  ../include/array.h ../include/dictionary.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	@$(CC) $(CFLAGS) -o bin/measure_times2 src/measure_times2.c  -lcontainers $(LDFLAGS)

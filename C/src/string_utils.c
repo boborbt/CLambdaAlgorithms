@@ -7,8 +7,42 @@
 #include "mem.h"
 #include "string_utils.h"
 #include "ansi_colors.h"
+#include "errors.h"
 
 #define MAX_BUF 1024
+
+
+size_t String_fast_split(char* string, char delim, Array* array, int max_len) {
+  size_t len = strlen(string);
+  char* buf = (char*) Mem_alloc(sizeof(char) * len + 1);
+
+  size_t pos = 0;
+  size_t buf_pos = 0;
+  size_t index = 0;
+
+  while(pos < len) {
+    if(string[pos] == delim) {
+      char* piece = Array_at(array, index++);
+      buf[buf_pos] = '\0';
+      strncpy(piece, buf, max_len);
+      buf_pos = 0;
+      pos += 1;
+      continue;
+    }
+
+    buf[buf_pos++] = string[pos++];
+  }
+
+  if(buf_pos!=0) {
+    buf[buf_pos] = '\0';
+    char* piece = Array_at(array, index++);
+    strncpy(piece, buf, max_len);
+  }
+
+  Mem_free(buf);
+
+  return index;
+}
 
 Array* String_split(char* string, char delim) {
   Array* result = Array_new(10);

@@ -24,22 +24,22 @@
 // elements are actually the array elements themeselves. We need to dereference
 // the pointers to make the things agree.
 static int qsort_compare_field1(const void* e1, const void* e2) {
-  return Dataset_compare_field1( *( void* const*)e1, *(void* const*)e2 );
+  return ExSortingDataset_compare_field1( *( void* const*)e1, *(void* const*)e2 );
 }
 
 static int qsort_compare_field2(const void* e1, const void* e2) {
-  return Dataset_compare_field2( *(void* const*)e1, *(void* const*)e2 );
+  return ExSortingDataset_compare_field2( *(void* const*)e1, *(void* const*)e2 );
 }
 
 static int qsort_compare_field3(const void* e1, const void* e2) {
-  return Dataset_compare_field3( *(void* const*)e1, *(void* const*)e2 );
+  return ExSortingDataset_compare_field3( *(void* const*)e1, *(void* const*)e2 );
 }
 
 static void exec_and_print_with_dup_storage(Array* dataset, void (^callback)(Array*)) {
   Array* array = Array_dup(dataset);
   callback(array);
 
-  Dataset_print(array, 10);
+  ExSortingDataset_print(array, 10);
 
   Array_free(array);
 }
@@ -77,21 +77,21 @@ static void test_algorithm_g(Array* input_dataset, PrintTime* pt, void (*sort)(v
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field1_g);
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), ExSortingDataset_compare_field1_g);
       printf("Done!\n");
     });
   });
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field2", ^{
       printf("Sorting according to field2\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field2_g);
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), ExSortingDataset_compare_field2_g);
       printf("Done!\n");
     });
   });
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field3", ^{
       printf("Sorting according to field3\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), Dataset_compare_field3_g);
+      sort((void**)Array_carray(dataset), Array_size(dataset), sizeof(void*), ExSortingDataset_compare_field3_g);
       printf("Done!\n");
     });
   });
@@ -101,21 +101,21 @@ static void test_algorithm(Array* input_dataset, PrintTime* pt, void (*sort)(voi
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field1", ^{
       printf("Sorting according to field1\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field1);
+      sort((void**)Array_carray(dataset), Array_size(dataset), ExSortingDataset_compare_field1);
       printf("Done!\n");
     });
   });
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field2", ^{
       printf("Sorting according to field2\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field2);
+      sort((void**)Array_carray(dataset), Array_size(dataset), ExSortingDataset_compare_field2);
       printf("Done!\n");
     });
   });
   exec_and_print_with_dup_storage(input_dataset, ^(Array* dataset) {
     PrintTime_print(pt, "field3", ^{
       printf("Sorting according to field3\n");
-      sort((void**)Array_carray(dataset), Array_size(dataset), Dataset_compare_field3);
+      sort((void**)Array_carray(dataset), Array_size(dataset), ExSortingDataset_compare_field3);
       printf("Done!\n");
     });
   });
@@ -225,11 +225,11 @@ int main(int argc, char* argv[]) {
   __block Array* dataset;
   PrintTime_print(pt, "Dataset_load", ^{
     printf("Loading dataset...\n");
-    dataset = Dataset__load(argv[2], (unsigned long) -1, ^(Array* fields) { return (void*) new_record(fields); });
+    dataset = ExSortingDataset_load(argv[2]);
     printf("Done!\n");
   });
 
-  Dataset_print(dataset, 10);
+  ExSortingDataset_print(dataset, 10);
 
   switch(argv[1][1]) {
     case 'q':
@@ -260,13 +260,8 @@ int main(int argc, char* argv[]) {
   PrintTime_print(pt, "Dataset_free", ^{
     printf("Freeing dataset\n");
 
-    for_each(Array_it(dataset), ^(void* obj) {
-      Record* rec = (Record*) obj;
-      Mem_free(rec->field1);
-      Mem_free(rec);
-    });
+    ExSortingDataset_free(dataset);
 
-    Array_free(dataset);
     printf("Done!\n");
   });
 
