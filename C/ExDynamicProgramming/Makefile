@@ -4,7 +4,7 @@ LDFLAGS+=-L../lib
 
 .PHONY: clean all tests
 
-all: bin build  bin/autocorrect
+all: bin build  bin/autocorrect bin/edit_distance_graph
 
 bin:
 	@mkdir bin
@@ -19,3 +19,6 @@ clean:
 
 bin/autocorrect: src/autocorrect.c ../include/array.h  ../include/iterator.h ../include/iterator_functions.h ../include/editing_distance.h ../lib/libcontainers.a Makefile ../Makefile.vars
 	@$(CC) $(CFLAGS) -o bin/autocorrect src/autocorrect.c  -lcontainers $(LDFLAGS)
+
+bin/edit_distance_graph: src/edit_distance_graph.c
+	@$(CC) $(CFLAGS) -o bin/edit_distance_graph src/edit_distance_graph.c

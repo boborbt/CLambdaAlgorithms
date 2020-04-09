@@ -9,6 +9,7 @@
 #include "iterator_functions.h"
 #include "basic_iterators.h"
 
+
 //
 // Implementation of the EditingDistance measure
 //
@@ -28,24 +29,7 @@ static long min(long x, long y) {
   }
 }
 
-// Recursive function to compute the editing distance between string1 and string2.
-__attribute__((unused)) static long editing_distance_dummy(const char* string1, const char* string2) {
-  if(string1[0] == '\0') {
-    return (long) strlen(string2);
-  }
 
-  if(string2[0] == '\0') {
-    return (long) strlen(string1);
-  }
-
-  long del_c = editing_distance_dummy(string1, string2+1) + 1;
-  long copy_c = editing_distance_dummy(string1+1, string2) + 1;
-  if(string1[0] == string2[0]) {
-    return min(del_c, min(copy_c, editing_distance_dummy(string1+1, string2+1)));
-  } else {
-    return min(del_c, copy_c);
-  }
-}
 
 
 //  Definition of the structure used to memoize intermediate values
