@@ -1,24 +1,43 @@
 
 HELP_TEXT = """
 This script tests the performances of a solution to 
-exercise 4. The scripts assumes:
+exercise 4. 
+
+Usage: run-tests.rb [--args] [cmd]
+
+Options:
+ 
+    cmd     path to the executable to be run (defaults to bin/oc)
+ --args     specifies if the executable take arguments to specify
+            the input and the ouput file name or not. If not specified
+            it is assumed that the executable does not take arguments
+            and reads its input from stdin and writes to stdout.
+
+The scripts assumes:
 
   - that it is run on the directory containing the folders with
     the inputs/outputs provided as tests (i.e., it assumes that
     it there exists test1, test2, ..., test11 subdirs in the current
     directory).
-  - that the program implementing the solution is called 'oc', but you
-    may specify another name as the first parameter to the script
-  - that the program implementing the solution takes two arguments:
+  - that the program implementing the solution is called 'oc' (you
+    may specify another name as the first parameter to the script)
+  - that the program implementing the solution either read from stdin
+    and write to stdout (the default) or takes two arguments (specify --args
+    as the argument to this script):
          - the name of the input file
          - the name of the output file
     and behaves accordingly (i.e., reads from the input file and writes
     onto the output file).
 
-For each test directory the script runs `oc`, checks if the solution is
-correct and reports the performances. If the solution is *not* correct
-it also reports the first few lines of the diff between the correct 
-and the calculated solutions.
+For each test directory the script runs the executable, checks if the 
+solution is correct and reports the performances. If the solution is 
+*not* correct it also reports the first few lines of the diff between 
+the correct and the calculated solutions.
+
+NOTE: the algorithm has a hard time-out set at 60 seconds. If the 
+    executable does not termiante within this limit it stops it and
+    declares a failure (it will also report a difference in the output
+    since the generated file will not contain all the required solutions).
 
 This script requires the 'ansi_colors' ruby gem. You can install it
 with the command: `gem install ansi_colors`.
@@ -55,14 +74,49 @@ diff for   test11: Ok
 
 require 'timeout'
 require 'ansi_colors'
+require 'optparse'
 
-if ARGV.size == 1 && ARGV[0] == "-h" || ARGV[0] == '--help'
-    puts HELP_TEXT
-    puts "Usage: run-tests.rb [-h] [<program name>]"
-    exit(0)
+def print_status_msg(elapsed)
+    if elapsed > 2.0
+        puts "Fail".ansi_red.ansi_bold + " (" + ("%2.5f" % [elapsed]).ansi_yellow.ansi_bold + " > 2 secs)"
+    else
+        puts "Ok".ansi_green.ansi_bold + " (" + ("%2.5f" % [elapsed]).ansi_yellow.ansi_bold + " secs)"
+    end
 end
 
-exec_name = ARGV[0] || "bin/oc"
+def call_w_std_in_out(exec_name, test_dir)
+    "cat #{test_dir}/input.txt | #{exec_name} > #{test_dir}/output.txt"
+end
+
+def call_w_args(exec_name, test_dir)
+    "#{exec_name} #{test_dir}/input.txt #{test_dir}/output.txt"
+end
+
+def parse_args()
+    options = { }
+
+    if ARGV.find { |a| a == "--help" || a== "-h" }
+        puts HELP_TEXT
+        puts "Usage: run-tests.rb [-h] [<program name>]"
+        exit(0)
+    end
+
+    if ARGV.find { |a| a == "--args" }
+        options[:args] = :call_w_args
+        ARGV.delete("--args")
+    else
+        options[:args] = :call_w_std_in_out
+    end
+
+    options[:cmd] = ARGV[0] || "bin/oc"
+
+    return options
+end
+
+options = parse_args()
+exec_name = options[:cmd]
+call_method = options[:args]
+
 puts "Testing executable:" + exec_name.ansi_yellow.ansi_bold
 
 test_dirs = (1..11).to_a.map { |index| "test#{index}" }
@@ -74,25 +128,26 @@ test_dirs.each do |test_dir|
 end
 
 # testing times
+HARD_TIME_OUT = 60
 
 test_dirs.each do |test_dir|
     start = Time.now
 
     print "time for " + ("%8s" % [test_dir]).ansi_bold + ": " 
 
-    pid = Process.spawn("cat #{test_dir}/input.txt | #{exec_name} > #{test_dir}/output.txt", :pgroup => true )
+    pid = Process.spawn(self.send(call_method, exec_name, test_dir), :pgroup => true )
     begin
-        Timeout.timeout(2) do 
+        Timeout.timeout(HARD_TIME_OUT) do 
             Process.waitpid(pid)
         end
         finish = Time.now
     rescue
         Process.kill(9, -Process.getpgid(pid))
-        puts "Fail".ansi_red.ansi_bold + " (" + "more than 2 seconds".ansi_yellow.ansi_bold + ")"
+        print_status_msg(finish-start)
         next
     end
-    
-    puts "Ok".ansi_green.ansi_bold + " (" + ("%2.5f" % [finish - start]).ansi_yellow.ansi_bold + " secs)"
+
+    print_status_msg(finish-start)
 end
 
 # testing diffs
