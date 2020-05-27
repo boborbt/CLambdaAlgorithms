@@ -214,17 +214,14 @@ static void read_queries(Edges* queries) {
 /// Performs a depth first search on the given three starting from node u. In
 /// doing it records:
 ///   - the depths at which each node is found;
-///   - the list of 2^i-th ancestors for each node and for 0<=i<LOG_NUM_NODES
-///   - the list of maximal weights for the ancestors
+///   - the parents for each node during the visit
+///   - the weight of the edge from a node and its parent in the visit
 
 static void depth_first_search(Tree* tree, int u) {
   require(u <= tree->size);
 
   ListIt* it = list_iterator(tree->adj[u]);
   while (it != NULL) {
-
-    // sets the depth, the 0-th ancestor, and the 0-th max-value for the
-    // next node;
     int elem = list_iterator_get(it);
 
     if(tree->ancestors[elem]!=-2) {
