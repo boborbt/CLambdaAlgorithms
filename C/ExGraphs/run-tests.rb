@@ -75,9 +75,36 @@ diff for   test11: Ok
 require 'timeout'
 require 'ansi_colors'
 require 'optparse'
+require 'fileutils'
+
+HARD_TIME_OUT = 60
+SOFT_TIME_OUT = 2
+
+module OS
+    def OS.windows?
+      (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+    end
+  
+    def OS.mac?
+     (/darwin/ =~ RUBY_PLATFORM) != nil
+    end
+  
+    def OS.unix?
+      !OS.windows?
+    end
+  
+    def OS.linux?
+      OS.unix? and not OS.mac?
+    end
+  
+    def OS.jruby?
+      RUBY_ENGINE == 'jruby'
+    end
+  end
+
 
 def print_status_msg(elapsed)
-    if elapsed > 2.0
+    if elapsed > SOFT_TIME_OUT
         puts "Fail".ansi_red.ansi_bold + " (" + ("%2.5f" % [elapsed]).ansi_yellow.ansi_bold + " > 2 secs)"
     else
         puts "Ok".ansi_green.ansi_bold + " (" + ("%2.5f" % [elapsed]).ansi_yellow.ansi_bold + " secs)"
@@ -119,23 +146,34 @@ call_method = options[:args]
 
 puts "Testing executable:" + exec_name.ansi_yellow.ansi_bold
 
-test_dirs = (1..11).to_a.map { |index| "test#{index}" }
+test_dirs = (1..12).to_a.map { |index| "test#{index}" }
 
 # cleaning up
 
 test_dirs.each do |test_dir|
-    `rm -f #{test_dir}/output.txt`
+    begin
+        FileUtils.rm_f(File.join(test_dir, "output.txt"))
+    rescue
+        puts "Cannot remove old files."
+        puts "\n\nPlease double check that you are launching the script from"
+        puts "the folder containing the test1, test2, ..., test11 directories."
+        exit(1)
+    end
 end
 
 # testing times
-HARD_TIME_OUT = 60
 
 test_dirs.each do |test_dir|
     start = Time.now
 
     print "time for " + ("%8s" % [test_dir]).ansi_bold + ": " 
 
-    pid = Process.spawn(self.send(call_method, exec_name, test_dir), :pgroup => true )
+    if OS.windows?
+        pid = Process.spawn(self.send(call_method, exec_name, test_dir) )
+    else
+        pid = Process.spawn(self.send(call_method, exec_name, test_dir), :pgroup => true )
+    end
+
     begin
         Timeout.timeout(HARD_TIME_OUT) do 
             Process.waitpid(pid)
@@ -156,7 +194,7 @@ end
 test_dirs.each do |test_dir|
     print "diff for " + ("%8s" % [test_dir]).ansi_bold + ": " 
 
-    diff = `diff #{test_dir}/output.txt #{test_dir}/correct.txt`
+    diff = `diff #{File.join(test_dir, "output.txt")} #{File.join(test_dir, "correct.txt")}`
     if $? != 0
         puts "Fail".ansi_red.ansi_bold 
         puts "\tfirst 10 lines of diff:"
