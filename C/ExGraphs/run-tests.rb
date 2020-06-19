@@ -181,7 +181,12 @@ test_dirs.each do |test_dir|
         finish = Time.now
     rescue
         finish = Time.now
-        Process.kill(9, -Process.getpgid(pid))
+
+        if OS.windows?
+            Process.kill(9, pid)
+        else
+            Process.kill(9, -Process.getpgid(pid))
+        end
         print_status_msg(finish-start)
         next
     end
