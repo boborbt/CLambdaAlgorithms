@@ -62,6 +62,8 @@ typedef struct _Tree {
   /// ancestor to its 2^(i-1)-th ancestor
   int max_weights[NUM_NODES][LOG_NUM_NODES];
 
+  int max_weight;
+
   /// size of the tree
   int size;
 
@@ -142,6 +144,7 @@ static int list_iterator_get_weight(ListIt* it) { return it->weight; }
 static void tree_init(Tree* tree, int num_nodes) {
   tree->adj = (Node**)calloc((unsigned long)num_nodes + 1, sizeof(Node*));
   tree->size = num_nodes;
+  tree->max_weight = -1;
 
   for (int u = 0; u < NUM_NODES; ++u) {
     tree->depth[u] = -1;
@@ -268,9 +271,14 @@ static void depth_first_search(Tree* tree, int u) {
     // sets the depth, the 0-th ancestor, and the 0-th max-value for the
     // next node;
     int elem = list_iterator_get(it);
+    int weight = list_iterator_get_weight(it);
+    if(weight > tree->max_weight) {
+      tree->max_weight = weight;
+    }
+
     tree->depth[elem] = tree->depth[u] + 1;
     tree->ancestors[elem][0] = u;
-    tree->max_weights[elem][0] = list_iterator_get_weight(it);
+    tree->max_weights[elem][0] = weight;
     depth_first_search(tree, elem);
 
     it = list_iterator_next(it);
@@ -321,9 +329,13 @@ static void lca_set_u_v(Tree* tree, int* u, int* v, Edge* query) {
 // the nodes u and v. If m_u is the max weight on the path from
 // u to lca(u,v) and m_v is the max weight on the path from v to lca(u,v),
 // then max(m_u,m_v) is the max weight on the path from u to v.
-static int lca_max_weight(Tree* tree, Edge* query) {
+static int lca_max_weight(Tree* tree, Edge* query, int weight) {
   require(query->source <= tree->size);
   require(query->dest <= tree->size);
+
+  if(weight > tree->max_weight) {
+    return 0;
+  }
 
   int u, v;
   int max_value = -1;
@@ -331,8 +343,12 @@ static int lca_max_weight(Tree* tree, Edge* query) {
   lca_set_u_v(tree, &u, &v, query);
   u = lca_raise_u_to_equalize_levels(tree, u, v, &max_value);
 
+  if(max_value > weight) {
+    return 1;
+  }
+
   if (u == v) {
-    return max_value;
+    return max_value > weight;
   }
 
   // now we can raise both until we get to the lca
@@ -344,12 +360,17 @@ static int lca_max_weight(Tree* tree, Edge* query) {
       max_value = max(max_value, maxval(tree, v, level));
       u = ancestor(tree, u, level);
       v = ancestor(tree, v, level);
+
+      if(max_value > weight) {
+        return 1;
+      }
     }
 
     level--;
   }
 
-  return max(max_value, max(maxval(tree, v, 0), maxval(tree, u, 0)));
+  max_value = max(max_value, max(maxval(tree, v, 0), maxval(tree, u, 0)));
+  return  max_value > weight;
 }
 
 /// MARK: -------------------------   MAIN   -------------------------
@@ -368,7 +389,7 @@ static void main_work() {
   depth_first_search(tree, queries->edges[0]->source);
 
   for (int i = 0; i < queries->num_edges; ++i) {
-    if (lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight) {
+    if (lca_max_weight(tree, queries->edges[i], queries->edges[i]->weight) ) {
       printf("YES\n");
     } else {
       printf("NO\n");

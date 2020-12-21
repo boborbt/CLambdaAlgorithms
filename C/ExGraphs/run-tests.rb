@@ -77,7 +77,7 @@ require 'ansi_colors'
 require 'optparse'
 require 'fileutils'
 
-HARD_TIME_OUT = 60
+HARD_TIME_OUT = 6
 SOFT_TIME_OUT = 2
 
 module OS

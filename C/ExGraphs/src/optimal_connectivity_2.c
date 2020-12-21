@@ -54,6 +54,7 @@ typedef struct _Tree {
 
   /// size of the tree
   int size;
+  int max_weight;
 
   /// list of adjacency, adj[u] contains the list of adjacents of node u
   Node** adj;
@@ -132,6 +133,7 @@ static int list_iterator_get_weight(ListIt* it) { return it->weight; }
 static void tree_init(Tree* tree, int num_nodes) {
   tree->adj = (Node**)calloc((unsigned long)num_nodes + 1, sizeof(Node*));
   tree->size = num_nodes;
+  tree->max_weight = -1;
 
   for(int i =0; i<NUM_NODES; ++i) {
     tree->ancestors[i] = -2;
@@ -230,6 +232,10 @@ static void depth_first_search(Tree* tree, int u) {
     }
 
     int weight = list_iterator_get_weight(it);
+    if(weight > tree->max_weight) {
+      tree->max_weight = weight;
+    }
+
     tree->ancestors[elem] = u;
     tree->weights[elem] = weight;
     tree->levels[elem] = tree->levels[u] + 1;
@@ -247,9 +253,13 @@ static void depth_first_search(Tree* tree, int u) {
 // the nodes u and v. If m_u is the max weight on the path from
 // u to lca(u,v) and m_v is the max weight on the path from v to lca(u,v),
 // then max(m_u,m_v) is the max weight on the path from u to v.
-static int lca_max_weight(Tree* tree, Edge* query) {
+static int lca_max_weight(Tree* tree, Edge* query, int target_weight) {
   require(query->source <= tree->size);
   require(query->dest <= tree->size);
+
+  if(target_weight > tree->max_weight) {
+    return 0;
+  }
 
   int u, v;
   int max_value = -1;
@@ -264,6 +274,10 @@ static int lca_max_weight(Tree* tree, Edge* query) {
   while(tree->levels[u] > tree->levels[v]) {
     int p = tree->ancestors[u];
     max_value = max(max_value, tree->weights[u]);
+
+    if(max_value > target_weight) {
+      return 1;
+    }
     u = p;
   }
 
@@ -277,9 +291,13 @@ static int lca_max_weight(Tree* tree, Edge* query) {
 
     u = pu;
     v = pv;
+
+    if(max_value > target_weight) {
+      return 1;
+    }
   }
 
-  return max_value;
+  return 0;
 }
 
 /// MARK: -------------------------   MAIN   -------------------------
@@ -299,7 +317,7 @@ static void main_work() {
   depth_first_search(tree, orig);
 
   for (int i = 0; i < queries->num_edges; ++i) {
-    if (lca_max_weight(tree, queries->edges[i]) > queries->edges[i]->weight) {
+    if (lca_max_weight(tree, queries->edges[i], queries->edges[i]->weight)) {
       printf("YES\n");
     } else {
       printf("NO\n");
