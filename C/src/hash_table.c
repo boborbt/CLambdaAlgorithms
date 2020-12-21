@@ -4,8 +4,10 @@
 #include "mem.h"
 
 #define HASH_TABLE_INITIAL_CAPACITY 4096
-#define HASH_TABLE_CAPACITY_MIN_MULTIPLIER 2
-#define HASH_TABLE_CAPACITY_MAX_MULTIPLIER 4
+
+#define HASH_TABLE_MAX_LOAD_FACTOR 0.5
+#define HASH_TABLE_MIN_LOAD_FACTOR 0.2
+
 #define HASH_TABLE_CAPACITY_MULTIPLIER 2
 
 /* --------------------------
@@ -170,13 +172,13 @@ static void Dictionary_realloc(Dictionary* dictionary, size_t new_capacity) {
 // present, the dictionary is updated with the new value. Otherwise, the
 // key/value pair is inserted.
 void Dictionary_set(Dictionary* dictionary, void* key, void* value) {
-  if(dictionary->capacity < dictionary->size * HASH_TABLE_CAPACITY_MIN_MULTIPLIER) {
+  if(dictionary->size > dictionary->capacity * HASH_TABLE_MAX_LOAD_FACTOR) {
     Dictionary_realloc(dictionary, dictionary->capacity * HASH_TABLE_CAPACITY_MULTIPLIER);
   }
 
   size_t index = KeyInfo_hash(dictionary->keyInfo)(key) % dictionary->capacity;
 
-  if(dictionary->table[index]==NULL) {
+  if(dictionary->table[index] == NULL) {
     dictionary->table[index] = List_new();
   }
 
@@ -252,8 +254,8 @@ void Dictionary_delete(Dictionary* dictionary, const void* key) {
   KeyValue_free(ListNode_get(dictionary->table[index], list_ptr));
   List_delete_node(dictionary->table[index], list_ptr);
 
-  if(dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
-     dictionary->capacity > dictionary->size * HASH_TABLE_CAPACITY_MAX_MULTIPLIER ) {
+  if (dictionary->capacity > HASH_TABLE_INITIAL_CAPACITY &&
+      dictionary->size < dictionary->capacity * HASH_TABLE_MIN_LOAD_FACTOR)  {
     Dictionary_realloc(dictionary, dictionary->capacity / HASH_TABLE_CAPACITY_MULTIPLIER);
   }
 }
