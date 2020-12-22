@@ -9,6 +9,7 @@ C/lib
 C/ExCommon/lib/*
 C/Esercizio1/bin/test_read
 C/bin
+C/ExGraphs/test*
 *.yml
 *.class
 *.csv
