@@ -81,9 +81,9 @@ size_t binsearch(Iterator it, const void* elem, KIBlkComparator compare);
 // Requires a random access iterator over a sorted container.
 size_t binsearch_approx(Iterator it, const void *elem, KIBlkComparator compare);
 
-    // --------------------------------------------------------------------------------
-    // Functions supported by mutable iterators
-    // --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// Functions supported by mutable iterators
+// --------------------------------------------------------------------------------
 
     // Replaces the objects in the container with those returned by the given
     // function.
