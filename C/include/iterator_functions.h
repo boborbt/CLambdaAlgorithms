@@ -68,7 +68,7 @@ void* last(Iterator it);
 // Return the number of elements on which it iterates.
 //
 // Requires a random access iterator
-// It supports non-random iterators with complexity O(n) time complexity.
+// It supports non-random iterators with O(n) time complexity.
 size_t count(Iterator it);
 
 // Finds an occurrence of the given elem. It returns the index of the found element or (size_t) -1.
