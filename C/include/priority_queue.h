@@ -69,6 +69,7 @@ void   PriorityQueue_decrease_priority(PriorityQueue* pq, void* elem, double new
 
 // Try to decrease the priority of the given element. If either the element does not belong
 // to the priority queue or if the new priority is not lower than the old one, nothing is done.
+// Returns 1 if the operation was successful and 0 otherwise.
 int PriorityQueue_try_decrease_priority(PriorityQueue* pq, void* elem, double priority);
 
 // Creates a new PriorityQueueIterator
