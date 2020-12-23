@@ -3,7 +3,7 @@
 #include "list.h"
 #include "mem.h"
 
-#define HASH_TABLE_INITIAL_CAPACITY 4096
+#define HASH_TABLE_INITIAL_CAPACITY 512
 
 #define HASH_TABLE_MAX_LOAD_FACTOR 0.5
 #define HASH_TABLE_MIN_LOAD_FACTOR 0.2
