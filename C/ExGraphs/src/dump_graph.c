@@ -57,12 +57,12 @@ static Graph* load_graph(const char* filename) {
 static void dot_graph(Graph* graph) {
     printf("digraph {\n");
     for_each(Vertex_it(graph), ^(void* vertex){
-        printf("%s;\n", vertex);
+        printf("%s;\n", (char*) vertex);
     });
 
     for_each(Edge_it(graph), ^(void* obj) {
         EdgeInfo* info = obj;
-        printf("%s -> %s [label = \"%s\"];\n", info->source, info->destination, info->info);
+        printf("%s -> %s [label = \"%s\"];\n", (char*) info->source, (char*) info->destination, (char*) info->info);
     });
     printf("}\n");
 }

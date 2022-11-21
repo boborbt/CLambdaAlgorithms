@@ -95,7 +95,7 @@ static void print_path(Graph* graph, void** path) {
     current = path[index++];
     if(current!=NULL) {
       double len = DoubleContainer_get((DoubleContainer*)Graph_edge_info(graph, prev, current));
-      printf("%20s %20s %8.2lfKm\n", (char*) prev, current, len/1000.0);
+      printf("%20s %20s %8.2lfKm\n", (char*) prev, (char*) current, len/1000.0);
       path_len += len;
     }
   }
@@ -218,7 +218,7 @@ static void execute_print_graphviz(Graph* graph) {
   for_each(Edge_it(graph), ^(void* obj) {
     EdgeInfo* ei = (EdgeInfo*) obj;
 
-    fprintf(file, "\"%s\" ->  \"%s\" [label = \"%f\"];\n", ei->source, ei->destination, DoubleContainer_get(ei->info) );
+    fprintf(file, "\"%s\" ->  \"%s\" [label = \"%f\"];\n", (char*) ei->source, (char*) ei->destination, DoubleContainer_get(ei->info) );
 
   });
   fprintf(file, "}\n");
