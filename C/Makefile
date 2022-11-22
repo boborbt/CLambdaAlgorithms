@@ -16,16 +16,12 @@ define exec
 	@$(1)
 endef
 
-.PHONY: ExCommon ExSorting ExDictionaries ExGraphs libs clean experiment1 experiment2 experiment3 tests
+.PHONY: Examples libs clean experiment1 experiment2 experiment3 tests
 
-all: build lib bin libs ExCommon ExSorting ExDictionaries ExGraphs ExDynamicProgramming
+all: build lib bin libs Examples
 
 clean:
-	$(MAKE) -C ExCommon clean
-	$(MAKE) -C ExSorting clean
-	$(MAKE) -C ExDictionaries clean
-	$(MAKE) -C ExGraphs clean
-	$(MAKE) -C ExDynamicProgramming
+	$(MAKE) -C Examples clean
 	$(RM) -rf lib
 	$(RM) -rf build
 	$(RM) -rf bin
@@ -56,27 +52,6 @@ build/%.o: src/%.c   Makefile Makefile.vars $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-# Experiments
-
-ExCommon:
-	tput bold; tput setaf 2; echo "Making all in ExCommon"; tput sgr 0
-	$(MAKE) -C ExCommon
-
-ExSorting:  lib/libcontainers.a
-	tput bold; tput setaf 2; echo "Making all in ExSorting"; tput sgr 0
-	$(MAKE) -C ExSorting
-
-ExDictionaries: lib/libcontainers.a
-	tput bold; tput setaf 2; echo "Making all in ExDictionaries"; tput sgr 0
-	$(MAKE) -C ExDictionaries
-
-ExGraphs: lib/libcontainers.a
-	tput bold; tput setaf 2; echo "Making all in ExGraphs"; tput sgr 0
-	$(MAKE) -C ExGraphs
-
-ExDynamicProgramming: lib/libcontainers.a
-	tput bold; tput setaf 2; echo "Making all in ExDynamicProgramming"; tput sgr 0
-	$(MAKE) -C ExDynamicProgramming
 
 
 tests: test_binaries

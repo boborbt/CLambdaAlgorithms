@@ -1,6 +1,8 @@
-include ../Makefile.vars
-CFLAGS+=-I../include
-LDFLAGS+=-L../lib
+include ../../Makefile.vars
+
+BASEDIR=../..
+CFLAGS+=-I$(BASEDIR)/include
+LDFLAGS+=-L$(BASEDIR)/lib
 
 .PHONY: clean all tests
 
@@ -17,7 +19,7 @@ clean:
 	@$(RM) -rf bin
 
 
-bin/autocorrect: src/autocorrect.c ../include/array.h  ../include/iterator.h ../include/iterator_functions.h ../include/editing_distance.h ../lib/libcontainers.a Makefile ../Makefile.vars
+bin/autocorrect: src/autocorrect.c $(BASEDIR)/include/array.h  $(BASEDIR)/include/iterator.h $(BASEDIR)/include/iterator_functions.h $(BASEDIR)/include/editing_distance.h $(BASEDIR)/lib/libcontainers.a Makefile $(BASEDIR)/Makefile.vars
 	@$(CC) $(CFLAGS) -o bin/autocorrect src/autocorrect.c  -lcontainers $(LDFLAGS)
 
 bin/edit_distance_graph: src/edit_distance_graph.c
