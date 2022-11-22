@@ -17,3 +17,5 @@ C/*.txt
 .vscode
 .tags
 bin
+docs
+*.a
