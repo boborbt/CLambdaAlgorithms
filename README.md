@@ -42,15 +42,18 @@ int main() {
     // Create a new array with initial capacity of 10
     Array* array = Array_new(10);
 
-    for (int i = 0; i < 10; i++) {
-        int* val = malloc(sizeof(int));
-        *val = i;
+    // Not much simpler than a standard loop, but it g
+    for_each(Number_it(10), ^(void* index) {
+        long* val = malloc(sizeof(long));
+        *val = *(long*) index;
         Array_add(array, val);
-    }
+    });
     
     for_each(Array_it(array), ^(void* element) {
         printf("%d ", *(int*)element);
     });
+    
+    // Freeing alloced memory
 
     for_each(Array_it(array), ^(void* element) {
         free(element);
